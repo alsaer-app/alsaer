@@ -1,10 +1,9 @@
 
-name: Build Alsaer APK
+name: Build Alsaer 2.1.0 APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,66 +11,53 @@ permissions:
 
 jobs:
   build:
-    name: Build Android APK
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify project archive
+      - name: Verify archive
         run: |
-          test -f alsaer-project-hardened.zip
-          unzip -t alsaer-project-hardened.zip
+          test -f alsaer-v2.1.0-transactional-ready.zip
+          unzip -t alsaer-v2.1.0-transactional-ready.zip
 
-      - name: Extract project
+      - name: Extract source
         run: |
           mkdir -p source
-          unzip -q alsaer-project-hardened.zip -d source
-          test -f source/tawba-apk/package.json
-          test -f source/tawba-apk/capacitor.config.json
+          unzip -q alsaer-v2.1.0-transactional-ready.zip -d source
+          test -f source/alsaer-v2-repaired/tawba-apk/package.json
+          test -f source/alsaer-v2-repaired/tawba-apk/capacitor.config.json
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Install dependencies
-        working-directory: source/tawba-apk
-        run: npm install
+        working-directory: source/alsaer-v2-repaired/tawba-apk
+        run: npm install --no-audit --no-fund
 
-      - name: Add Android platform
-        working-directory: source/tawba-apk
+      - name: Add Android
+        working-directory: source/alsaer-v2-repaired/tawba-apk
         run: npx cap add android
 
-      - name: Generate app icons
-        working-directory: source/tawba-apk
-        run: |
-          npx capacitor-assets generate --android \
-            --iconBackgroundColor '#0e6a62' \
-            --iconBackgroundColorDark '#0a3d3a'
-
-      - name: Sync Capacitor
-        working-directory: source/tawba-apk
+      - name: Sync Android
+        working-directory: source/alsaer-v2-repaired/tawba-apk
         run: npx cap sync android
 
-      - name: Build Debug APK
-        working-directory: source/tawba-apk
+      - name: Build APK
+        working-directory: source/alsaer-v2-repaired/tawba-apk
         run: |
           chmod +x android/gradlew
           cd android
-          ./gradlew assembleDebug
+          ./gradlew --no-daemon assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: alsaer-ila-allah-apk
-          path: source/tawba-apk/android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 14
+          name: alsaer-v2.1.0-debug-apk
+          path: source/alsaer-v2-repaired/tawba-apk/android/app/build/outputs/apk/debug/app-debug.apk
