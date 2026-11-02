@@ -1,1 +1,78 @@
 
+
+name: Build Alsaer 2.1.0 APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'alsaer-v2.1.0-transactional-ready.zip'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify source archive
+        run: |
+          test -f alsaer-v2.1.0-transactional-ready.zip
+          unzip -t alsaer-v2.1.0-transactional-ready.zip
+
+      - name: Extract project
+        run: |
+          mkdir -p source
+          unzip -q alsaer-v2.1.0-transactional-ready.zip -d source
+          test -f source/alsaer-v2-repaired/tawba-apk/package.json
+          test -f source/alsaer-v2-repaired/tawba-apk/capacitor.config.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install dependencies
+        working-directory: source/alsaer-v2-repaired/tawba-apk
+        run: npm install --no-audit --no-fund
+
+      - name: Add Android platform
+        working-directory: source/alsaer-v2-repaired/tawba-apk
+        run: npx cap add android
+
+      - name: Generate app icons
+        working-directory: source/alsaer-v2-repaired/tawba-apk
+        run: npx capacitor-assets generate --android --iconBackgroundColor '#0e6a62' --iconBackgroundColorDark '#0a3d3a'
+
+      - name: Sync Capacitor
+        working-directory: source/alsaer-v2-repaired/tawba-apk
+        run: npx cap sync android
+
+      - name: Build APK
+        working-directory: source/alsaer-v2-repaired/tawba-apk
+        run: |
+          chmod +x android/gradlew
+          cd android
+          ./gradlew --no-daemon assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: alsaer-v2.1.0-debug-apk
+          path: source/alsaer-v2-repaired/tawba-apk/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
