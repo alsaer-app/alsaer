@@ -1,0 +1,43 @@
+name: Build Alsaer APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Extract project
+        run: unzip -q alsaer-apk-project.zip -d source
+
+      - name: Install dependencies
+        working-directory: source/tawba-apk
+        run: npm install
+
+      - name: Build Android
+        working-directory: source/tawba-apk
+        run: |
+          npx cap add android
+          npx capacitor-assets generate --android --iconBackgroundColor '#0e6a62'
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: alsaer-ila-allah-apk
+          path: source/tawba-apk/android/app/build/outputs/apk/debug/app-debug.apk
