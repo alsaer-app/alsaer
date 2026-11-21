@@ -1,0 +1,19 @@
+
+/* Reader: use the whole screen for the page (Hafs + Warsh) */
+body.rd{padding-left:max(4px,env(safe-area-inset-left,0px));padding-right:max(4px,env(safe-area-inset-right,0px));padding-bottom:max(6px,env(safe-area-inset-bottom,0px))}
+body.rd #app{max-width:none;padding-bottom:0!important}
+body.rd .top{padding:4px 2px;max-width:none;margin:0 auto}
+body.rd .top h1{font-size:17px;gap:8px}
+body.rd .top .ib{width:36px;height:36px;border-radius:12px}
+body.rd .mp{width:100%;aspect-ratio:auto;max-height:none;padding:3px;border-radius:14px;margin:0 auto 4px}
+body.rd .mp-in{padding:3px 5px 2px;border-width:1.5px;outline-offset:-4px;border-radius:11px}
+body.rd .mp-h{font-size:12px;padding:0 4px 2px}
+body.rd .mp-h .sb{padding:0 12px}
+body.rd .mp-f{padding-top:1px}
+body.rd .mp-f .pn{font-size:12px;padding:0 12px;min-width:34px}
+body.rd .mp-l{flex:1;min-height:0;overflow:hidden}
+body.rd .mp .ml{overflow:visible}
+body.rd .rbar{margin:4px 0 8px;padding:5px}
+body.rd .rbar .ib{width:46px;height:46px}
+body.rd .rbar .reader-done{min-height:44px}
+.mp.wr .mp-l{font-family:"KFGQPC",var(--font-text)}

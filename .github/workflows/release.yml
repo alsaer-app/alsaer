@@ -1,0 +1,149 @@
+name: Release signed APK
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version name without the v, e.g. 1.0.14'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: alsaer-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build, sign and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Determine version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            V="${{ inputs.version }}"
+          else
+            V="${GITHUB_REF_NAME#v}"
+          fi
+          # versionCode must always stay above the current installed base (10145)
+          CODE=$((10145 + ${{ github.run_number }}))
+          echo "VERSION_NAME=$V" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$CODE" >> "$GITHUB_ENV"
+          echo "Building v$V (versionCode $CODE)"
+
+      - name: Check signing secrets
+        run: |
+          missing=0
+          for s in KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!s}" ]; then echo "MISSING SECRET: $s"; missing=1; fi
+          done
+          if [ "$missing" = "1" ]; then
+            echo "Add the four secrets under Settings > Secrets and variables > Actions. See SETUP-SECRETS-AR.md"
+            exit 1
+          fi
+
+      - name: Decode keystore
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/alsaer-release-key.p12
+          test -s android/app/alsaer-release-key.p12
+
+      - name: Build web bundle (src -> www/index.html)
+        run: python3 tools/build_web.py
+
+      - name: Install Capacitor deps and sync
+        run: |
+          npm ci || npm install
+          npx @capacitor/cli@5 sync android
+
+      - name: Set version metadata
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          p = Path('android/app/build.gradle')
+          s = p.read_text()
+          s, n1 = re.subn(r'versionCode\s+\d+', 'versionCode ' + os.environ['VERSION_CODE'], s, count=1)
+          s, n2 = re.subn(r'versionName\s+"[^"]+"', 'versionName "' + os.environ['VERSION_NAME'] + '"', s, count=1)
+          if n1 != 1 or n2 != 1:
+              raise SystemExit('Could not set versionCode/versionName in android/app/build.gradle')
+          p.write_text(s)
+          PY
+
+      - name: Assemble and sign release APK
+        working-directory: android
+        env:
+          ALSAER_KEYSTORE_FILE: alsaer-release-key.p12
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease
+
+      - name: Verify signature
+        run: |
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | tail -1)
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          "$BT/apksigner" verify --print-certs "$APK"
+          cp "$APK" "Alsaer-v${VERSION_NAME}.apk"
+          echo "APK_SHA256=$(sha256sum "Alsaer-v${VERSION_NAME}.apk" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', env.VERSION_NAME) }}
+          name: السائر إلى الله v${{ env.VERSION_NAME }}
+          files: Alsaer-v${{ env.VERSION_NAME }}.apk
+          generate_release_notes: true
+
+      - name: Publish update.json
+        run: |
+          python3 - <<'PY'
+          import json, os
+          repo = os.environ['GITHUB_REPOSITORY']
+          data = {
+              "appId": "com.ahmedalajmi.alsaer",
+              "versionName": os.environ['VERSION_NAME'],
+              "versionCode": int(os.environ['VERSION_CODE']),
+              "apkUrl": f"https://github.com/{repo}/releases/download/v{os.environ['VERSION_NAME']}/Alsaer-v{os.environ['VERSION_NAME']}.apk",
+              "releasePage": f"https://github.com/{repo}/releases/latest",
+              "sha256": os.environ['APK_SHA256'],
+              "mandatory": False,
+          }
+          with open('update.json', 'w', encoding='utf-8') as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+              f.write('\n')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add update.json
+          git commit -m "update.json for v${VERSION_NAME} (versionCode ${VERSION_CODE})" || echo 'update.json unchanged'
+          git push origin HEAD:main
+
+      - name: Clean up keystore
+        if: always()
+        run: rm -f android/app/alsaer-release-key.p12

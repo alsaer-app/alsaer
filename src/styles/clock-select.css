@@ -1,0 +1,21 @@
+/* منع تحديد النص وقائمة القص/النسخ خارج حقول الإدخال + تخطيط حقول الوقت على الشاشات الضيقة */
+.tin{flex-wrap:nowrap;white-space:nowrap;max-width:100%}
+.tin input{width:46px;height:42px;font-size:18px;-webkit-touch-callout:none}
+.tin b{font-size:18px}
+.tin-ap{flex:none;margin-inline-start:4px}
+.tin-ap button{padding:0 10px;height:42px;min-width:40px;font-size:14px;white-space:nowrap}
+.tmw-d{flex-wrap:nowrap;max-width:100%;min-width:0}
+.wk-pt{flex-wrap:wrap;row-gap:8px}
+.clk-seg{margin:6px 0}.clk-seg label{flex:1 1 auto}.clk-seg b{text-align:center;white-space:nowrap}
+@media (max-width:380px){.tin input{width:42px}.tin-ap button{padding:0 8px}}
+
+/* حقول الوقت الرقمية تظهر دائمًا (القاعدة القديمة .tmw input كانت تخفيها) */
+.tmw .tin input{position:static;inset:auto;opacity:1;height:42px;width:46px;cursor:text}
+.tmw-d{cursor:default}
+.clk-seg{display:flex;gap:8px;flex-wrap:nowrap}.clk-seg label{flex:1}.clk-seg b{width:100%}
+.pt-form .clk-seg{flex:1}
+
+.cli .ck{width:26px;height:26px;min-width:26px;min-height:0;padding:0;flex:none;box-sizing:border-box}
+.tin input{box-sizing:border-box;min-width:0}
+.tin input::placeholder{color:var(--muted);opacity:.7}
+.tmw .tin input{text-align:center;padding:0;width:48px;height:40px;border-radius:12px}

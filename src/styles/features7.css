@@ -1,0 +1,11 @@
+.ap-bar{position:fixed;inset-inline:12px;bottom:92px;z-index:9000;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:18px;background:var(--surface);border:1px solid var(--gold);box-shadow:0 12px 30px -10px rgba(0,0,0,.6);color:var(--fg);font-size:14px}
+.ap-bar span{flex:1}.ap-bar button{border:0;border-radius:999px;padding:8px 14px;background:var(--gold);color:var(--on-gold,#000);font:inherit;font-weight:700}.ap-bar .x{background:transparent;color:var(--muted);padding:4px 8px}
+.oc-i{display:flex;align-items:center;gap:14px;margin-bottom:10px}.oc-i.first{border-color:var(--gold)}.oc-d{min-width:64px;text-align:center}.oc-d b{display:block;font-size:30px;line-height:1.1;color:var(--gold)}.oc-d small{color:var(--muted)}.oc-t small{display:block;color:var(--muted);font-size:12.5px}
+.cd-img{width:100%;border-radius:16px;display:block}.cd .chips{margin-bottom:8px}
+.hf-i{position:relative;padding:10px 30px 10px 4px;border-top:1px solid var(--line)}.hf-i:first-of-type{border-top:0}.hf-i small{display:block;color:var(--muted);font-size:12.5px}.hf-b{display:flex;gap:8px;margin-top:8px}.hf-b .btn{flex:1}
+.hf-r{display:flex;gap:12px;margin:10px 0}.hf-r label{flex:1;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}.hf-r .qd-i{width:100%;box-sizing:border-box}
+.kt .rm5-hero>b{font-size:56px;font-variant-numeric:tabular-nums}
+.mr-search{margin:0 0 12px}.mr-search input{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);font:inherit}
+.mr-h{margin:14px 4px 6px;color:var(--gold);font-size:14px;font-weight:800}.mr-g:first-child .mr-h{margin-top:0}
+.wg-r{margin:10px 0}.wg-h{display:flex;align-items:center;justify-content:space-between;gap:10px}.wg-h .qd-i{width:92px}.wg-s{color:var(--muted);font-size:12px}
+.bm-go{flex:1;border:0;background:transparent;color:var(--fg);font:inherit;text-align:right;padding:0}.bm-go small{display:block;color:var(--muted);font-size:12px}.rbar .bm{font-size:20px}

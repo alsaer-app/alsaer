@@ -1,0 +1,42 @@
+{
+ "ar": {
+  "native": "العربية",
+  "en": "Arabic",
+  "dir": "rtl"
+ },
+ "en": {
+  "native": "English",
+  "ar": "الإنجليزية",
+  "dir": "ltr"
+ },
+ "fr": {
+  "native": "Français",
+  "ar": "الفرنسية",
+  "dir": "ltr"
+ },
+ "tr": {
+  "native": "Türkçe",
+  "ar": "التركية",
+  "dir": "ltr"
+ },
+ "de": {
+  "native": "Deutsch",
+  "ar": "الألمانية",
+  "dir": "ltr"
+ },
+ "ur": {
+  "native": "اردو",
+  "ar": "الأردية",
+  "dir": "rtl"
+ },
+ "fa": {
+  "native": "فارسی",
+  "ar": "الفارسية",
+  "dir": "rtl"
+ },
+ "it": {
+  "native": "Italiano",
+  "ar": "الإيطالية",
+  "dir": "ltr"
+ }
+}

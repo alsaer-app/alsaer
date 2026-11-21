@@ -1,0 +1,3 @@
+.amb{display:flex;flex-direction:column;gap:12px}.amb-g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.amb-t{border:1px solid color-mix(in srgb,var(--fg) 14%,transparent);background:transparent;color:var(--fg);border-radius:20px;padding:18px 10px;font:inherit;font-size:17px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.amb-t.on{background:color-mix(in srgb,var(--gold) 24%,transparent);border-color:var(--gold)}.amb-t span{font-size:28px}

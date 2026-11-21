@@ -1,35 +1,45 @@
-# Gradle files
+# Gradle / Android build
 .gradle/
 build/
+**/build/
 .kotlin/
-
-# Local configuration file (sdk path, etc)
 local.properties
-
-# Log/OS Files
 *.log
-
-# Android Studio generated files and folders
 captures/
 .externalNativeBuild/
 .cxx/
 *.aab
 *.apk
 output-metadata.json
-
-# IntelliJ
 *.iml
 .idea/
 misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml
 
-# Keystore files
+# Signing material - NEVER commit
 *.jks
 *.keystore
+*.p12
+*.pfx
+key.b64
 
-# Google Services (e.g. APIs or Firebase)
+# Google services
 google-services.json
 
-# Android Profiling
+# Profiling
 *.hprof
+
+# Node / Capacitor generated
+node_modules/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/capacitor-cordova-android-plugins/
+
+# Python
+__pycache__/
+*.pyc
+
+# Local build outputs
+out/

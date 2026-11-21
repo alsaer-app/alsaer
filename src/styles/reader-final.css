@@ -1,0 +1,20 @@
+
+/* Final reader stability: page frame and type scale remain consistent between pages. */
+.mp{width:min(100%,620px,calc(90svh * .70));aspect-ratio:.70;height:auto;max-height:90svh;min-height:0;margin:1px auto 4px;box-sizing:border-box;display:flex;flex-direction:column;flex:none}
+.mp-in{height:100%;min-height:0;box-sizing:border-box;display:flex;flex-direction:column}
+.mp-h{flex:none}
+.mp-l{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-around;font-size:clamp(17px,4.8vw,25px)}
+.ml{flex:1 1 0;min-height:0;height:auto;line-height:1.08;max-height:none;overflow:visible}
+.ml.hd,.ml.bs{flex:1;min-height:0;height:auto}
+.ml .mi{width:max-content;max-width:none;flex:none;white-space:nowrap;transform-origin:center center}
+.mp-f{flex:none}
+.rbar{gap:8px}
+.rbar .reader-done{flex:1;min-width:58px;min-height:48px;padding:0 10px;font-size:17px}
+.rbar .rmid{min-width:48px;flex:0 1 auto}
+.rbar .rmid b{font-size:16px}
+@media(max-height:650px){.mp{width:min(100%,620px,calc(86svh * .70));max-height:86svh}.rbar{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}}
+@media(prefers-reduced-motion:reduce){.hadith-reveal,.hadith-reveal:before,.hadith-orbit span,.hadith-orbit i,.hadith-reveal .hadith-text,.hadith-reveal .hadith-meta,.hadith-reveal .hadith-source{animation:none!important}}
+
+.mp.wr .wp{overflow-y:auto;overflow-x:hidden;justify-content:flex-start;align-content:start;overscroll-behavior:contain;scrollbar-width:none}
+.mp.wr .wp::-webkit-scrollbar{display:none}
+.mp.wr .wp-p{flex:0 0 auto!important;min-height:max-content!important;height:auto!important;overflow:visible!important}
