@@ -3,7 +3,7 @@
   function remDefaults(){return {
     consent:false, enabled:false, malik:true, malikTime:'21:30',
     kahf:true, kahfTime:'17:00', salat:true, salatTime:'12:00',
-    dua:true, duaTime:'16:00', prayers:true, fasting:true, wird:true, wirdTime:'20:00', soundMode:'chime', weekly:true, weeklyTime:'20:00', custom:[], cuDow:[], last:{}, salatEvery:'30', salatFrom:'08:00', salatTo:'22:00', wirdSmart:true, smart:false, respectSilent:false, praySkip:true, prayPre:'0', cuDone:{}, battDone:false
+    dua:true, duaTime:'16:00', prayers:true, fasting:true, wird:true, wirdTime:'20:00', soundMode:'chime', weekly:true, weeklyTime:'20:00', custom:[], cuDow:[], last:{}, salatEvery:'120', salatFrom:'08:00', salatTo:'22:00', wirdSmart:true, smart:false, respectSilent:false, praySkip:true, prayPre:'0', cuDone:{}, battDone:false
   };}
   function remLoad(){
     var d=remDefaults(),x;

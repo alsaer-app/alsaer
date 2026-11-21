@@ -107,6 +107,11 @@ public final class AlarmScheduler {
         return false;
     }
 
+    /** تنبيهات مرتبطة بدخول وقت الصلاة (والسحور والإفطار) تبقى دقيقة؛ غيرها نافذة مرنة توفّر البطارية. */
+    static boolean needsExact(String id) {
+        return id != null && (id.startsWith("pray_") || id.startsWith("prep_") || id.startsWith("fs_") || id.startsWith("fi_"));
+    }
+
     static void scheduleAt(Context c, JSONObject it, long at, boolean snooze) {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         String id = it.optString("id");
@@ -115,17 +120,24 @@ public final class AlarmScheduler {
         in.putExtra("item", it.toString());
         in.putExtra("snooze", snooze);
         PendingIntent pi = PendingIntent.getBroadcast(c, rc, in, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
-        boolean exact = Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms();
+        boolean exact = snooze || needsExact(id);
+        boolean canExact = Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms();
         try {
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (exact) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
-                else am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
+            if (exact && canExact) {
+                if (Build.VERSION.SDK_INT >= 23) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
+                else am.setExact(AlarmManager.RTC_WAKEUP, at, pi);
+            } else if (exact) {
+                if (Build.VERSION.SDK_INT >= 23) am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
+                else am.set(AlarmManager.RTC_WAKEUP, at, pi);
             } else {
-                am.setExact(AlarmManager.RTC_WAKEUP, at, pi);
+                // نافذة ١٠ دقائق للتذكيرات غير المرتبطة بوقت الصلاة
+                am.setWindow(AlarmManager.RTC_WAKEUP, at, 10L * 60L * 1000L, pi);
             }
         } catch (SecurityException e) {
             if (Build.VERSION.SDK_INT >= 23) am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
             else am.set(AlarmManager.RTC_WAKEUP, at, pi);
+        } catch (Throwable t) {
+            am.set(AlarmManager.RTC_WAKEUP, at, pi);
         }
     }
 

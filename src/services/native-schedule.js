@@ -2,7 +2,7 @@
   var REM_KEY='alsaer_daily_reminders_v1',lastSig='',timer=null;
   function nat(){return window.AlsaerNative||null}
   function cfg(){
-    var d={weekly:true,weeklyTime:'20:00',salatEvery:'30',salatFrom:'08:00',salatTo:'22:00',wirdSmart:true,smart:false,respectSilent:false,praySkip:true,prayPre:'0',cuDone:{},consent:false,enabled:false,malik:true,malikTime:'21:30',kahf:true,kahfTime:'17:00',salat:true,salatTime:'12:00',dua:true,duaTime:'16:00',prayers:true,fasting:true,wird:true,wirdTime:'20:00',custom:[],soundMode:'chime'},x;
+    var d={weekly:true,weeklyTime:'20:00',salatEvery:'120',salatFrom:'08:00',salatTo:'22:00',wirdSmart:true,smart:false,respectSilent:false,praySkip:true,prayPre:'0',cuDone:{},consent:false,enabled:false,malik:true,malikTime:'21:30',kahf:true,kahfTime:'17:00',salat:true,salatTime:'12:00',dua:true,duaTime:'16:00',prayers:true,fasting:true,wird:true,wirdTime:'20:00',custom:[],soundMode:'chime'},x;
     try{x=JSON.parse(localStorage.getItem(REM_KEY)||'null')}catch(e){}
     return Object.assign(d,x||{});
   }
