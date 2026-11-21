@@ -26,19 +26,34 @@ public class FloatingReminderService extends Service {
     private View card;
     private final Handler h = new Handler();
     private final Runnable autoClose = () -> dismiss();
+    private final Runnable hardStop = () -> { dismissView(); releaseWake(); try { stopForeground(true); } catch (Throwable ignored) { } stopSelf(); };
+    private android.os.PowerManager.WakeLock wl;
 
     /** يُستدعى من AlarmScheduler.show عند وصول التذكير. */
     static void showIfEnabled(Context c, String title, String body, String route, org.json.JSONObject item, int nid) {
+        if (!enabled(c) || pausedUntil(c) > System.currentTimeMillis()) return;
+        if (!canDraw(c)) {
+            FloatLog.err(c, "عرض النافذة مع التذكير", "إذن «العرض فوق التطبيقات الأخرى» غير ممنوح");
+            return; // الإشعار نفسه ظهر بالفعل؛ لا حاجة لبديل هنا
+        }
+        Intent i = new Intent(c, FloatingReminderService.class);
+        i.putExtra(EXTRA_TITLE, title);
+        i.putExtra(EXTRA_BODY, body);
+        i.putExtra(EXTRA_ROUTE, route);
+        if (item != null) i.putExtra(EXTRA_ITEM, item.toString());
+        i.putExtra(EXTRA_NID, nid);
+        startOverlay(c, i);
+    }
+
+    /** يشغّل الخدمة الأمامية بأمان من الخلفية؛ عند الفشل يسجّل السبب ويعرض إشعارًا بديلًا. */
+    static void startOverlay(Context c, Intent i) {
         try {
-            if (!enabled(c) || !canDraw(c) || pausedUntil(c) > System.currentTimeMillis()) return;
-            Intent i = new Intent(c, FloatingReminderService.class);
-            i.putExtra(EXTRA_TITLE, title);
-            i.putExtra(EXTRA_BODY, body);
-            i.putExtra(EXTRA_ROUTE, route);
-            if (item != null) i.putExtra(EXTRA_ITEM, item.toString());
-            i.putExtra(EXTRA_NID, nid);
-            c.startService(i);
-        } catch (Throwable ignored) { }
+            if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(i);
+            else c.startService(i);
+        } catch (Throwable t) {
+            FloatLog.err(c, "تشغيل خدمة النافذة", String.valueOf(t));
+            FloatLog.fallback(c, i.getStringExtra(EXTRA_TITLE), i.getStringExtra(EXTRA_BODY));
+        }
     }
 
     /** إعدادات الشكل (من الواجهة): pos top|center|bottom · size s|m|l · theme green|light|gold|black|glass · radius · secs · alpha · btn */
@@ -93,10 +108,60 @@ public class FloatingReminderService extends Service {
     private String lastRoute = "", lastItem;
     private int lastNid;
 
+    private static final int FG_ID = 771000;
+    private static final String CH_FG = "alsaer_float_fg_v1";
+
+    /** الخدمة الأمامية إلزامية عند التشغيل من الخلفية؛ تُستدعى فورًا قبل أي عمل. */
+    private void startFg() {
+        try {
+            if (Build.VERSION.SDK_INT >= 26) {
+                android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                if (nm != null && nm.getNotificationChannel(CH_FG) == null) {
+                    android.app.NotificationChannel ch = new android.app.NotificationChannel(CH_FG, "السائر — خدمة النافذة العائمة", android.app.NotificationManager.IMPORTANCE_MIN);
+                    nm.createNotificationChannel(ch);
+                }
+            }
+            Intent open = new Intent(this, MainActivity.class);
+            android.app.PendingIntent content = android.app.PendingIntent.getActivity(this, FG_ID, open, android.app.PendingIntent.FLAG_UPDATE_CURRENT | AlarmScheduler.immutable());
+            androidx.core.app.NotificationCompat.Builder b = new androidx.core.app.NotificationCompat.Builder(this, CH_FG)
+                    .setSmallIcon(R.drawable.ic_stat_alsaer)
+                    .setContentTitle("السائر إلى الله")
+                    .setContentText("تذكير عائم")
+                    .setContentIntent(content)
+                    .setPriority(androidx.core.app.NotificationCompat.PRIORITY_MIN)
+                    .setOngoing(true);
+            startForeground(FG_ID, b.build());
+        } catch (Throwable t) { FloatLog.err(this, "بدء الخدمة الأمامية", String.valueOf(t)); }
+    }
+
+    /** إيقاظ قصير + إضاءة الشاشة عند وصول التذكير والشاشة مطفأة. */
+    private void wake() {
+        try {
+            android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);
+            if (pm == null) return;
+            wl = pm.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "alsaer:float");
+            wl.acquire(90_000L);
+        } catch (Throwable t) { FloatLog.err(this, "إيقاظ الجهاز", String.valueOf(t)); }
+    }
+
+    private void releaseWake() {
+        try { if (wl != null && wl.isHeld()) wl.release(); } catch (Throwable ignored) { }
+        wl = null;
+    }
+
     @Override public int onStartCommand(Intent in, int flags, int startId) {
-        if (in == null || !canDraw(this)) { stopSelf(); return START_NOT_STICKY; }
+        startFg();
+        if (in == null) { hardStop.run(); return START_NOT_STICKY; }
+        if (!canDraw(this)) {
+            FloatLog.err(this, "فتح النافذة", "إذن «العرض فوق التطبيقات الأخرى» غير ممنوح");
+            FloatLog.fallback(this, in.getStringExtra(EXTRA_TITLE), in.getStringExtra(EXTRA_BODY));
+            hardStop.run();
+            return START_NOT_STICKY;
+        }
+        wake();
         feed = in.getBooleanExtra("feed", false); forceCard = false; fresh = true;
         showCard(in.getStringExtra(EXTRA_TITLE), in.getStringExtra(EXTRA_BODY), in.getStringExtra(EXTRA_ROUTE), in.getStringExtra(EXTRA_ITEM), in.getIntExtra(EXTRA_NID, 0), in.getStringExtra("src"));
+        h.removeCallbacks(hardStop); h.postDelayed(hardStop, 60_000L); // إغلاق إجباري خلال ٦٠ ثانية
         return START_NOT_STICKY;
     }
 
@@ -107,7 +172,8 @@ public class FloatingReminderService extends Service {
             int type = Build.VERSION.SDK_INT >= 26 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE;
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT, type,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                            | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED,
                     PixelFormat.TRANSLUCENT);
             st = style(this); pal = palette(st.optString("theme", "green"));
             String sz = st.optString("size", "m"); sc = "s".equals(sz) ? 0.88f : "l".equals(sz) ? 1.2f : 1f;
@@ -131,7 +197,11 @@ public class FloatingReminderService extends Service {
             int secs = st.optInt("secs", 15);
             if (forceCard && "bubble".equals(st.optString("design", "card"))) h.postDelayed(collapse, Math.max(8, secs) * 1000L);
             else if (secs > 0) h.postDelayed(autoClose, smartMs(secs));
-        } catch (Throwable t) { stopSelf(); }
+        } catch (Throwable t) {
+            FloatLog.err(this, "عرض البطاقة العائمة", String.valueOf(t));
+            FloatLog.fallback(this, lastT, lastB);
+            hardStop.run();
+        }
     }
 
 
@@ -186,7 +256,11 @@ public class FloatingReminderService extends Service {
             b.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(260).setInterpolator(new android.view.animation.OvershootInterpolator(1.8f)).withEndAction(() -> b.animate().scaleX(1.14f).scaleY(1.14f).setDuration(420).withEndAction(() -> b.animate().scaleX(1f).scaleY(1f).setDuration(420).start()).start()).start(); buzz(14);
             h.removeCallbacks(autoClose);
             int secs = st.optInt("secs", 15); if (secs > 0) h.postDelayed(autoClose, secs * 2000L);
-        } catch (Throwable t) { stopSelf(); }
+        } catch (Throwable t) {
+            FloatLog.err(this, "عرض الفقاعة العائمة", String.valueOf(t));
+            FloatLog.fallback(this, title, body);
+            hardStop.run();
+        }
     }
 
     /** اهتزاز لطيف جدًا (يحترم خيار haptic في إعدادات الشكل). */
@@ -438,11 +512,16 @@ public class FloatingReminderService extends Service {
     }
 
     private void dismiss() {
-        if (card == null) { stopSelf(); return; }
+        if (card == null) { releaseWake(); try { stopForeground(true); } catch (Throwable ignored) { } stopSelf(); return; }
         final View v = card; card = null;
         h.removeCallbacks(autoClose); h.removeCallbacks(collapse);
-        animOut(v, () -> { try { if (wm != null) wm.removeView(v); } catch (Throwable ignored) { } if (card == null) stopSelf(); });
+        animOut(v, () -> { try { if (wm != null) wm.removeView(v); } catch (Throwable ignored) { }
+            if (card == null) { releaseWake(); try { stopForeground(true); } catch (Throwable ignored) { } stopSelf(); } });
     }
 
-    @Override public void onDestroy() { dismissView(); super.onDestroy(); }
+    @Override public void onDestroy() {
+        dismissView(); releaseWake();
+        try { stopForeground(true); } catch (Throwable ignored) { }
+        super.onDestroy();
+    }
 }

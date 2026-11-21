@@ -14,7 +14,9 @@ public class ActionReceiver extends BroadcastReceiver {
     public void onReceive(Context c, Intent i) {
         NotificationManagerCompat.from(c).cancel(i.getIntExtra("nid", 0));
         String a = i.getAction();
-        if (AlarmScheduler.ACTION_DONE.equals(a)) {
+        if (FloatFeed.ACTION_SNOOZE_FLOAT.equals(a)) {
+            FloatFeed.snoozeOnce(c);
+        } else if (AlarmScheduler.ACTION_DONE.equals(a)) {
             AlarmScheduler.addPending(c, i.getStringExtra("key"));
         } else if (AlarmScheduler.ACTION_SNOOZE.equals(a)) {
             try {

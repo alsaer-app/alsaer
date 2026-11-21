@@ -5000,11 +5000,13 @@ function ffSetChips(key,items,cur){
 function vFloatFeed(){
   var c=ffGet(),n=window.AlsaerNative,on=false,can=false,last=0,psz=0;
   try{on=!!(n&&n.floatingEnabled&&n.floatingEnabled());can=!!(n&&n.canDrawOverlays&&n.canDrawOverlays());last=Number(n&&n.floatLastShown&&n.floatLastShown())||0;psz=Number(n&&n.floatPoolSize&&n.floatPoolSize())||0}catch(e){}
+  var ferr=null;try{if(n&&n.floatLastError)ferr=JSON.parse(n.floatLastError()||'null')}catch(e){}
   if(!psz)psz=ffPool().length;
   var up=ffUpcoming(8),nat=!!(n&&typeof n.setFloatFeed==='function');
   var h='<div class="ns">'+(nat?'':'<p class="note">تُحفظ اختياراتك، وتعمل النوافذ على هاتفك داخل تطبيق الأندرويد بعد التحديث.</p>');
   h+='<section class="card"><h3>التفعيل</h3><p class="note">'+(on&&can?'النوافذ العائمة تعمل بجدولتها الخاصة، ولا تظهر مع الإشعارات إلا إن اخترت ذلك أدناه.':!can?'تحتاج إذن «العرض فوق التطبيقات الأخرى» أولًا.':'النوافذ العائمة متوقفة.')+'</p>'
-    +'<div class="acts"><button class="btn" data-a="nsfen">'+(!can?'منح الإذن':on?'إيقاف':'تشغيل')+'</button><button class="btn ghost" data-a="nsftest">جرّب الآن</button><button class="btn ghost" data-a="nsfpause">إيقاف مؤقت</button></div></section>';
+    +'<div class="acts"><button class="btn" data-a="nsfen">'+(!can?'منح الإذن':on?'إيقاف':'تشغيل')+'</button><button class="btn ghost" data-a="nsftest">جرّب الآن</button><button class="btn ghost" data-a="nsfpause">إيقاف مؤقت</button></div>'
+    +(ferr&&ferr.m?'<p class="note">آخر خطأ مسجّل: '+esc(ferr.m)+(ferr.t?' · '+ffFmt(ferr.t):'')+'</p>':'')+'</section>';
   h+='<section class="card"><h3>أوقات الظهور القادمة</h3>'
     +(up.length?'<div class="chips">'+up.map(function(t){return '<span class="chip on ff-t">'+ffFmt(t)+'</span>'}).join('')+'</div>':'<p class="note">لا مواعيد قادمة؛ اختر أوقاتًا أو أيامًا.</p>')
     +'<p class="note">'+(last?'آخر ظهور: '+ffFmt(last):'لم تظهر نافذة بعد.')+'</p>'

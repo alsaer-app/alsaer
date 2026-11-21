@@ -18,6 +18,8 @@ public class AlarmReceiver extends BroadcastReceiver {
                 long at = AlarmScheduler.nextTrigger(it, System.currentTimeMillis() + 1000L);
                 if (at > 0) AlarmScheduler.scheduleAt(c, it, at, false);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            FloatLog.err(c, "استقبال التنبيه", String.valueOf(e));
+        }
     }
 }

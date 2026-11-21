@@ -177,6 +177,10 @@ public class AlsaerNative {
     @JavascriptInterface
     public long floatLastShown() { return FloatFeed.sp(act).getLong("last", 0); }
 
+    /** آخر خطأ في النوافذ العائمة ووقته (JSON أو null) لعرضه في الإعدادات. */
+    @JavascriptInterface
+    public String floatLastError() { return FloatLog.last(act); }
+
     /** تجديد: يعيد ضبط المنبّه ويعيد موعد الظهور التالي (0 = لا يوجد). */
     @JavascriptInterface
     public long floatRefresh() { return FloatFeed.schedule(act); }

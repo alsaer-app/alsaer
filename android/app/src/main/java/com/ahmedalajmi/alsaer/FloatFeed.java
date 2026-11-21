@@ -20,6 +20,7 @@ public final class FloatFeed {
     static final String PREF = "alsaer_float";
     static final int RC = 770001;
     static final String ACTION = "com.ahmedalajmi.alsaer.FLOATFEED";
+    static final String ACTION_SNOOZE_FLOAT = "com.ahmedalajmi.alsaer.FLOATFEED_SNOOZE";
 
     private FloatFeed() {}
 
@@ -140,7 +141,11 @@ public final class FloatFeed {
     /** يضبط المنبّه التالي للنوافذ العائمة (أو يلغيه إن كانت متوقفة). يعيد موعده. */
     static synchronized long schedule(Context c) {
         cancel(c);
-        if (!FloatingReminderService.enabled(c) || !FloatingReminderService.canDraw(c)) return 0;
+        if (!FloatingReminderService.enabled(c)) return 0;
+        if (!FloatingReminderService.canDraw(c)) {
+            FloatLog.err(c, "جدولة النوافذ العائمة", "إذن «العرض فوق التطبيقات الأخرى» غير ممنوح");
+            return 0;
+        }
         long at = next(cfg(c), System.currentTimeMillis());
         if (at <= 0) return 0;
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
@@ -162,27 +167,49 @@ public final class FloatFeed {
     /** عند وصول الموعد. */
     static void fire(Context c) {
         try {
-            if (FloatingReminderService.enabled(c) && FloatingReminderService.canDraw(c)
-                    && FloatingReminderService.pausedUntil(c) <= System.currentTimeMillis()) {
+            if (FloatingReminderService.enabled(c) && FloatingReminderService.pausedUntil(c) <= System.currentTimeMillis()) {
                 show(c, false);
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable t) {
+            FloatLog.err(c, "انطلاق النافذة العائمة", String.valueOf(t));
+        }
         schedule(c);
+    }
+
+    /** تأجيل لمرة واحدة (من زر «ذكّرني» في الإشعار البديل): يطلق النافذة بعد ١٠ دقائق. */
+    static void snoozeOnce(Context c) {
+        try {
+            AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+            Intent in = new Intent(c, AlarmReceiver.class).setAction(ACTION);
+            in.putExtra("kind", "float");
+            PendingIntent p = PendingIntent.getBroadcast(c, RC + 1, in, PendingIntent.FLAG_UPDATE_CURRENT | AlarmScheduler.immutable());
+            long at = System.currentTimeMillis() + AlarmScheduler.SNOOZE_MS;
+            boolean exact = Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms();
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (exact) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, p);
+                else am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, p);
+            } else am.setExact(AlarmManager.RTC_WAKEUP, at, p);
+        } catch (Throwable t) { FloatLog.err(c, "تأجيل النافذة العائمة", String.valueOf(t)); }
     }
 
     /** يعرض عنصرًا من المحتوى؛ preview=true يتجاوز التفعيل والإيقاف المؤقت (للمعاينة). */
     static void show(Context c, boolean preview) {
         JSONObject cf = cfg(c);
         JSONObject it = pick(c, cf);
-        try {
-            Intent i = new Intent(c, FloatingReminderService.class);
-            i.putExtra(FloatingReminderService.EXTRA_TITLE, it.optString("t", "السائر إلى الله"));
-            i.putExtra(FloatingReminderService.EXTRA_BODY, it.optString("b", ""));
-            i.putExtra("feed", true);
-            i.putExtra("src", cf.optBoolean("src", false) ? it.optString("s", "") : "");
-            c.startService(i);
-            sp(c).edit().putLong("last", System.currentTimeMillis()).apply();
-        } catch (Throwable ignored) {}
+        String title = it.optString("t", "السائر إلى الله");
+        String body = it.optString("b", "");
+        if (!FloatingReminderService.canDraw(c)) {
+            FloatLog.err(c, "عرض النافذة العائمة", "إذن «العرض فوق التطبيقات الأخرى» غير ممنوح");
+            FloatLog.fallback(c, title, body);
+            return;
+        }
+        Intent i = new Intent(c, FloatingReminderService.class);
+        i.putExtra(FloatingReminderService.EXTRA_TITLE, title);
+        i.putExtra(FloatingReminderService.EXTRA_BODY, body);
+        i.putExtra("feed", true);
+        i.putExtra("src", cf.optBoolean("src", false) ? it.optString("s", "") : "");
+        FloatingReminderService.startOverlay(c, i);
+        sp(c).edit().putLong("last", System.currentTimeMillis()).apply();
     }
 
     static JSONObject pick(Context c, JSONObject cf) {
