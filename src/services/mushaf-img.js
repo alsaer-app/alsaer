@@ -72,12 +72,12 @@ function mpiAfter(mp){
   var show=function(u){if(!document.body.contains(g))return;if(im.getAttribute('src')!==u)im.src=u;if(im.complete&&im.naturalWidth)g.classList.add('ok')};
   if(mpiMem[k])show(mpiMem[k]);
   else if(!g.getAttribute('data-r')){g.setAttribute('data-r','1');
-    mpiResolve(k).then(show).catch(function(){if(!document.body.contains(g))return;mpiBad[k]=1;toast('تعذّر تحميل صورة الصفحة — عُرض النص. تحتاج إنترنتًا أول مرة أو نزّل المصحف من الخيارات');render()});
+    mpiResolve(k).then(show).catch(function(){if(!document.body.contains(g))return;g.classList.add('bad');var ld0=g.querySelector('.pgi-ld');if(ld0)ld0.style.display='none';mpiBad[k]=1;toast('تعذّر تحميل صورة الصفحة — عُرض النص. تحتاج إنترنتًا أول مرة أو نزّل المصحف من الخيارات');render()});
   }
   try{mpiPaint(typeof mpHlLast==='string'?mpHlLast:'')}catch(e){}
   if(!g.getAttribute('data-pf')){g.setAttribute('data-pf','1');mpiPrefetch(p)}
 }
-document.addEventListener('error',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('pgi-i')&&t.getAttribute('src')){var g=t.closest('.pgi'),k=g&&g.getAttribute('data-k');if(k){mpiBad[k]=1;delete mpiMem[k];toast('تعذّر عرض صورة الصفحة — عُرض النص');render()}}},true);
+document.addEventListener('error',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('pgi-i')&&t.getAttribute('src')){var g=t.closest('.pgi'),k=g&&g.getAttribute('data-k');if(g){g.classList.add('bad');var ld=g.querySelector('.pgi-ld');if(ld)ld.style.display='none'}if(k){mpiBad[k]=1;delete mpiMem[k];toast('تعذّر عرض صورة الصفحة — عُرض النص');render()}}},true);
 document.addEventListener('load',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('pgi-i')){var g=t.closest('.pgi');if(g)g.classList.add('ok')}},true);
 /* ---- مواضع الآيات ---- */
 var mpiPIs={};

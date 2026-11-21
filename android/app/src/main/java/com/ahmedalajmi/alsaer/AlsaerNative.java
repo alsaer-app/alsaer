@@ -17,9 +17,8 @@ public class AlsaerNative {
     private final Activity act;
 
     private final Speech speech;
-    private final ModelPack pack;
 
-    public AlsaerNative(Activity a) { act = a; speech = new Speech(a); pack = new ModelPack(a); }
+    public AlsaerNative(Activity a) { act = a; speech = new Speech(a); }
 
     @JavascriptInterface
     public boolean speechAvailable() { return speech.available(); }
@@ -38,8 +37,6 @@ public class AlsaerNative {
 
     @JavascriptInterface
     public void speechMute(boolean b) { speech.setMuteBeep(b); if (!b) speech.silent(false); }
-    @JavascriptInterface public boolean packReady() { return pack.ready(); }
-    @JavascriptInterface public void packDelete() { pack.delete(); }
     @JavascriptInterface public void speechOnDevice(boolean b) { speech.setOnDevice(b); }
     @JavascriptInterface public void speechSilent(boolean on) { speech.silent(on); }
 

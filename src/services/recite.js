@@ -243,5 +243,3 @@ function vRecite(){
    +'<div class="rc-cnt"><span>صحيح <b id="rc-ok">'+ar(rc.ok)+'</b></span><span>متخطّى <b id="rc-miss">'+ar(rc.miss)+'</b></span></div></div></div>';
 }
 try{if(/alsaertest/.test(location.search)&&window.__T){window.__T.rc=function(){return {rc:rc,rcLoad:rcLoad,rcHyp:rcHyp,rcPref:rcPref,rcStop:rcStop}}}}catch(e){}
-/* تنظيف لمرة واحدة: حذف حزمة النموذج المحلي المنزَّلة سابقًا (≈١٥٠ ميجا) */
-try{setTimeout(function(){var N=window.AlsaerNative;if(N&&typeof N.packDelete==='function'&&!(S.rcp&&S.rcp.packClean)){try{if(N.packReady&&N.packReady())N.packDelete()}catch(e){}rcPref().packClean=1;save()}},2500)}catch(e){}

@@ -137,7 +137,7 @@ body.orn .mps .btn{background:#8a5a36;color:#fff}
 .mp.mpi .mp-f{flex:none;padding-top:4px}
 .mp.mpi .pgi{position:relative;flex:none;background:#fbf7ec;box-shadow:0 2px 14px rgba(0,0,0,.28);border-radius:3px;overflow:hidden;touch-action:pan-y}
 .mp.mpi .pgi-i{position:absolute;inset:0;width:100%;height:100%;opacity:0;user-select:none;-webkit-user-drag:none;pointer-events:none}
-.mp.mpi .pgi.ok .pgi-i{opacity:1}.mp.mpi .pgi.ok .pgi-ld{display:none}
+.mp.mpi .pgi.ok .pgi-i{opacity:1}.mp.mpi .pgi.ok .pgi-ld{display:none}.mp.mpi .pgi.bad .pgi-ld{display:none}
 .mp.mpi .pgi-ov{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply}
 .pgb{position:absolute;border-radius:6px}.pgb.hl{background:rgba(255,196,60,.42);box-shadow:0 0 10px 2px rgba(255,170,30,.5);animation:pgglow 1.8s ease-in-out infinite}@keyframes pgglow{0%,100%{box-shadow:0 0 6px 1px rgba(255,170,30,.35)}50%{box-shadow:0 0 16px 4px rgba(255,170,30,.7)}}.pgb.mk{background:rgba(67,217,160,.25);border-bottom:3px solid #1b9c78}
 .pgi-ld{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#8a5a36;font-size:13px}
