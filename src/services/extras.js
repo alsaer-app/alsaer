@@ -41,8 +41,18 @@ function bkApply(raw){
   setTimeout(function(){location.reload()},400);
   return '';
 }
+function bkAgo(t){
+  var d=Math.floor((Date.now()-t)/864e5);
+  if(d<=0)return 'اليوم';
+  if(d===1)return 'أمس';
+  if(d===2)return 'منذ يومين';
+  if(d<=10)return 'منذ '+ar(d)+' أيام';
+  return 'منذ '+ar(d)+' يومًا';
+}
 function vBackup(){
-  return '<div class="bk"><section class="card"><h3>نسخة احتياطية بيدك</h3><p class="note">بياناتك محفوظة على هذا الهاتف فقط. صدِّرها إلى ملف أو نص واحفظه حيث تشاء (درايف أو ملاحظاتك أو رسالة لنفسك)، واستورده متى احتجت. لا تتضمن النسخةُ رمزَ القفل.</p>'
+  var ago=S.bkAt?('آخر نسخة احتياطية: <b>'+bkAgo(S.bkAt)+'</b>'+(Date.now()-S.bkAt>7*864e5?' — يُستحسن تصدير نسخة جديدة.':'')):'لم تصدّر أي نسخة احتياطية بعد — ابدأ الآن.';
+  return '<div class="bk"><section class="card"><h3>نسخة احتياطية بيدك</h3><p class="note">بياناتك محفوظة على هذا الهاتف فقط. صدِّرها إلى ملف أو نص واحفظه حيث تشاء (درايف أو ملاحظاتك أو رسالة لنفسك)، واستورده متى احتجت. لا تتضمن النسخةُ رمزَ القفل.</p><p class="note">'+ago+'</p>'
+
    +'<div class="acts"><button class="btn" data-a="bkexport">'+ic('check')+' تصدير بياناتي</button></div>'
    +(bkText?'<textarea id="bk-out" class="bk-ta" readonly rows="5" dir="ltr">'+esc(bkText)+'</textarea><div class="acts"><button class="btn ghost" data-a="bkcopy">نسخ النص</button></div>':'')
    +'</section><section class="card"><h3>استيراد</h3><p class="note">الصق نص النسخة الاحتياطية أو اختر الملف. سيحلّ محلّ بياناتك الحالية.</p>'

@@ -2,7 +2,7 @@
   var REM_KEY='alsaer_daily_reminders_v1',lastSig='',timer=null;
   function nat(){return window.AlsaerNative||null}
   function cfg(){
-    var d={weekly:true,weeklyTime:'20:00',salatEvery:'120',salatFrom:'08:00',salatTo:'22:00',wirdSmart:true,smart:false,respectSilent:false,praySkip:true,prayPre:'0',cuDone:{},consent:false,enabled:false,malik:true,malikTime:'21:30',kahf:true,kahfTime:'17:00',salat:true,salatTime:'12:00',dua:true,duaTime:'16:00',prayers:true,fasting:true,wird:true,wirdTime:'20:00',custom:[],soundMode:'chime'},x;
+    var d={weekly:true,weeklyTime:'20:00',backup:true,backupTime:'19:00',salatEvery:'120',salatFrom:'08:00',salatTo:'22:00',wirdSmart:true,smart:false,respectSilent:false,praySkip:true,prayPre:'0',cuDone:{},consent:false,enabled:false,malik:true,malikTime:'21:30',kahf:true,kahfTime:'17:00',salat:true,salatTime:'12:00',dua:true,duaTime:'16:00',prayers:true,fasting:true,wird:true,wirdTime:'20:00',custom:[],soundMode:'chime'},x;
     try{x=JSON.parse(localStorage.getItem(REM_KEY)||'null')}catch(e){}
     return Object.assign(d,x||{});
   }
@@ -44,6 +44,7 @@
     if(r.dua)daily('dua','ساعة إجابة يوم الجمعة','أكثر من الدعاء في ساعة الإجابة، وادعُ بما تحب.',r.duaTime,'16:00','',null,[5]);
     if(r.weekly){var wa=null;try{wa=weekAgg(0)}catch(e){}
       daily('weekly','تقريرك الأسبوعي',wa?('هذا الأسبوع: '+wa.pr+' صلاة من ٣٥، و'+wa.qp+' صفحة قرآن، و'+wa.hb+' عادة حسنة. اضغط للمقارنة بالأسبوع الماضي.'):'اطّلع على إنجازك هذا الأسبوع وقارنه بما قبله.',r.weeklyTime,'20:00','tab:progress',null,[5])}
+    if(r.backup)daily('backup','النسخة الاحتياطية الأسبوعية','صدّر نسخة احتياطية مشفرة من بياناتك واحفظها في مكان آمن: المزيد ← النسخ الاحتياطي.',r.backupTime,'19:00','tab:more',null,[5]);
     if(r.wird){
       var got=qPages(TK),goal=S.quran.goal||1,left=Math.max(0,goal-got),doneW=left<=0;
       if(!(r.wirdSmart!==false&&doneW))daily('wird','ورد القرآن',(got>0?'بقي عليك '+left+' من '+goal+' صفحات لإتمام وردك اليوم.':'وردك اليوم '+goal+' من الصفحات. اضغط للبدء من حيث توقفت.'),r.wirdTime,'20:00','quran:start',null,null);

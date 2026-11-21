@@ -3,7 +3,7 @@
   function remDefaults(){return {
     consent:false, enabled:false, malik:true, malikTime:'21:30',
     kahf:true, kahfTime:'17:00', salat:true, salatTime:'12:00',
-    dua:true, duaTime:'16:00', prayers:true, fasting:true, wird:true, wirdTime:'20:00', soundMode:'chime', weekly:true, weeklyTime:'20:00', custom:[], cuDow:[], last:{}, salatEvery:'120', salatFrom:'08:00', salatTo:'22:00', wirdSmart:true, smart:false, respectSilent:false, praySkip:true, prayPre:'0', cuDone:{}, battDone:false
+    dua:true, duaTime:'16:00', prayers:true, fasting:true, wird:true, wirdTime:'20:00', soundMode:'chime', weekly:true, weeklyTime:'20:00', backup:true, backupTime:'19:00', custom:[], cuDow:[], last:{}, salatEvery:'120', salatFrom:'08:00', salatTo:'22:00', wirdSmart:true, smart:false, respectSilent:false, praySkip:true, prayPre:'0', cuDone:{}, battDone:false
   };}
   function remLoad(){
     var d=remDefaults(),x;
@@ -130,7 +130,7 @@
       +remRow2('wird','sparkles','ورد القرآن اليومي','قبل النوم إذا لم تتم','wird')
       +remRow2('prayers','mosque','مواقيت الصلوات','بحسب أوقات مدينتك المحفوظة عندك','prayers')
       +remRow2('fasting','moon','تذكيرات الصيام','سحور وإفطار وقبل يوم الصيام','fasting')
-      +remRow2('weekly','chart','تقرير الأسبوع','كل جمعة مساءً · ملخص إنجازك','weekly')
+      +remRow2('weekly','chart','تقرير الأسبوع','كل جمعة مساءً · ملخص إنجازك','weekly')+remRow2('backup','check','النسخة الاحتياطية الأسبوعية','كل جمعة مساءً · تذكير بتصدير نسخة مشفرة','backup')
       +'</div><div class="rm-pane'+(REM_PANE==='smart'?' on':'')+'">'
       +smartCards(r)
       +'</div><div class="rm-pane'+(REM_PANE==='mine'?' on':'')+'"><div class="rm-sect">'+ic('pen')+'<span>تذكيرك الخاص</span></div>'
