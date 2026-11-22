@@ -1,6 +1,6 @@
 # بوابة إعادة تصميم التسميع: خريطة «صفحة المصحف ← كلمات تنزيل».
 # يمشي على صفحات www/mushaf.js الـ604 بنفس آلة أسطر القارئ (h/b/t، وعلامة نهاية الآية U+E0F0)
-# ويثبت أن كلمات كل صفحة — بعد إزالة علامات التجويد PUA وتطبيق rcNorm — تطابق نص Tanzil
+# ويثبت أن كلمات كل صفحة — بعد إزالة علامات التجويد PUA وتطبيق norm — تطابق نص Tanzil
 # في www/quran.js كلمةً كلمة، لكل آية من الآيات الـ6236، وأرقام علامات الآيات صحيحة.
 # أي اختلاف هنا يعني أن تظليل الكلمات/النوافذ الصوتية في شاشة التسميع الجديدة سيشير لكلمات غلط.
 import json, re, sys, unicodedata
@@ -21,8 +21,8 @@ PUA = re.compile('[-]')
 NONAR = re.compile('[^ء-ي ]')
 WS = re.compile(r'\s+')
 
-def rcnorm(s):
-    # مطابق حرفيًا لـ rcNorm في src/services/recite.js (بدون طيّ الحروف المقطعة)
+def norm(s):
+    # مطابق حرفيًا لـ norm في قاعدة تطبيع الحروف (بدون طيّ الحروف المقطعة)
     s = unicodedata.normalize('NFC', str(s))
     s = DIAC.sub('', s)
     s = re.sub('[أإآٱ]', 'ا', s).replace('ى', 'ي').replace('ة', 'ه').replace('ؤ', 'و').replace('ئ', 'ي').replace('ء', '')
@@ -37,9 +37,9 @@ def ayah_words(c, v):
     # كلمات الآية من تنزيل، مع حذف البسملة من أول آية لغير الفاتحة (مثل rcLoad)
     ws = str(Q['s'][c - 1][v - 1]).split()
     if v == 1 and c not in (1, 9) and len(ws) > 4:
-        if [rcnorm(x) for x in ws[:4]] == ['بسم', 'الله', 'الرحمن', 'الرحيم']:
+        if [norm(x) for x in ws[:4]] == ['بسم', 'الله', 'الرحمن', 'الرحيم']:
             ws = ws[4:]
-    return [w for w in (rcnorm(x) for x in ws) if w]
+    return [w for w in (norm(x) for x in ws) if w]
 
 assert len(M['p']) == 604, f"pages != 604: {len(M['p'])}"
 assert len(M['m']) == 604, f"meta != 604: {len(M['m'])}"
@@ -111,7 +111,7 @@ for p in range(1, 605):
                 if v > len(Q['s'][c - 1]):
                     c, v = c + 1, 1
             else:
-                n = rcnorm(PUA.sub('', tok))
+                n = norm(PUA.sub('', tok))
                 if n:
                     pending.append(n)
 
