@@ -526,7 +526,8 @@ public class SherpaAsr {
                         try { st.release(); } catch (Throwable ignored) {}
                     }
                 }
-                diag("فك تشفير مقطع " + String.format(java.util.Locale.US, "%.1f", seg2.length / (float) SAMPLE_RATE) + "s في " + (SystemClock.elapsedRealtime() - d0) + "ms");
+                double ss = 0; for (float v : seg2) ss += (double) v * v;
+                diag("فك تشفير مقطع " + String.format(java.util.Locale.US, "%.1f", seg2.length / (float) SAMPLE_RATE) + "s في " + (SystemClock.elapsedRealtime() - d0) + "ms rms=" + String.format(java.util.Locale.US, "%.4f", Math.sqrt(ss / Math.max(1, seg2.length))));
                 if (text != null && !text.trim().isEmpty()) {
                     String tt = text.trim();
                     diag("سمع: «" + (tt.length() > 80 ? tt.substring(0, 80) + "…" : tt) + "»");
@@ -539,6 +540,56 @@ public class SherpaAsr {
                 if (!decErrSent) { decErrSent = true; emit(mySid, "err", "dec"); }
             }
         });
+    }
+
+    /** اختبار ذاتي: يفك مقطع فاتحة معروفًا مضمّنًا في الأصول عبر نفس مسار فك التشفير (بلا ميكروفون).
+       النص الصحيح «الحمد لله رب العالمين»: نص صحيح = العطل في التقاط الميكروفون؛ نص مشوّه = العطل في المحرك على الجهاز. */
+    public synchronized void selfTest(final String kind) {
+        if (idxOf(kind) < 0 || !installed(kind)) { diag("اختبار ذاتي: النموذج " + kind + " غير منزّل"); return; }
+        if (running) { diag("اختبار ذاتي: أوقف الاستماع أولًا ثم أعد المحاولة"); return; }
+        new Thread(() -> {
+            try {
+                byte[] raw;
+                try (InputStream in = act.getAssets().open("asr/selftest.wav");
+                     java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream()) {
+                    byte[] b = new byte[8192]; int n;
+                    while ((n = in.read(b)) >= 0) bos.write(b, 0, n);
+                    raw = bos.toByteArray();
+                }
+                int off = 12, dataOff = -1; long dataLen = 0;
+                while (off + 8 <= raw.length) {
+                    long ck = (raw[off] & 0xffL) | ((raw[off + 1] & 0xffL) << 8) | ((raw[off + 2] & 0xffL) << 16) | ((raw[off + 3] & 0xffL) << 24);
+                    long sz = (raw[off + 4] & 0xffL) | ((raw[off + 5] & 0xffL) << 8) | ((raw[off + 6] & 0xffL) << 16) | ((raw[off + 7] & 0xffL) << 24);
+                    if (ck == 0x61746164L) { dataOff = off + 8; dataLen = sz; break; }
+                    off += 8 + (int) ((sz + 1) & ~1L);
+                }
+                if (dataOff < 0) { diag("اختبار ذاتي: تعذّر قراءة مقطع الاختبار"); return; }
+                final int cnt = (int) Math.min(dataLen, raw.length - dataOff) / 2;
+                final float[] pcm = new float[cnt];
+                double s2 = 0;
+                for (int i = 0; i < cnt; i++) {
+                    short v = (short) ((raw[dataOff + 2 * i] & 0xff) | (raw[dataOff + 2 * i + 1] << 8));
+                    pcm[i] = v / 32768.0f; s2 += (double) pcm[i] * pcm[i];
+                }
+                diag("اختبار ذاتي: مقطع " + String.format(java.util.Locale.US, "%.1f", cnt / (float) SAMPLE_RATE) + "s rms=" + String.format(java.util.Locale.US, "%.4f", Math.sqrt(s2 / Math.max(1, cnt))) + " — المتوقع «الحمد لله رب العالمين»");
+                if (!ensureRec(kind)) { diag("اختبار ذاتي: فشل تحميل النموذج " + kind); return; }
+                long d0 = SystemClock.elapsedRealtime();
+                String text;
+                synchronized (recLock) {
+                    OfflineRecognizer r = rec;
+                    if (r == null) { diag("اختبار ذاتي: لا نموذج محمّل"); return; }
+                    float[] padded = java.util.Arrays.copyOf(pcm, cnt + TAIL_PAD);
+                    OfflineStream st = r.createStream();
+                    try {
+                        st.setOption("max_tokens_per_second", "30");
+                        st.acceptWaveform(padded, SAMPLE_RATE);
+                        r.decode(st);
+                        text = r.getResult(st).getText();
+                    } finally { try { st.release(); } catch (Throwable ignored) {} }
+                }
+                diag("اختبار ذاتي (" + kind + ") في " + (SystemClock.elapsedRealtime() - d0) + "ms: «" + (text == null ? "" : text.trim()) + "»");
+            } catch (Throwable t) { diag("اختبار ذاتي: فشل — " + t); }
+        }, "asr-selftest").start();
     }
 
     public synchronized void stop() {

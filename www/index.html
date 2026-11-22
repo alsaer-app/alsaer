@@ -5574,10 +5574,34 @@ sv.innerHTML='<filter id="mpt1" x="0" y="0" width="100%" height="100%"><feCompon
    مصدر الصوت يُركَّب لاحقًا عبر window.ReciteASR = { start(onText, onErr), stop() } — انظر docs/RECITE_PLAN.md
    (وضع الكتابة اليدوي أُزيل.) */
 var rc={sura:0,ay:0,w:[],st:[],hd:[],pos:0,on:false,msg:'',busy:false,ok:0,miss:0,hear:'',res:null,wk:-1,u:null,pick:false,adv:false,stat:false,hlog:[]};
+/* الحروف المقطعة: المصحف يكتبها «الٓمٓ» لكن التلاوة تنطقها بأسماء الحروف («ألف لام ميم»)، والمعرِّف قد يكتبها بأي من الصيغتين.
+   نوحّد النطق إلى الرسم المصحفي قبل المطابقة، ولا نفعل ذلك إلا في سورة فيها حروف مقطعة (rc.muq) كي لا يمسّ باقي الكلام. */
+var RC_LN={'الف':'ا','لام':'ل','ميم':'م','صاد':'ص','را':'ر','كاف':'ك','ها':'ه','يا':'ي','عين':'ع','طا':'ط','سين':'س','حا':'ح','قاف':'ق','نون':'ن'};
+var RC_LN2={'ا':1,'ل':1,'م':1,'ص':1,'ر':1,'ك':1,'ه':1,'ي':1,'ع':1,'ط':1,'س':1,'ح':1,'ق':1,'ن':1};
+var RC_MUQ={'الم':1,'المص':1,'الر':1,'المر':1,'كهيعص':1,'طه':1,'طسم':1,'طس':1,'يس':1,'ص':1,'حم':1,'عسق':1,'ق':1,'ن':1};
+var RC_LNSINGLE={'صاد':1,'قاف':1,'نون':1};
+function rcMuqFold(tk){
+  var out=[],i=0,L,j,k,str,sp,done;
+  while(i<tk.length){
+    done=false;
+    for(L=Math.min(5,tk.length-i);L>=1&&!done;L--){
+      /* أسماء الحروف: ألف لام ميم */
+      str='';for(j=0;j<L;j++){k=RC_LN[tk[i+j]];if(!k){str=null;break}str+=k}
+      if(str&&RC_MUQ[str]&&(L>1||RC_LNSINGLE[tk[i]])){out.push(str);i+=L;done=true;break}
+      /* حروف مفصولة: ا ل م */
+      sp=tk.slice(i,i+L);
+      if(L>1&&sp.every(function(x){return RC_LN2[x]})&&RC_MUQ[sp.join('')]){out.push(sp.join(''));i+=L;done=true}
+    }
+    if(!done){out.push(tk[i]);i++}
+  }
+  return out;
+}
 function rcNorm(s){
-  return String(s||'').normalize('NFC').replace(/[ؐ-ًؚ-ٰٟۖ-ۭـ]/g,'')
+  var r=String(s||'').normalize('NFC').replace(/[ؐ-ًؚ-ٰٟۖ-ۭـ]/g,'')
     .replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ء/g,'')
     .replace(/[^ء-ي ]/g,' ').replace(/\s+/g,' ').trim();
+  if(r&&typeof rc==='object'&&rc&&rc.muq)r=rcMuqFold(r.split(' ')).join(' ');
+  return r;
 }
 function rcLev(a,b){
   var m=a.length,n=b.length,i,j,p=[],c;if(!m)return n;if(!n)return m;
@@ -5599,6 +5623,7 @@ function rcLoad(c,a){
   /* نص تنزيل يضع البسملة في أول آية لكل السور؛ هي آية في الفاتحة فقط، فنحذفها من غيرها */
   if(c!==1&&rc.w.slice(0,4).map(function(x){return x.n}).join(' ')==='بسم الله الرحمن الرحيم'&&rc.w.length>4)rc.w.splice(0,4);
   if(rc.ay>0)rc.w=rc.w.filter(function(x){return x.a===rc.ay});
+  rc.muq=rc.w.some(function(x){return !!RC_MUQ[x.n]});
   /* تسخين النموذج المحلي مبكرًا عند فتح الشاشة حتى لا ينتظر المستخدم عند ضغط الميكروفون */
   try{if(window.AlsaerNative&&AlsaerNative.asrWarmup&&typeof rcLocKind==='function'){var kk=rcLocKind();if(kk)AlsaerNative.asrWarmup(kk)}}catch(e){}
   return rc.w.length>0;
@@ -5792,6 +5817,7 @@ function rcAct(a,v){
   else if(a==='rcdel'){try{if(window.AlsaerNative&&AlsaerNative.asrDelete)AlsaerNative.asrDelete(v)}catch(e){}toast('تم حذف النموذج')}
   else if(a==='rcfs'){var P=rcPref();P.size=Math.max(18,Math.min(40,(P.size||25)+(parseInt(v,10)||0)*2));save()}
   else if(a==='rcpick'){rc.pick=!rc.pick}
+  else if(a==='rcselftest'){try{if(window.AlsaerNative&&AlsaerNative.asrSelfTest){var kk=typeof rcLocKind==='function'?rcLocKind():null;if(!kk){toast('نزّل النموذج أولًا من الأعلى')}else{AlsaerNative.asrSelfTest(kk);toast('الاختبار يعمل… بعد ثوانٍ شارك سجل التشخيص من الزر المجاور')}}else toast('غير متاح في هذه النسخة')}catch(e){}return false}
   else if(a==='rcdiag'){try{if(window.AlsaerNative&&AlsaerNative.asrDiag){AlsaerNative.shareText('تشخيص التلاوة — السائر',AlsaerNative.asrDiag()||'لا يوجد سجل بعد')}else toast('التشخيص غير متاح في هذه النسخة')}catch(e){}return false}
   else if(a==='rcadv'){rc.adv=!rc.adv;if(rc.adv)rc.stat=false}
   else if(a==='rchifz'){var P2=rcPref();P2.hifz=!P2.hifz;save()}
@@ -5859,7 +5885,7 @@ function rcSheet(P,last){
    +rcLocalHtml(P)
    +'<div class="rc-grp"><h4>🎙 خيارات التسميع</h4>'
      +'<label class="rc-mt"><input type="checkbox" id="rc-rr"'+(P.rr?' checked':'')+'><span><b>تسجيل ثم مراجعة 🐢</b><small>للأجهزة الضعيفة: يجمع تلاوتك كاملة ثم يحلّلها عند التوقف بدل المطابقة اللحظية — أخف على المعالج ويثبّت النتيجة.</small></span></label></div>'
-   +'<div class="rc-grp"><h4>🛠 تشخيص التعرّف</h4><p class="note">سجل فني (أحداث تشغيل فقط، بلا صوت ولا نصوص تلاوة) يفيدنا عند الإبلاغ عن مشكلة في التسميع.</p><div class="acts"><button class="btn ghost" data-a="rcdiag">مشاركة سجل التشخيص</button></div></div>'
+   +'<div class="rc-grp"><h4>🛠 تشخيص التعرّف</h4><p class="note">سجل فني (أحداث تشغيل فقط، بلا صوت ولا نصوص تلاوة) يفيدنا عند الإبلاغ عن مشكلة في التسميع. «اختبار النموذج بصوت جاهز» يفك مقطع فاتحة مضمّنًا بلا ميكروفون — نصه الصحيح «الحمد لله رب العالمين»: لو طلع صحيحًا فالخلل في التقاط الميكروفون، ولو مشوّهًا فالخلل في المحرك على جهازك.</p><div class="acts"><button class="btn ghost" data-a="rcselftest">اختبار النموذج بصوت جاهز</button><button class="btn ghost" data-a="rcdiag">مشاركة سجل التشخيص</button></div></div>'
    +'<div class="acts"><button class="btn" data-a="rcmodel">حفظ</button></div></section>';
 }
 /* تقدّم تنزيل النموذج المحلي: تحديث شريط التقدّم مباشرة، وإعادة العرض عند الاكتمال/الخطأ/الإلغاء */

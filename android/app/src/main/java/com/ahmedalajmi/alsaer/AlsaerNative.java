@@ -59,6 +59,7 @@ public class AlsaerNative {
     @JavascriptInterface public void asrWarmup(String kind) { sherpa.warmup(kind); }
     @JavascriptInterface public void asrStop() { sherpa.stop(); }
     @JavascriptInterface public String asrDiag() { return SherpaAsr.diagDump(); }
+    @JavascriptInterface public void asrSelfTest(String kind) { sherpa.selfTest(kind); }
     @JavascriptInterface public void shareText(String title, String body) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("text/plain");
