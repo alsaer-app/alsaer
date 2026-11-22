@@ -13,13 +13,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: {ref: exp/quranlab-v4, fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
       - shell: python
         name: Apply reviewed recite-page patch onto new branch off the test branch only
         run: |
-          import base64,lzma,pathlib,subprocess,glob
+          import base64,lzma,pathlib,subprocess
           assert subprocess.check_output(['git','rev-parse','HEAD']).decode().strip()=='d66524009773c018d2f240d21b2d30971a505bde','stale patch'
-          ps=sorted(glob.glob('.github/rpage/rpage-blob-*.txt')); assert len(ps)==6
-          pathlib.Path('/tmp/rpage.patch').write_bytes(lzma.decompress(base64.b64decode(''.join(pathlib.Path(p).read_text().strip() for p in ps))))
+          subprocess.run(['git','fetch','--depth','1','origin','main'],check=True)
+          blob=''.join(subprocess.check_output(['git','show','origin/main:.github/rpage/rpage-blob-%d.txt'%i]).decode().strip() for i in range(6))
+          assert len(blob)==18528, 'blob length mismatch'
+          pathlib.Path('/tmp/rpage.patch').write_bytes(lzma.decompress(base64.b64decode(blob)))
           subprocess.run(['git','apply','--check','/tmp/rpage.patch'],check=True)
           subprocess.run(['git','apply','--index','/tmp/rpage.patch'],check=True)
           subprocess.run(['git','-c','user.name=alsaer-app','-c','user.email=alsaer-app@users.noreply.github.com','commit','-m','feat: recite tab becomes page-scoped mushaf screen (Tarteel-like, stage 1, test 10191)'],check=True)
