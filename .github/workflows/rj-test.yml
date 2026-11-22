@@ -1,4 +1,4 @@
-name: Recite judge test 10193 (temporary)
+name: Recite judge-cleanup test 10194 (temporary)
 on:
   push:
     branches: [exp/recite-judge]
@@ -48,10 +48,10 @@ jobs:
           "$BT/apksigner" verify --print-certs "$APK" | tee /tmp/cert.txt
           grep -q '647b477f5e19a79ec542b70d12476a166f3bf262ae7b5c2b1602bcc58a1c85e0' /tmp/cert.txt
           "$BT/aapt" dump badging "$APK" | head -1 | tee /tmp/meta.txt
-          grep -q "versionCode='10193'" /tmp/meta.txt && grep -q "versionName='1.0.19-test16-judge'" /tmp/meta.txt
+          grep -q "versionCode='10194'" /tmp/meta.txt && grep -q "versionName='1.0.20-test17-cleanup'" /tmp/meta.txt
           stat -c '%s bytes' "$APK" && sha256sum "$APK" && git rev-parse HEAD
       - uses: actions/upload-artifact@v4
-        with: {name: alsaer-judge-10193-signed-test, path: android/app/build/outputs/apk/release/app-release.apk, retention-days: 3, if-no-files-found: error}
+        with: {name: alsaer-cleanup-10194-signed-test, path: android/app/build/outputs/apk/release/app-release.apk, retention-days: 3, if-no-files-found: error}
       - if: always()
         name: Remove temporary signing material
         run: rm -f android/app/alsaer-release-key.p12
