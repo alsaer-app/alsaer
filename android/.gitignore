@@ -3,6 +3,7 @@
 # Built application files
 *.apk
 *.aar
+!app/libs/sherpa-onnx-2.0.2-arm.aar
 *.ap_
 *.aab
 

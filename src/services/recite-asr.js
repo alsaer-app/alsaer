@@ -1,5 +1,6 @@
 /* ===== مصدر الصوت لشاشة «التلاوة» =====
-   تعرّف Google الأصلي (عبر الجسر) ثم Web Speech API في المتصفح. أُزيل النموذج المحلي (Whisper) تمامًا لبطئه. */
+   النموذج القرآني المحلي (sherpa-onnx + نموذج Tarteel المضبوط على القرآن، يُنزَّل لمرة واحدة) إن اختاره المستخدم،
+   وإلا تعرّف Google الأصلي (عبر الجسر) ثم Web Speech API في المتصفح. */
 (function(){try{var md=navigator.mediaDevices;if(md&&md.getUserMedia&&!md.__alsaerWrap){var og=md.getUserMedia.bind(md);window.__alsaerStreams=[];md.getUserMedia=function(c){return og(c).then(function(st){window.__alsaerStreams.push(st);return st})};md.__alsaerWrap=1}}catch(e){}})();
 function rcKillStreams(){try{(window.__alsaerStreams||[]).forEach(function(st){try{st.getTracks().forEach(function(t){t.stop()})}catch(e){}});window.__alsaerStreams=[]}catch(e){}}
 var rcAsr={rec:null,nat:null};
@@ -47,6 +48,43 @@ function rcNatStart(onText,onErr,say,fallback){
   });
 }
 
+/* ---- النموذج القرآني المحلي: دقة قريبة من ترتيل، بلا إنترنت بعد التنزيل، والصوت لا يغادر الهاتف ---- */
+function rcLocSt(){try{if(!window.AlsaerNative||typeof AlsaerNative.asrStatus!=='function')return null;return JSON.parse(AlsaerNative.asrStatus()||'{}')}catch(e){return null}}
+function rcLocOk(){
+  try{var P=(typeof rcPref==='function')?rcPref():{};if(!P.lm)return false;var st=rcLocSt();return !!(st&&st[P.lm]&&st[P.lm].installed)}catch(e){return false}
+}
+window.__rcAsr=function(t,sid,d){
+  var L=rcAsr.loc;if(!L||L.dead||sid!==L.sid)return;
+  if(t==='ready'){L.say('النموذج القرآني يعمل — تلُ الآن… أسمعك',false);return}
+  if(t==='err'){
+    L.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
+    if(d==='9'){L.onErr('لم يُسمح بالميكروفون. فعّله من إعدادات الهاتف ← التطبيقات ← السائر ← الأذونات.');return}
+    if(d==='nomodel'){L.fallback();return}
+    /* تعذّر تحميل النموذج أو تشغيله (ذاكرة/ملفات): نعود لتعرّف Google مرة واحدة مع تنبيه */
+    L.say('تعذّر تشغيل النموذج المحلي؛ عدنا لتعرّف Google مؤقتًا.',true);
+    L.fallback();return}
+  if(t==='f'){var x=String(d||'').trim();if(x)L.onText([x],true)}
+};
+function rcLocStart(onText,onErr,say,fallback){
+  var sid=(rcAsr.lsid=(rcAsr.lsid||0)+1);
+  var gen={dead:false,sid:sid,onText:onText,onErr:onErr,say:say,fallback:fallback};
+  rcAsr.loc=gen;
+  var md=navigator.mediaDevices;
+  /* getUserMedia لطلب إذن الميكروفون عبر التطبيق (يملكه النظام بعدها AudioRecord) ثم نحرّره فورًا */
+  var perm=(md&&md.getUserMedia)?md.getUserMedia({audio:true}).then(function(st){st.getTracks().forEach(function(t){t.stop()})}):Promise.resolve();
+  say('جارٍ تجهيز النموذج القرآني المحلي…',true);
+  perm.then(function(){
+    if(rcAsr.loc!==gen||gen.dead)return;
+    setTimeout(function(){
+      if(rcAsr.loc!==gen||gen.dead)return;
+      try{AlsaerNative.asrStart(rcPref().lm)}catch(e){gen.dead=true;rcAsr.loc=null;fallback()}
+    },250);
+  }).catch(function(){
+    gen.dead=true;rcAsr.loc=null;
+    onErr('لم يُسمح بالميكروفون. فعّله من إعدادات الهاتف ← التطبيقات ← السائر ← الأذونات.');
+  });
+}
+
 /* ---- محرّك Web Speech API (المتصفح) كبديل سريع بلا تنزيل — لا يعمل في WebView الأندرويد، وهناك يقوم الجسر الأصلي مقامه ---- */
 function rcWsCls(){return window.SpeechRecognition||window.webkitSpeechRecognition||null}
 function rcWsOk(){
@@ -87,6 +125,7 @@ function rcWsStart(onText,onErr,say,fallback){
 function rcAsrStop(){rcAsr.stopped=true;
   if(rcAsr.ws){var wg=rcAsr.ws;wg.dead=true;rcAsr.ws=null;try{wg.rec&&wg.rec.abort()}catch(e){}}
   if(rcAsr.nat){rcAsr.nat.dead=true;rcAsr.nat=null;try{AlsaerNative.speechStop()}catch(e){}}
+  if(rcAsr.loc){rcAsr.loc.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}}
   var r=rcAsr.rec;rcAsr.rec=null;if(!r)return;r.dead=true;
   try{r.node.disconnect()}catch(e){}try{r.src.disconnect()}catch(e){}
   try{r.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}try{r.ctx.close()}catch(e){}
@@ -100,10 +139,13 @@ window.ReciteASR={
       if(rcWsOk()){rcWsStart(onText,onErr,say,function(){onErr(RC_NOASR)});return true}
       return false;
     }
-    if(rcNatOk()){
-      rcNatStart(onText,onErr,say,function(){if(!ws())onErr(RC_NOASR)});
+    function nat(){if(rcNatOk()){rcNatStart(onText,onErr,say,function(){if(!ws())onErr(RC_NOASR)});return true}return false}
+    /* النموذج القرآني المحلي أولًا إن اختاره المستخدم من إعدادات التلاوة وكان منزَّلًا */
+    if(rcLocOk()){
+      rcLocStart(onText,onErr,say,function(){if(!nat()&&!ws())onErr(RC_NOASR)});
       return;
     }
+    if(nat())return;
     if(!ws())onErr(RC_NOASR);
   },
   stop:function(){rcAsrStop()}

@@ -18,7 +18,9 @@ public class AlsaerNative {
 
     private final Speech speech;
 
-    public AlsaerNative(Activity a) { act = a; speech = new Speech(a); }
+    private final SherpaAsr sherpa;
+
+    public AlsaerNative(Activity a) { act = a; speech = new Speech(a); sherpa = new SherpaAsr(a); }
 
     @JavascriptInterface
     public boolean speechAvailable() { return speech.available(); }
@@ -39,6 +41,14 @@ public class AlsaerNative {
     public void speechMute(boolean b) { speech.setMuteBeep(b); if (!b) speech.silent(false); }
     @JavascriptInterface public void speechOnDevice(boolean b) { speech.setOnDevice(b); }
     @JavascriptInterface public void speechSilent(boolean on) { speech.silent(on); }
+
+    /* ---- النموذج القرآني المحلي (sherpa-onnx): حالة/تنزيل/تشغيل ---- */
+    @JavascriptInterface public String asrStatus() { return sherpa.status(); }
+    @JavascriptInterface public void asrDownload(String kind) { sherpa.download(kind); }
+    @JavascriptInterface public void asrCancelDownload() { sherpa.cancelDownload(); }
+    @JavascriptInterface public void asrDelete(String kind) { sherpa.delete(kind); }
+    @JavascriptInterface public void asrStart(String kind) { sherpa.start(kind); }
+    @JavascriptInterface public void asrStop() { sherpa.stop(); }
 
     @JavascriptInterface
     public void setSchedule(String json) { AlarmScheduler.saveAndSchedule(act, json); }

@@ -163,7 +163,10 @@ function rcAct(a,v){
   else if(a==='rchistclr'){rcPref().hist=[];save()}
   else if(a==='rcagain'){rcStop();rcLoad(rc.sura,rc.ay);rc.msg=''}
   else if(a==='rcwk'){rc.wk=(rc.wk===parseInt(v,10))?-1:parseInt(v,10)}
-  else if(a==='rcmodel'){var P3=rcPref(),od=document.getElementById('rc-od');if(od)P3.od=od.checked;var bp=document.getElementById('rc-beep');if(bp)P3.beep=bp.checked;save();rcStop();rcAsrStop();rcAsr.natBad=false;rcAsr.wsBad=false;rc.adv=false;toast('✅ تم حفظ الإعدادات');rc.msg='';return false}
+  else if(a==='rcmodel'){var P3=rcPref(),od=document.getElementById('rc-od');if(od)P3.od=od.checked;var bp=document.getElementById('rc-beep');if(bp)P3.beep=bp.checked;var lm=document.querySelector('input[name="rclm"]:checked');if(lm)P3.lm=lm.value||'';save();rcStop();rcAsrStop();rcAsr.natBad=false;rcAsr.wsBad=false;rc.adv=false;toast('✅ تم حفظ الإعدادات');rc.msg='';return false}
+  else if(a==='rcdl'){try{if(window.AlsaerNative&&AlsaerNative.asrDownload)AlsaerNative.asrDownload(v)}catch(e){}return true}
+  else if(a==='rcdlx'){try{if(window.AlsaerNative&&AlsaerNative.asrCancelDownload)AlsaerNative.asrCancelDownload()}catch(e){}return false}
+  else if(a==='rcdel'){try{if(window.AlsaerNative&&AlsaerNative.asrDelete)AlsaerNative.asrDelete(v)}catch(e){}toast('تم حذف النموذج')}
   else if(a==='rcfs'){var P=rcPref();P.size=Math.max(18,Math.min(40,(P.size||25)+(parseInt(v,10)||0)*2));save()}
   else if(a==='rcpick'){rc.pick=!rc.pick}
   else if(a==='rcadv'){rc.adv=!rc.adv;if(rc.adv)rc.stat=false}
@@ -203,13 +206,50 @@ function rcStatSheet(P){
    +rcHistHtml(P);
   return '<section class="rc-sheet card"><div class="rc-sh-h"><b>📊 إحصائيات التلاوة</b><button class="rc-tb" data-a="rcstat" aria-label="إغلاق">✕</button></div>'+body+'</section>';
 }
+/* بطاقة النموذج القرآني المحلي في إعدادات التلاوة: اختيار المحرّك + تنزيل/حذف النماذج */
+function rcLocalHtml(P){
+  if(!window.AlsaerNative||typeof AlsaerNative.asrStatus!=='function')return '';
+  var st=null;try{st=JSON.parse(AlsaerNative.asrStatus()||'{}')}catch(e){}
+  if(!st)return '';
+  function inst(kind){return !!(st[kind]&&st[kind].installed)}
+  function row(kind,name,size,desc){
+    var dl=st.dl&&st.dl.kind===kind;
+    return '<div class="rc-mdl'+(inst(kind)?' on':'')+'">'
+      +'<label class="rc-mt"><input type="radio" name="rclm" value="'+kind+'"'+((P.lm===kind&&inst(kind))?' checked':'')+(inst(kind)?'':' disabled')+'><span><b>'+name+'</b><small>'+desc+' · '+ar(size)+' ميجا · تحميل لمرة واحدة</small></span></label>'
+      +'<div class="rc-mdl-a" id="rc-dl-'+kind+'">'
+      +(dl?'<div class="rc-dlp"><span class="tr"><i style="width:'+(st.dl.pct||0)+'%"></i></span><em>'+ar(st.dl.pct||0)+'٪</em><button class="rc-tb" data-a="rcdlx" aria-label="إلغاء التنزيل">✕</button></div>'
+        :inst(kind)?'<span class="rc-ok">منزّل ✓</span><button class="rc-tb" data-a="rcdel" data-v="'+kind+'" aria-label="حذف النموذج">🗑</button>'
+        :'<button class="btn ghost" data-a="rcdl" data-v="'+kind+'">⬇ تنزيل</button>')
+      +'</div></div>';
+  }
+  return '<div class="rc-grp"><h4>📖 النموذج القرآني المحلي (دقة قريبة من ترتيل)</h4>'
+   +'<p class="note">تعرّف مضبوط على القرآن الكريم يعمل بالكامل على جهازك بلا إنترنت؛ الصوت لا يغادر هاتفك أبدًا. نموذج Tarteel AI (Apache-2.0) بمحرك sherpa-onnx مفتوح المصدر.</p>'
+   +'<label class="rc-mt"><input type="radio" name="rclm" value=""'+((!P.lm||!inst(P.lm))?' checked':'')+'><span><b>تعرّف Google (الافتراضي)</b><small>سريع ويحتاج إنترنت — يبقى متاحًا حتى مع وجود النموذج المحلي</small></span></label>'
+   +row('base','الدقة العالية',161,'الأقرب لدقة ترتيل — يناسب الموبايلات المتوسطة فأعلى')
+   +row('tiny','الخفيف',104,'للموبايلات الأضعف — أخف وأسرع بدقة أدنى قليلًا')
+   +'</div>';
+}
 function rcSheet(P,last){
   return '<section class="rc-sheet card"><div class="rc-sh-h"><b>⚙ إعدادات التلاوة</b>'+(last?'<small>آخر جلسة '+ar(last.a)+'٪</small>':'')+'<button class="rc-tb" data-a="rcadv" aria-label="إغلاق">✕</button></div>'
-   +'<div class="rc-grp"><h4>🎙 التعرّف على الصوت</h4><p class="note">يستخدم التطبيق تعرّف Google في هاتفك (مجاني وسريع، يحتاج إنترنت).</p>'
+   +rcLocalHtml(P)
+   +'<div class="rc-grp"><h4>🎙 التعرّف على الصوت</h4><p class="note">يستخدم التطبيق تعرّف Google في هاتفك (مجاني وسريع، يحتاج إنترنت) ما لم تختر النموذج المحلي أعلاه.</p>'
      +'<label class="rc-mt"><input type="checkbox" id="rc-beep"'+(P.beep!==false?' checked':'')+'><span><b>كتم صوت «بيب» الميكروفون 🔇</b><small>يكتم أصوات الهاتف لحظة بدء الاستماع فقط (أقل من ثانيتين) ثم يعيدها تلقائيًا، ولا يغيّر مستوى الصوت المحفوظ.</small></span></label>'
      +'<label class="rc-mt"><input type="checkbox" id="rc-od"'+(P.od?' checked':'')+'><span><b>تعرّف داخل الهاتف 🔒</b><small>يبقى صوتك على جهازك (أندرويد ١٣+ وحزمة العربية من إعدادات الصوت)، وإن لم تتوفر يعود تلقائيًا للعادي ويُرسَل الصوت إلى Google.</small></span></label></div>'
    +'<div class="acts"><button class="btn" data-a="rcmodel">حفظ</button></div></section>';
 }
+/* تقدّم تنزيل النموذج المحلي: تحديث شريط التقدّم مباشرة، وإعادة العرض عند الاكتمال/الخطأ/الإلغاء */
+window.__rcAsrDl=function(s){
+  var d;try{d=JSON.parse(s)}catch(e){return}
+  if(!d)return;
+  if(d.state==='progress'){
+    var el=document.getElementById('rc-dl-'+d.kind);
+    if(el){var b=el.querySelector('.rc-dlp i'),t=el.querySelector('.rc-dlp em');if(b)b.style.width=(d.pct||0)+'%';if(t)t.textContent=ar(d.pct||0)+'٪'}
+    return;
+  }
+  try{if(typeof tab!=='undefined'&&tab==='recite'&&rc.adv)render()}catch(e){}
+  if(d.state==='error')toast('تعذّر تنزيل النموذج — تحقق من الإنترنت وحاول مجددًا');
+  if(d.state==='done')toast('✅ نزّلنا النموذج — اختره واضغط حفظ ليعمل');
+};
 function vRecite(){
   var Q=QD();
   if(!Q.n||!Q.n.length)return '<section class="card"><p class="note">تعذّر تحميل نص المصحف.</p></section>';
