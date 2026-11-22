@@ -1,122 +1,63 @@
 /* ===== مصدر الصوت لشاشة «التلاوة» =====
-   النموذج القرآني المحلي فقط (Quran Lab V4 على الجهاز).
-   لا تعرّف Google ولا Web Speech: قرار المستخدم — جوجل لا يعرف القرآن ولا الحروف المقطعة.
-   عند غياب النموذج أو فشله: رسالة خطأ واضحة فقط، بلا أي بديل سحابي. */
+   تعرّف الكلام في أندرويد (Google): على الجهاز إن توفّر (أندرويد 13+ مع حزمة عربية)، وإلا تُرسَل الصوت لخدمة Google.
+   تجربة بموافقة المستخدم. محرك V4 المحلي أُزيل (متاح في تاريخ git: exp/recite-judge). */
 (function(){try{var md=navigator.mediaDevices;if(md&&md.getUserMedia&&!md.__alsaerWrap){var og=md.getUserMedia.bind(md);window.__alsaerStreams=[];md.getUserMedia=function(c){return og(c).then(function(st){window.__alsaerStreams.push(st);return st})};md.__alsaerWrap=1}}catch(e){}})();
 function rcKillStreams(){try{(window.__alsaerStreams||[]).forEach(function(st){try{st.getTracks().forEach(function(t){t.stop()})}catch(e){}});window.__alsaerStreams=[]}catch(e){}}
 var rcAsr={rec:null,nat:null};
-/* ---- النموذج القرآني المحلي: دقة قريبة من ترتيل، بلا إنترنت بعد التنزيل، والصوت لا يغادر الهاتف ---- */
-function rcLocSt(){try{if(!window.AlsaerNative||typeof AlsaerNative.asrStatus!=='function')return null;return JSON.parse(AlsaerNative.asrStatus()||'{}')}catch(e){return null}}
-/* النموذج المختار إن كان منزَّلًا، وإلا أي نموذج منزّل (اختيار ضمني — لا محرك آخر يُقصَد) */
-function rcLocKind(){
-  try{
-    var P=(typeof rcPref==='function')?rcPref():{},st=rcLocSt();if(!st)return null;
-    if(st.tf&&st.tf.installed)return 'tf';
-  }catch(e){}
-  return null;
+/* ---- تعرّف أندرويد/Google (على الجهاز إن توفّر، وإلا خدمة Google عبر الإنترنت) ---- */
+/* ---- التعرّف الأصلي لأندرويد (خدمة Google): فوري ولا يحتاج تنزيل نموذج ---- */
+function rcNatOk(){
+  try{return window.AlsaerNative&&typeof AlsaerNative.speechAvailable==='function'&&typeof AlsaerNative.speechStart==='function'&&AlsaerNative.speechAvailable()}catch(e){return false}
 }
-function rcLocOk(){return !!rcLocKind()}
-window.__rcAsr=function(t,sid,d){
-  var L=rcAsr.loc;if(!L||L.dead||sid!==L.sid)return;
-  if(t==='ready'){L.ready=true;if(L.wd){clearTimeout(L.wd);L.wd=null}L.say('النموذج القرآني يعمل — تلُ الآن… أسمعك',false);return}
-  if(t==='loading'){if(typeof rc==='object'&&rc)rc.last=Date.now();if(L.armWd)L.armWd();if(!L.dl)L.say('ما زال تجهيز النموذج جاريًا… (أول مرة فقط قد تأخذ دقيقة أو أكثر)',true);return}
-  if(t==='dl'){ /* محرك V4: تقدّم التنزيل ومراحل التجهيز — نسبة مئوية بدل انتظار أعمى */
-    L.dl=true;if(typeof rc==='object'&&rc)rc.last=Date.now();if(L.armWd)L.armWd();
-    if(d==='open'){L.say('اكتمل التنزيل — جارٍ فتح النموذج على الجهاز…',true);return}
-    if(d==='ref'){L.say('جارٍ تجهيز بيانات المرجع…',true);return}
-    var pp=String(d||'0/0').split('/'),dn=+pp[0]||0,tt=+pp[1]||0;
-    if(tt>0){L.say('جارٍ تنزيل نموذج V4: '+Math.floor(dn*100/tt)+'% ('+Math.floor(dn/1048576)+' من '+Math.ceil(tt/1048576)+' ميجا) — أول مرة فقط، ويكمل من حيث توقّف',true);return}
-    L.say('ما زال تجهيز النموذج جاريًا… (أول مرة فقط قد تأخذ دقيقة أو أكثر)',true);return}
+window.__rcNat=function(t,d){
+  var n=rcAsr.nat;if(!n||n.dead)return;
+  if(t==='stopped'){n.dead=true;rcAsr.nat=null;n.onErr('أُوقف الميكروفون تلقائيًا لأنك غادرت التطبيق. اضغط ابدأ للمتابعة.');return}
   if(t==='err'){
-    if(L.wd){clearTimeout(L.wd);L.wd=null}
-    L.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
-    if(d==='9'){L.onErr('لم يُسمح بالميكروفون. فعّله من إعدادات الهاتف ← التطبيقات ← السائر ← الأذونات.');return}
-    if(d==='nomodel'){L.onErr('محرك V4 غير متاح على هذا الهاتف.');return}
-    if(d==='dec'){L.onErr('حدث خطأ أثناء فك التشفير على جهازك (غالبًا ذاكرة). أغلق التطبيقات الثقيلة وأعد المحاولة.');return}
-    if(d==='stopped'){L.onErr('توقف محرك V4 بسبب خروج التطبيق أو انقطاع الميكروفون. اضغط الميكروفون للمتابعة.');return}
-    if(d==='nokey'){L.onErr('مفتاح Quran Lab غير مضبوط في هذا البناء التجريبي.');return}
-    if(d==='noref'){L.onErr('بناء نموذج V4 الحالي لا يتضمن بيانات المرجع المطلوبة. أرسل سجل التشخيص.');return}
-    if(d==='refdownload'){L.onErr('تعذّر تنزيل أو تثبيت بيانات مرجع V4. أرسل سجل التشخيص لمعرفة السبب.');return}
-    if(d==='refread'){L.onErr('تعذّرت قراءة بيانات مرجع V4 لإحدى الآيات. أرسل سجل التشخيص؛ المشكلة ليست بالضرورة في الإنترنت.');return}
-    if(d==='wordmap'){L.onErr('اختلاف بين كلمات المصحف وبيانات مرجع V4. أرسل سجل التشخيص؛ إعادة التنزيل ليست الحل لهذا الخطأ.');return}
-    if(d==='oldsdk'){L.onErr('محرك V4 التجريبي يحتاج أندرويد 8 أو أحدث. ');return}
-    if(d==='net'){L.onErr('تعذّر الوصول إلى خادم Quran Lab — تحقّق من الإنترنت (يفضّل واي فاي، التنزيل ~63 ميجا) ثم أعد المحاولة. التنزيل يكمل من حيث توقّف.');return}
-    if(d==='dlstall'){L.onErr('توقّف تجهيز نموذج V4 بلا تقدّم لأكثر من دقيقتين. تحقّق من الإنترنت وأعد المحاولة — التنزيل يكمل من حيث توقّف.');return}
-    if(d==='key'){L.onErr('رفض Quran Lab مفتاح هذا البناء التجريبي أو صار قديمًا. أرسل السجل للمطوّر.');return}
-    if(d==='run'||d==='start'){L.onErr('تعذّر تشغيل محرك V4 التجريبي على جهازك. أعد المحاولة.');return}
-    /* تعذّر تحميل النموذج أو تشغيله (ذاكرة/ملفات): رسالة واضحة فقط — لا بديل سحابي */
-    L.onErr('تعذّر تشغيل النموذج القرآني على جهازك. أغلق التطبيقات الثقيلة وأعد المحاولة.');return}
-  if(t==='wd'){ /* محرك V4: أحكام كلمات جاهزة من محاذاة الوحدات الصوتية على الجهاز */
-    var o;try{o=JSON.parse(d)}catch(e){return}
-    if(typeof rc==='undefined'||!rc||!rc.w)return;
-    var i,k;
-    if(o.ok)for(i=0;i<o.ok.length;i++){k=o.ok[i];if(k>=0&&k<rc.w.length&&rc.st[k]!==1){rc.st[k]=1;rc.hd[k]=undefined}}
-    if(o.miss)for(i=0;i<o.miss.length;i++){k=o.miss[i];if(k>=0&&k<rc.w.length&&rc.st[k]!==1){rc.st[k]=2}}
-    if(typeof o.pos==='number'&&o.pos>rc.pos)rc.pos=o.pos;
-    rc.ok=0;rc.miss=0;for(i=0;i<rc.w.length;i++){if(rc.st[i]===1)rc.ok++;else if(rc.st[i]===2)rc.miss++}
-    rc.last=Date.now();
-    if(rc.fin){rc.res=rcResult();try{render()}catch(e){}}
-    else try{rcPaint()}catch(e){}
-    return}
-  if(t==='f'){var x=String(d||'').trim();if(x)L.onText([x],true);return}
-  if(t==='fin'){ /* انتهى تصريف المقاطع المنتظرة بعد الإيقاف: نُغلق مستمع الجلسة بأمان */
-    clearTimeout(rc.finWd);
-    if(!(typeof rc==='object'&&rc&&rc.on))rcAsrStop();
-    return}
+    var cd=parseInt(String(d).replace(/\D/g,''),10)||0;
+    if(cd===12||cd===13){n.dead=true;rcAsr.nat=null;n.onErr('اللغة العربية غير مدعومة في خدمة التعرّف على هذا الهاتف.');return}
+    var MS={1:'انقطاع الاتصال بالإنترنت',2:'لا يوجد اتصال بالإنترنت',3:'مشكلة في التقاط الصوت',4:'خدمة Google لم تستجب',5:'خطأ في خدمة التعرّف',9:'الإذن غير ممنوح للميكروفون',10:'الخدمة مشغولة',11:'انقطعت خدمة Google',idle:'لم نسمع تلاوة لفترة طويلة'};
+    if(cd!==9&&d!=='idle'&&(rcAsr.nr||0)<3){
+      rcAsr.nr=(rcAsr.nr||0)+1;n.dead=true;rcAsr.nat=null;n.say('إعادة تشغيل الاستماع… ('+ar(rcAsr.nr)+')',true);
+      setTimeout(function(){if(!rcAsr.nat&&!rcAsr.stopped)rcNatStart(n.onText,n.onErr,n.say)},700);return}
+    n.dead=true;rcAsr.nat=null;
+    n.onErr(cd===9?'لم يُسمح بالميكروفون. فعّله من إعدادات الهاتف ← التطبيقات ← السائر ← الأذونات.':'توقّف الاستماع: '+(MS[cd]||MS[d]||'خطأ '+d)+'. اضغط ابدأ لإعادة المحاولة.');return}
+  if(t==='ready'){n.say('تلُ الآن… أسمعك',false);return}
+  if(t==='p'||t==='f'){
+    var alts;try{alts=JSON.parse(d)}catch(e){alts=[String(d||'')]}
+    if(!Array.isArray(alts))alts=[String(alts||'')];
+    alts=alts.map(function(x){return String(x||'').trim()}).filter(Boolean);
+    if(alts.length){rcAsr.nr=0;n.onText(alts,t==='f')}
+    else if(t==='f')n.onText([],true);
+    if(t==='f'){try{if(window.__rcBias&&AlsaerNative.speechBias)AlsaerNative.speechBias(JSON.stringify(window.__rcBias()))}catch(e){}}
+  }
 };
-function rcLocStart(onText,onErr,say){
-  var sid=(rcAsr.lsid=(rcAsr.lsid||0)+1);
-  var gen={dead:false,ready:false,wd:null,sid:sid,onText:onText,onErr:onErr,say:say};
-  rcAsr.loc=gen;
-  /* مراقب التحميل: أول تجهيز للنموذج قد يطول على الأجهزة الضعيفة؛ بعد ٤٥ ثانية بلا نبضة تحميل نعلن الفشل بوضوح */
-  gen.armWd=function(){
-    if(gen.wd)clearTimeout(gen.wd);
-    gen.wd=setTimeout(function(){
-      if(rcAsr.loc!==gen||gen.dead||gen.ready)return;
-      gen.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
-      onErr('استغرق تجهيز النموذج أكثر من اللازم. أغلق التطبيقات الثقيلة وأعد المحاولة.');
-    },45000);
-  };
-  gen.armWd();
-  var md=navigator.mediaDevices;
-  /* getUserMedia لطلب إذن الميكروفون عبر التطبيق (يملكه النظام بعدها AudioRecord) ثم نحرّره فورًا */
+function rcNatStart(onText,onErr,say){
+  var md=navigator.mediaDevices,gen={dead:false,n:0,onText:onText,onErr:onErr,say:say};
+  rcAsr.nat=gen;
+  /* getUserMedia هنا لطلب إذن الميكروفون فقط (يظهر الطلب عبر التطبيق) ثم نحرّره فورًا ليأخذه التعرّف الأصلي */
   var perm=(md&&md.getUserMedia)?md.getUserMedia({audio:true}).then(function(st){st.getTracks().forEach(function(t){t.stop()})}):Promise.resolve();
-  say('جارٍ تجهيز النموذج القرآني المحلي… (أول مرة فقط قد تأخذ دقيقة أو أكثر)',true);
   perm.then(function(){
-    if(rcAsr.loc!==gen||gen.dead)return;
-    setTimeout(function(){
-      if(rcAsr.loc!==gen||gen.dead)return;
-      try{
-        var kind=rcLocKind();
-        if(kind==='tf'){ /* نافذة الآيات للمحرك التجريبي: سورة/آية/فهرس أول كلمة/عدد الكلمات */
-          var ws=[],map={},wi=0;
-          for(wi=0;wi<rc.w.length;wi++){var ay=rc.w[wi].a,su=rc.w[wi].c||rc.sura,key=su+':'+ay;
-            if(map[key]===undefined){map[key]=ws.length;ws.push({s:su,a:ay,i:wi,n:1})}
-            else ws[map[key]].n++}
-          try{AlsaerNative.tfConfig(JSON.stringify({w:ws,pos:rc.pos}))}catch(e){}
-        }
-        AlsaerNative.asrStart(kind,sid)
-      }catch(e){gen.dead=true;rcAsr.loc=null;onErr('تعذّر تشغيل النموذج القرآني على جهازك. أعد المحاولة.')}
-    },250);
-  }).catch(function(){
-    gen.dead=true;rcAsr.loc=null;
+    if(rcAsr.nat!==gen||gen.dead)return;
+    say('جارٍ تشغيل التعرّف…',true);
+    setTimeout(function(){if(rcAsr.nat===gen&&!gen.dead){var bj='[]';try{bj=JSON.stringify(window.__rcBias?window.__rcBias():[])}catch(e){}
+      try{if(AlsaerNative.speechOnDevice)AlsaerNative.speechOnDevice(true)}catch(e){}
+      try{var PM=(typeof rcPref==='function')?rcPref():{};if(AlsaerNative.speechMute)AlsaerNative.speechMute(PM.beep!==false)}catch(e){}
+      if(AlsaerNative.speechStart2)AlsaerNative.speechStart2(bj);else AlsaerNative.speechStart()}},250);
+  }).catch(function(e){
+    gen.dead=true;rcAsr.nat=null;
     onErr('لم يُسمح بالميكروفون. فعّله من إعدادات الهاتف ← التطبيقات ← السائر ← الأذونات.');
   });
 }
 
 function rcAsrStop(){rcAsr.stopped=true;
-  if(rcAsr.loc){if(rcAsr.loc.wd)clearTimeout(rcAsr.loc.wd);rcAsr.loc.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}}
-  var r=rcAsr.rec;rcAsr.rec=null;if(!r)return;r.dead=true;
-  try{r.node.disconnect()}catch(e){}try{r.src.disconnect()}catch(e){}
-  try{r.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}try{r.ctx.close()}catch(e){}
+  if(rcAsr.nat){rcAsr.nat.dead=true;rcAsr.nat=null;try{AlsaerNative.speechStop()}catch(e){}}
 }
-var RC_NOASR='التسميع يعمل بالنموذج القرآني المحلي فقط (بلا إنترنت، والصوت لا يغادر هاتفك). محرك V4 غير متاح في هذا البناء. أعد تثبيت نسخة الاختبار الصحيحة.';
+var RC_NOASR='التعرّف الصوتي غير متاح أو تعذّر تشغيله. تأكد من الإنترنت ومن تفعيل «خدمات Google الصوتية» في إعدادات الهاتف ثم أعد المحاولة.';
 window.ReciteASR={
   start:function(onText,onErr,say){
     say=say||function(){};
     rcAsrStop();rcAsr.stopped=false;rcAsr.nr=0;
-    if(!rcLocOk()){onErr(RC_NOASR);return}
-    rcLocStart(onText,onErr,say);
+    if(rcNatOk())rcNatStart(onText,onErr,say);else onErr(RC_NOASR);
   },
   stop:function(){rcAsrStop()}
 };
@@ -124,7 +65,7 @@ window.ReciteASR={
 function rcSilence(on){
   try{if(rcAsr.restored||!window.AlsaerNative||typeof AlsaerNative.speechSilent!=='function')return;rcAsr.restored=true;AlsaerNative.speechSilent(false)}catch(e){}
 }
-function rcLeave(){rcSilence(false);rcKillStreams();if(rcAsr.rec||rcAsr.loc||(typeof rc!=='undefined'&&rc.on)){try{rcStop()}catch(e){}try{rcAsrStop()}catch(e){}try{render()}catch(e){}}}
+function rcLeave(){rcSilence(false);rcKillStreams();if(rcAsr.nat||(typeof rc!=='undefined'&&rc.on)){try{rcStop()}catch(e){}try{rcAsrStop()}catch(e){}try{render()}catch(e){}}}
 document.addEventListener('visibilitychange',function(){if(document.hidden)rcLeave();else if(typeof tab!=='undefined'&&tab==='recite'){rcSilence(true);try{render()}catch(e){}}});
 window.addEventListener('pagehide',rcLeave);window.__rcLeave=function(){try{rcLeave()}catch(e){}};
 window.addEventListener('blur',function(){if(document.hidden)rcLeave()});
