@@ -407,12 +407,20 @@ public class SherpaAsr {
 
     private void startCapture(final int mySid) {
         int minBuf = AudioRecord.getMinBufferSize(SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        /* خام أولًا (بلا معالجة DSP تُشوّه خصائص whisper)، ثم MIC، ثم VOICE_RECOGNITION احتياطًا */
         final AudioRecord rec0;
-        try {
-            rec0 = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE,
-                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, Math.max(minBuf, SAMPLE_RATE * 2));
-            if (rec0.getState() != AudioRecord.STATE_INITIALIZED) { rec0.release(); running = false; emit(mySid, "err", "mic"); return; }
-        } catch (Throwable t) { running = false; emit(mySid, "err", "mic"); return; }
+        AudioRecord cand = null; int usedSrc = -1;
+        int[] srcs = {MediaRecorder.AudioSource.UNPROCESSED, MediaRecorder.AudioSource.MIC, MediaRecorder.AudioSource.VOICE_RECOGNITION};
+        for (int s0 : srcs) {
+            try {
+                AudioRecord c = new AudioRecord(s0, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, Math.max(minBuf, SAMPLE_RATE * 2));
+                if (c.getState() == AudioRecord.STATE_INITIALIZED) { cand = c; usedSrc = s0; break; }
+                c.release();
+            } catch (Throwable ignored) {}
+        }
+        if (cand == null) { running = false; emit(mySid, "err", "mic"); return; }
+        rec0 = cand;
+        diag("مصدر الصوت: " + (usedSrc == MediaRecorder.AudioSource.UNPROCESSED ? "خام" : usedSrc == MediaRecorder.AudioSource.MIC ? "MIC" : "VOICE_RECOGNITION") + " @" + rec0.getSampleRate() + "Hz");
         ar = rec0;
         if (decPool == null || decPool.isShutdown()) decPool = Executors.newSingleThreadExecutor();
         running = true;
