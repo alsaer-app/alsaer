@@ -54,9 +54,9 @@ function dgCheck(){
   var N=window.AlsaerNative;
   if(!N)add('الجسر الأصلي (أندرويد)',true,'غير موجود — أنت في متصفح، الميزات الأصلية (التذكيرات، الميكروفون) لا تعمل هنا',true);
   else{
-    var need=['speechAvailable','speechStart2','speechStop'],miss=need.filter(function(x){return typeof N[x]!=='function'});
+    var need=['asrStart','asrStop','asrStatus'],miss=need.filter(function(x){return typeof N[x]!=='function'});
     add('الجسر الأصلي (أندرويد)',!miss.length,miss.length?('دوال ناقصة: '+miss.join('، ')):'متصل');
-    try{add('تعرّف Google على هذا الهاتف',!!N.speechAvailable(),N.speechAvailable()?'متوفر':'غير متوفر — ثبّت/فعّل خدمة Google الصوتية',!N.speechAvailable())}catch(e){}
+    try{var st=JSON.parse(N.asrStatus()||'{}');add('النموذج القرآني المحلي',!!((st.base&&st.base.installed)||(st.tiny&&st.tiny.installed)),((st.base&&st.base.installed)||(st.tiny&&st.tiny.installed))?'منزّل ✓':'غير منزّل — التسميع يحتاج تنزيله من ⚙ إعدادات التلاوة',!((st.base&&st.base.installed)||(st.tiny&&st.tiny.installed)))}catch(e){}
   }
   add('الإنترنت',true,navigator.onLine?'متصل':'غير متصل',!navigator.onLine);
   var er=dgRead().filter(function(x){return Date.now()-x.t<86400000});

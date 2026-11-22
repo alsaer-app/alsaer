@@ -17,7 +17,6 @@ function render(){
   var v={home:vHome,worship:vWorship,calendar:vCal,progress:vProgress,more:vMore,fasting:vFasting,prayers:vPrayers,quran:vQuran,reader:vReader,reminders:vReminders,books:vBooks,chal:vChal,month:vMonth,recite:vRecite,sacred:vSacred,muh:vMuh,floatfeed:vFloatFeed,floatset:vFloatSet,widgetset:vWidgetSet,habits:vHabits,boost:vBoost,ach:vAch,developer:vDeveloper,settings:vSettings,qada:vQada,ramadan:vRamadan,occasions:vOccasions,cards:vCards,hifz:vHifz,khushu:vKhushu,khatma:vKhatma,weekly:vWeekly,notes:vNotes,zakat:vZakat,backup:vBackup,msb:vMsb,asma:vAsma,hisn:vHisn,ahadith:vAhadith,diag:vDiag,ptloc:vPtLoc}[tab];
   var vh;try{if(typeof v!=='function')throw new Error('شاشة غير معروفة: '+tab);vh=v()}catch(ex){dgLog('render',ex,tab);vh=vRenderFail(ex,tab)}
   app.innerHTML=vh;
-  if(tab==='home')ensureDailyHadith(false);
   if(tab!==lastTab){
     if(lastTab!==null&&!popping){
       if(navTrail[navTrail.length-1]!==tab)navTrail.push(tab);
@@ -32,7 +31,7 @@ function render(){
   renderFirstUpdateNotice();tourAuto();trkFix();qfabSync();
 }
 function stopTimer(){clearInterval(tmr);tmr=null;secs=null;timerDeadline=0}
-function startTimerTick(){clearInterval(tmr);if(!timerDeadline)return;secs=Math.max(0,Math.ceil((timerDeadline-Date.now())/1000));if(secs<=0){stopTimer();render();toast('انتهت الدقائق الخمس، ثبّتك الله');return}var el=document.getElementById('timer');if(el)el.textContent=fmt(secs);if(document.visibilityState==='hidden')return;tmr=setInterval(function(){if(document.visibilityState==='hidden'){clearInterval(tmr);tmr=null;return}secs=Math.max(0,Math.ceil((timerDeadline-Date.now())/1000));var node=document.getElementById('timer');if(node)node.textContent=fmt(secs);if(secs<=0){stopTimer();render();toast('انتهت الدقائق الخمس، ثبّتك الله')}},1000)}
+function startTimerTick(){clearInterval(tmr);if(!timerDeadline)return;secs=Math.max(0,Math.ceil((timerDeadline-Date.now())/1000));if(secs<=0){stopTimer();render();toast('انتهت الدقائق الخمس، ثبّتك الله');return}var el=document.getElementById('timer');if(el)el.textContent=digitsConv(fmt(secs),U().digits==='west');if(document.visibilityState==='hidden')return;tmr=setInterval(function(){if(document.visibilityState==='hidden'){clearInterval(tmr);tmr=null;return}secs=Math.max(0,Math.ceil((timerDeadline-Date.now())/1000));var node=document.getElementById('timer');if(node)node.textContent=digitsConv(fmt(secs),U().digits==='west');if(secs<=0){stopTimer();render();toast('انتهت الدقائق الخمس، ثبّتك الله')}},1000)}
 var alsaerWasBackgrounded=false;
 var bgAt=0;
 document.addEventListener('visibilitychange',function(){

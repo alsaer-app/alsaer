@@ -7,7 +7,7 @@ function wkNext(){
   var nm=PR.filter(function(x){return x[0]===best.id})[0][1],left=best.at-cur,span=Math.max(1,best.at-prev);
   return {name:nm,left:left,frac:Math.max(0,Math.min(1,1-left/span))};
 }
-function wkFmt(sec){var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),x=sec%60,p=function(n){return (n<10?'0':'')+n};return (h?h+':':'')+p(m)+':'+p(x)}
+function wkFmt(sec){var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),x=sec%60,p=function(n){return (n<10?'0':'')+n};return digitsConv((h?h+':':'')+p(m)+':'+p(x),U().digits==='west') /* بنمط أرقام المستخدم من المصدر — وإلا تصارع المحوّل التلقائي كل ثانية (وميض) */}
 function wkCdUpdate(){var e=document.getElementById('wk-cd');if(!e)return;var n=wkNext();e.textContent=wkFmt(n.left);var f=document.getElementById('wk-fill');if(f)f.style.width=Math.round(n.frac*100)+'%';var l=document.getElementById('wk-cdl');if(l)l.textContent='باقي على صلاة '+n.name}
 setInterval(function(){try{if(!document.hidden)wkCdUpdate()}catch(e){}},1000);
 

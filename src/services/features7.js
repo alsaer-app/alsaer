@@ -95,7 +95,7 @@ function vHifz(){
 /* ---------- ٦ + ٧) الخشوع: مؤقت + وضع هادئ للمصلين ---------- */
 var kt={dur:10,end:0,iv:null,wl:null};
 function ktLog(){if(!S.khlog||typeof S.khlog!=='object'||Array.isArray(S.khlog))S.khlog={};return S.khlog}
-function ktFmt(ms){var s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+function ktFmt(ms){var s=Math.max(0,Math.ceil(ms/1000));return digitsConv(Math.floor(s/60)+':'+String(s%60).padStart(2,'0'),U().digits==='west')}
 function ktStop(done){
   clearInterval(kt.iv);kt.iv=null;
   try{if(kt.wl){kt.wl.release();kt.wl=null}}catch(e){}

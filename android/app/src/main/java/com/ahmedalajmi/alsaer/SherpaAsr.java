@@ -326,6 +326,11 @@ public class SherpaAsr {
                 "greedy_search", 4, "", 1.5f, "", "", 0f, new OfflineCtcFstDecoderConfig());
             rec = new OfflineRecognizer(null, cfg);
             recKind = kind;
+            try { /* تسخين أول فك تشفير بصمت قصير تُرمى نتيجته: بدونه يتحمّل أول مقطع حقيقي تكلفة التهيئة الباردة (قد تتجاوز زمن المقطع نفسه) */
+                float[] warm = new float[SAMPLE_RATE / 4];
+                OfflineStream ws = rec.createStream();
+                try { ws.acceptWaveform(warm, SAMPLE_RATE); rec.decode(ws); } finally { try { ws.release(); } catch (Throwable ignored) {} }
+            } catch (Throwable ignored) {}
             return true;
         } catch (Throwable t) {
             releaseRec();
@@ -347,10 +352,11 @@ public class SherpaAsr {
             out.close();
             in.close();
         }
-        /* maxSpeechDuration = 20 ثانية: التقسيم المبكر يتم عند الوقفات الطبيعية في حلقة
-           الالتقاط (انظر أدناه)، وهذا الحد الأعلى احتياط فقط حتى لا يمتد المقطع بلا نهاية. */
+        /* minSilence = 0.35 ثانية: مقاطع بطول نَفَس التلاوة (٢-٨ ثوانٍ) فتُفكّ شبه لحظيًا وتظهر الكلمات
+           تدريجيًا. كانت 0.7 ثانية فتبتلع وقفات الآيات، فيمتد المقطع حتى الحد الأقصى ويتكدّس فك التشفير
+           ثم تضيع المقاطع المنتظرة عند الإيقاف. maxSpeech = 12 ثانية احتياط فقط. */
         SileroVadModelConfig silero = new SileroVadModelConfig(
-            dst.getAbsolutePath(), 0.5f, 0.7f, 0.25f, 512, 20f);
+            dst.getAbsolutePath(), 0.5f, 0.35f, 0.25f, 512, 12f);
         VadModelConfig vc = new VadModelConfig(silero, new TenVadModelConfig(), SAMPLE_RATE, 1, "cpu", false);
         vad = new Vad(null, vc);
         return vad;
@@ -521,7 +527,13 @@ public class SherpaAsr {
                     }
                 }
                 diag("فك تشفير مقطع " + String.format(java.util.Locale.US, "%.1f", seg2.length / (float) SAMPLE_RATE) + "s في " + (SystemClock.elapsedRealtime() - d0) + "ms");
-                if (running && text != null && !text.trim().isEmpty()) emit(mySid, "f", text.trim());
+                if (text != null && !text.trim().isEmpty()) {
+                    String tt = text.trim();
+                    diag("سمع: «" + (tt.length() > 80 ? tt.substring(0, 80) + "…" : tt) + "»");
+                    /* الإيصال بهوية الجلسة لا بعلم التشغيل: بعد الإيقاف تُستكمل المقاطع المنتظرة (تصريف رقيق)
+                       حتى لا تضيع آخر التلاوة؛ الصفحة تتجاهل ما ليس من جلستها الحالية */
+                    if (sid == mySid) emit(mySid, "f", tt);
+                }
             } catch (Throwable t) { /* كان يُبتلع بصمت: سجّله وأعلم الصفحة مرة واحدة */
                 diag("فشل فك التشفير: " + t);
                 if (!decErrSent) { decErrSent = true; emit(mySid, "err", "dec"); }
@@ -530,6 +542,7 @@ public class SherpaAsr {
     }
 
     public synchronized void stop() {
+        boolean wasActive = running || ar != null || capThread != null;
         running = false;
         AudioRecord a = ar;
         ar = null;
@@ -538,7 +551,19 @@ public class SherpaAsr {
         if (t != null) { try { t.join(1500); } catch (InterruptedException ignored) {} capThread = null; }
         if (vad != null) { try { vad.reset(); } catch (Throwable ignored) {} }
         segAcc.clear(); segAccLen = 0; segPeak = 0f;
-        if (decPool != null) { decPool.shutdownNow(); decPool = null; } /* لا فك تشفير بعد الإيقاف */
-        diag("إيقاف الاستماع");
+        /* تصريف رقيق في الخلفية: المقاطع المنتظرة تُفكّ وتُرسَل للصفحة (تُدمج في النتيجة المعروضة)
+           بدل إعدامها — كان shutdownNow الفوري يضيّع معظم التلاوة عندما يتأخر فك التشفير عن الإيقاف.
+           لا حجب لخيط الاستدعاء: stop() تُستدعى أيضًا من دورة حياة النشاط على الخيط الرئيسي. */
+        final ExecutorService dp = decPool; decPool = null;
+        final int fsid = sid;
+        if (dp != null) new Thread(() -> {
+            dp.shutdown();
+            try { dp.awaitTermination(15, java.util.concurrent.TimeUnit.SECONDS); } catch (InterruptedException ignored) {}
+            dp.shutdownNow();
+            /* خاتمة التصريف: الصفحة تُغلق مستمع الجلسة بعد وصول آخر نص مُفكوك */
+            if (sid == fsid) emit(fsid, "fin", "");
+        }).start();
+        /* السجل للتشخيص: لا نسجّل إيقافًا صوريًا (إيقاف مزدوج أو إيقاف دورة حياة النشاط بعد توقف فعلي) */
+        if (wasActive) diag("إيقاف الاستماع");
     }
 }

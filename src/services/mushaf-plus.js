@@ -112,6 +112,23 @@ function mpApplySel(){
   bar.innerHTML='<b>'+esc(mpVName(mpSel))+'</b>'+((mpTf.k===mpSel&&mpTf.t)?'<div class="mp-tf" dir="rtl">'+esc(mpTf.t)+'</div>':'')+'<div class="mp-vbb"><button data-mp2="tf" class="'+(mpTf.k===mpSel?'on':'')+'">تفسير</button><button data-mp2="rec">سمّع</button><button data-mp2="copy">نسخ</button><button data-mp2="mark" class="'+(mk?'on':'')+'">'+(mk?'★ علامة':'☆ علامة حفظ')+'</button><button data-mp2="share">مشاركة</button><button data-mp2="x" aria-label="إغلاق">✕</button></div>';
 }
 function mpVerseText(v){var q=String(v).split(':'),t;try{if(isW()&&WD().s[+q[0]-1]&&WD().s[+q[0]-1][+q[1]-1])t=String(WD().s[+q[0]-1][+q[1]-1])}catch(e){}return '﴿'+(t||verseText(+q[0],+q[1]))+'﴾ — '+mpVName(v)}
+/* كاش التفسير بسقف: ٣٠٠ آية كحد أقصى، الأقدم يُمسح أولًا، حتى لا تمتلئ مساحة التخزين بصمت */
+var TF_CAP=300,TF_IDX='alsaer_tf_idx',tfMig=false;
+function tfIdx(){try{var a=JSON.parse(localStorage.getItem(TF_IDX)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function tfSaveIdx(a){try{localStorage.setItem(TF_IDX,JSON.stringify(a))}catch(e){}}
+function tfMigrate(){if(tfMig)return;tfMig=true;try{var a=tfIdx(),add=[];for(var n=0;n<localStorage.length;n++){var k2=localStorage.key(n);if(k2&&k2.indexOf('alsaer_tf_')===0&&k2!==TF_IDX&&a.indexOf(k2)<0)add.push(k2)}if(add.length){a=add.concat(a);tfSaveIdx(a)}}catch(e){}}
+function tfTouch(ck){tfMigrate();var a=tfIdx(),i=a.indexOf(ck);if(i>=0){a.splice(i,1);a.push(ck);tfSaveIdx(a)}}
+function tfPut(ck,t){
+  tfMigrate();var a=tfIdx(),i=a.indexOf(ck);if(i>=0)a.splice(i,1);
+  try{localStorage.setItem(ck,t)}catch(e){
+    /* امتلأت المساحة: امسح الأقدم حتى النصف وحاول مرة أخيرة */
+    while(a.length>Math.floor(TF_CAP/2)){var o0=a.shift();try{localStorage.removeItem(o0)}catch(e2){}}
+    try{localStorage.setItem(ck,t)}catch(e3){}
+  }
+  a.push(ck);
+  while(a.length>TF_CAP){var old=a.shift();try{localStorage.removeItem(old)}catch(e4){}}
+  tfSaveIdx(a);
+}
 document.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('[data-mp2]');if(!b)return;e.stopPropagation();
   var k=b.getAttribute('data-mp2');
@@ -119,11 +136,11 @@ document.addEventListener('click',function(e){
   if(k==='rec'){var q9=String(mpSel).split(':');mpSel='';mpApplySel();rcStop();rcLoad(+q9[0],+q9[1]);rc.msg='';tab='recite';window.scrollTo(0,0);render();return}
   if(k==='tf'){
     var kk=mpSel;if(mpTf.k===kk){mpTf={k:'',t:''};mpApplySel();return}
-    var q8=kk.split(':'),ck='alsaer_tf_'+kk,c0='';try{c0=localStorage.getItem(ck)||''}catch(x){}
+    var q8=kk.split(':'),ck='alsaer_tf_'+kk,c0='';try{c0=localStorage.getItem(ck)||''}catch(x){}if(c0)tfTouch(ck)
     mpTf={k:kk,t:c0||'جارٍ تحميل التفسير…'};mpApplySel();
     if(!c0){
       fetch('https://api.alquran.cloud/v1/ayah/'+q8[0]+':'+q8[1]+'/ar.muyassar').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
-        var t=j&&j.data&&j.data.text;if(!t)throw 0;try{localStorage.setItem(ck,t)}catch(x){}
+        var t=j&&j.data&&j.data.text;if(!t)throw 0;tfPut(ck,t)
         if(mpTf.k===kk){mpTf.t=t;mpApplySel()}
       }).catch(function(){if(mpTf.k===kk){mpTf.t='تعذّر تحميل التفسير. يحتاج إنترنتًا أول مرة لكل آية.';mpApplySel()}});
     }
