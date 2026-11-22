@@ -2,7 +2,7 @@ from pathlib import Path
 import subprocess,tempfile,os,shutil
 r=Path(__file__).resolve().parents[1]
 s=(r/'android/app/src/main/java/com/ahmedalajmi/alsaer/TfEngine.kt').read_text()
-method=s[s.index('    private fun alignAndJudge('):s.index('    private fun onEvent(')]
+method=s[s.index('    private fun stallNote('):s.index('    private fun onEvent(')]
 method=method.replace('private fun','fun').replace('org.json.JSONArray(okList)','okList').replace('org.json.JSONArray(missList)','missList')
 h='''class JSONObject { fun put(k:String,v:Any) {} }
 class Harness {
@@ -15,6 +15,12 @@ class Harness {
  var dropIdx=0
  var judged=BooleanArray(3)
  var lastEmitPos=-1
+ var lastProgressMs=0L
+ var lastStallMs=0L
+ var clock=0L
+ val logs=ArrayList<String>()
+ fun nowMs()=clock
+ fun dbg(m:String){logs.add(m)}
  fun emit(s:Int,t:String,d:String) {}
 '''+method+'''}
 fun main() {
@@ -30,7 +36,14 @@ fun main() {
  check(h.judged.all{it}&&h.cursorAbs==12&&h.heardAll.isEmpty()) { "final word did not finish" }
  val noise=Harness();noise.heardAll.addAll(listOf(20,21,22,23));noise.alignAndJudge(1,true)
  check(noise.judged.none{it}) { "noise produced a judgement" }
- println("PASS phoneme alignment: partial, consume, continuation, final, noise")
+ check(h.logs.count{it.startsWith("word ")}==3&&h.logs.any{it=="word 0 matched=4/4 ok"}) { "per-word diagnostics missing: "+h.logs }
+ val st=Harness();st.heardAll.addAll(listOf(20,21,22,23,24,25,26,27));st.clock=5000;st.alignAndJudge(1,false)
+ check(st.logs.size==1&&st.logs[0].startsWith("stall lowmatch heard=8")) { "stall not diagnosed: "+st.logs }
+ st.clock=6000;st.alignAndJudge(1,false)
+ check(st.logs.size==1) { "stall log not throttled" }
+ val fresh=Harness();fresh.heardAll.addAll(listOf(20,21,22,23,24,25,26,27));fresh.clock=1000;fresh.alignAndJudge(1,false)
+ check(fresh.logs.isEmpty()) { "stall logged before the 3 s grace" }
+ println("PASS phoneme alignment: partial, consume, continuation, final, noise, word and stall diagnostics")
 }
 '''
 base=Path.home()/'.gradle/caches/modules-2/files-2.1'

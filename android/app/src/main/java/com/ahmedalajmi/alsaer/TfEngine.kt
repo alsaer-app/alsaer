@@ -4,6 +4,14 @@ import android.app.Activity
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.cancelAndJoin
 import ai.quranlab.tajweedformer.TajweedClient
 import ai.quranlab.tajweedformer.TajweedClientOptions
 import ai.quranlab.tajweedformer.TajweedEvent
@@ -37,6 +45,11 @@ object TfEngine {
     private var mainJob: Job? = null
     private var collectors: Job? = null
     private var ticker: Job? = null
+    private var capJob: Job? = null
+    private var appCtx: Context? = null
+    private var chunkSeen = 0
+    private var lastProgressMs = 0L
+    private var lastStallMs = 0L
 
     /* نافذة الآيات: s سورة، a آية، i فهرس أول كلمة (عام في صفحة التلاوة)، n عدد كلمات الآية */
     private class Win(val s: Int, val a: Int, val i: Int, val n: Int)
@@ -90,6 +103,7 @@ object TfEngine {
         if (Build.VERSION.SDK_INT < 26) { emitErr(jsid, "oldsdk"); return }
         val key = try { BuildConfig.QURANLAB_KEY } catch (t: Throwable) { "" }
         if (key.isNullOrEmpty()) { emitErr(jsid, "nokey"); return }
+        appCtx = act.applicationContext
         stopInternal()
         running = true
         stalled = false
@@ -164,7 +178,7 @@ object TfEngine {
                 if (!running || sid != jsid) return@launch
                 SherpaAsr.diag("tf: المرجع جاهز — بدء جلسة الاستماع")
                 advStamp.set(android.os.SystemClock.elapsedRealtime())
-                val s = m.listen(TajweedSessionOptions(backend = TajweedSessionOptions.Backend.CPU))          // بلا إيقاف صمتي: مراقب الخمول في الصفحة يملك الإيقاف
+                val s = openTake(m, jsid)          // بلا إيقاف صمتي: مراقب الخمول في الصفحة يملك الإيقاف
                 session = s
                 resetAlign()
                 ticker?.cancel()
@@ -206,6 +220,7 @@ object TfEngine {
         if (s == null) mainJob?.cancel()
         val jsid = sid
         ticker?.cancel()
+        capJob?.cancel()
         scope.launch {
             try { s?.finish() } catch (t: Throwable) { SherpaAsr.diag("tf: finish: $t") }
             collectors?.cancel()
@@ -218,6 +233,7 @@ object TfEngine {
         ticker?.cancel()
         mainJob?.cancel()
         collectors?.cancel()
+        capJob?.cancel()
         val s = session; session = null
         if (s != null) scope.launch { try { s.finish() } catch (t: Throwable) {} }
     }
@@ -284,6 +300,9 @@ object TfEngine {
         dropIdx = 0
         judged = BooleanArray(totalJsWords) { it < startWord }
         lastEmitPos = -1
+        lastProgressMs = nowMs()
+        lastStallMs = 0L
+        chunkSeen = 0
     }
 
     /* بداية مقطع جديد (حد ٢٠ دقيقة): نحتفظ بالمحكوم ونصفّر المسموع فقط */
@@ -291,6 +310,101 @@ object TfEngine {
         heardAll.clear()
         lastTokProc = 0
         dropIdx = 0
+    }
+
+    private fun nowMs(): Long = android.os.SystemClock.elapsedRealtime()
+    private fun dbg(m: String) { SherpaAsr.diag("tf: $m") }
+
+    /* جلسة V4 بصوتنا نحن: التقاط خام (UNPROCESSED ثم MIC) 16kHz مع الكسب التلقائي نفسه الذي في 10183، ودفعه إلى SDK.
+       SDK نفسه يلتقط بمصدر VOICE_RECOGNITION بمعدل الجهاز؛ إن تعذر التقاطنا (إذن/جهاز) نرجع إلى ميكروفون SDK. */
+    @SuppressLint("MissingPermission")
+    private fun openRecord(): AudioRecord? {
+        val ctx = appCtx ?: return null
+        if (androidx.core.content.ContextCompat.checkSelfPermission(ctx, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            dbg("mic: إذن الميكروفون غير ممنوح للتطبيق بعد؛ سنستخدم ميكروفون SDK")
+            return null
+        }
+        val minBuf = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+        if (minBuf <= 0) { dbg("mic: لا تسجيل 16kHz (getMinBufferSize=$minBuf)"); return null }
+        val srcs = intArrayOf(MediaRecorder.AudioSource.UNPROCESSED, MediaRecorder.AudioSource.MIC, MediaRecorder.AudioSource.VOICE_RECOGNITION)
+        for (src in srcs) {
+            try {
+                val r = AudioRecord(src, 16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, Math.max(minBuf, 16000 * 4))
+                if (r.state == AudioRecord.STATE_INITIALIZED) {
+                    val nm = when (src) { MediaRecorder.AudioSource.UNPROCESSED -> "UNPROCESSED"; MediaRecorder.AudioSource.MIC -> "MIC"; else -> "VOICE_RECOGNITION" }
+                    dbg("mic: own capture source=$nm rate=${r.sampleRate}Hz (SDK mic would be VOICE_RECOGNITION at the device rate)")
+                    SherpaAsr.pinned = "tf: mic source=$nm rate=${r.sampleRate}Hz own-capture+AGC (SDK mic would be VOICE_RECOGNITION)"
+                    return r
+                }
+                r.release()
+            } catch (t: Throwable) { }
+        }
+        dbg("mic: لم يُفتح أي مصدر؛ سنستخدم ميكروفون SDK")
+        return null
+    }
+
+    private suspend fun openTake(m: TajweedModel, jsid: Int): TajweedSession {
+        val r = openRecord()
+        if (r == null) {
+            dbg("mic: SDK capture in use (no own capture, no AGC)")
+            SherpaAsr.pinned = "tf: mic source=SDK-VOICE_RECOGNITION (own capture unavailable, no AGC)"
+            return m.listen(TajweedSessionOptions(backend = TajweedSessionOptions.Backend.CPU))
+        }
+        val s = try { m.session(TajweedSessionOptions(backend = TajweedSessionOptions.Backend.CPU, sampleRate = 16000)) }
+        catch (t: Throwable) { try { r.release() } catch (x: Throwable) {}; throw t }
+        startCapture(s, jsid, r)
+        return s
+    }
+
+    /* قارئ يلتقط ويطبّق الكسب ويضع في قناة، وخيط دفع منفصل يدفع إلى SDK حتى لا يضيع صوت إن تأخر المحرك */
+    private fun startCapture(s: TajweedSession, jsid: Int, r: AudioRecord) {
+        capJob?.cancel()
+        capJob = scope.launch(Dispatchers.IO) {
+            val agc = TfAgc()
+            val q = Channel<FloatArray>(400)
+            var dropped = 0
+            val pusher = launch {
+                try {
+                    while (isActive) {
+                        val first = q.receive()
+                        val parts = ArrayList<FloatArray>()
+                        parts.add(first)
+                        var total = first.size
+                        while (total < 8192) { val nx = q.tryReceive().getOrNull() ?: break; parts.add(nx); total += nx.size }
+                        val all = if (parts.size == 1) first else FloatArray(total).also { var o = 0; for (p in parts) { System.arraycopy(p, 0, it, o, p.size); o += p.size } }
+                        s.push(all)
+                    }
+                } catch (t: Throwable) {
+                    if (t !is kotlinx.coroutines.CancellationException) dbg("mic: push ended: $t")
+                }
+            }
+            try {
+                r.startRecording()
+                val sb = ShortArray(512)
+                var errs = 0
+                var lastLog = nowMs()
+                while (isActive && running && sid == jsid && pusher.isActive) {
+                    val n = r.read(sb, 0, sb.size)
+                    if (n <= 0) {
+                        if (++errs > 100) { dbg("mic: read errors, capture stopped"); break }
+                        delay(20); continue
+                    }
+                    errs = 0
+                    val f = FloatArray(n) { sb[it] / 32768f }
+                    agc.process(f, n)
+                    if (!q.trySend(f).isSuccess) dropped++
+                    val t = nowMs()
+                    if (t - lastLog >= 3000) { lastLog = t; dbg(agc.windowLine() + if (dropped > 0) " dropped=$dropped" else "") }
+                }
+            } catch (t: Throwable) {
+                if (t !is kotlinx.coroutines.CancellationException) dbg("mic: capture ended: $t")
+            } finally {
+                try { r.stop() } catch (t: Throwable) {}
+                try { r.release() } catch (t: Throwable) {}
+                pusher.cancel()
+                dbg(agc.summary() + if (dropped > 0) " dropped=$dropped" else "")
+            }
+        }
     }
 
     private fun collectAll(s: TajweedSession, jsid: Int) {
@@ -312,6 +426,8 @@ object TfEngine {
             val d = ch.decoded
             val toks = d.tokens
             val set = if (d.settled > toks.size) toks.size else d.settled
+            chunkSeen++
+            if (set > lastTokProc || chunkSeen % 25 == 0) dbg("chunk#${ch.index} tok=${toks.size} settled=$set speech=${ch.speech} heardPending=${heardAll.size - dropIdx} cursor=$cursorAbs/${exp.size}")
             if (set < lastTokProc) {           // تبديل المسرّع أعاد مقاطع: إعادة بناء المسموع من الرأس
                 heardAll.clear()
                 lastTokProc = 0
@@ -327,6 +443,15 @@ object TfEngine {
             if (exp.isEmpty()) return
             alignAndJudge(jsid, d.isFinal)
         } catch (t: Throwable) { SherpaAsr.diag("tf: chunk: $t") }
+    }
+
+    /* يسجّل توقف المؤشر: وحدات مسموعة متراكمة بلا تقدّم لأكثر من ٣ ثوانٍ (مرة كل ٣ ثوانٍ كحد أقصى) */
+    private fun stallNote(why: String, m: Int, matched: Int, bestJ: Int) {
+        val t = nowMs()
+        if (m >= 6 && t - lastProgressMs > 3000 && t - lastStallMs > 3000) {
+            lastStallMs = t
+            dbg("stall $why heard=$m matchedCols=$matched bestJ=$bestJ cursor=$cursorAbs/${exp.size} idleMs=${t - lastProgressMs}")
+        }
     }
 
     /* محاذاة fitting بمسافة تحرير: المسموع (صفوف، بحد أقصى ٤٠٠) ضد المتوقع من المؤشر (٦٠٠ عمود) */
@@ -374,9 +499,10 @@ object TfEngine {
                 j--                                  // وحدة متوقعة طُفيت: نقص في الكلمة
             } else i--
         }
-        if (colMatched.count { it } < minOf(3, m) || colMatched.count { it } * 2 < m) return
+        val matchedCols = colMatched.count { it }
+        if (matchedCols < minOf(3, m) || matchedCols * 2 < m) { stallNote("lowmatch", m, matchedCols, bestJ); return }
         val absEnd = n0 + bestJ
-        if (absEnd <= cursorAbs) return
+        if (absEnd <= cursorAbs) { stallNote("noadvance", m, matchedCols, bestJ); return }
         val lastTouched = expWordJs[absEnd - 1]
         val okList = ArrayList<Int>()
         val missList = ArrayList<Int>()
@@ -391,6 +517,7 @@ object TfEngine {
                 judged[wj] = true
                 val full = if (wj < wordUnits.size) wordUnits[wj] else (e - c)
                 if (matched * 10 >= full * 7) okList.add(wj) else missList.add(wj)
+                dbg("word $wj matched=$matched/$full ${if (matched * 10 >= full * 7) "ok" else "miss"}")
             }
             c = e
         }
@@ -404,6 +531,7 @@ object TfEngine {
             nc = e
         }
         if (nc > cursorAbs) {
+            lastProgressMs = nowMs()
             var consumed = 0
             for (k in 0 until (nc - n0)) consumed = maxOf(consumed, colHeardEnd[k])
             val remove = (dropIdx + consumed).coerceAtMost(heardAll.size)
@@ -435,7 +563,8 @@ object TfEngine {
                     scope.launch {
                         try {
                             val m = model ?: return@launch
-                            val s = m.listen(TajweedSessionOptions(backend = TajweedSessionOptions.Backend.CPU))
+                            capJob?.cancelAndJoin()
+                            val s = openTake(m, jsid)
                             session = s
                             resetTake()
                             collectAll(s, jsid)
