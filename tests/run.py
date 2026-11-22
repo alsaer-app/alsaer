@@ -4,7 +4,7 @@
 import subprocess, time, sys, os
 from playwright.sync_api import sync_playwright
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MOCK="""try{localStorage.setItem('alsaer_seen_update_1016','1')}catch(e){}window.__rcNoConsent=true;window.__calls=[];window.__bdSpoken=[];window.AlsaerNative={speechAvailable:()=>true,speechStart:()=>{},speechStart2:b=>{__calls.push('start2');setTimeout(()=>window.__rcNat&&window.__rcNat('ready',''),30)},speechStop:()=>__calls.push('stop'),speechBias:()=>{},speechMute:b=>__calls.push('mute:'+b),speechSilent:b=>__calls.push('silent:'+b),speechOnDevice:b=>{},ttsSpeak:t=>{(window.__tts=window.__tts||[]).push(t)},ttsStop:()=>{window.__ttsStop=1}};"""
+MOCK="""try{localStorage.setItem('alsaer_seen_update_1013','1')}catch(e){}window.__rcNoConsent=true;window.__calls=[];window.__bdSpoken=[];window.AlsaerNative={asrStatus:()=>JSON.stringify({base:{installed:true},tiny:{installed:false}}),asrStart:(k,sid)=>{window.__sid=sid;__calls.push('start2');setTimeout(()=>window.__rcAsr&&window.__rcAsr('ready',sid,''),30)},asrStop:()=>__calls.push('stop'),asrWarmup:()=>{},asrDownload:()=>{},asrCancelDownload:()=>{},asrDelete:()=>{},asrDiag:()=>'{}',speechSilent:b=>__calls.push('silent:'+b),ttsSpeak:t=>{(window.__tts=window.__tts||[]).push(t)},ttsStop:()=>{window.__ttsStop=1}};"""
 fails=[]
 def ok(c,m):
     print(('PASS ' if c else 'FAIL ')+m)
@@ -46,8 +46,8 @@ try:
     ok(pg.query_selector('.rc-sheet') is None,'زر حفظ يغلق لوحة الإعدادات')
     # 3 إعادة المحاولة عند خطأ عابر
     pg.evaluate("__calls.length=0;__T.go('home');__T.go('recite')");pg.wait_for_timeout(400);pg.evaluate(start);pg.wait_for_timeout(800)
-    for i in range(5): pg.evaluate("window.__rcNat('err','early:2')");pg.wait_for_timeout(1000)
-    n=pg.evaluate("__calls.filter(x=>x=='start2').length");ok(n==4,'خطأ عابر: محاولة + ٣ إعادات ثم رسالة (start2=%d)'%n)
+    pg.evaluate("window.__rcAsr('err',window.__sid,'dec')");pg.wait_for_timeout(1500)
+    n=pg.evaluate("__calls.filter(x=>x=='start2').length");ok(n==1,'خطأ فك التشفير: لا إعادة تشغيل صامتة ولا بديل سحابي (start2=%d)'%n)
     # 4 المطابقة
     r=pg.evaluate("""()=>{var R=__T.rc(),rc=R.rc;function run(c,a,t){R.rcLoad(c,a);R.rcHyp([t],true);return {ok:rc.ok,miss:rc.miss,st:rc.st.slice()}}
       return [run(2,16,'اولئك الذين اشتروا الظلاله بالهدا فما ربحت تجارتهم وماكانوا مهتدين'),run(1,0,'بسم الله الرحمن الرحيم الحمد لله العالمين'),run(1,0,'بسم الله الرحمن الرحيم الحمد لله قطط العالمين')]}""")
@@ -97,7 +97,7 @@ try:
     # 5e نافذة «تعديل القائمة» تتمرّر باللمس فوق الصفوف (كانت touch-action:none تمنعها)
     tc=b.new_context(viewport={'width':360,'height':740},has_touch=True,is_mobile=True);pg=tc.new_page();pg.on('pageerror',lambda e:errs.append(str(e)))
     pg.route(lambda u:'localhost' not in u,lambda r:r.abort())
-    pg.add_init_script("try{localStorage.setItem('alsaer_seen_update_1016','1');localStorage.setItem('tawba_v1',JSON.stringify({onboarded:true}))}catch(e){}")
+    pg.add_init_script("try{localStorage.setItem('alsaer_seen_update_1013','1');localStorage.setItem('tawba_v1',JSON.stringify({onboarded:true}))}catch(e){}")
     pg.goto('http://localhost:8765/index.html?alsaertest');pg.wait_for_timeout(700)
     pg.evaluate("document.body.insertAdjacentHTML('beforeend','<button id=zz data-a=wkedit data-v=adhkar></button>');document.getElementById('zz').click()");pg.wait_for_timeout(500)
     cdp=tc.new_cdp_session(pg);rr=pg.query_selector_all('.wk-r')[2].bounding_box();x=rr['x']+rr['width']/2;y0=rr['y']+rr['height']/2
@@ -119,7 +119,7 @@ try:
     # 5f سحب عناصر القائمة بالمس (كان يتوقف بعد أول خطوة)
     tc=b.new_context(viewport={'width':360,'height':740},has_touch=True,is_mobile=True);pg=tc.new_page();pg.on('pageerror',lambda e:errs.append(str(e)))
     pg.route(lambda u:'localhost' not in u,lambda r:r.abort())
-    pg.add_init_script("try{localStorage.setItem('alsaer_seen_update_1016','1');localStorage.setItem('tawba_v1',JSON.stringify({onboarded:true}))}catch(e){}")
+    pg.add_init_script("try{localStorage.setItem('alsaer_seen_update_1013','1');localStorage.setItem('tawba_v1',JSON.stringify({onboarded:true}))}catch(e){}")
     pg.goto('http://localhost:8765/index.html?alsaertest');pg.wait_for_timeout(800)
     pg.evaluate("(()=>{var x=document.createElement('button');x.setAttribute('data-a','wkedit');x.setAttribute('data-v','adhkar');document.body.appendChild(x);x.click();x.remove()})()");pg.wait_for_timeout(500)
     cdp=tc.new_cdp_session(pg);o0=pg.evaluate("[...document.querySelectorAll('.wk-r')].map(e=>e.dataset.id)")
@@ -172,7 +172,7 @@ try:
     pg.route('https://cdn.jsdelivr.net/**',lambda r:r.fulfill(status=200,content_type='application/json',headers={'access-control-allow-origin':'*'},body='{"metadata":{"sections":{"0":"","1":"كتاب الإيمان","2":"كتاب العلم"}},"hadiths":[{"hadithnumber":1,"text":"إنما الأعمال بالنيات","grades":[{"grade":"Sahih"}],"reference":{"book":1,"hadith":1}},{"hadithnumber":2,"text":"الدين النصيحة","grades":[{"grade":"Hasan"}],"reference":{"book":1,"hadith":2}},{"hadithnumber":3,"text":"طلب العلم فريضة","grades":[{"grade":"Mystery X"}],"reference":{"book":2,"hadith":3}},{"hadithnumber":4,"text":"<img src=x onerror=window.__xss=1>","reference":{"book":1,"hadith":4}}]}'))
     pg.evaluate("__T.go('ahadith')");pg.wait_for_timeout(1500)
     ok(pg.evaluate("document.querySelectorAll('.asm-card').length")==9,'الأحاديث: تسعة كتب')
-    ok('إنما الأعمال' in pg.evaluate("document.querySelector('.hdt-day').innerText") or 'الدين النصيحة' in pg.evaluate("document.querySelector('.hdt-day').innerText") or 'طلب العلم' in pg.evaluate("document.querySelector('.hdt-day').innerText"),'حديث اليوم يُحمَّل')
+    _dt=pg.evaluate("document.querySelector('.hdt-day').innerText");ok(any(x in _dt for x in ['إنما الأعمال','الدين النصيحة','طلب العلم','<img src=x']),'حديث اليوم يُحمَّل (الاختيار حسب التاريخ قد يقع على حديث XSS الوهمي المهرَّب)')
     pg.click('.asm-card');pg.wait_for_timeout(1500)
     ok(pg.evaluate("document.querySelectorAll('.hdt-c').length")==3,'فتح كتاب وتصفية الأبواب (٣ أحاديث في الباب الأول، ومنها واحد بنص ضار)')
     ok(pg.evaluate("window.__xss")!=1 and pg.evaluate("document.querySelectorAll('.hdt-t img').length")==0,'نص الحديث يُهرَّب (لا HTML منفّذ)')
@@ -193,7 +193,7 @@ try:
     ok(pg.evaluate("document.querySelectorAll('.rc-tile').length")==4,'نافذة الإحصائيات تعرض أربع بطاقات')
     ok(not errs,'لا أخطاء JavaScript (٣) '+str(errs[:2]))
     # 8 نافذة «ما الجديد» تُغلق ولا تعود
-    pg=b.new_context().new_page();pg.route(lambda u:'localhost' not in u,lambda r:r.abort());pg.add_init_script(MOCK.replace("try{localStorage.setItem('alsaer_seen_update_1016','1')}catch(e){}",""))
+    pg=b.new_context().new_page();pg.route(lambda u:'localhost' not in u,lambda r:r.abort());pg.add_init_script(MOCK.replace("try{localStorage.setItem('alsaer_seen_update_1013','1')}catch(e){}",""))
     pg.goto('http://localhost:8765/index.html?alsaertest');pg.wait_for_timeout(800)
     try: pg.click('button[data-a=ob]',timeout=2000);pg.reload();pg.wait_for_timeout(1000)
     except Exception: pass
@@ -201,18 +201,16 @@ try:
     if shown:
         pg.click('text=متابعة إلى التطبيق');pg.wait_for_timeout(300);pg.evaluate("__T.go('more')");pg.wait_for_timeout(600);pg.evaluate("__T.go('home')");pg.wait_for_timeout(600)
     ok(shown and pg.query_selector('#update109-notice') is None,'«متابعة إلى التطبيق» تغلق نافذة ما الجديد ولا تعود')
-    # 6 Web Speech API
-    WS="""try{localStorage.setItem('alsaer_seen_update_1016','1')}catch(e){}window.__rcNoConsent=true;window.__ws=[];window.SpeechRecognition=class{start(){__ws.push('start');this.onstart&&this.onstart();setTimeout(()=>{this.onresult&&this.onresult({resultIndex:0,results:[Object.assign([{transcript:'الحمد لله رب العالمين'}],{isFinal:true})]})},200)}abort(){__ws.push('abort')}};"""
+    # 6 لا Web Speech ولا Google: بدون جسر أصلي لا يبدأ أي تعرّف سحابي
+    WS="""try{localStorage.setItem('alsaer_seen_update_1013','1')}catch(e){}window.__rcNoConsent=true;window.__ws=[];window.SpeechRecognition=class{start(){__ws.push('start');this.onstart&&this.onstart();setTimeout(()=>{this.onresult&&this.onresult({resultIndex:0,results:[Object.assign([{transcript:'الحمد لله رب العالمين'}],{isFinal:true})]})},200)}abort(){__ws.push('abort')}};"""
     pg=fresh(WS)
     pg.evaluate("__T.go('recite')");pg.wait_for_timeout(400);pg.evaluate(start);pg.wait_for_timeout(1500)
-    ok('start' in pg.evaluate("__ws"),'Web Speech API يعمل كمحرّك بديل عند غياب الجسر الأصلي')
-    pg.evaluate("__T.go('home')");pg.wait_for_timeout(300)
-    ok('abort' in pg.evaluate("__ws"),'مغادرة الشاشة توقف Web Speech')
+    ok(pg.evaluate("__ws").count('start')==0,'بدون جسر أصلي لا يُستخدم Web Speech أبدًا (التسميع محلي فقط)')
     ok(not errs,'لا أخطاء JavaScript (٢) '+str(errs[:2]))
     # 7 الجولة + تخصيص الرئيسية + المسبحة
     pg=b.new_context().new_page();pg.on('pageerror',lambda e:errs.append(str(e)))
     pg.route(lambda u:'localhost' not in u,lambda r:r.abort())
-    pg.add_init_script("try{localStorage.setItem('alsaer_seen_update_1016','1');localStorage.setItem('tawba_v1',JSON.stringify({onboarded:true}))}catch(e){}")
+    pg.add_init_script("try{localStorage.setItem('alsaer_seen_update_1013','1');localStorage.setItem('tawba_v1',JSON.stringify({onboarded:true}))}catch(e){}")
     pg.goto('http://localhost:8765/index.html?alsaertest&tour');pg.wait_for_timeout(2000)
     ok(pg.query_selector('#tour') is not None,'الجولة تبدأ تلقائيًا أول مرة')
     seen=[]
@@ -229,7 +227,7 @@ try:
     # 8 فحص شامل: كل الشاشات بلا أخطاء وبلا تمرير أفقي
     pg=b.new_context(viewport={'width':360,'height':760}).new_page();pg.on('pageerror',lambda e:errs.append(str(e)))
     pg.route(lambda u:'localhost' not in u,lambda r:r.abort())
-    pg.add_init_script("try{localStorage.setItem('alsaer_seen_update_1016','1');localStorage.setItem('tawba_v1',JSON.stringify({onboarded:true,tour:1}))}catch(e){}")
+    pg.add_init_script("try{localStorage.setItem('alsaer_seen_update_1013','1');localStorage.setItem('tawba_v1',JSON.stringify({onboarded:true,tour:1}))}catch(e){}")
     pg.goto('http://localhost:8765/index.html?alsaertest');pg.wait_for_timeout(1000)
     wide=[]
     for t in 'home worship calendar progress more fasting prayers quran reminders books chal month sacred muh floatfeed floatset widgetset habits boost ach developer settings qada ramadan occasions cards hifz khushu khatma weekly notes zakat backup asma hisn msb ahadith adhkar tasbih'.split():
