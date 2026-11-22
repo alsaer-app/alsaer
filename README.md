@@ -22,7 +22,7 @@
 ### العبادة اليومية
 
 - **المصحف الكامل**: صفحات المصحف (١٥ سطرًا) بخط عثماني، بروايتي حفص وورش، مع إبراز أحكام التجويد بالألوان؛ نص ٦٢٣٦ آية من مشروع تنزيل.
-- **التلاوة والتسميع**: متابعة صوتية عبر محرك التعرف على الكلام في الهاتف، مع تصحيح فوري.
+- **التلاوة والتسميع**: متابعة صوتية لحظية مع تصحيح فوري، عبر محرك قرآني محلي بالكامل (نماذج whisper المخصصة للقرآن تعمل على الجهاز دون إنترنت عبر sherpa-onnx)، مع خيار محرك التعرف المدمج في الهاتف.
 - **مواقيت الصلاة والتنبيهات**: إشعارات محلية مجدولة بنغمة مخصصة، تعمل بعد إعادة تشغيل الهاتف.
 - **الأذكار والأدعية**: محتوى من الكتاب والسنة مع عدّادات.
 - **جدول الصيام**: الاثنين والخميس، الأيام البيض، عاشوراء وعرفة، ستة شوال، صيام داود، وأيام مخصصة، مع تذكيرات السحور والإفطار.
@@ -64,6 +64,7 @@
 - الواجهة صفحة واحدة بلا مكتبات خارجية: المصدر مقسّم في `src/` ويُجمَّع إلى `www/index.html` عبر `python3 tools/build_web.py`.
 - بيانات المستخدم في `localStorage` تحت المفتاح `tawba_v1` (لا تغيّره أبدًا للحفاظ على بيانات المستخدمين).
 - مكونات أصلية: إشعارات ومجدول تنبيهات، خدمة التذكير العائم، الودجت، البصمة، التعرف على الكلام.
+- محرك التسميع المحلي: [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) مع نماذج whisper المخصصة للقرآن الكريم (tiny/base)، وتنزيل النماذج داخل التطبيق مع تحقق SHA-256.
 - البناء والإصدار عبر GitHub Actions (انظر `.github/workflows/`).
 
 ## البناء من المصدر
@@ -90,8 +91,10 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 ## خارطة الطريق
 
 - استكمال ترجمة كل الشاشات للغات إضافية.
-- مزامنة سحابية اختيارية مشفرة (قيد الدراسة).
-- تحسين محرك التلاوة المحلي.
+- نسخ احتياطي تلقائي مشفر إلى Google Drive الخاص بالمستخدم (التشفير على الجهاز قبل الرفع).
+- ودجت محسّن: مواقيت الصلاة ومتابعة ورد اليوم.
+- خطة ختمة ذكية بأهداف قابلة للتعديل التلقائي.
+- تحسينات مستمرة لمحرك التسميع المحلي (سرعة ودقة).
 - لوحة إنجازات وإحصاءات أعمق.
 
 ## الحقوق والمصادر
@@ -104,7 +107,6 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 ## التواصل
 
 - فيسبوك: https://www.facebook.com/share/1E4Mr4L2Yd/
-- واتساب: https://wa.me/201020372842
 
 </div>
 
@@ -114,11 +116,11 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 
 A private, **offline-first** Android companion for worship and self-improvement. All data stays on the device; nothing is sent to any server.
 
-**Features:** full mushaf reader (15-line pages, Uthmanic font, Hafs & Warsh riwayas, color-coded tajweed), recitation with speech recognition, prayer times and local reminders, a floating reminder overlay, a home-screen widget, habit and repentance tracking (streaks, relapses, triggers, urges), fasting schedule (Mondays/Thursdays, white days, Ashura, Arafah, Shawwal, Dawud, custom), adhkar with counters, weekly/monthly self-review, PIN/password/pattern lock with biometrics, encrypted password-protected backups (AES-256-GCM + PBKDF2), Arabic RTL UI with light/dark themes, Hijri (Umm al-Qura) and Gregorian dates.
+**Features:** full mushaf reader (15-line pages, Uthmanic font, Hafs & Warsh riwayas, color-coded tajweed), recitation with an on-device Quran ASR engine (Quran-tuned whisper models via sherpa-onnx, fully offline) plus the phone speech recognizer, prayer times and local reminders, a floating reminder overlay, a home-screen widget, habit and repentance tracking (streaks, relapses, triggers, urges), fasting schedule (Mondays/Thursdays, white days, Ashura, Arafah, Shawwal, Dawud, custom), adhkar with counters, weekly/monthly self-review, PIN/password/pattern lock with biometrics, encrypted password-protected backups (AES-256-GCM + PBKDF2), Arabic RTL UI with light/dark themes, Hijri (Umm al-Qura) and Gregorian dates.
 
 **Install:** download the latest APK from [Releases](https://github.com/alsaer-app/alsaer/releases/latest) and install it over any previous officially-signed build; your data is preserved.
 
-**Tech:** Capacitor (WebView) with a native Kotlin/Java bridge (`com.ahmedalajmi.alsaer`); single-page vanilla HTML/JS app split under `src/` and bundled by `python3 tools/build_web.py` into `www/index.html`; user data in `localStorage` (`tawba_v1`); native alarm scheduler, floating reminder service, widget, biometric and speech plugins; builds via GitHub Actions.
+**Tech:** Capacitor (WebView) with a native Kotlin/Java bridge (`com.ahmedalajmi.alsaer`); single-page vanilla HTML/JS app split under `src/` and bundled by `python3 tools/build_web.py` into `www/index.html`; user data in `localStorage` (`tawba_v1`); native alarm scheduler, floating reminder service, widget, biometric and speech plugins; local recitation via sherpa-onnx with in-app model downloads verified by SHA-256; builds via GitHub Actions.
 
 **Build:** `npm install && python3 tools/build_web.py && npx cap sync android && cd android && ./gradlew assembleDebug`
 
