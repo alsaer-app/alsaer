@@ -34,17 +34,6 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
-    // ALSAER: لا يبقى الميكروفون يعمل بعد خروج التطبيق من الواجهة
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
     // ALSAER: الرجوع تتولاه صفحة التطبيق نفسها (نوافذ المصحف ← الشاشة السابقة)؛ في الرئيسية فقط يُقلَّص التطبيق
     @Override
     public void onBackPressed() {
