@@ -454,6 +454,9 @@ object TfEngine {
         }
     }
 
+    /* قاعدة قبول الكلمة: ٦٠٪ من وحدات الكلمة (كانت ٧٠٪)، وكلمة بوحدة واحدة أو أقل تُقبل. تجريبية */
+    private fun wordAccepted(matched: Int, full: Int): Boolean = full <= 1 || matched * 5 >= full * 3
+
     /* محاذاة fitting بمسافة تحرير: المسموع (صفوف، بحد أقصى ٤٠٠) ضد المتوقع من المؤشر (٦٠٠ عمود) */
     private fun alignAndJudge(jsid: Int, isFinal: Boolean) {
         var m = heardAll.size - dropIdx
@@ -484,6 +487,9 @@ object TfEngine {
         /* تتبع خلفي: أي أعمدة المتوقع طابقت وحدة مسموعة تمامًا */
         val colMatched = BooleanArray(n)
         val colHeardEnd = IntArray(n)
+        val colOp = CharArray(n) { 'D' }
+        val colHeardId = IntArray(n) { -1 }
+        val insAt = IntArray(n + 1)
         var i = m
         var j = bestJ
         while (i > 0) {
@@ -491,9 +497,12 @@ object TfEngine {
             val prev = base - W
             if (j > 0 && dp[base + j] == dp[prev + j - 1] + (if (heardAll[dropIdx + i - 1] == exp[n0 + j - 1]) 0 else 1)) {
                 colMatched[j - 1] = heardAll[dropIdx + i - 1] == exp[n0 + j - 1]
+                colOp[j - 1] = if (colMatched[j - 1]) 'M' else 'S'
+                colHeardId[j - 1] = heardAll[dropIdx + i - 1]
                 colHeardEnd[j - 1] = i
                 i--; j--
             } else if (dp[base + j] == dp[prev + j] + 1) {
+                insAt[j]++
                 i--                                  // وحدة مسموعة زائدة: تُتجاهل
             } else if (j > 0) {
                 j--                                  // وحدة متوقعة طُفيت: نقص في الكلمة
@@ -516,8 +525,21 @@ object TfEngine {
             if (!inProgress && wj < judged.size && !judged[wj]) {
                 judged[wj] = true
                 val full = if (wj < wordUnits.size) wordUnits[wj] else (e - c)
-                if (matched * 10 >= full * 7) okList.add(wj) else missList.add(wj)
-                dbg("word $wj matched=$matched/$full ${if (matched * 10 >= full * 7) "ok" else "miss"}")
+                val accepted = wordAccepted(matched, full)
+                if (accepted) okList.add(wj) else missList.add(wj)
+                dbg("word $wj matched=$matched/$full ${if (accepted) "ok" else "miss"}")
+                if (matched < full) {
+                    val sb = StringBuilder()
+                    var ins = 0
+                    for (k in c until e) {
+                        val r = k - n0
+                        sb.append(colOp[r])
+                        if (k > c) ins += insAt[r]
+                    }
+                    val ex = (c until e).joinToString(",") { exp[it].toString() }
+                    val he = (c until e).joinToString(",") { if (colHeardId[it - n0] < 0) "-" else colHeardId[it - n0].toString() }
+                    dbg("word $wj units exp=[$ex] heard=[$he] ops=$sb ins=$ins")
+                }
             }
             c = e
         }
