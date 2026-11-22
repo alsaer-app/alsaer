@@ -49,3 +49,4 @@ jobs:
       - if: always()
         name: Remove temporary signing material
         run: rm -f android/app/alsaer-release-key.p12
+# build 2: letters aliases
