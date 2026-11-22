@@ -564,6 +564,18 @@ public class SherpaAsr {
     }
 
     private void mergeAdd(int mySid, float[] samples) {
+        // Count useful context, not eight seconds mostly made of leading/trailing silence.
+        // The decoder uses the same trim; do it before checking the six-second threshold.
+        float peak = 0f;
+        double power = 0;
+        for (float v : samples) { peak = Math.max(peak, Math.abs(v)); power += (double) v * v; }
+        if (Math.sqrt(power / Math.max(1, samples.length)) < 0.002) return;
+        int lo = 0, hi = samples.length;
+        float threshold = peak * 0.015f;
+        while (lo < hi && Math.abs(samples[lo]) < threshold) lo++;
+        while (hi > lo && Math.abs(samples[hi - 1]) < threshold) hi--;
+        if (samples.length - (hi - lo) > SAMPLE_RATE / 2) samples = java.util.Arrays.copyOfRange(samples, lo, hi);
+        if (samples.length < SAMPLE_RATE / 2) return;
         mergeAcc.add(samples); mergeLen += samples.length;
         diag("merge: +" + String.format(java.util.Locale.US, "%.1f", samples.length / (float) SAMPLE_RATE) + "s pending=" + String.format(java.util.Locale.US, "%.1f", mergeLen / (float) SAMPLE_RATE) + "s");
         if (mergeLen >= SAMPLE_RATE * 6) mergeFlush(mySid);

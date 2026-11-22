@@ -15,7 +15,7 @@ public class MergeRegression {
  static void diag(String s) {}
  void submitDecode(int sid,float[] data) { decoded.add(data.length); }
 '''+methods+'''
- static float[] sec(double n) { return new float[(int)(SAMPLE_RATE*n)]; }
+ static float[] sec(double n) { float[] a=new float[(int)(SAMPLE_RATE*n)]; Arrays.fill(a,.1f); return a; }
  static void check(boolean c,String s) { if(!c)throw new AssertionError(s);System.out.println("PASS "+s); }
  public static void main(String[] args) {
    MergeRegression m=new MergeRegression();
@@ -35,6 +35,12 @@ public class MergeRegression {
    check(m.decoded.size()==3&&m.decoded.get(2)==(int)(1.9*SAMPLE_RATE),"stop is the only short flush");
    m.mergeFlush(1);
    check(m.decoded.size()==3,"empty stop does not duplicate audio");
+   MergeRegression padded=new MergeRegression();
+   float[] eight=new float[SAMPLE_RATE*8];Arrays.fill(eight,SAMPLE_RATE*3,SAMPLE_RATE*5,.1f);
+   padded.mergeAdd(1,eight);
+   check(padded.decoded.isEmpty()&&padded.mergeLen==SAMPLE_RATE*2,"8s early split with 2s speech cannot defeat minimum");
+   padded.mergeAdd(1,sec(4));
+   check(padded.decoded.size()==1&&padded.decoded.get(0)==SAMPLE_RATE*6,"minimum counts trimmed context, not silence");
  }
 }
 '''
