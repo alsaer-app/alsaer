@@ -318,8 +318,10 @@ public class SherpaAsr {
             out.close();
             in.close();
         }
+        /* maxSpeechDuration = 8 ثوانٍ: تقسيم إجباري للمقاطع الطويلة حتى تظهر
+           الكلمات المتعرف عليها تدريجيًا أثناء التلاوة بدل انتظار نهاية الآية الطويلة. */
         SileroVadModelConfig silero = new SileroVadModelConfig(
-            dst.getAbsolutePath(), 0.5f, 0.7f, 0.25f, 512, 20f);
+            dst.getAbsolutePath(), 0.5f, 0.7f, 0.25f, 512, 8f);
         VadModelConfig vc = new VadModelConfig(silero, new TenVadModelConfig(), SAMPLE_RATE, 1, "cpu", false);
         vad = new Vad(null, vc);
         return vad;

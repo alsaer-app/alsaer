@@ -5778,8 +5778,8 @@ function rcLocalHtml(P){
   return '<div class="rc-grp"><h4>📖 النموذج القرآني المحلي (دقة قريبة من ترتيل)</h4>'
    +'<p class="note">تعرّف مضبوط على القرآن الكريم يعمل بالكامل على جهازك بلا إنترنت؛ الصوت لا يغادر هاتفك أبدًا. التنزيل لمرة واحدة فقط. نموذج Tarteel AI (Apache-2.0) بمحرك sherpa-onnx مفتوح المصدر.</p>'
    +'<label class="rc-mt"><input type="radio" name="rclm" value=""'+((!P.lm||!inst(P.lm))?' checked':'')+'><span><b>تعرّف Google (الافتراضي)</b><small>سريع ويحتاج إنترنت — يبقى متاحًا حتى مع وجود النموذج المحلي</small></span></label>'
-   +row('base','الدقة العالية',161,'الأقرب لدقة ترتيل — يناسب الموبايلات المتوسطة فأعلى')
-   +row('tiny','الخفيف',104,'للموبايلات الأضعف — أخف وأسرع بدقة أدنى قليلًا')
+   +row('tiny','الخفيف ⭐',104,'الموصى به لمعظم الأجهزة — سريع وقريب جدًا في الدقة')
+   +row('base','الدقة العالية',161,'للأجهزة القوية — أعلى دقة لكنه أبطأ بوضوح')
    +'</div>';
 }
 function rcSheet(P,last){
@@ -5799,9 +5799,11 @@ window.__rcAsrDl=function(s){
     if(el){var b=el.querySelector('.rc-dlp i'),t=el.querySelector('.rc-dlp em');if(b)b.style.width=(d.pct||0)+'%';if(t)t.textContent=ar(d.pct||0)+'٪'}
     return;
   }
+  /* اختيار النموذج المنزّل تلقائيًا إن لم يكن هناك اختيار سابق (قبل إعادة العرض ليظهر محددًا) */
+  if(d.state==='done'){try{var P2=rcPref();if(!P2.lm){P2.lm=d.kind;save()}}catch(e){}}
   try{if(typeof tab!=='undefined'&&tab==='recite'&&rc.adv)render()}catch(e){}
   if(d.state==='error')toast('تعذّر تنزيل النموذج — تحقق من الإنترنت وحاول مجددًا');
-  if(d.state==='done')toast('✅ نزّلنا النموذج — اختره واضغط حفظ ليعمل');
+  if(d.state==='done')toast('✅ نزّلنا النموذج وفعّلناه — جاهز للتسميع');
 };
 function vRecite(){
   var Q=QD();
