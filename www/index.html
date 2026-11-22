@@ -5931,7 +5931,7 @@ function rcLocStart(onText,onErr,say,fallback){
     if(rcAsr.loc!==gen||gen.dead)return;
     setTimeout(function(){
       if(rcAsr.loc!==gen||gen.dead)return;
-      try{AlsaerNative.asrStart(rcPref().lm)}catch(e){gen.dead=true;rcAsr.loc=null;fallback()}
+      try{AlsaerNative.asrStart(rcPref().lm,sid)}catch(e){gen.dead=true;rcAsr.loc=null;fallback()}
     },250);
   }).catch(function(){
     gen.dead=true;rcAsr.loc=null;

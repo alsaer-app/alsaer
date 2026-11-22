@@ -55,7 +55,7 @@ public class AlsaerNative {
     @JavascriptInterface public void asrDownload(String kind) { sherpa.download(kind); }
     @JavascriptInterface public void asrCancelDownload() { sherpa.cancelDownload(); }
     @JavascriptInterface public void asrDelete(String kind) { sherpa.delete(kind); }
-    @JavascriptInterface public void asrStart(String kind) { sherpa.start(kind); }
+    @JavascriptInterface public void asrStart(String kind, int jsid) { sherpa.start(kind, jsid); }
     @JavascriptInterface public void asrWarmup(String kind) { sherpa.warmup(kind); }
     @JavascriptInterface public void asrStop() { sherpa.stop(); }
 

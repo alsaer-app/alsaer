@@ -335,9 +335,11 @@ public class SherpaAsr {
         return vad;
     }
 
-    public synchronized void start(final String kind) {
+    public synchronized void start(final String kind, int jsid) {
         if (running) return;
-        final int mySid = ++sid;
+        /* رقم الجلسة تأخذه الصفحة (مالكة العدّاد) حتى لا ينفصل العدّادان؛
+           stop() لا تزيده، وإلا ضاعت كل الأحداث بعد أول دورة بدء/إيقاف */
+        final int mySid = (sid = jsid);
         if (idxOf(kind) < 0 || !installed(kind)) { emit(mySid, "err", "nomodel"); return; }
         if (act.checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             emit(mySid, "err", "9");
@@ -452,7 +454,6 @@ public class SherpaAsr {
 
     public synchronized void stop() {
         running = false;
-        sid++;
         AudioRecord a = ar;
         ar = null;
         if (a != null) { try { a.stop(); } catch (Throwable ignored) {} }
