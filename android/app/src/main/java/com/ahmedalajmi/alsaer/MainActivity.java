@@ -17,10 +17,8 @@ public class MainActivity extends BridgeActivity {
         // ALSAER: جسر الإشعارات الأصلية + تعليق المستمع + جدولة التنبيهات عند إعادة الفتح
         if (getBridge() != null && getBridge().getWebView() != null) {
             getBridge().getWebView().addJavascriptInterface(new AlsaerNative(this), "AlsaerNative");
-            Speech.wv = getBridge().getWebView();
             try { getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false); } catch (Exception e) { }
         }
-        Speech.restore(this);
         handleRoute(getIntent());
         AlarmScheduler.scheduleAll(this);
     }
@@ -39,13 +37,11 @@ public class MainActivity extends BridgeActivity {
     // ALSAER: لا يبقى الميكروفون يعمل بعد خروج التطبيق من الواجهة
     @Override
     public void onStop() {
-        Speech.stopAll();
         super.onStop();
     }
 
     @Override
     public void onDestroy() {
-        Speech.stopAll();
         super.onDestroy();
     }
 
