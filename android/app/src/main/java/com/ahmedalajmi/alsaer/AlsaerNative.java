@@ -16,30 +16,8 @@ import org.json.JSONObject;
 public class AlsaerNative {
     private final Activity act;
 
-    private final Speech speech;
 
-
-    public AlsaerNative(Activity a) { act = a; speech = new Speech(a); }
-
-    @JavascriptInterface
-    public boolean speechAvailable() { return speech.available(); }
-
-    @JavascriptInterface
-    public void speechStart() { speech.start("[]"); }
-
-    @JavascriptInterface
-    public void speechStart2(String biasJson) { speech.start(biasJson); }
-
-    @JavascriptInterface
-    public void speechBias(String biasJson) { speech.setBias(biasJson); }
-
-    @JavascriptInterface
-    public void speechStop() { speech.stop(); }
-
-    @JavascriptInterface
-    public void speechMute(boolean b) { speech.setMuteBeep(b); if (!b) speech.silent(false); }
-    @JavascriptInterface public void speechOnDevice(boolean b) { speech.setOnDevice(b); }
-    @JavascriptInterface public void speechSilent(boolean on) { speech.silent(on); }
+    public AlsaerNative(Activity a) { act = a; }
 
     /* ---- مرآة إعدادات الويب في SharedPreferences: تحمي من فقدان localStorage عند أي تغيير في أصل WebView ---- */
     @JavascriptInterface public void mirrorSet(String k, String v) {
@@ -50,7 +28,6 @@ public class AlsaerNative {
     }
 
     @JavascriptInterface public String appBuildInfo() { return BuildConfig.VERSION_NAME + "|" + BuildConfig.VERSION_CODE; }
-    @JavascriptInterface public String asrDiag() { return AsrLog.diagDump(); }
     @JavascriptInterface public void shareText(String title, String body) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("text/plain");
