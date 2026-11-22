@@ -36,7 +36,6 @@ jobs:
           node --check src/services/recite-asr.js && node --check src/services/recite-page.js
           npm ci && npx @capacitor/cli@5 sync android
           python3 tests/mushaf_wordmap_regression.py
-          python3 tests/tf_reference_regression.py && python3 tests/tf_alignment_regression.py && python3 tests/tf_agc_regression.py
       - name: Decode signing key inside GitHub only
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -50,6 +49,11 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           QURANLAB_KEY: ${{ secrets.QURANLAB_KEY }}
         run: test -n "$QURANLAB_KEY" && chmod +x gradlew && ./gradlew --no-daemon assembleRelease
+      - name: Offline mapping, alignment and AGC regressions
+        run: |
+          python3 tests/tf_reference_regression.py
+          python3 tests/tf_alignment_regression.py
+          python3 tests/tf_agc_regression.py
       - name: Verify signed APK and metadata
         run: |
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | tail -1); APK=android/app/build/outputs/apk/release/app-release.apk
