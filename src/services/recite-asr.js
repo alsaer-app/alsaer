@@ -12,7 +12,7 @@ function rcLocKind(){
   try{
     var P=(typeof rcPref==='function')?rcPref():{},st=rcLocSt();if(!st)return null;
     if(P.lm&&st[P.lm]&&st[P.lm].installed)return P.lm;
-    var ks=['base','tiny'],k;for(k=0;k<ks.length;k++)if(st[ks[k]]&&st[ks[k]].installed)return ks[k];
+    var ks=['vbase','base','tiny'],k;for(k=0;k<ks.length;k++)if(st[ks[k]]&&st[ks[k]].installed)return ks[k];
   }catch(e){}
   return null;
 }

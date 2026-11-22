@@ -5872,12 +5872,13 @@ function rcLocalHtml(P){
         :'<button class="btn ghost" data-a="rcdl" data-v="'+kind+'">⬇ تنزيل</button>')
       +'</div></div>';
   }
-  var none=!inst('tiny')&&!inst('base');
+  var none=!inst('vbase')&&!inst('tiny')&&!inst('base');
   return '<div class="rc-grp"><h4>📖 النموذج القرآني المحلي (دقة قريبة من ترتيل)</h4>'
-   +'<p class="note">تعرّف مضبوط على القرآن الكريم يعمل بالكامل على جهازك بلا إنترنت؛ الصوت لا يغادر هاتفك أبدًا. التنزيل لمرة واحدة فقط. نموذج Tarteel AI (Apache-2.0) بمحرك sherpa-onnx مفتوح المصدر.</p>'
-   +(none?'<p class="note"><b>التسميع يحتاج نموذجًا — نزّل «الخفيف» بالزر أسفله لتبدأ.</b></p>':'')
-   +row('tiny','الخفيف ⭐',104,'الموصى به لمعظم الأجهزة — سريع وقريب جدًا في الدقة')
-   +row('base','الدقة العالية',161,'للأجهزة القوية — أعلى دقة لكنه أبطأ بوضوح')
+   +'<p class="note">تعرّف يعمل بالكامل على جهازك بلا إنترنت؛ الصوت لا يغادر هاتفك أبدًا. التنزيل لمرة واحدة فقط. نماذج whisper مفتوحة المصدر (OpenAI وTarteel AI) بمحرك sherpa-onnx مفتوح المصدر.</p>'
+   +(none?'<p class="note"><b>التسميع يحتاج نموذجًا — نزّل «الموصى به» بالزر أسفله لتبدأ.</b></p>':'')
+   +row('vbase','الموصى به ⭐',161,'الأقوى على الأصوات الحقيقية بأنماط التلاوة المختلفة — يعمل بلا إنترنت')
+   +row('tiny','الخفيف',104,'الأسرع والأصغر — مضبوط على تلاوات الاستوديو، دقته أقل على بعض الأصوات')
+   +row('base','القرآني الكبير',161,'مضبوط على القرآن — للأجهزة القوية، أبطأ بوضوح')
    +'</div>';
 }
 function rcSheet(P,last){
@@ -5951,7 +5952,7 @@ function rcLocKind(){
   try{
     var P=(typeof rcPref==='function')?rcPref():{},st=rcLocSt();if(!st)return null;
     if(P.lm&&st[P.lm]&&st[P.lm].installed)return P.lm;
-    var ks=['base','tiny'],k;for(k=0;k<ks.length;k++)if(st[ks[k]]&&st[ks[k]].installed)return ks[k];
+    var ks=['vbase','base','tiny'],k;for(k=0;k<ks.length;k++)if(st[ks[k]]&&st[ks[k]].installed)return ks[k];
   }catch(e){}
   return null;
 }

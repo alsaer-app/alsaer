@@ -53,8 +53,9 @@ import java.util.concurrent.Executors;
 
 /**
  * التعرّف القرآني المحلي (on-device) لشاشة «التلاوة» عبر sherpa-onnx.
- * - النموذج: tarteel-ai/whisper-(tiny|base)-ar-quran بصيغة sherpa-onnx int8
- *   (مرآة: huggingface.co/Synthesium/quran-whisper-sherpa-onnx).
+ * - النماذج: «vbase» = whisper-base الأصلي (OpenAI) int8 — الأقوى على الأصوات الحقيقية (الموصى به)،
+ *   مستضاف على Release المستودع (استضافة ملفات فقط). و«tiny»/«base» = tarteel-ai/whisper-*-ar-quran int8
+ *   المضبوطان على تلاوات الاستوديو (مرآة: huggingface.co/Synthesium/quran-whisper-sherpa-onnx).
  * - يُنزَّل لمرة واحدة داخل التطبيق إلى filesDir/asr/<kind>/ ويعمل بعدها بلا إنترنت.
  * - التقاط الصوت: AudioRecord 16kHz mono؛ تقطيع المقاطع: Silero VAD (مجمّع في الأصول)؛
  *   فك الترميز: Whisper دفعي لكل مقطع صوتي مع ذيل صمت 0.6 ثانية (يحسّن نهاية الكلمات).
@@ -64,16 +65,26 @@ import java.util.concurrent.Executors;
 public class SherpaAsr {
     public static volatile SherpaAsr cur;
 
-    private static final String BASE_URL = "https://huggingface.co/Synthesium/quran-whisper-sherpa-onnx/resolve/main/";
+    private static final String HF_URL = "https://huggingface.co/Synthesium/quran-whisper-sherpa-onnx/resolve/main/";
+    private static final String GH_URL = "https://github.com/alsaer-app/alsaer/releases/download/models-v1/";
     /** kind, encoder, decoder, tokens + أحجامها المتوقعة بالبايت للتحقق من اكتمال التنزيل */
     private static final String[][] MODELS = {
+        {"vbase", "vbase-encoder.int8.onnx", "vbase-decoder.int8.onnx", "vbase-tokens.txt"},
         {"base", "base-ar-quran-encoder.int8.onnx", "base-ar-quran-decoder.int8.onnx", "base-ar-quran-tokens.txt"},
         {"tiny", "tiny-ar-quran-encoder.int8.onnx", "tiny-ar-quran-decoder.int8.onnx", "tiny-ar-quran-tokens.txt"},
     };
     private static final long[][] SIZES = {
+        {29120534L, 130672026L, 816730L},
         {29104815L, 130659024L, 816730L},
         {12926479L, 89846458L, 816730L},
     };
+    /** SHA-256 لكل ملف (بنفس ترتيب SIZES): يُتحقق منه بعد كل تنزيل — حماية من ملف تالف أو مصدر مخترَق */
+    private static final String[][] HASHES = {
+        {"0b8fb1304b6109976038efff5ace81720e00386f3ff6b54ee8c75291ca0a1e11", "9759d217388a01b3a4c7c15533201067b48ae819c4daafc8624e64b9409dc02d", "b34b360dbb493e781e479794586d661700670d65564001f23024971d1f2fa126"},
+        {"735f70bcc77ce09dcce1d699b876d0bb4db21171698a845cee894e0c2807cea2", "1b19292bee6eb2bd1514aa80793b580303b2868f8596ccf1bce79c46f3128c2b", "b34b360dbb493e781e479794586d661700670d65564001f23024971d1f2fa126"},
+        {"156a0ad2ce73115311cb0d3d206fa574625bbb668c59304766ee2dc6c1212720", "5a26d9ccfd65cdc2be8972290a002616e95832add32ba3f4e03cac91f8b43dcc", "b34b360dbb493e781e479794586d661700670d65564001f23024971d1f2fa126"},
+    };
+    private static String baseUrl(int kindIdx) { return MODELS[kindIdx][0].equals("vbase") ? GH_URL : HF_URL; }
     private static final int SAMPLE_RATE = 16000;
     /** ذيل صمت يُلحق بكل مقطع قبل فك الترميز؛ بدونه قد تسقط نهايات الكلمات */
     private static final int TAIL_PAD = (int) (SAMPLE_RATE * 0.6f);
@@ -166,7 +177,7 @@ public class SherpaAsr {
                     File dst = new File(d, MODELS[i][f]);
                     File part = new File(d, MODELS[i][f] + ".part");
                     long want = SIZES[i][f - 1];
-                    HttpURLConnection c = open(BASE_URL + MODELS[i][f]);
+                    HttpURLConnection c = open(baseUrl(i) + MODELS[i][f]);
                     try {
                         c.setConnectTimeout(20000);
                         c.setReadTimeout(30000);
@@ -189,6 +200,7 @@ public class SherpaAsr {
                         out.close();
                         in.close();
                         if (!dlCancel && got != want) throw new Exception("size");
+                        if (!dlCancel && !sha256(part).equals(HASHES[i][f - 1])) { part.delete(); throw new Exception("hash"); }
                         if (dlCancel) { part.delete(); break; }
                         if (dst.exists()) dst.delete();
                         if (!part.renameTo(dst)) throw new Exception("rename");
@@ -209,6 +221,18 @@ public class SherpaAsr {
             }
         }, "asr-dl");
         dlThread.start();
+    }
+
+    /** SHA-256 (hex صغير) لملف — للتحقق من سلامة التنزيل مقابل HASHES */
+    private static String sha256(File f) throws Exception {
+        java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+        try (InputStream in = new java.io.FileInputStream(f)) {
+            byte[] b = new byte[65536]; int n;
+            while ((n = in.read(b)) >= 0) md.update(b, 0, n);
+        }
+        StringBuilder sb = new StringBuilder(64);
+        for (byte x : md.digest()) sb.append(Character.forDigit((x >> 4) & 15, 16)).append(Character.forDigit(x & 15, 16));
+        return sb.toString();
     }
 
     private static HttpURLConnection open(String u) throws Exception {
@@ -522,7 +546,7 @@ public class SherpaAsr {
                 /* مقطع VAD المكتمل يغطي كل ما تراكم لدينا */
                 segAcc.clear(); segAccLen = 0; segPeak = 0f;
                 float[] s = seg.getSamples();
-                if (s == null || s.length < SAMPLE_RATE * 7 / 20) continue; // تجاهل ما دون 0.35 ثانية (حماية من هلوسة الضجيج)
+                if (s == null || s.length < SAMPLE_RATE / 2) continue; // تجاهل ما دون 0.5 ثانية (حماية من هلوسة الضجيج والمقاطع القصيرة)
                 if (s.length > SAMPLE_RATE * 28) s = java.util.Arrays.copyOf(s, SAMPLE_RATE * 28);
                 submitDecode(mySid, s);
             }
@@ -535,11 +559,23 @@ public class SherpaAsr {
         pool.execute(() -> {
             long d0 = SystemClock.elapsedRealtime();
             try {
+                /* تنظيف المقطع: تخطَّ شبه الصامت (كان يسبب هلوسة كلمات مثل «يُمُدِّهِ» من مقطع 8s)،
+                   وقصّ الصمت الطرفي — whisper يهلوس مع الصمت الطويل، وذيل نظيف يُلحق لاحقًا عبر TAIL_PAD */
+                float pk = 0f; double s0 = 0;
+                for (float v : seg2) { float a = v < 0 ? -v : v; if (a > pk) pk = a; s0 += (double) v * v; }
+                if (Math.sqrt(s0 / Math.max(1, seg2.length)) < 0.002) return;
+                float th = pk * 0.02f;
+                int lo = 0, hi = seg2.length;
+                while (lo < hi && Math.abs(seg2[lo]) < th) lo++;
+                while (hi > lo && Math.abs(seg2[hi - 1]) < th) hi--;
+                lo = Math.max(0, lo - (int) (SAMPLE_RATE * 0.15f));
+                final float[] seg = (seg2.length - (hi - lo) > SAMPLE_RATE / 2) ? java.util.Arrays.copyOfRange(seg2, lo, hi) : seg2;
+                if (seg.length < SAMPLE_RATE / 2) return;
                 String text;
                 synchronized (recLock) { /* منع تحرير النموذج أثناء فك التشفير */
                     OfflineRecognizer r = rec;
                     if (r == null) return;
-                    float[] padded = java.util.Arrays.copyOf(seg2, seg2.length + TAIL_PAD);
+                    float[] padded = java.util.Arrays.copyOf(seg, seg.length + TAIL_PAD);
                     OfflineStream st = r.createStream();
                     try {
                         st.setOption("max_tokens_per_second", "30"); /* العربية المشكولة ~٦-٨ توكن للكلمة؛ الافتراضي ٦ يقتطع الكلام */
@@ -550,8 +586,8 @@ public class SherpaAsr {
                         try { st.release(); } catch (Throwable ignored) {}
                     }
                 }
-                double ss = 0; for (float v : seg2) ss += (double) v * v;
-                diag("فك تشفير مقطع " + String.format(java.util.Locale.US, "%.1f", seg2.length / (float) SAMPLE_RATE) + "s في " + (SystemClock.elapsedRealtime() - d0) + "ms rms=" + String.format(java.util.Locale.US, "%.4f", Math.sqrt(ss / Math.max(1, seg2.length))) + " g=" + String.format(java.util.Locale.US, "%.1f", agcGain) + "×");
+                double ss = 0; for (float v : seg) ss += (double) v * v;
+                diag("فك تشفير مقطع " + String.format(java.util.Locale.US, "%.1f", seg.length / (float) SAMPLE_RATE) + "s في " + (SystemClock.elapsedRealtime() - d0) + "ms rms=" + String.format(java.util.Locale.US, "%.4f", Math.sqrt(ss / Math.max(1, seg.length))) + " g=" + String.format(java.util.Locale.US, "%.1f", agcGain) + "×");
                 if (text != null && !text.trim().isEmpty()) {
                     String tt = text.trim();
                     diag("سمع: «" + (tt.length() > 80 ? tt.substring(0, 80) + "…" : tt) + "»");
