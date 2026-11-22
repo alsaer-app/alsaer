@@ -1805,10 +1805,11 @@ html.rc-dlgon,html.rc-dlgon body{overflow:hidden!important;overscroll-behavior:n
 .dg-l{display:flex;flex-direction:column;gap:2px;padding:8px 0;border-top:1px solid var(--line)}
 .dg-l small{opacity:.55;font-size:11.5px}
 .dg-m{direction:ltr;text-align:left;word-break:break-word;font-size:12px}
-.rc-mdl{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:8px 10px;border-radius:14px;border:1px solid color-mix(in srgb,var(--fg) 10%,transparent)}
+.rc-mdl{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:10px 12px;border-radius:14px;border:1px solid color-mix(in srgb,var(--fg) 10%,transparent)}
 .rc-mdl.on{border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
-.rc-mdl .rc-mt{flex:1}
-.rc-mdl-a{display:flex;align-items:center;gap:8px;flex:none}
+.rc-mdl .rc-mt{width:100%}
+.rc-mdl .rc-mt small{display:block}
+.rc-mdl-a{display:flex;align-items:center;gap:10px;justify-content:flex-end;min-height:34px}
 .rc-mdl-a .rc-ok{color:#43d9a0;font-size:12.5px;font-weight:700}
 .rc-dlp{display:flex;align-items:center;gap:8px;flex:1;min-width:130px}
 .rc-dlp .tr{flex:1;max-width:130px;height:6px;border-radius:6px;background:color-mix(in srgb,var(--fg) 12%,transparent);overflow:hidden}
@@ -2431,9 +2432,9 @@ function fixShape(o){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(o.fasting.dawudAnchor||''))o.fasting.dawudAnchor=dk();
   return o;
 }
-function load(){try{var r=localStorage.getItem(KEY);if(r)return fixShape(Object.assign(def(),JSON.parse(r)))}catch(e){}return mem||def()}
+function load(){try{var r=localStorage.getItem(KEY);if(!r&&window.AlsaerNative&&AlsaerNative.mirrorGet){try{r=AlsaerNative.mirrorGet(KEY);if(r)try{localStorage.setItem(KEY,r)}catch(e2){}}catch(e1){}}if(r)return fixShape(Object.assign(def(),JSON.parse(r)))}catch(e){}return mem||def()}
 var saveTm=0,saveOff=false;
-function saveNow(){if(saveTm){clearTimeout(saveTm);saveTm=0}if(saveOff)return;S.updatedAt=Date.now();mem=S;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('لم نتمكن من الحفظ، فقد تكون مساحة التخزين ممتلئة')}}
+function saveNow(){if(saveTm){clearTimeout(saveTm);saveTm=0}if(saveOff)return;S.updatedAt=Date.now();mem=S;try{var js=JSON.stringify(S);localStorage.setItem(KEY,js);try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,js)}catch(e3){}}catch(e){toast('لم نتمكن من الحفظ، فقد تكون مساحة التخزين ممتلئة')}}
 function save(){if(saveOff)return;S.updatedAt=Date.now();mem=S;if(!saveTm)saveTm=setTimeout(saveNow,160)}
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&saveTm)saveNow()});
 window.addEventListener('pagehide',function(){if(saveTm)saveNow()});
@@ -5578,6 +5579,8 @@ function rcLoad(c,a){
   /* نص تنزيل يضع البسملة في أول آية لكل السور؛ هي آية في الفاتحة فقط، فنحذفها من غيرها */
   if(c!==1&&rc.w.slice(0,4).map(function(x){return x.n}).join(' ')==='بسم الله الرحمن الرحيم'&&rc.w.length>4)rc.w.splice(0,4);
   if(rc.ay>0)rc.w=rc.w.filter(function(x){return x.a===rc.ay});
+  /* تسخين النموذج المحلي مبكرًا عند فتح الشاشة حتى لا ينتظر المستخدم عند ضغط الميكروفون */
+  try{var PP=rcPref();if(PP.lm&&window.AlsaerNative&&AlsaerNative.asrWarmup)AlsaerNative.asrWarmup(PP.lm)}catch(e){}
   return rc.w.length>0;
 }
 /* يطابق كلمات مسموعة مع الموضع الحالي: يبحث في نافذة أمامية قصيرة، ويعلّم ما تُخطّي بالأحمر */
@@ -5765,7 +5768,7 @@ function rcLocalHtml(P){
   function row(kind,name,size,desc){
     var dl=st.dl&&st.dl.kind===kind;
     return '<div class="rc-mdl'+(inst(kind)?' on':'')+'">'
-      +'<label class="rc-mt"><input type="radio" name="rclm" value="'+kind+'"'+((P.lm===kind&&inst(kind))?' checked':'')+(inst(kind)?'':' disabled')+'><span><b>'+name+'</b><small>'+desc+' · '+ar(size)+' ميجا · تحميل لمرة واحدة</small></span></label>'
+      +'<label class="rc-mt"><input type="radio" name="rclm" value="'+kind+'"'+((P.lm===kind&&inst(kind))?' checked':'')+(inst(kind)?'':' disabled')+'><span><b>'+name+' <small style="font-weight:400;color:var(--muted)">· '+ar(size)+' ميجا</small></b><small>'+desc+'</small></span></label>'
       +'<div class="rc-mdl-a" id="rc-dl-'+kind+'">'
       +(dl?'<div class="rc-dlp"><span class="tr"><i style="width:'+(st.dl.pct||0)+'%"></i></span><em>'+ar(st.dl.pct||0)+'٪</em><button class="rc-tb" data-a="rcdlx" aria-label="إلغاء التنزيل">✕</button></div>'
         :inst(kind)?'<span class="rc-ok">منزّل ✓</span><button class="rc-tb" data-a="rcdel" data-v="'+kind+'" aria-label="حذف النموذج">🗑</button>'
@@ -5773,7 +5776,7 @@ function rcLocalHtml(P){
       +'</div></div>';
   }
   return '<div class="rc-grp"><h4>📖 النموذج القرآني المحلي (دقة قريبة من ترتيل)</h4>'
-   +'<p class="note">تعرّف مضبوط على القرآن الكريم يعمل بالكامل على جهازك بلا إنترنت؛ الصوت لا يغادر هاتفك أبدًا. نموذج Tarteel AI (Apache-2.0) بمحرك sherpa-onnx مفتوح المصدر.</p>'
+   +'<p class="note">تعرّف مضبوط على القرآن الكريم يعمل بالكامل على جهازك بلا إنترنت؛ الصوت لا يغادر هاتفك أبدًا. التنزيل لمرة واحدة فقط. نموذج Tarteel AI (Apache-2.0) بمحرك sherpa-onnx مفتوح المصدر.</p>'
    +'<label class="rc-mt"><input type="radio" name="rclm" value=""'+((!P.lm||!inst(P.lm))?' checked':'')+'><span><b>تعرّف Google (الافتراضي)</b><small>سريع ويحتاج إنترنت — يبقى متاحًا حتى مع وجود النموذج المحلي</small></span></label>'
    +row('base','الدقة العالية',161,'الأقرب لدقة ترتيل — يناسب الموبايلات المتوسطة فأعلى')
    +row('tiny','الخفيف',104,'للموبايلات الأضعف — أخف وأسرع بدقة أدنى قليلًا')
@@ -5890,8 +5893,9 @@ function rcLocOk(){
 }
 window.__rcAsr=function(t,sid,d){
   var L=rcAsr.loc;if(!L||L.dead||sid!==L.sid)return;
-  if(t==='ready'){L.say('النموذج القرآني يعمل — تلُ الآن… أسمعك',false);return}
+  if(t==='ready'){L.ready=true;if(L.wd){clearTimeout(L.wd);L.wd=null}L.say('النموذج القرآني يعمل — تلُ الآن… أسمعك',false);return}
   if(t==='err'){
+    if(L.wd){clearTimeout(L.wd);L.wd=null}
     L.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
     if(d==='9'){L.onErr('لم يُسمح بالميكروفون. فعّله من إعدادات الهاتف ← التطبيقات ← السائر ← الأذونات.');return}
     if(d==='nomodel'){L.fallback();return}
@@ -5902,8 +5906,15 @@ window.__rcAsr=function(t,sid,d){
 };
 function rcLocStart(onText,onErr,say,fallback){
   var sid=(rcAsr.lsid=(rcAsr.lsid||0)+1);
-  var gen={dead:false,sid:sid,onText:onText,onErr:onErr,say:say,fallback:fallback};
+  var gen={dead:false,ready:false,wd:null,sid:sid,onText:onText,onErr:onErr,say:say,fallback:fallback};
   rcAsr.loc=gen;
+  /* مراقب التحميل: أول تجهيز للنموذج قد يطول على الأجهزة الضعيفة؛ بعد ٤٥ ثانية نعود لجوجل برسالة واضحة */
+  gen.wd=setTimeout(function(){
+    if(rcAsr.loc!==gen||gen.dead||gen.ready)return;
+    gen.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
+    say('تعذّر تجهيز النموذج في الوقت المناسب — جرّب «الخفيف» من الإعدادات؛ عدنا لتعرّف Google مؤقتًا.',true);
+    fallback();
+  },45000);
   var md=navigator.mediaDevices;
   /* getUserMedia لطلب إذن الميكروفون عبر التطبيق (يملكه النظام بعدها AudioRecord) ثم نحرّره فورًا */
   var perm=(md&&md.getUserMedia)?md.getUserMedia({audio:true}).then(function(st){st.getTracks().forEach(function(t){t.stop()})}):Promise.resolve();
@@ -5960,7 +5971,7 @@ function rcWsStart(onText,onErr,say,fallback){
 function rcAsrStop(){rcAsr.stopped=true;
   if(rcAsr.ws){var wg=rcAsr.ws;wg.dead=true;rcAsr.ws=null;try{wg.rec&&wg.rec.abort()}catch(e){}}
   if(rcAsr.nat){rcAsr.nat.dead=true;rcAsr.nat=null;try{AlsaerNative.speechStop()}catch(e){}}
-  if(rcAsr.loc){rcAsr.loc.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}}
+  if(rcAsr.loc){if(rcAsr.loc.wd)clearTimeout(rcAsr.loc.wd);rcAsr.loc.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}}
   var r=rcAsr.rec;rcAsr.rec=null;if(!r)return;r.dead=true;
   try{r.node.disconnect()}catch(e){}try{r.src.disconnect()}catch(e){}
   try{r.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}try{r.ctx.close()}catch(e){}

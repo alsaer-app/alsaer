@@ -156,10 +156,11 @@ html.rc-dlgon,html.rc-dlgon body{overflow:hidden!important;overscroll-behavior:n
 .dg-l{display:flex;flex-direction:column;gap:2px;padding:8px 0;border-top:1px solid var(--line)}
 .dg-l small{opacity:.55;font-size:11.5px}
 .dg-m{direction:ltr;text-align:left;word-break:break-word;font-size:12px}
-.rc-mdl{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:8px 10px;border-radius:14px;border:1px solid color-mix(in srgb,var(--fg) 10%,transparent)}
+.rc-mdl{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:10px 12px;border-radius:14px;border:1px solid color-mix(in srgb,var(--fg) 10%,transparent)}
 .rc-mdl.on{border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
-.rc-mdl .rc-mt{flex:1}
-.rc-mdl-a{display:flex;align-items:center;gap:8px;flex:none}
+.rc-mdl .rc-mt{width:100%}
+.rc-mdl .rc-mt small{display:block}
+.rc-mdl-a{display:flex;align-items:center;gap:10px;justify-content:flex-end;min-height:34px}
 .rc-mdl-a .rc-ok{color:#43d9a0;font-size:12.5px;font-weight:700}
 .rc-dlp{display:flex;align-items:center;gap:8px;flex:1;min-width:130px}
 .rc-dlp .tr{flex:1;max-width:130px;height:6px;border-radius:6px;background:color-mix(in srgb,var(--fg) 12%,transparent);overflow:hidden}

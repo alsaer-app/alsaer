@@ -325,7 +325,7 @@ public class SherpaAsr {
         return vad;
     }
 
-    public synchronized void start(String kind) {
+    public synchronized void start(final String kind) {
         if (running) return;
         final int mySid = ++sid;
         if (idxOf(kind) < 0 || !installed(kind)) { emit(mySid, "err", "nomodel"); return; }
@@ -333,21 +333,34 @@ public class SherpaAsr {
             emit(mySid, "err", "9");
             return;
         }
-        if (!ensureRec(kind)) { emit(mySid, "err", "load"); return; }
-        try { ensureVad(); } catch (Throwable t) { emit(mySid, "err", "vad"); return; }
+        running = true; // منع البدء المزدوج أثناء التحميل
+        emit(mySid, "loading", kind);
+        /* تحميل النموذج قد يأخذ ثواني طويلة على الأجهزة الضعيفة، فلا نحجب خيط الجسر:
+           التحميل في الخلفية، و«ready» يصل الصفحة عندما يبدأ الميكروفون فعلًا. */
+        new Thread(() -> {
+            if (!ensureRec(kind)) { running = false; emit(mySid, "err", "load"); return; }
+            try { ensureVad(); } catch (Throwable t) { running = false; emit(mySid, "err", "vad"); return; }
+            synchronized (SherpaAsr.this) {
+                if (!running || mySid != sid) return; // أُوقف أثناء التحميل
+                startCapture(mySid);
+            }
+        }, "asr-load").start();
+    }
+
+    private void startCapture(final int mySid) {
         int minBuf = AudioRecord.getMinBufferSize(SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
         final AudioRecord rec0;
         try {
             rec0 = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, SAMPLE_RATE,
                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, Math.max(minBuf, SAMPLE_RATE * 2));
-            if (rec0.getState() != AudioRecord.STATE_INITIALIZED) { rec0.release(); emit(mySid, "err", "mic"); return; }
-        } catch (Throwable t) { emit(mySid, "err", "mic"); return; }
+            if (rec0.getState() != AudioRecord.STATE_INITIALIZED) { rec0.release(); running = false; emit(mySid, "err", "mic"); return; }
+        } catch (Throwable t) { running = false; emit(mySid, "err", "mic"); return; }
         ar = rec0;
         if (decPool == null || decPool.isShutdown()) decPool = Executors.newSingleThreadExecutor();
         running = true;
         capThread = new Thread(() -> {
             try {
-                rec0.startRecording();
+                try { rec0.startRecording(); } catch (Throwable t) { running = false; emit(mySid, "err", "mic"); return; }
                 emit(mySid, "ready", recKind);
                 short[] buf = new short[512];
                 float[] fbuf = new float[512];
@@ -361,13 +374,21 @@ public class SherpaAsr {
                 }
                 vad.flush();
                 drainVad(mySid);
-            } catch (Throwable ignored) {
+            } catch (Throwable t) {
+                if (running) { running = false; emit(mySid, "err", "cap"); }
             } finally {
                 try { rec0.stop(); } catch (Throwable ignored) {}
                 try { rec0.release(); } catch (Throwable ignored) {}
             }
         }, "asr-cap");
         capThread.start();
+    }
+
+    /** تسخين مسبق: تحميل النموذج في الخلفية دون بدء الميكروفون (مثلًا بعد فتح شاشة التلاوة). */
+    public synchronized void warmup(String kind) {
+        if (running || (rec != null && recKind.equals(kind))) return;
+        if (idxOf(kind) < 0 || !installed(kind)) return;
+        new Thread(() -> ensureRec(kind), "asr-warm").start();
     }
 
     private void drainVad(int mySid) {

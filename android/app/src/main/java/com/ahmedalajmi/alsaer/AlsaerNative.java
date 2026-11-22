@@ -42,12 +42,21 @@ public class AlsaerNative {
     @JavascriptInterface public void speechOnDevice(boolean b) { speech.setOnDevice(b); }
     @JavascriptInterface public void speechSilent(boolean on) { speech.silent(on); }
 
+    /* ---- مرآة إعدادات الويب في SharedPreferences: تحمي من فقدان localStorage عند أي تغيير في أصل WebView ---- */
+    @JavascriptInterface public void mirrorSet(String k, String v) {
+        act.getSharedPreferences("alsaer_webstore_mirror", 0).edit().putString(k, v).apply();
+    }
+    @JavascriptInterface public String mirrorGet(String k) {
+        return act.getSharedPreferences("alsaer_webstore_mirror", 0).getString(k, null);
+    }
+
     /* ---- النموذج القرآني المحلي (sherpa-onnx): حالة/تنزيل/تشغيل ---- */
     @JavascriptInterface public String asrStatus() { return sherpa.status(); }
     @JavascriptInterface public void asrDownload(String kind) { sherpa.download(kind); }
     @JavascriptInterface public void asrCancelDownload() { sherpa.cancelDownload(); }
     @JavascriptInterface public void asrDelete(String kind) { sherpa.delete(kind); }
     @JavascriptInterface public void asrStart(String kind) { sherpa.start(kind); }
+    @JavascriptInterface public void asrWarmup(String kind) { sherpa.warmup(kind); }
     @JavascriptInterface public void asrStop() { sherpa.stop(); }
 
     @JavascriptInterface

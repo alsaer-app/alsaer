@@ -28,6 +28,8 @@ function rcLoad(c,a){
   /* نص تنزيل يضع البسملة في أول آية لكل السور؛ هي آية في الفاتحة فقط، فنحذفها من غيرها */
   if(c!==1&&rc.w.slice(0,4).map(function(x){return x.n}).join(' ')==='بسم الله الرحمن الرحيم'&&rc.w.length>4)rc.w.splice(0,4);
   if(rc.ay>0)rc.w=rc.w.filter(function(x){return x.a===rc.ay});
+  /* تسخين النموذج المحلي مبكرًا عند فتح الشاشة حتى لا ينتظر المستخدم عند ضغط الميكروفون */
+  try{var PP=rcPref();if(PP.lm&&window.AlsaerNative&&AlsaerNative.asrWarmup)AlsaerNative.asrWarmup(PP.lm)}catch(e){}
   return rc.w.length>0;
 }
 /* يطابق كلمات مسموعة مع الموضع الحالي: يبحث في نافذة أمامية قصيرة، ويعلّم ما تُخطّي بالأحمر */
@@ -215,7 +217,7 @@ function rcLocalHtml(P){
   function row(kind,name,size,desc){
     var dl=st.dl&&st.dl.kind===kind;
     return '<div class="rc-mdl'+(inst(kind)?' on':'')+'">'
-      +'<label class="rc-mt"><input type="radio" name="rclm" value="'+kind+'"'+((P.lm===kind&&inst(kind))?' checked':'')+(inst(kind)?'':' disabled')+'><span><b>'+name+'</b><small>'+desc+' · '+ar(size)+' ميجا · تحميل لمرة واحدة</small></span></label>'
+      +'<label class="rc-mt"><input type="radio" name="rclm" value="'+kind+'"'+((P.lm===kind&&inst(kind))?' checked':'')+(inst(kind)?'':' disabled')+'><span><b>'+name+' <small style="font-weight:400;color:var(--muted)">· '+ar(size)+' ميجا</small></b><small>'+desc+'</small></span></label>'
       +'<div class="rc-mdl-a" id="rc-dl-'+kind+'">'
       +(dl?'<div class="rc-dlp"><span class="tr"><i style="width:'+(st.dl.pct||0)+'%"></i></span><em>'+ar(st.dl.pct||0)+'٪</em><button class="rc-tb" data-a="rcdlx" aria-label="إلغاء التنزيل">✕</button></div>'
         :inst(kind)?'<span class="rc-ok">منزّل ✓</span><button class="rc-tb" data-a="rcdel" data-v="'+kind+'" aria-label="حذف النموذج">🗑</button>'
@@ -223,7 +225,7 @@ function rcLocalHtml(P){
       +'</div></div>';
   }
   return '<div class="rc-grp"><h4>📖 النموذج القرآني المحلي (دقة قريبة من ترتيل)</h4>'
-   +'<p class="note">تعرّف مضبوط على القرآن الكريم يعمل بالكامل على جهازك بلا إنترنت؛ الصوت لا يغادر هاتفك أبدًا. نموذج Tarteel AI (Apache-2.0) بمحرك sherpa-onnx مفتوح المصدر.</p>'
+   +'<p class="note">تعرّف مضبوط على القرآن الكريم يعمل بالكامل على جهازك بلا إنترنت؛ الصوت لا يغادر هاتفك أبدًا. التنزيل لمرة واحدة فقط. نموذج Tarteel AI (Apache-2.0) بمحرك sherpa-onnx مفتوح المصدر.</p>'
    +'<label class="rc-mt"><input type="radio" name="rclm" value=""'+((!P.lm||!inst(P.lm))?' checked':'')+'><span><b>تعرّف Google (الافتراضي)</b><small>سريع ويحتاج إنترنت — يبقى متاحًا حتى مع وجود النموذج المحلي</small></span></label>'
    +row('base','الدقة العالية',161,'الأقرب لدقة ترتيل — يناسب الموبايلات المتوسطة فأعلى')
    +row('tiny','الخفيف',104,'للموبايلات الأضعف — أخف وأسرع بدقة أدنى قليلًا')

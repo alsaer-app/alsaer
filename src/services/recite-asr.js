@@ -55,8 +55,9 @@ function rcLocOk(){
 }
 window.__rcAsr=function(t,sid,d){
   var L=rcAsr.loc;if(!L||L.dead||sid!==L.sid)return;
-  if(t==='ready'){L.say('النموذج القرآني يعمل — تلُ الآن… أسمعك',false);return}
+  if(t==='ready'){L.ready=true;if(L.wd){clearTimeout(L.wd);L.wd=null}L.say('النموذج القرآني يعمل — تلُ الآن… أسمعك',false);return}
   if(t==='err'){
+    if(L.wd){clearTimeout(L.wd);L.wd=null}
     L.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
     if(d==='9'){L.onErr('لم يُسمح بالميكروفون. فعّله من إعدادات الهاتف ← التطبيقات ← السائر ← الأذونات.');return}
     if(d==='nomodel'){L.fallback();return}
@@ -67,8 +68,15 @@ window.__rcAsr=function(t,sid,d){
 };
 function rcLocStart(onText,onErr,say,fallback){
   var sid=(rcAsr.lsid=(rcAsr.lsid||0)+1);
-  var gen={dead:false,sid:sid,onText:onText,onErr:onErr,say:say,fallback:fallback};
+  var gen={dead:false,ready:false,wd:null,sid:sid,onText:onText,onErr:onErr,say:say,fallback:fallback};
   rcAsr.loc=gen;
+  /* مراقب التحميل: أول تجهيز للنموذج قد يطول على الأجهزة الضعيفة؛ بعد ٤٥ ثانية نعود لجوجل برسالة واضحة */
+  gen.wd=setTimeout(function(){
+    if(rcAsr.loc!==gen||gen.dead||gen.ready)return;
+    gen.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
+    say('تعذّر تجهيز النموذج في الوقت المناسب — جرّب «الخفيف» من الإعدادات؛ عدنا لتعرّف Google مؤقتًا.',true);
+    fallback();
+  },45000);
   var md=navigator.mediaDevices;
   /* getUserMedia لطلب إذن الميكروفون عبر التطبيق (يملكه النظام بعدها AudioRecord) ثم نحرّره فورًا */
   var perm=(md&&md.getUserMedia)?md.getUserMedia({audio:true}).then(function(st){st.getTracks().forEach(function(t){t.stop()})}):Promise.resolve();
@@ -125,7 +133,7 @@ function rcWsStart(onText,onErr,say,fallback){
 function rcAsrStop(){rcAsr.stopped=true;
   if(rcAsr.ws){var wg=rcAsr.ws;wg.dead=true;rcAsr.ws=null;try{wg.rec&&wg.rec.abort()}catch(e){}}
   if(rcAsr.nat){rcAsr.nat.dead=true;rcAsr.nat=null;try{AlsaerNative.speechStop()}catch(e){}}
-  if(rcAsr.loc){rcAsr.loc.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}}
+  if(rcAsr.loc){if(rcAsr.loc.wd)clearTimeout(rcAsr.loc.wd);rcAsr.loc.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}}
   var r=rcAsr.rec;rcAsr.rec=null;if(!r)return;r.dead=true;
   try{r.node.disconnect()}catch(e){}try{r.src.disconnect()}catch(e){}
   try{r.stream.getTracks().forEach(function(t){t.stop()})}catch(e){}try{r.ctx.close()}catch(e){}

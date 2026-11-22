@@ -32,9 +32,9 @@ function fixShape(o){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(o.fasting.dawudAnchor||''))o.fasting.dawudAnchor=dk();
   return o;
 }
-function load(){try{var r=localStorage.getItem(KEY);if(r)return fixShape(Object.assign(def(),JSON.parse(r)))}catch(e){}return mem||def()}
+function load(){try{var r=localStorage.getItem(KEY);if(!r&&window.AlsaerNative&&AlsaerNative.mirrorGet){try{r=AlsaerNative.mirrorGet(KEY);if(r)try{localStorage.setItem(KEY,r)}catch(e2){}}catch(e1){}}if(r)return fixShape(Object.assign(def(),JSON.parse(r)))}catch(e){}return mem||def()}
 var saveTm=0,saveOff=false;
-function saveNow(){if(saveTm){clearTimeout(saveTm);saveTm=0}if(saveOff)return;S.updatedAt=Date.now();mem=S;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('لم نتمكن من الحفظ، فقد تكون مساحة التخزين ممتلئة')}}
+function saveNow(){if(saveTm){clearTimeout(saveTm);saveTm=0}if(saveOff)return;S.updatedAt=Date.now();mem=S;try{var js=JSON.stringify(S);localStorage.setItem(KEY,js);try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,js)}catch(e3){}}catch(e){toast('لم نتمكن من الحفظ، فقد تكون مساحة التخزين ممتلئة')}}
 function save(){if(saveOff)return;S.updatedAt=Date.now();mem=S;if(!saveTm)saveTm=setTimeout(saveNow,160)}
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&saveTm)saveNow()});
 window.addEventListener('pagehide',function(){if(saveTm)saveNow()});

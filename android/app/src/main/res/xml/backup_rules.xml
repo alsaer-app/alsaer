@@ -10,4 +10,5 @@
     <exclude domain="sharedpref" path="alsaer_notif.xml" />
     <exclude domain="sharedpref" path="alsaer_float.xml" />
     <exclude domain="sharedpref" path="CapacitorStorage.xml" />
+    <exclude domain="sharedpref" path="alsaer_webstore_mirror.xml" />
 </full-backup-content>
