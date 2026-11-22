@@ -348,7 +348,22 @@ public class SherpaAsr {
         /* تحميل النموذج قد يأخذ ثواني طويلة على الأجهزة الضعيفة، فلا نحجب خيط الجسر:
            التحميل في الخلفية، و«ready» يصل الصفحة عندما يبدأ الميكروفون فعلًا. */
         new Thread(() -> {
-            if (!ensureRec(kind)) { running = false; emit(mySid, "err", "load"); return; }
+            /* نبضة «loading» كل ١٥ ثانية أثناء التحميل: تُعلم الصفحة أن التحميل يتقدم فلا يسقط مراقبها لجوجل */
+            final java.util.concurrent.atomic.AtomicBoolean loaded = new java.util.concurrent.atomic.AtomicBoolean(false);
+            Thread hb = new Thread(() -> {
+                try {
+                    while (!loaded.get()) {
+                        Thread.sleep(15000);
+                        if (!loaded.get()) emit(mySid, "loading", kind);
+                    }
+                } catch (InterruptedException ignored) {}
+            }, "asr-hb");
+            hb.setDaemon(true);
+            hb.start();
+            boolean ok = ensureRec(kind);
+            loaded.set(true);
+            hb.interrupt();
+            if (!ok) { running = false; emit(mySid, "err", "load"); return; }
             try { ensureVad(); } catch (Throwable t) { running = false; emit(mySid, "err", "vad"); return; }
             synchronized (SherpaAsr.this) {
                 if (!running || mySid != sid) return; // أُوقف أثناء التحميل
