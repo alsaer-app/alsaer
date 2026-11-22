@@ -109,7 +109,7 @@ function mpApplySel(){
   if(!mpSel){if(bar)bar.remove();return}
   if(!bar){bar=document.createElement('div');bar.id='mp-vb';bar.className='mp-vb';document.body.appendChild(bar)}
   var mk=!!vm[mpSel];
-  bar.innerHTML='<b>'+esc(mpVName(mpSel))+'</b>'+((mpTf.k===mpSel&&mpTf.t)?'<div class="mp-tf" dir="rtl">'+esc(mpTf.t)+'</div>':'')+'<div class="mp-vbb"><button data-mp2="tf" class="'+(mpTf.k===mpSel?'on':'')+'">تفسير</button><button data-mp2="rec">سمّع</button><button data-mp2="copy">نسخ</button><button data-mp2="mark" class="'+(mk?'on':'')+'">'+(mk?'★ علامة':'☆ علامة حفظ')+'</button><button data-mp2="share">مشاركة</button><button data-mp2="x" aria-label="إغلاق">✕</button></div>';
+  bar.innerHTML='<b>'+esc(mpVName(mpSel))+'</b>'+((mpTf.k===mpSel&&mpTf.t)?'<div class="mp-tf" dir="rtl">'+esc(mpTf.t)+'</div>':'')+'<div class="mp-vbb"><button data-mp2="tf" class="'+(mpTf.k===mpSel?'on':'')+'">تفسير</button><button data-mp2="copy">نسخ</button><button data-mp2="mark" class="'+(mk?'on':'')+'">'+(mk?'★ علامة':'☆ علامة حفظ')+'</button><button data-mp2="share">مشاركة</button><button data-mp2="x" aria-label="إغلاق">✕</button></div>';
 }
 function mpVerseText(v){var q=String(v).split(':'),t;try{if(isW()&&WD().s[+q[0]-1]&&WD().s[+q[0]-1][+q[1]-1])t=String(WD().s[+q[0]-1][+q[1]-1])}catch(e){}return '﴿'+(t||verseText(+q[0],+q[1]))+'﴾ — '+mpVName(v)}
 /* كاش التفسير بسقف: ٣٠٠ آية كحد أقصى، الأقدم يُمسح أولًا، حتى لا تمتلئ مساحة التخزين بصمت */
@@ -133,7 +133,6 @@ document.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('[data-mp2]');if(!b)return;e.stopPropagation();
   var k=b.getAttribute('data-mp2');
   if(k==='x'){mpSel='';mpApplySel();return}
-  if(k==='rec'){var q9=String(mpSel).split(':');mpSel='';mpApplySel();rcStop();rcLoad(+q9[0],+q9[1]);rc.msg='';tab='recite';window.scrollTo(0,0);render();return}
   if(k==='tf'){
     var kk=mpSel;if(mpTf.k===kk){mpTf={k:'',t:''};mpApplySel();return}
     var q8=kk.split(':'),ck='alsaer_tf_'+kk,c0='';try{c0=localStorage.getItem(ck)||''}catch(x){}if(c0)tfTouch(ck)
