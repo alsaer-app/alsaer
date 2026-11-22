@@ -18,9 +18,8 @@ public class AlsaerNative {
 
     private final Speech speech;
 
-    private final SherpaAsr sherpa;
 
-    public AlsaerNative(Activity a) { act = a; speech = new Speech(a); sherpa = new SherpaAsr(a); }
+    public AlsaerNative(Activity a) { act = a; speech = new Speech(a); }
 
     @JavascriptInterface
     public boolean speechAvailable() { return speech.available(); }
@@ -50,18 +49,19 @@ public class AlsaerNative {
         return act.getSharedPreferences("alsaer_webstore_mirror", 0).getString(k, null);
     }
 
-    /* ---- النموذج القرآني المحلي (sherpa-onnx): حالة/تنزيل/تشغيل ---- */
-    @JavascriptInterface public String asrStatus() { return sherpa.status(); }
-    @JavascriptInterface public void asrDownload(String kind) { sherpa.download(kind); }
-    @JavascriptInterface public void asrCancelDownload() { sherpa.cancelDownload(); }
-    @JavascriptInterface public void asrDelete(String kind) { sherpa.delete(kind); }
-    @JavascriptInterface public void asrStart(String kind, int jsid) { if ("tf".equals(kind)) { sherpa.stop(); TfEngine.INSTANCE.start(act, jsid); } else { TfEngine.INSTANCE.stop(); sherpa.start(kind, jsid); } }
+    /* ---- محرك التسميع المحلي (Quran Lab V4): حالة/تشغيل/إيقاف ---- */
+    @JavascriptInterface public String asrStatus() {
+        try {
+            JSONObject o = new JSONObject();
+            JSONObject tfk = new JSONObject(); tfk.put("installed", TfEngine.INSTANCE.available()); tfk.put("bytes", 0); o.put("tf", tfk);
+            return o.toString();
+        } catch (Exception e) { return "{}"; }
+    }
+    @JavascriptInterface public void asrStart(String kind, int jsid) { if ("tf".equals(kind)) TfEngine.INSTANCE.start(act, jsid); }
     @JavascriptInterface public void tfConfig(String json) { TfEngine.INSTANCE.configure(json); }
-    @JavascriptInterface public void asrWarmup(String kind) { if (!"tf".equals(kind)) sherpa.warmup(kind); }
-    @JavascriptInterface public void asrStop() { sherpa.stop(); TfEngine.INSTANCE.stop(); }
+    @JavascriptInterface public void asrStop() { TfEngine.INSTANCE.stop(); }
     @JavascriptInterface public String appBuildInfo() { return BuildConfig.VERSION_NAME + "|" + BuildConfig.VERSION_CODE; }
-    @JavascriptInterface public String asrDiag() { return SherpaAsr.diagDump(); }
-    @JavascriptInterface public void asrSelfTest(String kind) { sherpa.selfTest(kind); }
+    @JavascriptInterface public String asrDiag() { return AsrLog.diagDump(); }
     @JavascriptInterface public void shareText(String title, String body) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("text/plain");
