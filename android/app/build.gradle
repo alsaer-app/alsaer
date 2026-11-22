@@ -8,8 +8,8 @@ android {
         applicationId "com.ahmedalajmi.alsaer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10188
-        versionName "1.0.16-test11-v4diag"
+        versionCode 10189
+        versionName "1.0.16-test12-v4map"
         // مفتاح Quran Lab (تجريبي): من متغير بيئة/سر GitHub فقط، لا يُكتب في المستودع أبدًا
         buildConfigField "String", "QURANLAB_KEY", groovy.json.JsonOutput.toJson(System.getenv('QURANLAB_KEY') ?: '')
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

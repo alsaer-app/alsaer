@@ -302,7 +302,7 @@ public class SherpaAsr {
     }
     public static synchronized String diagDump() {
         StringBuilder b = new StringBuilder();
-        b.append("Alsaer ").append(BuildConfig.VERSION_NAME).append(" (").append(BuildConfig.VERSION_CODE).append(") | merge=v2-min6s-stop-only v4diag=1\n");
+        b.append("Alsaer ").append(BuildConfig.VERSION_NAME).append(" (").append(BuildConfig.VERSION_CODE).append(") | merge=v2-min6s-stop-only v4diag=1 v4map=1\n");
         for (String x : DIAG) b.append(x).append('\n');
         return b.toString();
     }

@@ -133,16 +133,34 @@ object TfEngine {
                 SherpaAsr.diag("tf: التنزيل مكتمل — فتح النموذج")
                 emit(jsid, "dl", "open")
                 advStamp.set(android.os.SystemClock.elapsedRealtime())
-                val m = c.model()                                  // يفتح النموذج: فحوص Core واختباره الذاتي
+                var m = c.model()                                  // يفتح النموذج: فحوص Core واختباره الذاتي
                 if (!running || sid != jsid) return@launch
                 model = m
                 SherpaAsr.diag("tf: النموذج مفتوح — جلب بيانات المرجع")
                 emit(jsid, "dl", "ref")
                 advStamp.set(android.os.SystemClock.elapsedRealtime())
-                val ref = m.reference
+                var ref = m.reference
                 if (ref == null) { fail(jsid, "noref", "بناء النموذج بلا بيانات مرجع"); return@launch }
-                try { ref.fetch() } catch (t: Throwable) { failSdk(jsid, "noref", t); return@launch }
-                if (!buildExpected(m, ref)) { fail(jsid, "noref", "تعذر بناء التسلسل المتوقع"); return@launch }
+                val wasInstalled = ref.isDownloaded
+                SherpaAsr.diag("tf: reference installed=$wasInstalled scope=${synchronized(winsLock) { wins.size }} ayahs")
+                try {
+                    ref.fetch()
+                    // SDK 4.0 installs a newly fetched reference only before opening a model.
+                    // model() alone reuses the current object, so explicitly close it first.
+                    if (!wasInstalled) {
+                        SherpaAsr.diag("tf: reference fetched; closing/reopening model to install")
+                        m.close()
+                        m = c.model()
+                        model = m
+                        ref = m.reference
+                        if (ref == null || !ref.isDownloaded) {
+                            fail(jsid, "refread", "reference not installed after reopen")
+                            return@launch
+                        }
+                    }
+                } catch (t: Throwable) { failSdk(jsid, "refdownload", t); return@launch }
+                val expectedError = buildExpected(m, ref)
+                if (expectedError != null) { fail(jsid, expectedError, "see ayah/count details above"); return@launch }
                 if (!running || sid != jsid) return@launch
                 SherpaAsr.diag("tf: المرجع جاهز — بدء جلسة الاستماع")
                 advStamp.set(android.os.SystemClock.elapsedRealtime())
@@ -212,34 +230,51 @@ object TfEngine {
     }
 
     /* بناء التسلسل المتوقع من بيانات المرجع: وحدات كل آية بلا فواصل، مع فهرس الكلمة العام */
-    private fun buildExpected(m: TajweedModel, ref: ai.quranlab.tajweedformer.TajweedReference): Boolean {
+    private fun buildExpected(m: TajweedModel, ref: ai.quranlab.tajweedformer.TajweedReference): String? {
         val ws: List<Win> = synchronized(winsLock) { ArrayList(wins) }
-        if (ws.isEmpty()) return false
+        if (ws.isEmpty()) { SherpaAsr.diag("tf: wordmap empty UI scope"); return "wordmap" }
         barId = m.tokens.wordBar
         val e = ArrayList<Int>()
         val ewj = ArrayList<Int>()
         val wu = HashMap<Int, Int>()
         var total = 0
+        var folded = 0
         for (w in ws) {
-            val units = try { ref.units(w.s, w.a) } catch (t: Throwable) { SherpaAsr.diag("tf: لا مرجع لـ ${w.s}:${w.a}"); return false }
-            var wordInAyah = 0
+            val units = try { ref.units(w.s, w.a) } catch (t: Throwable) {
+                val code = (t as? TajweedError)?.code ?: t.javaClass.simpleName
+                SherpaAsr.diag("tf: refread ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=unavailable code=$code cause=${t.cause?.javaClass?.simpleName ?: "none"}")
+                return "refread"
+            }
+            val referenceWords = if (units.isEmpty()) 0 else units.count { it == barId } + if (units.last() == barId) 0 else 1
+            val wordMap = TfWordMap.map(w.s, w.a, referenceWords, w.n)
+            if (wordMap == null) {
+                SherpaAsr.diag("tf: wordmap mismatch ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=$referenceWords openingWords=${TfWordMap.openingWords(w.s, w.a)} units=${units.size}")
+                return "wordmap"
+            }
+            if (referenceWords != w.n) {
+                folded++
+                SherpaAsr.diag("tf: wordmap opening ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=$referenceWords mapped=ok")
+            }
+            var referenceWord = 0
             for (id in units) {
-                if (id == barId) { wordInAyah++; continue }
+                if (id == barId) { referenceWord++; continue }
+                if (referenceWord !in wordMap.indices) {
+                    SherpaAsr.diag("tf: wordmap invalid boundary ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=$referenceWords index=$referenceWord")
+                    return "wordmap"
+                }
                 e.add(id)
-                if (wordInAyah >= w.n) { SherpaAsr.diag("tf: word mapping mismatch ${w.s}:${w.a}"); return false }
-                val wj = w.i + wordInAyah
+                val wj = w.i + wordMap[referenceWord]
                 ewj.add(wj)
                 wu[wj] = (wu[wj] ?: 0) + 1
             }
-            val observed = if (units.lastOrNull() == barId) wordInAyah else wordInAyah + 1
-            if (observed != w.n) { SherpaAsr.diag("tf: reference words=$observed UI words=${w.n} at ${w.s}:${w.a}"); return false }
             total = maxOf(total, w.i + w.n)
         }
         exp = e.toIntArray()
         expWordJs = ewj.toIntArray()
         wordUnits = IntArray(total) { wu[it] ?: 1 }
         totalJsWords = total
-        return exp.isNotEmpty()
+        SherpaAsr.diag("tf: wordmap ready ayahs=${ws.size} uiWords=$total foldedOpenings=$folded units=${exp.size}")
+        return if (exp.isNotEmpty()) null else "wordmap"
     }
 
     private fun resetAlign() {
