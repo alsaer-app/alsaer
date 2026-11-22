@@ -56,6 +56,18 @@ try:
     ok(r[2]['miss']==1 and r[2]['ok']>=7,'كلمة دخيلة لا تعطّل التتبّع')
     r2=pg.evaluate("""()=>{var R=__T.rc(),rc=R.rc;R.rcLoad(2,0);R.rcHyp(['الم ذلك الكتاب لا ريب فيه هدى للمتقين'],true);var before=rc.pos;document.querySelector('[data-a=rcverse]')&&0;return {before:before,ok:rc.ok}}""")
     ok(r2['ok']>=6,'تتبّع بداية سورة البقرة')
+    rM=pg.evaluate("""()=>{var R=__T.rc(),rc=R.rc,N={ا:'ألف',ل:'لام',م:'ميم',ص:'صاد',ر:'را',ك:'كاف',ه:'ها',ي:'يا',ع:'عين',ط:'طا',س:'سين',ح:'حا',ق:'قاف',ن:'نون'},bad=[];
+      [[2,0],[3,0],[7,0],[10,0],[13,0],[19,0],[20,0],[26,0],[27,0],[36,0],[38,0],[40,0],[42,0],[50,0],[68,0]].forEach(function(p){
+        ['names','letters','compact'].forEach(function(mode){
+          R.rcLoad(p[0],p[1]);var w=rc.w,m=w[0].n,rest=w.slice(1,4).map(function(x){return x.n}).join(' ');
+          var sp=m.split('').map(function(c){return mode=='names'?N[c]:c}).join(' ');if(mode=='compact')sp=m;
+          if(p[0]==42){/* حم ثم عسق: كلمتان */ m=w[0].n;var m2=w[1].n;sp=[w[0].n,w[1].n].map(function(t){return t.split('').map(function(c){return mode=='names'?N[c]:c}).join(' ')}).join(' ');if(mode=='compact')sp=m+' '+m2;rest=w.slice(2,5).map(function(x){return x.n}).join(' ')}
+          R.rcHyp([sp+' '+rest],true);var need=(p[0]==42?5:4);
+          if(!(rc.miss==0&&rc.ok>=need))bad.push(p[0]+':'+mode+':'+rc.ok+'/'+rc.miss)})});
+      return bad}""")
+    ok(len(rM)==0,'الحروف المقطعة تُقبل بأسماء الحروف وبالحروف المفصولة وبالرسم المصحفي في ١٤ فاتحة '+str(rM[:6]))
+    rN=pg.evaluate("""()=>{var R=__T.rc(),rc=R.rc;R.rcLoad(1,0);R.rcHyp(['بسم الله الرحمن الرحيم الحمد لله رب العالمين'],true);return [rc.ok,rc.miss,rc.w.length]}""")
+    ok(rN[0]>=7 and rN[1]==0,'سور بلا حروف مقطعة لا يمسّها التوحيد (الفاتحة سليمة) %s'%rN)
     ok(not errs,'لا أخطاء JavaScript '+str(errs[:2]))
 
     b.close()
