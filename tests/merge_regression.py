@@ -1,6 +1,6 @@
 """Run the production Java merge methods without Android, not a second implementation."""
 from pathlib import Path
-import subprocess, tempfile
+import subprocess, tempfile, os, shutil
 root=Path(__file__).resolve().parents[1]
 s=(root/'android/app/src/main/java/com/ahmedalajmi/alsaer/SherpaAsr.java').read_text()
 a=s.index('    private void mergeAdd(')
@@ -48,5 +48,5 @@ assert 'elapsedRealtime() - lastVadSegAt' not in s
 assert 'mergeFlush(mySid); /*' not in s
 with tempfile.TemporaryDirectory() as d:
     p=Path(d)/'MergeRegression.java';p.write_text(harness)
-    subprocess.run(['/home/sandbox/jdk17/bin/javac',str(p)],check=True)
-    subprocess.run(['/home/sandbox/jdk17/bin/java','-cp',d,'MergeRegression'],check=True)
+    subprocess.run([str(Path(os.environ['JAVA_HOME'])/'bin/javac') if os.environ.get('JAVA_HOME') else shutil.which('javac'),str(p)],check=True)
+    subprocess.run([str(Path(os.environ['JAVA_HOME'])/'bin/java') if os.environ.get('JAVA_HOME') else shutil.which('java'),'-cp',d,'MergeRegression'],check=True)

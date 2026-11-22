@@ -1,5 +1,5 @@
 from pathlib import Path
-import subprocess,tempfile
+import subprocess,tempfile,os,shutil
 r=Path(__file__).resolve().parents[1]
 s=(r/'android/app/src/main/java/com/ahmedalajmi/alsaer/TfEngine.kt').read_text()
 method=s[s.index('    private fun alignAndJudge('):s.index('    private fun onEvent(')]
@@ -39,5 +39,5 @@ jars=[str(next(base.glob(p))) for p in patterns]
 cp=':'.join(jars)
 with tempfile.TemporaryDirectory() as d:
  p=Path(d)/'Harness.kt';p.write_text(h)
- subprocess.run(['/home/sandbox/jdk17/bin/java','-cp',cp,'org.jetbrains.kotlin.cli.jvm.K2JVMCompiler','-no-stdlib','-no-reflect','-classpath',cp,'-d',d,str(p)],check=True,capture_output=True)
- subprocess.run(['/home/sandbox/jdk17/bin/java','-cp',d+':'+cp,'HarnessKt'],check=True)
+ subprocess.run([str(Path(os.environ['JAVA_HOME'])/'bin/java') if os.environ.get('JAVA_HOME') else shutil.which('java'),'-cp',cp,'org.jetbrains.kotlin.cli.jvm.K2JVMCompiler','-no-stdlib','-no-reflect','-classpath',cp,'-d',d,str(p)],check=True,capture_output=True)
+ subprocess.run([str(Path(os.environ['JAVA_HOME'])/'bin/java') if os.environ.get('JAVA_HOME') else shutil.which('java'),'-cp',d+':'+cp,'HarnessKt'],check=True)
