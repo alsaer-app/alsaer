@@ -4,7 +4,7 @@
 import subprocess, time, sys, os
 from playwright.sync_api import sync_playwright
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MOCK="""try{localStorage.setItem('alsaer_seen_update_1013','1')}catch(e){}window.__rcNoConsent=true;window.__calls=[];window.__bdSpoken=[];window.AlsaerNative={asrStatus:()=>JSON.stringify({base:{installed:true},tiny:{installed:false}}),asrStart:(k,sid)=>{window.__sid=sid;__calls.push('start2');setTimeout(()=>window.__rcAsr&&window.__rcAsr('ready',sid,''),30)},asrStop:()=>__calls.push('stop'),asrWarmup:()=>{},asrDownload:()=>{},asrCancelDownload:()=>{},asrDelete:()=>{},asrDiag:()=>'{}',speechSilent:b=>__calls.push('silent:'+b),ttsSpeak:t=>{(window.__tts=window.__tts||[]).push(t)},ttsStop:()=>{window.__ttsStop=1}};"""
+MOCK="""try{localStorage.setItem('alsaer_seen_update_1013','1')}catch(e){}window.__rcNoConsent=true;window.__calls=[];window.__bdSpoken=[];window.AlsaerNative={asrStatus:()=>JSON.stringify({tf:{installed:true,bytes:0}}),asrStart:(k,sid)=>{window.__sid=sid;__calls.push('start2');setTimeout(()=>window.__rcAsr&&window.__rcAsr('ready',sid,''),30)},asrStop:()=>__calls.push('stop'),asrWarmup:()=>{},asrDownload:()=>{},asrCancelDownload:()=>{},asrDelete:()=>{},asrDiag:()=>'{}',speechSilent:b=>__calls.push('silent:'+b),ttsSpeak:t=>{(window.__tts=window.__tts||[]).push(t)},ttsStop:()=>{window.__ttsStop=1}};"""
 fails=[]
 def ok(c,m):
     print(('PASS ' if c else 'FAIL ')+m)
