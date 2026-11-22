@@ -276,6 +276,9 @@
 "file": "services/recite-asr.js"
 },
 {
+"file": "services/recite-page.js"
+},
+{
 "file": "services/asma.js"
 },
 {

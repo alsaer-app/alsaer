@@ -92,8 +92,8 @@ function rcLocStart(onText,onErr,say){
         var kind=rcLocKind();
         if(kind==='tf'){ /* نافذة الآيات للمحرك التجريبي: سورة/آية/فهرس أول كلمة/عدد الكلمات */
           var ws=[],map={},wi=0;
-          for(wi=0;wi<rc.w.length;wi++){var ay=rc.w[wi].a,key=rc.sura+':'+ay;
-            if(map[key]===undefined){map[key]=ws.length;ws.push({s:rc.sura,a:ay,i:wi,n:1})}
+          for(wi=0;wi<rc.w.length;wi++){var ay=rc.w[wi].a,su=rc.w[wi].c||rc.sura,key=su+':'+ay;
+            if(map[key]===undefined){map[key]=ws.length;ws.push({s:su,a:ay,i:wi,n:1})}
             else ws[map[key]].n++}
           try{AlsaerNative.tfConfig(JSON.stringify({w:ws,pos:rc.pos}))}catch(e){}
         }

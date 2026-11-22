@@ -46,7 +46,7 @@ function rcPh(n){return rcSkel(n).replace(/[ظ]/g,'ض').replace(/[صث]/g,'س').
 function rcSim2(a,b){var x=rcSim(a,b);if(x>=1||a.length<3||b.length<3)return x;var y=rcSim(rcSkel(a),rcSkel(b));if(y>x)x=y;var z=rcSim(rcPh(a),rcPh(b))*.96;return z>x?z:x}
 function rcPref(){var P=S.rcp;if(!P||typeof P!=='object')P=S.rcp={size:25,hifz:false,hist:[],rr:false};if(!P.hist)P.hist=[];return P}
 function rcLoad(c,a){
-  var Q=QD(),t=Q.s&&Q.s[c-1];rc.sura=c;rc.ay=a||0;rc.w=[];rc.st=[];rc.hd=[];rc.pos=0;rc.ok=0;rc.miss=0;rc.hear='';rc.res=null;rc.wk=-1;rc.u=null;rc.hlog=[];rc.fin=false;
+  var Q=QD(),t=Q.s&&Q.s[c-1];rc.sura=c;rc.ay=a||0;rc.pgScope=0;rc.w=[];rc.st=[];rc.hd=[];rc.pos=0;rc.ok=0;rc.miss=0;rc.hear='';rc.res=null;rc.wk=-1;rc.u=null;rc.hlog=[];rc.fin=false;
   if(!t)return false;
   t.forEach(function(ay,ai){String(ay).split(/\s+/).forEach(function(w){var n=rcNorm(w);if(n)rc.w.push({t:w,n:n,a:ai+1})})});
   /* نص تنزيل يضع البسملة في أول آية لكل السور؛ هي آية في الفاتحة فقط، فنحذفها من غيرها */
@@ -114,7 +114,7 @@ function rcPaint(){
   if(rc.miss>(rcPaint.pm||0)){try{if(!(S&&S.nohaptic)&&navigator.vibrate)navigator.vibrate([25,40,25])}catch(e){}}rcPaint.pm=rc.miss;
   var box=document.getElementById('rc-text');if(!box)return;
   var sp=box.querySelectorAll('.rcw'),i,n=rc.w.length,pct=n?rc.pos/n:0;
-  for(i=0;i<n;i++){var st=rc.st[i],cls='rcw'+(st===1?' ok':st===2?' miss':'')+(i===rc.pos?' cur':'');if(sp[i]&&sp[i].className!==cls)sp[i].className=cls}
+  for(i=0;i<n;i++){var st=rc.st[i],cls=(sp[i]&&sp[i].className.indexOf('mw')>=0?'mw ':'')+'rcw'+(st===1?' ok':st===2?' miss':'')+(i===rc.pos?' cur':'');if(sp[i]&&sp[i].className!==cls)sp[i].className=cls}
   var q;
   if((q=document.getElementById('rc-ok')))q.textContent=ar(rc.ok);
   if((q=document.getElementById('rc-miss')))q.textContent=ar(rc.miss);
@@ -171,23 +171,23 @@ function rcFinish(){
   }
   var r=rcResult();if(!r){try{render()}catch(e){}return}
   rc.res=r;rc.wk=-1;var P=rcPref();
-  P.hist.push({s:rc.sura,ay:rc.ay,d:Date.now(),a:r.t,m:rc.miss,w:r.att,k:Math.round(r.w/100*r.att)});if(P.hist.length>120)P.hist.shift();var T=P.tot||(P.tot={n:0,w:0,k:0,best:0});T.n++;T.w+=r.att;T.k+=Math.round(r.w/100*r.att);if(r.t>T.best)T.best=r.t;save();
-  rc.msg=r.c>=100?'أتممت '+(rc.ay?'الآية':'السورة')+' — تقبّل الله ✓':'';
+  P.hist.push({s:rc.sura,ay:rc.ay,pg:rc.pgScope||0,d:Date.now(),a:r.t,m:rc.miss,w:r.att,k:Math.round(r.w/100*r.att)});if(P.hist.length>120)P.hist.shift();var T=P.tot||(P.tot={n:0,w:0,k:0,best:0});T.n++;T.w+=r.att;T.k+=Math.round(r.w/100*r.att);if(r.t>T.best)T.best=r.t;save();
+  rc.msg=r.c>=100?'أتممت '+(rc.pgScope?'الصفحة':(rc.ay?'الآية':'السورة'))+' — تقبّل الله ✓':'';
   try{render()}catch(e){}
 }
 function rcResHtml(){
   var r=rc.res;if(!r)return '';
   var lab=r.t>=90?'ممتاز':r.t>=80?'جيد جدًا':r.t>=65?'جيد':'يحتاج إلى مراجعة',col=r.t>=80?'#43d9a0':r.t>=65?'#e8c873':'#ff8a7a';
   function bar(t,v){return '<div class="rc-bar'+(v>=80?'':' mid')+'"><span>'+t+'</span><i><b style="width:'+v+'%"></b></i><em>'+ar(v)+'</em></div>'}
-  var wk=r.weak.slice(0,24).map(function(x){return '<button class="rc-wk'+(x.sim===0?' miss':'')+(rc.wk===x.i?' on':'')+'" data-a="rcwk" data-v="'+x.i+'">'+esc(rc.w[x.i].t)+'</button>'}).join('');
-  var d='';if(rc.wk>=0&&rc.w[rc.wk]){var w=rc.w[rc.wk];d='<div class="rc-wd"><b>'+esc(w.t)+'</b><small>'+(rc.st[rc.wk]===1?'سمعناها: «'+esc(rc.hd[rc.wk]||'')+'» — تشابه '+ar(Math.round(rcSim(rc.hd[rc.wk]||'',w.n)*100))+'٪ مع المطلوب':'لم نسمع هذه الكلمة أو تخطّيتها')+'</small></div>'}
+  var wk=r.weak.slice(0,24).map(function(x){return '<button class="rc-wk'+(x.sim===0?' miss':'')+(rc.wk===x.i?' on':'')+'" data-a="rcwk" data-v="'+x.i+'">'+mTok(rc.w[x.i].t)+'</button>'}).join('');
+  var d='';if(rc.wk>=0&&rc.w[rc.wk]){var w=rc.w[rc.wk];d='<div class="rc-wd"><b>'+mTok(w.t)+'</b><small>'+(rc.st[rc.wk]===1?'سمعناها: «'+esc(rc.hd[rc.wk]||'')+'» — تشابه '+ar(Math.round(rcSim(rc.hd[rc.wk]||'',w.n)*100))+'٪ مع المطلوب':'لم نسمع هذه الكلمة أو تخطّيتها')+'</small></div>'}
   return '<section class="card rc-res"><div class="rc-sc"><div class="rc-sr"><svg viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="rcgold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8c066"/><stop offset="1" stop-color="#c9982e"/></linearGradient></defs><circle cx="40" cy="40" r="34" class="bg"/><circle cx="40" cy="40" r="34" class="fg" style="stroke:'+col+';stroke-dasharray:213.6;stroke-dashoffset:'+(213.6*(1-r.t/100))+'"/></svg><b>'+ar(r.t)+'</b></div>'
-   +'<div><h3 class="rc-grade" style="margin:0;color:'+col+'">'+lab+'</h3><small class="muted">'+(rc.ay?'الآية '+ar(rc.ay):'سورة '+esc(QD().n[rc.sura-1]||''))+' · '+ar(r.att)+' من '+ar(r.n)+' كلمة</small></div></div>'
-   +'<h4 class="rc-h">التفاصيل</h4>'+bar(rcPref().lm==='tf'?'تطابق الكلمات الصوتي':'دقة الكلمات',r.w)+(rcPref().lm==='tf'?'':bar('دقة الحروف',r.l))+bar('الإكمال',r.c)+'<h4 class="rc-h">تحليل الكلمات</h4><div class="rc-tokrow" dir="rtl">'+rc.w.slice(0,r.att).map(function(w,i){return '<span class="rct '+(rc.st[i]===1?(rc.hd[i]&&rcSim(rc.hd[i],w.n)<.85?'mid':'ok'):'bad')+'">'+esc(w.t)+'</span>'}).join('')+'</div>'
-   +(r.weak.length?'<h4 class="rc-h">ملاحظات</h4>'+r.weak.slice(0,3).map(function(x){var w=rc.w[x.i];return '<div class="rc-note"><b>'+esc(w.t)+'</b><div><em>'+(x.sim===0?'لم تُسمع':'تحتاج تحسينًا')+'</em><small>'+(x.sim===0?'تخطّيت هذه الكلمة أو لم يلتقطها الميكروفون':'سمعنا «'+esc(rc.hd[x.i]||'')+'» — تشابه '+ar(Math.round(x.sim*100))+'٪')+'</small></div></div>'}).join(''):'')
+   +'<div><h3 class="rc-grade" style="margin:0;color:'+col+'">'+lab+'</h3><small class="muted">'+(rc.pgScope?'صفحة '+ar(rc.pgScope):(rc.ay?'الآية '+ar(rc.ay):'سورة '+esc(QD().n[rc.sura-1]||'')))+' · '+ar(r.att)+' من '+ar(r.n)+' كلمة</small></div></div>'
+   +'<h4 class="rc-h">التفاصيل</h4>'+bar(rcPref().lm==='tf'?'تطابق الكلمات الصوتي':'دقة الكلمات',r.w)+(rcPref().lm==='tf'?'':bar('دقة الحروف',r.l))+bar('الإكمال',r.c)+'<h4 class="rc-h">تحليل الكلمات</h4><div class="rc-tokrow" dir="rtl">'+rc.w.slice(0,r.att).map(function(w,i){return '<span class="rct '+(rc.st[i]===1?(rc.hd[i]&&rcSim(rc.hd[i],w.n)<.85?'mid':'ok'):'bad')+'">'+mTok(w.t)+'</span>'}).join('')+'</div>'
+   +(r.weak.length?'<h4 class="rc-h">ملاحظات</h4>'+r.weak.slice(0,3).map(function(x){var w=rc.w[x.i];return '<div class="rc-note"><b>'+mTok(w.t)+'</b><div><em>'+(x.sim===0?'لم تُسمع':'تحتاج تحسينًا')+'</em><small>'+(x.sim===0?'تخطّيت هذه الكلمة أو لم يلتقطها الميكروفون':'سمعنا «'+esc(rc.hd[x.i]||'')+'» — تشابه '+ar(Math.round(x.sim*100))+'٪')+'</small></div></div>'}).join(''):'')
    +(wk?'<h4 style="margin:12px 0 6px">كلمات تحتاج مراجعة <small class="muted">(المس كلمة للتفاصيل)</small></h4><div class="rc-wks">'+wk+'</div>'+d:'<p class="note">لا كلمات تحتاج مراجعة ✓</p>')
    +(rcPref().lm==='tf'?'<p class="note">V4 تجريبي: النتيجة تقدير تطابق الوحدات الصوتية بالكلمات المتوقعة، وليست تصحيح تجويد أو درجة نطق الحروف. لم تُختبر دقته على جهازك بعد.</p>':'<p class="note">الدرجة تقارن ما سمعه التطبيق بنص المصحف (كلمات وحروف). أحكام التجويد لا تُقيَّم بعد، ودقة التعرّف تتأثر بالضوضاء ووضوح الصوت.</p>')
-   +'<div class="acts"><button class="btn" data-a="rcagain">إعادة المحاولة</button>'+(rc.ay&&rc.ay<(QD().s[rc.sura-1]||[]).length?'<button class="btn ghost" data-a="rcayn">الآية التالية</button>':'')+'</div></section>';
+   +'<div class="acts"><button class="btn" data-a="rcagain">إعادة المحاولة</button>'+(rc.pgScope?(rc.pgScope<604?'<button class="btn ghost" data-a="rcayn">الصفحة التالية</button>':''):(rc.ay&&rc.ay<(QD().s[rc.sura-1]||[]).length?'<button class="btn ghost" data-a="rcayn">الآية التالية</button>':''))+'</div></section>';
 }
 function rcSay(t,busy){rc.msg=t||'';rc.busy=!!busy;var q=document.getElementById('rc-status');if(q){q.textContent=rc.msg;q.className='rc-status'+(rc.busy?' busy':'')+(rc.msg?'':' empty')}}
 function rcStop(){rc.on=false;clearInterval(rc.idle);try{if(window.ReciteASR)window.ReciteASR.stop()}catch(e){}}
@@ -227,7 +227,7 @@ function rcStart2(){
 function rcAct(a,v){
   if(a==='rcsura'){rcStop();rcLoad(parseInt(v,10)||1,0);rc.msg=''}
   else if(a==='rcstart'){if(rc.on){if(rcHasSession()){rcFinish();return true}rcStop()}else rcStart()}
-  else if(a==='rcayp'||a==='rcayn'){rcStop();var cnt=(QD().s[rc.sura-1]||[]).length,na=Math.max(1,Math.min(cnt,(rc.ay||1)+(a==='rcayn'?1:-1)));rcLoad(rc.sura,na);rc.msg=''}
+  else if(a==='rcayp'||a==='rcayn'){if(rc.pgScope){rpGo(rp.page+(a==='rcayn'?1:-1));return false}rcStop();var cnt=(QD().s[rc.sura-1]||[]).length,na=Math.max(1,Math.min(cnt,(rc.ay||1)+(a==='rcayn'?1:-1)));rcLoad(rc.sura,na);rc.msg=''}
   else if(a==='rcdone'){rcFinish();return true}
   else if(a==='rcverse'){
     var nn=rc.w.length;if(nn){var cv=rc.w[Math.min(rc.pos,nn-1)].a,i0=0;while(i0<nn&&rc.w[i0].a!==cv)i0++;
@@ -238,7 +238,7 @@ function rcAct(a,v){
   else if(a==='rcconsent'){rcPref().consent=true;save();rc.consentAsk=false;rcStart()}
   else if(a==='rcconsentno'){rc.consentAsk=false}
   else if(a==='rchistclr'){rcPref().hist=[];save()}
-  else if(a==='rcagain'){rcStop();rcLoad(rc.sura,rc.ay);rc.msg=''}
+  else if(a==='rcagain'){rcStop();if(rc.pgScope)rpLoad(rp.page);else rcLoad(rc.sura,rc.ay);rc.msg=''}
   else if(a==='rcwk'){rc.wk=(rc.wk===parseInt(v,10))?-1:parseInt(v,10)}
   else if(a==='rcmodel'){var P3=rcPref();var rr=document.getElementById('rc-rr');if(rr)P3.rr=rr.checked;var lm=document.querySelector('input[name="rclm"]:checked');if(lm)P3.lm=lm.value||'';save();rcStop();rcAsrStop();rc.adv=false;toast('✅ تم حفظ الإعدادات');rc.msg='';return false}
   else if(a==='rcdl'){try{if(window.AlsaerNative&&AlsaerNative.asrDownload)AlsaerNative.asrDownload(v)}catch(e){}return true}
@@ -250,7 +250,7 @@ function rcAct(a,v){
   else if(a==='rcdiag'){try{if(window.AlsaerNative&&AlsaerNative.asrDiag){AlsaerNative.shareText('تشخيص التلاوة — السائر',AlsaerNative.asrDiag()||'لا يوجد سجل بعد')}else toast('التشخيص غير متاح في هذه النسخة')}catch(e){}return false}
   else if(a==='rcadv'){rc.adv=!rc.adv;if(rc.adv)rc.stat=false}
   else if(a==='rchifz'){var P2=rcPref();P2.hifz=!P2.hifz;save()}
-  else if(a==='rcreset'){rcStop();rcLoad(rc.sura||1,rc.ay);rc.msg=''}
+  else if(a==='rcreset'){rcStop();if(rc.pgScope)rpLoad(rp.page);else rcLoad(rc.sura||1,rc.ay);rc.msg=''}
   else if(a==='rcstat'){rc.stat=!rc.stat;if(rc.stat)rc.adv=false}
   return false;
 }
@@ -259,8 +259,8 @@ document.addEventListener('change',function(e){var t=e.target,k=t&&t.getAttribut
 function rcHistHtml(P){
   var H=(P.hist||[]).slice(-7).reverse();if(!H.length)return '';
   var avg=Math.round(H.reduce(function(t,x){return t+(x.a||0)},0)/H.length);
-  return '<h4>تقدّمك (آخر '+ar(H.length)+' جلسات · المتوسط '+ar(avg)+'٪)</h4><div class="rc-hist">'+H.map(function(x){var d=new Date(x.d||0),nm=(QD().n||[])[x.sura-1]||(QD().n||[])[(x.s||1)-1]||'';
-    return '<div class="rc-hr"><span>'+esc(nm)+(x.ay?' — آية '+ar(x.ay):'')+'</span><i style="--w:'+Math.max(4,x.a||0)+'%"></i><b>'+ar(x.a||0)+'٪</b><small>'+ar(d.getDate())+'/'+ar(d.getMonth()+1)+'</small></div>'}).join('')+'</div><div class="acts"><button class="btn ghost" data-a="rchistclr">مسح السجل</button></div>';
+  return '<h4>تقدّمك (آخر '+ar(H.length)+' جلسات · المتوسط '+ar(avg)+'٪)</h4><div class="rc-hist">'+H.map(function(x){var d=new Date(x.d||0),nm=x.pg?'صفحة '+ar(x.pg):((QD().n||[])[x.sura-1]||(QD().n||[])[(x.s||1)-1]||'');
+    return '<div class="rc-hr"><span>'+esc(nm)+(!x.pg&&x.ay?' — آية '+ar(x.ay):'')+'</span><i style="--w:'+Math.max(4,x.a||0)+'%"></i><b>'+ar(x.a||0)+'٪</b><small>'+ar(d.getDate())+'/'+ar(d.getMonth()+1)+'</small></div>'}).join('')+'</div><div class="acts"><button class="btn ghost" data-a="rchistclr">مسح السجل</button></div>';
 }
 
 function rcDayKey(t){var d=new Date(t);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
@@ -341,7 +341,7 @@ window.__rcAsrDl=function(s){
   if(d.state==='error')toast('تعذّر تنزيل النموذج — تحقق من الإنترنت وحاول مجددًا');
   if(d.state==='done')toast(autoAct?'✅ نزّلنا النموذج وفعّلناه — جاهز للتسميع':'✅ نزّلنا النموذج — اختره واضغط حفظ ليعمل');
 };
-function vRecite(){
+function vReciteOld(){
   var Q=QD();
   if(!Q.n||!Q.n.length)return '<section class="card"><p class="note">تعذّر تحميل نص المصحف.</p></section>';
   if(!rc.sura)rcLoad(1);
