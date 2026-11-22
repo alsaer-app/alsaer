@@ -44,7 +44,7 @@ function rcSkel(n){return n.replace(/ا/g,'').replace(/وه$/,'ه')}
 /* حروف يخلط بينها المعرِّف الصوتي كثيرًا (ض/ظ، ص/س/ث، ذ/ز، ط/ت، ق/ك، ح/ه، ع/ء): تُوحَّد في مقارنة صوتية أخفّ عقوبة */
 function rcPh(n){return rcSkel(n).replace(/[ظ]/g,'ض').replace(/[صث]/g,'س').replace(/[ذ]/g,'ز').replace(/[ط]/g,'ت').replace(/[ق]/g,'ك').replace(/[ح]/g,'ه').replace(/[ع]/g,'ء').replace(/ت$/,'ه').replace(/(.)\1+/g,'$1')}
 function rcSim2(a,b){var x=rcSim(a,b);if(x>=1||a.length<3||b.length<3)return x;var y=rcSim(rcSkel(a),rcSkel(b));if(y>x)x=y;var z=rcSim(rcPh(a),rcPh(b))*.96;return z>x?z:x}
-function rcPref(){var P=S.rcp;if(!P||typeof P!=='object')P=S.rcp={size:25,hifz:false,hist:[],rr:false};if(!P.hist)P.hist=[];return P}
+function rcPref(){var P=S.rcp;if(!P||typeof P!=='object')P=S.rcp={size:25,hifz:false,hist:[],rr:false};if(!P.hist)P.hist=[];P.lm='tf';return P}
 function rcLoad(c,a){
   var Q=QD(),t=Q.s&&Q.s[c-1];rc.sura=c;rc.ay=a||0;rc.pgScope=0;rc.w=[];rc.st=[];rc.hd=[];rc.pos=0;rc.ok=0;rc.miss=0;rc.hear='';rc.res=null;rc.wk=-1;rc.u=null;rc.hlog=[];rc.fin=false;
   if(!t)return false;
@@ -53,8 +53,6 @@ function rcLoad(c,a){
   if(c!==1&&rc.w.slice(0,4).map(function(x){return x.n}).join(' ')==='بسم الله الرحمن الرحيم'&&rc.w.length>4)rc.w.splice(0,4);
   if(rc.ay>0)rc.w=rc.w.filter(function(x){return x.a===rc.ay});
   rc.muq=rc.w.some(function(x){return !!RC_MUQ[x.n]});
-  /* تسخين النموذج المحلي مبكرًا عند فتح الشاشة حتى لا ينتظر المستخدم عند ضغط الميكروفون */
-  try{if(window.AlsaerNative&&AlsaerNative.asrWarmup&&typeof rcLocKind==='function'){var kk=rcLocKind();if(kk)AlsaerNative.asrWarmup(kk)}}catch(e){}
   return rc.w.length>0;
 }
 /* يطابق كلمات مسموعة مع الموضع الحالي: يبحث في نافذة أمامية قصيرة، ويعلّم ما تُخطّي بالأحمر */
@@ -241,12 +239,8 @@ function rcAct(a,v){
   else if(a==='rcagain'){rcStop();if(rc.pgScope)rpLoad(rp.page);else rcLoad(rc.sura,rc.ay);rc.msg=''}
   else if(a==='rcwk'){rc.wk=(rc.wk===parseInt(v,10))?-1:parseInt(v,10)}
   else if(a==='rcmodel'){var P3=rcPref();var rr=document.getElementById('rc-rr');if(rr)P3.rr=rr.checked;var lm=document.querySelector('input[name="rclm"]:checked');if(lm)P3.lm=lm.value||'';save();rcStop();rcAsrStop();rc.adv=false;toast('✅ تم حفظ الإعدادات');rc.msg='';return false}
-  else if(a==='rcdl'){try{if(window.AlsaerNative&&AlsaerNative.asrDownload)AlsaerNative.asrDownload(v)}catch(e){}return true}
-  else if(a==='rcdlx'){try{if(window.AlsaerNative&&AlsaerNative.asrCancelDownload)AlsaerNative.asrCancelDownload()}catch(e){}return false}
-  else if(a==='rcdel'){try{if(window.AlsaerNative&&AlsaerNative.asrDelete)AlsaerNative.asrDelete(v)}catch(e){}toast('تم حذف النموذج')}
   else if(a==='rcfs'){var P=rcPref();P.size=Math.max(18,Math.min(40,(P.size||25)+(parseInt(v,10)||0)*2));save()}
   else if(a==='rcpick'){rc.pick=!rc.pick}
-  else if(a==='rcselftest'){try{if(window.AlsaerNative&&AlsaerNative.asrSelfTest){var kk=typeof rcLocKind==='function'?rcLocKind():null;if(kk==='tf'){toast('الاختبار الجاهز متاح لنماذج whisper فقط في هذه النسخة')}else if(!kk){toast('نزّل النموذج أولًا من الأعلى')}else{AlsaerNative.asrSelfTest(kk);toast('الاختبار يعمل… بعد ثوانٍ شارك سجل التشخيص من الزر المجاور')}}else toast('غير متاح في هذه النسخة')}catch(e){}return false}
   else if(a==='rcdiag'){try{if(window.AlsaerNative&&AlsaerNative.asrDiag){AlsaerNative.shareText('تشخيص التلاوة — السائر',AlsaerNative.asrDiag()||'لا يوجد سجل بعد')}else toast('التشخيص غير متاح في هذه النسخة')}catch(e){}return false}
   else if(a==='rcadv'){rc.adv=!rc.adv;if(rc.adv)rc.stat=false}
   else if(a==='rchifz'){var P2=rcPref();P2.hifz=!P2.hifz;save()}
@@ -290,57 +284,20 @@ function rcLocalHtml(P){
   if(!window.AlsaerNative||typeof AlsaerNative.asrStatus!=='function')return '';
   var st=null;try{st=JSON.parse(AlsaerNative.asrStatus()||'{}')}catch(e){}
   if(!st)return '';
-  function inst(kind){return !!(st[kind]&&st[kind].installed)}
-  function row(kind,name,size,desc){
-    var dl=st.dl&&st.dl.kind===kind;
-    return '<div class="rc-mdl'+(inst(kind)?' on':'')+'">'
-      +'<label class="rc-mt"><input type="radio" name="rclm" value="'+kind+'"'+(inst(kind)&&(P.lm===kind||!P.lm)?' checked':'')+(inst(kind)?'':' disabled')+'><span><b>'+name+' <small style="font-weight:400;color:var(--muted)">· '+ar(size)+' ميجا</small></b><small>'+desc+'</small></span></label>'
-      +'<div class="rc-mdl-a" id="rc-dl-'+kind+'">'
-      +(dl?'<div class="rc-dlp"><span class="tr"><i style="width:'+(st.dl.pct||0)+'%"></i></span><em>'+ar(st.dl.pct||0)+'٪</em><button class="rc-tb" data-a="rcdlx" aria-label="إلغاء التنزيل">✕</button></div>'
-        :inst(kind)?'<span class="rc-ok">منزّل ✓</span><button class="rc-tb" data-a="rcdel" data-v="'+kind+'" aria-label="حذف النموذج">🗑</button>'
-        :'<button class="btn ghost" data-a="rcdl" data-v="'+kind+'">⬇ تنزيل</button>')
-      +'</div></div>';
-  }
-  var none=!inst('vbase')&&!inst('tiny')&&!inst('base');
-  var tfRow='';
-  if(st.tf&&st.tf.installed){ /* محرك Quran Lab V4 التجريبي: متاح في هذا البناء فقط، بلا زر تنزيل (ينزّل نفسه أول تشغيل) */
-    tfRow='<div class="rc-mdl'+(P.lm==='tf'?' on':'')+'">'
-      +'<label class="rc-mt"><input type="radio" name="rclm" value="tf"'+(P.lm==='tf'?' checked':'')+'><span><b>Quran Lab V4 <small style="font-weight:400;color:var(--muted)">· تجريبي</small></b><small>مطابقة صوتية بالآية — يحتاج إنترنت أول مرة (~٦٣ ميجا) ثم يعمل بلا إنترنت · يحتاج أندرويد 8+</small></span></label>'
-      +'<p class="note">نسخة اختبار شخصية تتجاوز 20MB. مفتاح التطوير مضمّن في APK ويمكن استخراجه؛ لا تشارك الملف مع غيرك.</p><div class="rc-mdl-a"></div></div>';
-  }
-  return '<div class="rc-grp"><h4>📖 النموذج القرآني المحلي (دقة قريبة من ترتيل)</h4>'
-   +'<p class="note">نماذج whisper تعمل على جهازك بلا إرسال الصوت، بعد تنزيلها مرة واحدة. المحرك التجريبي V4 يعمل محليًا أيضًا، لكنه يتصل بخدمة Quran Lab للتنزيل والتحقق وإحصاءات استخدام مجهولة؛ ولا يشارك تسجيلًا إلا بموافقة منفصلة داخل نافذته. نتائج V4 تقدير تطابق وحدات صوتية بالكلمات وليست تقييم تجويد أو دقة حروف.</p>'
-   +(none?'<p class="note"><b>التسميع يحتاج نموذجًا — نزّل «الموصى به» بالزر أسفله لتبدأ.</b></p>':'')
-   +row('vbase','الموصى به ⭐',161,'الأقوى على الأصوات الحقيقية بأنماط التلاوة المختلفة — يعمل بلا إنترنت')
-   +row('tiny','الخفيف',104,'الأسرع والأصغر — مضبوط على تلاوات الاستوديو، دقته أقل على بعض الأصوات')
-   +row('base','القرآني الكبير',161,'مضبوط على القرآن — للأجهزة القوية، أبطأ بوضوح')
-   +tfRow
-   +'</div>';
+  var ok=!!(st.tf&&st.tf.installed);
+  return '<div class="rc-grp"><h4>📖 محرك التسميع المحلي: Quran Lab V4 (تجريبي)</h4>'
+   +'<p class="note">يعمل التعرّف على جهازك، والصوت لا يغادر الهاتف. يتصل بخدمة Quran Lab للتنزيل (~٦٣ ميجا أول مرة فقط) والتحقق وإحصاءات استخدام مجهولة، ولا يشارك تسجيلًا إلا بموافقة منفصلة. يحتاج أندرويد 8+. لا يوجد بديل سحابي ولا تعرّف Google.</p>'
+   +(ok?'<p class="note"><b>جاهز ✓</b></p>':'<p class="note"><b>المحرك غير متاح في هذا البناء.</b></p>')
+   +'<p class="note">نسخة اختبار شخصية تتجاوز 20MB. مفتاح التطوير مضمّن في APK ويمكن استخراجه؛ لا تشارك الملف مع غيرك.</p></div>';
 }
 function rcSheet(P,last){
   return '<section class="rc-sheet card"><div class="rc-sh-h"><b>⚙ إعدادات التلاوة</b>'+(last?'<small>آخر جلسة '+ar(last.a)+'٪</small>':'')+'<button class="rc-tb" data-a="rcadv" aria-label="إغلاق">✕</button></div>'
    +rcLocalHtml(P)
    +'<div class="rc-grp"><h4>🎙 خيارات التسميع</h4>'
      +'<label class="rc-mt"><input type="checkbox" id="rc-rr"'+(P.rr?' checked':'')+'><span><b>تسجيل ثم مراجعة 🐢</b><small>للأجهزة الضعيفة: يجمع تلاوتك كاملة ثم يحلّلها عند التوقف بدل المطابقة اللحظية — أخف على المعالج ويثبّت النتيجة.</small></span></label></div>'
-   +'<div class="rc-grp"><h4>🛠 تشخيص التعرّف</h4><p class="note">سجل فني (أحداث تشغيل فقط، بلا صوت ولا نصوص تلاوة) يفيدنا عند الإبلاغ عن مشكلة في التسميع. «اختبار النموذج بصوت جاهز» يفك مقطع فاتحة مضمّنًا بلا ميكروفون — نصه الصحيح «الحمد لله رب العالمين»: لو طلع صحيحًا فالخلل في التقاط الميكروفون، ولو مشوّهًا فالخلل في المحرك على جهازك.</p><div class="acts"><button class="btn ghost" data-a="rcselftest">اختبار النموذج بصوت جاهز</button><button class="btn ghost" data-a="rcdiag">مشاركة سجل التشخيص</button></div></div>'
+   +'<div class="rc-grp"><h4>🛠 تشخيص التعرّف</h4><p class="note">سجل فني (أحداث تشغيل فقط، بلا صوت ولا نصوص تلاوة) يفيدنا عند الإبلاغ عن مشكلة في التسميع. </p><div class="acts"><button class="btn ghost" data-a="rcdiag">مشاركة سجل التشخيص</button></div></div>'
    +'<div class="acts"><button class="btn" data-a="rcmodel">حفظ</button></div></section>';
 }
-/* تقدّم تنزيل النموذج المحلي: تحديث شريط التقدّم مباشرة، وإعادة العرض عند الاكتمال/الخطأ/الإلغاء */
-window.__rcAsrDl=function(s){
-  var d;try{d=JSON.parse(s)}catch(e){return}
-  if(!d)return;
-  if(d.state==='progress'){
-    var el=document.getElementById('rc-dl-'+d.kind);
-    if(el){var b=el.querySelector('.rc-dlp i'),t=el.querySelector('.rc-dlp em');if(b)b.style.width=(d.pct||0)+'%';if(t)t.textContent=ar(d.pct||0)+'٪'}
-    return;
-  }
-  /* اختيار النموذج المنزّل تلقائيًا إن لم يكن هناك اختيار سابق (قبل إعادة العرض ليظهر محددًا) */
-  var autoAct=false;
-  if(d.state==='done'){try{var P2=rcPref();if(!P2.lm){P2.lm=d.kind;save();autoAct=true}}catch(e){}}
-  try{if(typeof tab!=='undefined'&&tab==='recite'&&rc.adv)render()}catch(e){}
-  if(d.state==='error')toast('تعذّر تنزيل النموذج — تحقق من الإنترنت وحاول مجددًا');
-  if(d.state==='done')toast(autoAct?'✅ نزّلنا النموذج وفعّلناه — جاهز للتسميع':'✅ نزّلنا النموذج — اختره واضغط حفظ ليعمل');
-};
 function vReciteOld(){
   var Q=QD();
   if(!Q.n||!Q.n.length)return '<section class="card"><p class="note">تعذّر تحميل نص المصحف.</p></section>';
