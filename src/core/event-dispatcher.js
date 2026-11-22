@@ -185,8 +185,6 @@ document.addEventListener('click',async function(e){
   else if(a==='qpage'){if(rd){try{mpSel='';mpHap()}catch(e){}rd.dir=v==='1'?1:-1;rd.page=Math.max(1,Math.min(604,rd.page+(v==='1'?1:-1)))}}
   else if(a==='qjump'||a==='qjgo'){if(mpAct(a,v))return}
   else if(/^(qsrch|qsclose|qsdo|qsgo|qimm)$/.test(a)){if(mpAct2(a,v))return}
-  else if(/^rp[a-z]+$/.test(a)){if(typeof rpAct==='function'&&rpAct(a,v))return}
-  else if(/^rc[a-z]+$/.test(a)){if(rcAct(a,v))return}
   else if(/^dg[a-z]+$/.test(a)){if(dgAct(a,v))return}
   else if(/^hdt[a-z]+$/.test(a)){if(typeof hdtAct==='function'&&hdtAct(a,v)===false)return}
   else if(/^hsn[a-z]+$/.test(a)){if(typeof hsnAct==='function'&&hsnAct(a,v)===false)return}
