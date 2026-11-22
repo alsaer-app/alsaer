@@ -49,17 +49,6 @@ public class AlsaerNative {
         return act.getSharedPreferences("alsaer_webstore_mirror", 0).getString(k, null);
     }
 
-    /* ---- محرك التسميع المحلي (Quran Lab V4): حالة/تشغيل/إيقاف ---- */
-    @JavascriptInterface public String asrStatus() {
-        try {
-            JSONObject o = new JSONObject();
-            JSONObject tfk = new JSONObject(); tfk.put("installed", TfEngine.INSTANCE.available()); tfk.put("bytes", 0); o.put("tf", tfk);
-            return o.toString();
-        } catch (Exception e) { return "{}"; }
-    }
-    @JavascriptInterface public void asrStart(String kind, int jsid) { if ("tf".equals(kind)) TfEngine.INSTANCE.start(act, jsid); }
-    @JavascriptInterface public void tfConfig(String json) { TfEngine.INSTANCE.configure(json); }
-    @JavascriptInterface public void asrStop() { TfEngine.INSTANCE.stop(); }
     @JavascriptInterface public String appBuildInfo() { return BuildConfig.VERSION_NAME + "|" + BuildConfig.VERSION_CODE; }
     @JavascriptInterface public String asrDiag() { return AsrLog.diagDump(); }
     @JavascriptInterface public void shareText(String title, String body) {
