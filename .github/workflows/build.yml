@@ -37,6 +37,17 @@ jobs:
       - name: Build web bundle (src -> www/index.html)
         run: python3 tools/build_web.py
 
+      - name: Syntax-check the built JS bundle
+        run: |
+          python3 - <<'EOF'
+          import re
+          s = open('www/index.html', encoding='utf-8').read()
+          js = re.search(r'<script>(.*)</script>', s, re.S).group(1)
+          open('/tmp/bundle-check.js', 'w', encoding='utf-8').write(js)
+          print('extracted', len(js), 'bytes')
+          EOF
+          node --check /tmp/bundle-check.js
+
       - name: Install Capacitor deps and sync
         run: |
           npm ci || npm install

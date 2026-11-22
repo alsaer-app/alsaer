@@ -7,6 +7,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 
 import com.k2fsa.sherpa.onnx.FeatureConfig;
 import com.k2fsa.sherpa.onnx.HomophoneReplacerConfig;
@@ -263,8 +264,28 @@ public class SherpaAsr {
 
     private void emit(int s, String type, String data) {
         final String js = "window.__rcAsr&&window.__rcAsr(" + JSONObject.quote(type) + "," + s + "," + JSONObject.quote(data == null ? "" : data) + ")";
-        ui.post(() -> { try { if (Speech.wv != null) Speech.wv.evaluateJavascript(js, null); } catch (Exception ignored) {} });
+        ui.post(() -> { try { if (Speech.wv != null) Speech.wv.evaluateJavascript(js, null); } catch (Exception ignored) { diag("فشل إيصال حدث للصفحة (wv)"); } });
     }
+
+    /* سجل تشخيصي دائري: يساعد على فهم أي مشكلة تسميع من الجهاز نفسه دون حاسوب */
+    private static final java.util.ArrayDeque<String> DIAG = new java.util.ArrayDeque<>();
+    private static synchronized void diag(String m) {
+        String line = new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(new java.util.Date()) + " " + m;
+        while (DIAG.size() >= 60) DIAG.pollFirst();
+        DIAG.add(line);
+        android.util.Log.d("AlsaerAsr", m);
+    }
+    public static synchronized String diagDump() {
+        StringBuilder b = new StringBuilder();
+        for (String x : DIAG) b.append(x).append('\n');
+        return b.toString();
+    }
+
+    /* تراكم مقاطع للتقسيم المبكر عند الوقفات الطبيعية */
+    private final java.util.ArrayList<float[]> segAcc = new java.util.ArrayList<>();
+    private int segAccLen = 0;
+    private float segPeak = 0f;
+    private boolean decErrSent = false;
 
     private void releaseRec() {
         try { if (rec != null) rec.release(); } catch (Exception ignored) {}
@@ -326,10 +347,10 @@ public class SherpaAsr {
             out.close();
             in.close();
         }
-        /* maxSpeechDuration = 8 ثوانٍ: تقسيم إجباري للمقاطع الطويلة حتى تظهر
-           الكلمات المتعرف عليها تدريجيًا أثناء التلاوة بدل انتظار نهاية الآية الطويلة. */
+        /* maxSpeechDuration = 20 ثانية: التقسيم المبكر يتم عند الوقفات الطبيعية في حلقة
+           الالتقاط (انظر أدناه)، وهذا الحد الأعلى احتياط فقط حتى لا يمتد المقطع بلا نهاية. */
         SileroVadModelConfig silero = new SileroVadModelConfig(
-            dst.getAbsolutePath(), 0.5f, 0.7f, 0.25f, 512, 8f);
+            dst.getAbsolutePath(), 0.5f, 0.7f, 0.25f, 512, 20f);
         VadModelConfig vc = new VadModelConfig(silero, new TenVadModelConfig(), SAMPLE_RATE, 1, "cpu", false);
         vad = new Vad(null, vc);
         return vad;
@@ -346,6 +367,8 @@ public class SherpaAsr {
             return;
         }
         running = true; // منع البدء المزدوج أثناء التحميل
+        decErrSent = false;
+        diag("بدء الاستماع: " + kind);
         emit(mySid, "loading", kind);
         /* تحميل النموذج قد يأخذ ثواني طويلة على الأجهزة الضعيفة، فلا نحجب خيط الجسر:
            التحميل في الخلفية، و«ready» يصل الصفحة عندما يبدأ الميكروفون فعلًا. */
@@ -362,7 +385,9 @@ public class SherpaAsr {
             }, "asr-hb");
             hb.setDaemon(true);
             hb.start();
+            long ld0 = SystemClock.elapsedRealtime();
             boolean ok = ensureRec(kind);
+            diag(ok ? ("تحميل النموذج " + kind + " في " + (SystemClock.elapsedRealtime() - ld0) + "ms") : ("فشل تحميل النموذج " + kind));
             loaded.set(true);
             hb.interrupt();
             if (!ok) { running = false; emit(mySid, "err", "load"); return; }
@@ -391,13 +416,42 @@ public class SherpaAsr {
                 emit(mySid, "ready", recKind);
                 short[] buf = new short[512];
                 float[] fbuf = new float[512];
+                int readErr = 0;
                 while (running) {
                     int n = rec0.read(buf, 0, buf.length);
-                    if (n <= 0) continue;
+                    if (n <= 0) { /* خطأ قراءة: تراجع قصير بدل الدوران الساخن */
+                        if (++readErr > 100) { running = false; emit(mySid, "err", "cap"); diag("تكرار خطأ قراءة الميكروفون"); break; }
+                        try { Thread.sleep(20); } catch (InterruptedException ignored) {}
+                        continue;
+                    }
+                    readErr = 0;
                     for (int i = 0; i < n; i++) fbuf[i] = buf[i] / 32768.0f;
                     float[] chunk = (n == fbuf.length) ? fbuf.clone() : java.util.Arrays.copyOf(fbuf, n);
                     vad.acceptWaveform(chunk);
                     drainVad(mySid);
+                    /* تقسيم مبكر عند وقفة طبيعية: بعد ٨ ثوانٍ من الصوت، إن كان آخر ٠٫٣٥ ثانية
+                       هادئًا (أقل من ٨٪ من ذروة المقطع) نفك تشفير ما تراكم ونبدأ مقطعًا جديدًا،
+                       فتظهر الكلمات تدريجيًا دون قطع الكلمات في منتصفها. */
+                    segAcc.add(chunk); segAccLen += n;
+                    for (int i = 0; i < n; i++) { float a = chunk[i] < 0 ? -chunk[i] : chunk[i]; if (a > segPeak) segPeak = a; }
+                    if (segAccLen >= SAMPLE_RATE * 8 && segPeak > 0.02f) {
+                        int tailN = (int) (SAMPLE_RATE * 0.35f);
+                        double sum = 0; int cnt = 0;
+                        for (int k = segAcc.size() - 1; k >= 0 && cnt < tailN; k--) {
+                            float[] c = segAcc.get(k);
+                            for (int i = c.length - 1; i >= 0 && cnt < tailN; i--, cnt++) sum += c[i] * c[i];
+                        }
+                        double tailRms = Math.sqrt(sum / Math.max(1, cnt));
+                        if (tailRms < segPeak * 0.08) {
+                            float[] early = new float[segAccLen];
+                            int off = 0;
+                            for (float[] c : segAcc) { System.arraycopy(c, 0, early, off, c.length); off += c.length; }
+                            segAcc.clear(); segAccLen = 0; segPeak = 0f;
+                            try { vad.reset(); } catch (Throwable ignored) {}
+                            diag("تقسيم مبكر عند وقفة: " + (early.length / SAMPLE_RATE) + "s");
+                            submitDecode(mySid, early);
+                        }
+                    }
                 }
                 vad.flush();
                 drainVad(mySid);
@@ -426,30 +480,44 @@ public class SherpaAsr {
             while (!vad.empty()) {
                 SpeechSegment seg = vad.front();
                 vad.pop();
+                /* مقطع VAD المكتمل يغطي كل ما تراكم لدينا */
+                segAcc.clear(); segAccLen = 0; segPeak = 0f;
                 float[] s = seg.getSamples();
-                if (s == null || s.length < SAMPLE_RATE / 5) continue; // تجاهل ما دون 0.2 ثانية
+                if (s == null || s.length < SAMPLE_RATE * 7 / 20) continue; // تجاهل ما دون 0.35 ثانية (حماية من هلوسة الضجيج)
                 if (s.length > SAMPLE_RATE * 28) s = java.util.Arrays.copyOf(s, SAMPLE_RATE * 28);
-                final float[] seg2 = s;
-                final ExecutorService pool = decPool;
-                if (pool == null || pool.isShutdown()) continue;
-                pool.execute(() -> {
-                    try {
-                        OfflineRecognizer r = rec;
-                        if (r == null) return;
-                        float[] padded = java.util.Arrays.copyOf(seg2, seg2.length + TAIL_PAD);
-                        OfflineStream st = r.createStream();
-                        try {
-                            st.acceptWaveform(padded, SAMPLE_RATE);
-                            r.decode(st);
-                            String text = r.getResult(st).getText();
-                            if (running && text != null && !text.trim().isEmpty()) emit(mySid, "f", text.trim());
-                        } finally {
-                            try { st.release(); } catch (Throwable ignored) {}
-                        }
-                    } catch (Throwable ignored) {}
-                });
+                submitDecode(mySid, s);
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable t) { diag("خطأ قراءة مقاطع VAD: " + t); }
+    }
+
+    private void submitDecode(final int mySid, final float[] seg2) {
+        final ExecutorService pool = decPool;
+        if (pool == null || pool.isShutdown()) return;
+        pool.execute(() -> {
+            long d0 = SystemClock.elapsedRealtime();
+            try {
+                String text;
+                synchronized (recLock) { /* منع تحرير النموذج أثناء فك التشفير */
+                    OfflineRecognizer r = rec;
+                    if (r == null) return;
+                    float[] padded = java.util.Arrays.copyOf(seg2, seg2.length + TAIL_PAD);
+                    OfflineStream st = r.createStream();
+                    try {
+                        st.setOption("max_tokens_per_second", "30"); /* العربية المشكولة ~٦-٨ توكن للكلمة؛ الافتراضي ٦ يقتطع الكلام */
+                        st.acceptWaveform(padded, SAMPLE_RATE);
+                        r.decode(st);
+                        text = r.getResult(st).getText();
+                    } finally {
+                        try { st.release(); } catch (Throwable ignored) {}
+                    }
+                }
+                diag("فك تشفير مقطع " + String.format(java.util.Locale.US, "%.1f", seg2.length / (float) SAMPLE_RATE) + "s في " + (SystemClock.elapsedRealtime() - d0) + "ms");
+                if (running && text != null && !text.trim().isEmpty()) emit(mySid, "f", text.trim());
+            } catch (Throwable t) { /* كان يُبتلع بصمت: سجّله وأعلم الصفحة مرة واحدة */
+                diag("فشل فك التشفير: " + t);
+                if (!decErrSent) { decErrSent = true; emit(mySid, "err", "dec"); }
+            }
+        });
     }
 
     public synchronized void stop() {
@@ -460,5 +528,8 @@ public class SherpaAsr {
         Thread t = capThread;
         if (t != null) { try { t.join(1500); } catch (InterruptedException ignored) {} capThread = null; }
         if (vad != null) { try { vad.reset(); } catch (Throwable ignored) {} }
+        segAcc.clear(); segAccLen = 0; segPeak = 0f;
+        if (decPool != null) { decPool.shutdownNow(); decPool = null; } /* لا فك تشفير بعد الإيقاف */
+        diag("إيقاف الاستماع");
     }
 }

@@ -8,7 +8,7 @@ function digitsWalk(root){
     var v=n.nodeValue;if(!(west?/[٠-٩]/:/\d/).test(v))continue;var r=digitsConv(v,west);if(r!==v)n.nodeValue=r}
 }
 function digitsApply(force){
-  if(!U().digits)return;
+  if(!U().digits)U().digits='east'; /* الافتراضي مشرقية كما تعرض شاشة الإعدادات */
   ['app','top','tabs'].forEach(function(i){digitsWalk(document.getElementById(i))});
   if(force)try{render()}catch(e){}
 }

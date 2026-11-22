@@ -37,6 +37,7 @@ function bkApply(raw){
   BK_KEEP.forEach(function(k){delete n[k]});Object.assign(n,keep);n.onboarded=true;
   saveOff=true;if(saveTm){clearTimeout(saveTm);saveTm=0}
   try{localStorage.setItem(KEY,JSON.stringify(n))}catch(e){saveOff=false;return 'تعذّر الحفظ: قد تكون مساحة التخزين ممتلئة.'}
+  try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,JSON.stringify(n))}catch(e){} /* حدّث النسخة الاحتياطية المحلية فور الاسترجاع */
   if(o.rem&&typeof o.rem==='object'&&!Array.isArray(o.rem)){try{localStorage.setItem('alsaer_daily_reminders_v1',JSON.stringify(o.rem))}catch(e){}}
   setTimeout(function(){location.reload()},400);
   return '';

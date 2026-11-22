@@ -106,7 +106,7 @@ function vFloatFeed(){
     +'<div class="ns-g"><b>طريقة الظهور</b>'+ffSetChips('mode',[['interval','كل فترة'],['times','أوقات أحددها']],c.mode)+'</div>';
   if(c.mode==='times'){
     h+='<div class="ns-g"><b>الأوقات</b><div class="chips">'+c.times.map(function(t,i){return '<button type="button" class="chip on" data-a="ffdel" data-v="'+i+'">'+hmFmtSafe(t)+' ✕</button>'}).join('')+'</div></div>'
-      +'<div class="ff-add"><input id="ff-add" class="qd-i" type="time" value="09:00"><button class="btn ghost" data-a="ffadd">＋ إضافة وقت</button></div>';
+      +'<div class="ff-add"><input id="ff-add" class="qd-i" type="time" value="09:00"><button class="btn ghost" data-a="ffadd">'+ic('plus')+' إضافة وقت</button></div>';
   }else{
     h+='<div class="ns-g"><b>على مدار ٢٤ ساعة</b>'+ffSetChips('all',[[true,'نعم، طوال اليوم'],[false,'لا، في فترة محددة']],c.all)+'</div>'
       +'<div class="ns-g"><b>تتكرر كل</b>'+ffSetChips('every',FF_EVERY,c.every)+'</div>';
@@ -116,7 +116,7 @@ function vFloatFeed(){
   h+='<section class="card"><h3>المحتوى</h3><div class="ns-g"><b>ما الذي يظهر؟</b>'+ffChips('fftype',FF_TYPES,function(v){return c.types.indexOf(v)>=0})+'</div>'
     +'<p class="note">المتاح الآن: '+ar(String(psz))+' نصًّا بين مضمّن ومجلوب من الإنترنت، ويعمل بلا اتصال بعد الجلب.</p>'
     +'<div class="ns-g"><b>نصوصي الخاصة</b>'+(c.custom.length?'<div class="ff-cl">'+c.custom.map(function(t,i){return '<div class="ff-ci"><span>'+esc(t)+'</span><button type="button" class="ib" data-a="ffctdel" data-v="'+i+'" aria-label="حذف">✕</button></div>'}).join('')+'</div>':'')
-    +'<textarea id="ff-ct" class="qd-i" rows="2" maxlength="260" placeholder="اكتب دعاءً أو تذكيرًا يظهر ضمن النوافذ"></textarea><div class="acts"><button class="btn ghost" data-a="ffct">＋ أضف نصًا</button></div></div>'
+    +'<textarea id="ff-ct" class="qd-i" rows="2" maxlength="260" placeholder="اكتب دعاءً أو تذكيرًا يظهر ضمن النوافذ"></textarea><div class="acts"><button class="btn ghost" data-a="ffct">'+ic('plus')+' أضف نصًا</button></div></div>'
     +'<div class="ns-g"><b>ترتيب الظهور</b>'+ffSetChips('order',[['rand','عشوائي'],['seq','بالتتابع']],c.order)+'</div>'
     +'<div class="ns-g"><b>سطر المصدر تحت النص</b>'+ffSetChips('src',[[false,'يخفى'],[true,'يظهر']],c.src)+'</div>'
     +'<div class="ns-g"><b>الربط بالإشعارات</b>'+ffSetChips('linked',[[false,'منفصلة (موصى به)'],[true,'تظهر أيضًا مع إشعارات الصلاة والتذكيرات']],c.linked)+'</div></section>';

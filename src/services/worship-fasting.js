@@ -1,5 +1,5 @@
 var BAD_HABITS=[['smoke','التدخين'],['lie','الكذب'],['deceive','الخداع'],['backbite','الغيبة']];
-var WORSHIP=[['prayer','الصلاة','mosque'],['fast','الصوم','moon'],['adhkar','الأذكار','beads'],['quran','قراءة القرآن','book'],['wird','الورد اليومي','doc'],['istighfar','الاستغفار','refresh'],['salawat','الصلاة على النبي ﷺ','heart'],['charity','الصدقة','heart'],['lesson','حضور درس علم','book'],['night','قيام الليل','moon'],['help','مساعدة محتاج','heart'],['visit','زيارة مريض','user']];
+var WORSHIP=[['prayer','الصلاة','mosque'],['fast','الصوم','sun'],['adhkar','الأذكار','beads'],['quran','قراءة القرآن','book'],['wird','الورد اليومي','doc'],['istighfar','الاستغفار','refresh'],['salawat','الصلاة على النبي ﷺ','heart'],['charity','الصدقة','coins'],['lesson','حضور درس علم','star'],['night','قيام الليل','moon'],['help','مساعدة محتاج','leaf'],['visit','زيارة مريض','user']];
 function worshipItems(){return WORSHIP.concat((S.customWorship||[]).map(function(x){return [x.id,x.t,'sparkles',true]}))}
 function worshipDay(k){return (S.worship||{})[k]||{}}
 function worshipPoints(k){var w=worshipDay(k);return worshipItems().reduce(function(n,x){return n+(w[x[0]]===true?1:0)},0)}

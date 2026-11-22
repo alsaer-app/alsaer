@@ -58,6 +58,16 @@ public class AlsaerNative {
     @JavascriptInterface public void asrStart(String kind, int jsid) { sherpa.start(kind, jsid); }
     @JavascriptInterface public void asrWarmup(String kind) { sherpa.warmup(kind); }
     @JavascriptInterface public void asrStop() { sherpa.stop(); }
+    @JavascriptInterface public String asrDiag() { return SherpaAsr.diagDump(); }
+    @JavascriptInterface public void shareText(String title, String body) {
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("text/plain");
+        i.putExtra(Intent.EXTRA_SUBJECT, title);
+        i.putExtra(Intent.EXTRA_TEXT, body);
+        Intent c = Intent.createChooser(i, title);
+        c.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        act.startActivity(c);
+    }
 
     @JavascriptInterface
     public void setSchedule(String json) { AlarmScheduler.saveAndSchedule(act, json); }

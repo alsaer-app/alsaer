@@ -24,7 +24,7 @@ function chCard(c){
 function vChal(){
   var L=chList(),h='<div class="ns"><section class="card"><p class="note">اختر عادة طيبة والتزم بها ٣٠ يومًا. أتمم كل يوم بضغطة، وتابع سلسلتك المتواصلة.</p>'
     +'<div class="chips">'+CH_PRE.map(function(p,i){return '<button type="button" class="chip" data-a="chnew" data-v="'+i+'">'+p[1]+' '+p[0]+'</button>'}).join('')+'</div>'
-    +'<div class="ff-add" style="margin-top:12px"><input id="ch-name" class="qd-i" type="text" type="text" maxlength="60" placeholder="أو اكتب تحدّيك الخاص"><button class="btn ghost" data-a="chadd">＋ ابدأ</button></div></section>';
+    +'<div class="ff-add" style="margin-top:12px"><input id="ch-name" class="qd-i" type="text" type="text" maxlength="60" placeholder="أو اكتب تحدّيك الخاص"><button class="btn ghost" data-a="chadd">'+ic('plus')+' ابدأ</button></div></section>';
   h+=L.length?L.map(chCard).join(''):'<section class="card"><p class="note">لا تحدّيات بعد. ابدأ بأول واحد ممّا فوق.</p></section>';
   return h+'</div>';
 }

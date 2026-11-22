@@ -241,7 +241,7 @@ public class FloatingReminderService extends Service {
                             lp.x = lp.x + sz / 2 < sw / 2 ? dp(6) : sw - sz - dp(6);
                             bx = lp.x; by = lp.y;
                             try { wm.updateViewLayout(v, lp); } catch (Throwable ignored) { }
-                            int secs = st.optInt("secs", 15); if (secs > 0) h.postDelayed(autoClose, secs * 2000L);
+                            int secs = st.optInt("secs", 15); if (secs > 0) h.postDelayed(autoClose, secs * 1000L);
                         } else {
                             bx = lp.x; by = lp.y; forceCard = true; buzz(18);
                             showCard(title, body, route, itemJson, nid, src);
@@ -255,7 +255,7 @@ public class FloatingReminderService extends Service {
             b.setAlpha(0f); b.setScaleX(0.3f); b.setScaleY(0.3f);
             b.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(260).setInterpolator(new android.view.animation.OvershootInterpolator(1.8f)).withEndAction(() -> b.animate().scaleX(1.14f).scaleY(1.14f).setDuration(420).withEndAction(() -> b.animate().scaleX(1f).scaleY(1f).setDuration(420).start()).start()).start(); buzz(14);
             h.removeCallbacks(autoClose);
-            int secs = st.optInt("secs", 15); if (secs > 0) h.postDelayed(autoClose, secs * 2000L);
+            int secs = st.optInt("secs", 15); if (secs > 0) h.postDelayed(autoClose, secs * 1000L);
         } catch (Throwable t) {
             FloatLog.err(this, "عرض الفقاعة العائمة", String.valueOf(t));
             FloatLog.fallback(this, title, body);

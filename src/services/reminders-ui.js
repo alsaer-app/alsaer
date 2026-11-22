@@ -95,7 +95,7 @@
     function smartCards(r){
       var ev=parseInt(r.salatEvery,10)||0,cnt=0;if(ev>=15){var a1=r.salatFrom.split(':'),a2=r.salatTo.split(':');cnt=Math.floor(((+a2[0])*60+(+a2[1])-(+a1[0])*60-(+a1[1]))/ev)+1}
       var tk=dk(),sc=(S.salawat&&S.salawat[tk])||0;
-      return '<section class="card sm-card"><h4>'+ic('mosque')+'الصلاة على النبي ﷺ</h4><p class="note">اختر التكرار والفترة، وسيصلك تذكير بصيغة مختلفة كل مرة.'+(sc?' · صلّيتَ اليوم '+remAr(sc)+' مرة.':'')+'</p>'
+      return '<section class="card sm-card"><h4>'+ic('heart')+'الصلاة على النبي ﷺ</h4><p class="note">اختر التكرار والفترة، وسيصلك تذكير بصيغة مختلفة كل مرة.'+(sc?' · صلّيتَ اليوم '+remAr(sc)+' مرة.':'')+'</p>'
         +'<div class="sm-g"><label>التكرار</label>'+selO('salatEvery',ev,[[0,'مرة يوميًا'],[120,'كل ساعتين'],[60,'كل ساعة'],[30,'كل نصف ساعة'],[15,'كل ١٥ دقيقة']])+'</div>'
         +(ev>=15?'<div class="sm-g"><label>من</label>'+tm('salatFrom',r.salatFrom)+'<label>إلى</label>'+tm('salatTo',r.salatTo)+'</div><p class="note">≈ '+remAr(cnt)+' إشعارًا في اليوم</p>':'<div class="sm-g"><label>الوقت</label>'+tm('salatTime',r.salatTime)+'</div>')+'</section>'
        +'<section class="card sm-card"><h4>'+ic('sparkles')+'ورد القرآن اليومي</h4><p class="note">يُذكّرك بما بقي من وردك، ولا يُرسَل إذا أتممته.</p>'
@@ -120,7 +120,7 @@
       return '<label class="rm-day'+(sel?' on':'')+'"><input type="checkbox" data-rem-cday="'+i+'" '+(sel?'checked':'')+'><span>'+d+'</span></label>';
     }).join('');
     return '<section class="rm-hero"><span class="rm-hic">'+ic('bell')+'</span><div><h2>مركز التذكيرات</h2><p>تذكيرات تلقائية بأوقات مدروسة، تصلك حتى والتطبيق مغلق</p></div></section>'
-      +'<div class="rm-master"><div class="rm-tx"><b>جدول التذكيرات التلقائي</b><small>'+(nat?'يعمل على مستوى النظام: مع الشاشة المقفلة وبعد إعادة تشغيل الهاتف':'يعمل أثناء فتح التطبيق')+'</small></div>'+sw('data-rem-master',r.enabled)+'</div>'
+      +'<div class="rm-master"><div class="rm-tx"><b>جدول التذكيرات التلقائي</b><small>'+(nat?'يعمل على مستوى النظام: مع الشاشة المقفلة وبعد إعادة تشغيل الهاتف':'يعمل أثناء فتح التطبيق')+'</small></div><span class="rm-state" style="font-size:12px;font-weight:800;color:'+(r.enabled?'var(--gold)':'var(--muted)')+'">'+(r.enabled?'مفعّل':'متوقف')+'</span>'+sw('data-rem-master',r.enabled)+'</div>'
       +'<div class="rm-seg">'+[['main','التذكيرات'],['smart','ذكي'],['mine','تذكيري'],['tools','الفحص']].map(function(x){return '<button type="button" class="'+(REM_PANE===x[0]?'on':'')+'" data-rem-pane="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
       +'<div class="rm-pane'+(REM_PANE==='main'?' on':'')+'">'
       +remRow2('malik','book','سورة الملك','كل ليلة · وقت تلقائي مدروس','malik')
@@ -192,6 +192,7 @@
     box.querySelector('#rem-close').onclick=function(){box.remove()};
   }
   function remCheck(){
+    if(window.AlsaerNative)return; /* الإشعارات الأصلية تتولى التسليم — منع التكرار والتطبيق مفتوح */
     var r=remLoad(); if(!r.enabled||!r.consent||!document.hasFocus())return;
     var d=new Date(),day=d.getDay(),hh=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
     var date=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();

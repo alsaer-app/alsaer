@@ -59,5 +59,5 @@ function pageSura(p){var r=curP()[p-1];return r?QD().n[r[0]-1]:''}
 function khatmaEta(total){
   var goal=Math.max(1,S.quran.goal),left=QURAN_PAGES-(total%QURAN_PAGES),days=Math.ceil(left/goal),d=new Date();d.setDate(d.getDate()+days);
   var ds=d.toLocaleDateString('ar-EG',{day:'numeric',month:'long',year:'numeric'});
-  return '<section class="card flat khe"><div class="rm-ic">'+ic('flag')+'</div><div class="rm-tx"><b>تنتهي ختمتك بإذن الله في '+esc(ds)+'</b><small>متبقٍ '+ar(left)+' صفحة · نحو '+ar(days)+' يومًا بوردك الحالي ('+ar(goal)+' '+(goal<11?'صفحات':'صفحة')+' يوميًا)</small></div></section>';
+  return '<section class="card flat khe" style="font-variant-numeric:tabular-nums"><div class="rm-ic">'+ic('flag')+'</div><div class="rm-tx"><b>تنتهي ختمتك بإذن الله في '+esc(ds)+'</b><small style="letter-spacing:.4px">متبقٍ '+ar(left)+' صفحة · نحو '+ar(days)+' يومًا بوردك الحالي ('+ar(goal)+' '+(goal<11?'صفحات':'صفحة')+' يوميًا)</small></div></section>';
 }

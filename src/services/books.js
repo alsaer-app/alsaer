@@ -81,7 +81,7 @@ function boChips(act,items,isOn){return '<div class="chips">'+items.map(function
 function boForm(){
   var d=boDraft||(boDraft=boNew());
   var ic2=BO_ICONS.map(function(x){return '<button type="button" class="bo-ico'+(!d.img&&d.i===x?' on':'')+'" data-a="boico" data-v="'+x+'">'+x+'</button>'}).join('');
-  var pre=BO_PRESETS.map(function(x,i){return '<button type="button" class="chip" data-a="bopre" data-v="'+i+'">'+esc(x.i+' '+x.n)+'</button>'}).join('');
+  var pre=BO_PRESETS.map(function(x,i){return '<button type="button" class="chip" data-a="bopre" data-v="'+i+'">'+ic('book')+' '+esc(x.n)+'</button>'}).join('');
   var cols='<div class="bo-cols">'+Object.keys(BO_COLS).map(function(k){return '<button type="button" class="bo-col'+(d.col===k?' on':'')+'" style="background:'+BO_COLS[k]+'" data-a="bocol" data-v="'+k+'" aria-label="لون"></button>'}).join('')+'</div>';
   return '<section class="card" id="bo-form"><h3>'+(boEditId?'تعديل الكتاب':'أضف كتابًا')+'</h3>'
    +(boEditId?'':'<p class="note">اختر كتابًا جاهزًا لملء البيانات، أو اكتب كتابك. الأعداد تقريبية وتختلف بين الطبعات، فعدّلها بحسب نسختك.</p><div class="chips bo-pre">'+pre+'</div>')
@@ -119,7 +119,7 @@ function vBooks(){
   else if(o.sort==='name')shown.sort(function(a,b){return a.n.localeCompare(b.n,'ar')});
   return '<div class="bo"><section class="rm5-hero"><small>كتابي</small><b>'+ar(tot)+' صفحة</b><span>هذا الأسبوع: '+ar(wk)+' · كتب أتممتها: '+ar(dn)+'</span>'+bars
    +(gl?'<div class="bo-bar"><i style="width:'+Math.min(100,Math.round(td/gl*100))+'%"></i></div><span>اليوم: '+ar(td)+' من '+ar(gl)+' صفحة'+(td>=gl?' ✓':'')+'</span>':'')+'</section>'
-   +'<div class="acts"><button class="btn" data-a="boman">＋ أضف كتابي الخاص</button></div>'
+   +'<div class="acts"><button class="btn" data-a="boman">'+ic('plus')+' أضف كتابي الخاص</button></div>'
    +(shown.length?shown.map(boCard).join(''):'<section class="card"><p class="note">'+(L.length?'لا كتب لعرضها بهذا الإعداد.':'لم تُضف كتابًا بعد. أضف أول كتاب من الأسفل، وحدّد وقتك اليومي ليذكّرك التطبيق.')+'</p></section>')
    +(L.length?boOptions():'')+boForm()+'</div>';
 }

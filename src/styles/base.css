@@ -51,7 +51,7 @@ small,.muted{color:var(--muted)}
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:15px;padding:12px 18px;min-height:48px;font:inherit;font-weight:800;
   background:linear-gradient(180deg,var(--btn1),var(--btn2));color:var(--on-gold);cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.35);text-decoration:none}
-.btn.good{background:linear-gradient(180deg,#4fc29a,#2f8f6e);color:#fff}
+.btn.good{background:linear-gradient(180deg,#2f8f7c,#1d6654);color:#fff}
 .btn.bad{background:linear-gradient(180deg,#d9807a,#b0524d);color:#fff}
 .btn.ghost{background:color-mix(in srgb,var(--surface-2) 80%,transparent);color:var(--fg);border:1px solid var(--line);box-shadow:none}
 .btn.block{width:100%}
@@ -201,7 +201,7 @@ button.cli{cursor:pointer}
 .lrow .chev{color:var(--muted);width:18px;height:18px}
 .sw{position:relative;width:52px;height:30px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line);flex:none}
 .sw::after{content:"";position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#cdd9d3;transition:transform .2s}
-.sw.on{background:var(--good);border-color:var(--good)}
+.sw.on{background:var(--gold);border-color:var(--gold)}
 .sw.on::after{transform:translateX(-22px);background:#fff}
 .devc{text-align:center;padding:22px 16px}
 .avatar{width:96px;height:96px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;border:2px solid var(--gold);background:radial-gradient(circle,var(--surface-2),var(--surface));color:var(--gold);font-family:var(--font-text);font-size:46px;font-weight:700;box-shadow:0 0 28px color-mix(in srgb,var(--gold) 22%,transparent)}

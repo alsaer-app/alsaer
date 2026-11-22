@@ -16,7 +16,7 @@ function topTrig(){
   return best;
 }
 
-var APP_VERSION='1.0.10',APP_BUILD=10145,COPY='';
+var APP_VERSION='1.0.13',APP_BUILD=10145,COPY='';
 function devBtn(){
   var ch=ic('chev').replace('class="i"','class="i dev-chev"');
   return '<button class="dev-btn" data-a="tab" data-v="developer" aria-label="مطوّر السائر إلى الله — Dr. Ahmed Elagamy"><span class="dev-av"><i>Æ</i></span><span class="dev-tx"><span class="dev-role">مطوّر السائر إلى الله · Developer</span><b>أحمد العجمي</b><span class="dev-en">Dr. Ahmed Elagamy</span><span class="dev-free">'+ic('check')+'تطبيق السائر إلى الله مجاني بالكامل · Completely free</span></span><span class="dev-side"><span class="dev-ver">v'+APP_VERSION+'</span>'+ch+'</span></button>'}

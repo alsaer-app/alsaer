@@ -28,11 +28,11 @@ function ensureDailyHadith(force){
   paintHadith(data);
 }
 function renderFirstUpdateNotice(){
-  var key='alsaer_seen_update_1016',old=document.getElementById('update109-notice');
+  var key='alsaer_seen_update_1013',old=document.getElementById('update109-notice');
   var seen=false;try{seen=localStorage.getItem(key)==='1'}catch(e){seen=false}
   if(!unlocked||!S.onboarded||seen){if(old)old.remove();return}
   if(old)return;
   var wrap=document.createElement('div');wrap.id='update109-notice';wrap.className='update109-backdrop';
-  wrap.innerHTML='<section class="update109-card" role="dialog" aria-modal="true" aria-labelledby="update109-title"><h2 id="update109-title">ما الجديد في السائر إلى الله؟</h2><div class="ver">الإصدار '+APP_VERSION+' · جديد</div><ul><li>جولة تفاعلية تعرّفك بالتطبيق (وتُعاد من الإعدادات ← المساعدة).</li><li>«المسبحة» صفحة مستقلة: ذكر مخصّص وصوت نقر.</li><li>الأذكار تفتح من «حصن المسلم»، وزر «تخصيص الرئيسية» في أعلى الصفحة.</li><li>إعدادات أبسط: خمسة أقسام وخيارات متقدمة مطويّة.</li><li>شاشة التسميع تظهر كاملة مع الإحصائيات.</li></ul><p class="free-note">تطبيق السائر إلى الله مجاني بالكامل</p><button class="btn" data-a="update109Done">متابعة إلى التطبيق</button></section>';
+  wrap.innerHTML='<section class="update109-card" role="dialog" aria-modal="true" aria-labelledby="update109-title"><h2 id="update109-title">ما الجديد في السائر إلى الله؟</h2><div class="ver">الإصدار '+APP_VERSION+' · جديد</div><ul><li>جولة تفاعلية تعرّفك بالتطبيق (وتُعاد من الإعدادات ← المساعدة).</li><li>«المسبحة» صفحة مستقلة: ذكر مخصّص وصوت نقر.</li><li>الأذكار تفتح من «حصن المسلم»، وزر «تخصيص الرئيسية» في أعلى الصفحة.</li><li>إعدادات أبسط: خمسة أقسام وخيارات متقدمة مطويّة.</li><li>شاشة التسميع تظهر كاملة مع الإحصائيات.</li><li>تحسينات في دقة التسميع الصوتي وإصلاحات عامة في الأداء والتصميم.</li></ul><p class="free-note">تطبيق السائر إلى الله مجاني بالكامل</p><button class="btn" data-a="update109Done">متابعة إلى التطبيق</button></section>';
   document.body.appendChild(wrap);
 }

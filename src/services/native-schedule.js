@@ -170,12 +170,11 @@
   };
   /* أي حفظ لبيانات التطبيق أو إعدادات التذكير يعيد مزامنة الجدول */
   var _save=save;save=function(){var r=_save.apply(this,arguments);syncSoon();return r};
-  document.addEventListener('change',function(){syncSoon()},true);
-  document.addEventListener('click',function(){syncSoon()},true);
+  /* syncSoon مربوط بـ save() فقط — إزالة مزامنة كل ضغطة/تغيير توفيرًا للبطارية */
   document.addEventListener('visibilitychange',function(){if(!document.hidden)window.alsaerPoll()});
   window.addEventListener('focus',function(){window.alsaerPoll()});
   window.addEventListener('pageshow',function(){window.alsaerPoll()});
-  setInterval(function(){if(!document.hidden)window.alsaerPoll(true)},5000);
+  setInterval(function(){if(!document.hidden)window.alsaerPoll(true)},30000);
   function remLoad(){var x=null;try{x=JSON.parse(localStorage.getItem(REM_KEY)||'null')}catch(e){}return Object.assign(cfg(),x||{})}
   function remSave(x){try{localStorage.setItem(REM_KEY,JSON.stringify(x))}catch(e){}}
   function permOk(){var n=nat();try{return !!(n&&n.notificationsEnabled&&n.notificationsEnabled())}catch(e){return false}}
@@ -196,6 +195,3 @@
   var _poll=window.alsaerPoll;window.alsaerPoll=function(){try{autoEnable()}catch(e){}return _poll.apply(this,arguments)};
   var tries=0,iv=setInterval(function(){tries++;if(nat()){clearInterval(iv);window.alsaerPoll();sync(true)}else if(tries>40)clearInterval(iv)},500);
 })();
-
-})();
-

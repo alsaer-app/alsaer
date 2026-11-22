@@ -2,10 +2,10 @@
    المحرّك (rcNorm / rcFeed) مستقل عن مصدر الصوت. يستقبل نصًا مُتعرَّفًا عليه ويطابقه مع نص السورة.
    مصدر الصوت يُركَّب لاحقًا عبر window.ReciteASR = { start(onText, onErr), stop() } — انظر docs/RECITE_PLAN.md
    (وضع الكتابة اليدوي أُزيل.) */
-var rc={sura:0,ay:0,w:[],st:[],hd:[],pos:0,on:false,msg:'',busy:false,ok:0,miss:0,hear:'',res:null,wk:-1,u:null,pick:false,adv:false,stat:false};
+var rc={sura:0,ay:0,w:[],st:[],hd:[],pos:0,on:false,msg:'',busy:false,ok:0,miss:0,hear:'',res:null,wk:-1,u:null,pick:false,adv:false,stat:false,hlog:[]};
 function rcNorm(s){
-  return String(s||'').replace(/[ؐ-ًؚ-ٰٟۖ-ۭـ]/g,'')
-    .replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي')
+  return String(s||'').normalize('NFC').replace(/[ؐ-ًؚ-ٰٟۖ-ۭـ]/g,'')
+    .replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ء/g,'')
     .replace(/[^ء-ي ]/g,' ').replace(/\s+/g,' ').trim();
 }
 function rcLev(a,b){
@@ -20,9 +20,9 @@ function rcSkel(n){return n.replace(/ا/g,'').replace(/وه$/,'ه')}
 /* حروف يخلط بينها المعرِّف الصوتي كثيرًا (ض/ظ، ص/س/ث، ذ/ز، ط/ت، ق/ك، ح/ه، ع/ء): تُوحَّد في مقارنة صوتية أخفّ عقوبة */
 function rcPh(n){return rcSkel(n).replace(/[ظ]/g,'ض').replace(/[صث]/g,'س').replace(/[ذ]/g,'ز').replace(/[ط]/g,'ت').replace(/[ق]/g,'ك').replace(/[ح]/g,'ه').replace(/[ع]/g,'ء').replace(/ت$/,'ه').replace(/(.)\1+/g,'$1')}
 function rcSim2(a,b){var x=rcSim(a,b);if(x>=1||a.length<3||b.length<3)return x;var y=rcSim(rcSkel(a),rcSkel(b));if(y>x)x=y;var z=rcSim(rcPh(a),rcPh(b))*.96;return z>x?z:x}
-function rcPref(){var P=S.rcp;if(!P||typeof P!=='object')P=S.rcp={size:25,hifz:false,hist:[]};if(!P.hist)P.hist=[];return P}
+function rcPref(){var P=S.rcp;if(!P||typeof P!=='object')P=S.rcp={size:25,hifz:false,hist:[],rr:false};if(!P.hist)P.hist=[];return P}
 function rcLoad(c,a){
-  var Q=QD(),t=Q.s&&Q.s[c-1];rc.sura=c;rc.ay=a||0;rc.w=[];rc.st=[];rc.hd=[];rc.pos=0;rc.ok=0;rc.miss=0;rc.hear='';rc.res=null;rc.wk=-1;rc.u=null;
+  var Q=QD(),t=Q.s&&Q.s[c-1];rc.sura=c;rc.ay=a||0;rc.w=[];rc.st=[];rc.hd=[];rc.pos=0;rc.ok=0;rc.miss=0;rc.hear='';rc.res=null;rc.wk=-1;rc.u=null;rc.hlog=[];
   if(!t)return false;
   t.forEach(function(ay,ai){String(ay).split(/\s+/).forEach(function(w){var n=rcNorm(w);if(n)rc.w.push({t:w,n:n,a:ai+1})})});
   /* نص تنزيل يضع البسملة في أول آية لكل السور؛ هي آية في الفاتحة فقط، فنحذفها من غيرها */
@@ -74,7 +74,7 @@ function rcHyp(alts,fin){
   }
   rcRestore(best);rc.hear=bt;
   var moved=rc.pos>rc.u.pos;
-  if(fin)rc.u=null;
+  if(fin){rc.u=null;var tk=rcNorm(bt).split(' ').filter(Boolean);rc.hlog.push.apply(rc.hlog,tk);if(rc.hlog.length>6000)rc.hlog.splice(0,2000)}
   return true;
 }
 /* كلمات متوقَّعة تُمرَّر لخدمة التعرّف كتلميح (تحسّن الدقة على أندرويد 13+) */
@@ -100,9 +100,29 @@ function rcPaint(){
   var cur=sp[Math.min(rc.pos,n-1)];if(cur&&cur.scrollIntoView&&rc.pos>0){try{cur.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}}
   if(rc.pos>=n&&n&&rc.on)rcFinish();
 }
+/* محاذاة عامة (LCS) بين كل ما سُمع فعلًا ونص المصحف: مرور ثانٍ يسترد الكلمات التي حكم عليها التتبّع اللحظي خطأً بالتخطّي،
+   ولا يخفّض أي كلمة نجحت لحظيًا — ترقية فقط. */
+function rcAlignPass(att){
+  var hw=rc.hlog||[];if(!hw.length||!att)return;
+  var n=Math.min(att,rc.w.length),m=hw.length,i,j;
+  if(!n||!m||n*m>3000000)return; /* نصوص طويلة جدًا: نكتفي بالتتبّع اللحظي تفاديًا للحوسبة الثقيلة */
+  var dp=new Array(m+1);for(i=0;i<=m;i++){dp[i]=new Array(n+1);for(j=0;j<=n;j++)dp[i][j]=0}
+  for(i=1;i<=m;i++){var h=hw[i-1];for(j=1;j<=n;j++){
+    var bj=dp[i][j-1],up=dp[i-1][j],dg=dp[i-1][j-1]+((h===rc.w[j-1].n||rcSim2(h,rc.w[j-1].n)>=.86)?1:0);
+    dp[i][j]=dg>=bj&&dg>=up?dg:(bj>=up?bj:up);
+  }}
+  i=m;j=n;while(i>0&&j>0){
+    var h2=hw[i-1],okM=h2===rc.w[j-1].n||rcSim2(h2,rc.w[j-1].n)>=.86;
+    if(okM&&dp[i][j]===dp[i-1][j-1]+1){if(rc.st[j-1]!==1){rc.st[j-1]=1;rc.hd[j-1]=h2}i--;j--}
+    else if(dp[i-1][j]>=dp[i][j-1])i--;else j--;
+  }
+  var o=0,ms=0;for(i=0;i<n;i++){if(rc.st[i]===1)o++;else if(rc.st[i]===2)ms++}
+  rc.ok=o;rc.miss=ms;
+}
 /* ---- نتيجة التلاوة: دقة الكلمات والحروف والإكمال — محسوبة من التعرّف الفعلي (لا درجات عشوائية). التجويد لا يُقيَّم. ---- */
 function rcResult(){
   var n=rc.w.length,att=Math.min(rc.pos,n),i;if(!n||!att)return null;
+  rcAlignPass(att);
   var okc=0,ls=0,weak=[];
   for(i=0;i<att;i++){
     if(rc.st[i]===1){okc++;var sim=rc.hd[i]?rcSim2(rc.hd[i],rc.w[i].n):1;ls+=sim;if(sim<.85)weak.push({i:i,sim:sim})}
@@ -112,7 +132,8 @@ function rcResult(){
   return {t:Math.min(100,T),w:Math.round(W),l:Math.round(L),c:Math.round(C),weak:weak,att:att,n:n};
 }
 function rcFinish(){
-  rcStop();var r=rcResult();if(!r){try{render()}catch(e){}return}
+  rcStop();if(rcPref().rr)rc.pos=rc.w.length; /* وضع التسجيل: الحصة تغطي النص كله، والمحاذاة العامة هي الحكم */
+  var r=rcResult();if(!r){try{render()}catch(e){}return}
   rc.res=r;rc.wk=-1;var P=rcPref();
   P.hist.push({s:rc.sura,ay:rc.ay,d:Date.now(),a:r.t,m:rc.miss,w:r.att,k:Math.round(r.w/100*r.att)});if(P.hist.length>120)P.hist.shift();var T=P.tot||(P.tot={n:0,w:0,k:0,best:0});T.n++;T.w+=r.att;T.k+=Math.round(r.w/100*r.att);if(r.t>T.best)T.best=r.t;save();
   rc.msg=r.c>=100?'أتممت '+(rc.ay?'الآية':'السورة')+' — تقبّل الله ✓':'';
@@ -146,7 +167,11 @@ function rcStart2(){
   var A=window.ReciteASR;if(!A)return;
   rc.on=true;rc.msg='';rc.busy=false;rc.last=Date.now();
   clearInterval(rc.idle);rc.idle=setInterval(function(){if(!rc.on){clearInterval(rc.idle);return}if(Date.now()-rc.last>120000){rcStop();rc.msg='أُوقف الميكروفون تلقائيًا لأنك لم تتلُ لدقيقتين. اضغط الميكروفون للمتابعة.';try{render()}catch(x){}}},10000);
-  try{A.start(function(t,fin){if(!rc.on)return;rc.last=Date.now();rcHyp(Array.isArray(t)?t:[t],fin!==false);rcPaint()},function(e){rc.on=false;rc.busy=false;rc.msg=String(e||'تعذّر تشغيل التعرّف على الصوت.');try{render()}catch(x){}},rcSay)}
+  try{A.start(function(t,fin){if(!rc.on)return;rc.last=Date.now();
+    if(rcPref().rr){ /* وضع التسجيل ثم المراجعة: بلا مطابقة لحظية — نجمع النص ونحلّله عند التوقف */
+      if(fin!==false){var alts=Array.isArray(t)?t:[t];if(alts[0]){var tk=rcNorm(alts[0]).split(' ').filter(Boolean);rc.hlog.push.apply(rc.hlog,tk);if(rc.hlog.length>6000)rc.hlog.splice(0,2000);rc.hear=alts[0]}}
+      rcPaint();return}
+    rcHyp(Array.isArray(t)?t:[t],fin!==false);rcPaint()},function(e){rc.on=false;rc.busy=false;rc.msg=String(e||'تعذّر تشغيل التعرّف على الصوت.');try{render()}catch(x){}},rcSay)}
   catch(e){rc.on=false;rc.msg='تعذّر تشغيل التعرّف على الصوت.'}
 }
 function rcAct(a,v){
@@ -165,12 +190,13 @@ function rcAct(a,v){
   else if(a==='rchistclr'){rcPref().hist=[];save()}
   else if(a==='rcagain'){rcStop();rcLoad(rc.sura,rc.ay);rc.msg=''}
   else if(a==='rcwk'){rc.wk=(rc.wk===parseInt(v,10))?-1:parseInt(v,10)}
-  else if(a==='rcmodel'){var P3=rcPref(),od=document.getElementById('rc-od');if(od)P3.od=od.checked;var bp=document.getElementById('rc-beep');if(bp)P3.beep=bp.checked;var lm=document.querySelector('input[name="rclm"]:checked');if(lm)P3.lm=lm.value||'';save();rcStop();rcAsrStop();rcAsr.natBad=false;rcAsr.wsBad=false;rc.adv=false;toast('✅ تم حفظ الإعدادات');rc.msg='';return false}
+  else if(a==='rcmodel'){var P3=rcPref(),od=document.getElementById('rc-od');if(od)P3.od=od.checked;var bp=document.getElementById('rc-beep');if(bp)P3.beep=bp.checked;var rr=document.getElementById('rc-rr');if(rr)P3.rr=rr.checked;var lm=document.querySelector('input[name="rclm"]:checked');if(lm)P3.lm=lm.value||'';save();rcStop();rcAsrStop();rcAsr.natBad=false;rcAsr.wsBad=false;rc.adv=false;toast('✅ تم حفظ الإعدادات');rc.msg='';return false}
   else if(a==='rcdl'){try{if(window.AlsaerNative&&AlsaerNative.asrDownload)AlsaerNative.asrDownload(v)}catch(e){}return true}
   else if(a==='rcdlx'){try{if(window.AlsaerNative&&AlsaerNative.asrCancelDownload)AlsaerNative.asrCancelDownload()}catch(e){}return false}
   else if(a==='rcdel'){try{if(window.AlsaerNative&&AlsaerNative.asrDelete)AlsaerNative.asrDelete(v)}catch(e){}toast('تم حذف النموذج')}
   else if(a==='rcfs'){var P=rcPref();P.size=Math.max(18,Math.min(40,(P.size||25)+(parseInt(v,10)||0)*2));save()}
   else if(a==='rcpick'){rc.pick=!rc.pick}
+  else if(a==='rcdiag'){try{if(window.AlsaerNative&&AlsaerNative.asrDiag){AlsaerNative.shareText('تشخيص التلاوة — السائر',AlsaerNative.asrDiag()||'لا يوجد سجل بعد')}else toast('التشخيص غير متاح في هذه النسخة')}catch(e){}return false}
   else if(a==='rcadv'){rc.adv=!rc.adv;if(rc.adv)rc.stat=false}
   else if(a==='rchifz'){var P2=rcPref();P2.hifz=!P2.hifz;save()}
   else if(a==='rcreset'){rcStop();rcLoad(rc.sura||1,rc.ay);rc.msg=''}
@@ -236,7 +262,9 @@ function rcSheet(P,last){
    +rcLocalHtml(P)
    +'<div class="rc-grp"><h4>🎙 التعرّف على الصوت</h4><p class="note">يستخدم التطبيق تعرّف Google في هاتفك (مجاني وسريع، يحتاج إنترنت) ما لم تختر النموذج المحلي أعلاه.</p>'
      +'<label class="rc-mt"><input type="checkbox" id="rc-beep"'+(P.beep!==false?' checked':'')+'><span><b>كتم صوت «بيب» الميكروفون 🔇</b><small>يكتم أصوات الهاتف لحظة بدء الاستماع فقط (أقل من ثانيتين) ثم يعيدها تلقائيًا، ولا يغيّر مستوى الصوت المحفوظ.</small></span></label>'
+     +'<label class="rc-mt"><input type="checkbox" id="rc-rr"'+(P.rr?' checked':'')+'><span><b>تسجيل ثم مراجعة 🐢</b><small>للأجهزة الضعيفة: يجمع تلاوتك كاملة ثم يحلّلها عند التوقف بدل المطابقة اللحظية — أخف على المعالج ويثبّت النتيجة.</small></span></label>'
      +'<label class="rc-mt"><input type="checkbox" id="rc-od"'+(P.od?' checked':'')+'><span><b>تعرّف داخل الهاتف 🔒</b><small>يبقى صوتك على جهازك (أندرويد ١٣+ وحزمة العربية من إعدادات الصوت)، وإن لم تتوفر يعود تلقائيًا للعادي ويُرسَل الصوت إلى Google.</small></span></label></div>'
+   +'<div class="rc-grp"><h4>🛠 تشخيص التعرّف</h4><p class="note">سجل فني (أحداث تشغيل فقط، بلا صوت ولا نصوص تلاوة) يفيدنا عند الإبلاغ عن مشكلة في التسميع.</p><div class="acts"><button class="btn ghost" data-a="rcdiag">مشاركة سجل التشخيص</button></div></div>'
    +'<div class="acts"><button class="btn" data-a="rcmodel">حفظ</button></div></section>';
 }
 /* تقدّم تنزيل النموذج المحلي: تحديث شريط التقدّم مباشرة، وإعادة العرض عند الاكتمال/الخطأ/الإلغاء */

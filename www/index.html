@@ -60,7 +60,7 @@ small,.muted{color:var(--muted)}
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:15px;padding:12px 18px;min-height:48px;font:inherit;font-weight:800;
   background:linear-gradient(180deg,var(--btn1),var(--btn2));color:var(--on-gold);cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.35);text-decoration:none}
-.btn.good{background:linear-gradient(180deg,#4fc29a,#2f8f6e);color:#fff}
+.btn.good{background:linear-gradient(180deg,#2f8f7c,#1d6654);color:#fff}
 .btn.bad{background:linear-gradient(180deg,#d9807a,#b0524d);color:#fff}
 .btn.ghost{background:color-mix(in srgb,var(--surface-2) 80%,transparent);color:var(--fg);border:1px solid var(--line);box-shadow:none}
 .btn.block{width:100%}
@@ -210,7 +210,7 @@ button.cli{cursor:pointer}
 .lrow .chev{color:var(--muted);width:18px;height:18px}
 .sw{position:relative;width:52px;height:30px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line);flex:none}
 .sw::after{content:"";position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#cdd9d3;transition:transform .2s}
-.sw.on{background:var(--good);border-color:var(--good)}
+.sw.on{background:var(--gold);border-color:var(--gold)}
 .sw.on::after{transform:translateX(-22px);background:#fff}
 .devc{text-align:center;padding:22px 16px}
 .avatar{width:96px;height:96px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;border:2px solid var(--gold);background:radial-gradient(circle,var(--surface-2),var(--surface));color:var(--gold);font-family:var(--font-text);font-size:46px;font-weight:700;box-shadow:0 0 28px color-mix(in srgb,var(--gold) 22%,transparent)}
@@ -1399,7 +1399,7 @@ button:active,.tile:active,.lrow:active,.cli:active{transform:scale(.97)}
 .qd-i{width:64px;text-align:center;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:12px;padding:8px 4px;font:inherit;font-size:16px}
 .bk-ta{width:100%;box-sizing:border-box;margin:8px 0;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:12px;padding:10px;font:12px/1.5 monospace}
 .bk-file{display:inline-block;margin:4px 0}.bk-msg{color:var(--gold)}.bk .acts{margin-top:8px}
-.rm5-hero{display:flex;flex-direction:column;align-items:center;gap:4px;padding:22px 18px;border-radius:24px;margin-bottom:12px;text-align:center;background:linear-gradient(150deg,#27406E,color-mix(in srgb,var(--gold) 55%,#27406E));color:#fff}
+.rm5-hero{display:flex;flex-direction:column;align-items:center;gap:4px;padding:22px 18px;border-radius:24px;margin-bottom:12px;text-align:center;background:linear-gradient(150deg,#0d3b33,color-mix(in srgb,var(--gold) 45%,#0d3b33));color:#fff}
 .rm5-hero small{opacity:.85}.rm5-hero>b{font-size:40px;line-height:1.15}.rm5-hero span{opacity:.9;font-size:14px}.rm5-hero .bar{width:100%;margin-top:10px;background:rgba(255,255,255,.25)}.rm5-hero .bar div{background:#fff}
 .rm5-times{display:flex;justify-content:space-around;text-align:center;margin-bottom:12px}.rm5-times small{display:block;color:var(--muted);font-size:12px}.rm5-times b{font-size:24px}
 .rm5-c{float:left;color:var(--gold);font-size:15px}
@@ -1656,7 +1656,7 @@ body.orn .mp-fa{background:#f9f5ee;border-color:#b98a2e;color:#8a5a36}body.orn .
 .rc-chips{display:flex;flex-wrap:wrap;gap:6px}.rc-chips span{padding:4px 10px;border-radius:999px;background:var(--surface-2);font-size:13px}.rc-chips .g b{color:var(--good)}.rc-chips .r b{color:var(--bad)}
 .rc-card{padding:12px}.rc-sel{width:100%;margin-bottom:10px}
 .rc-text{max-height:44vh;overflow:auto;line-height:2.5;font-size:25px;font-family:var(--font-text,inherit);padding:10px 6px;text-align:justify;scroll-behavior:smooth}
-.rcw{border-radius:8px;padding:1px 3px;color:var(--muted);transition:background .25s,color .25s}.rcw.ok{color:var(--fg)}.rcw.miss{color:var(--bad);text-decoration:underline wavy;text-underline-offset:6px}
+.rcw{border-radius:8px;padding:1px 3px;color:color-mix(in srgb,var(--fg) 72%,var(--muted));transition:background .25s,color .25s}.rcw.ok{color:var(--fg)}.rcw.miss{color:var(--bad);text-decoration:underline wavy;text-underline-offset:6px}
 .rcw.cur{background:color-mix(in srgb,var(--gold) 30%,transparent);color:var(--fg);box-shadow:0 0 0 2px color-mix(in srgb,var(--gold) 50%,transparent)}
 .rcn{color:var(--gold);font-size:.8em;white-space:nowrap}
 .rc-ctl{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
@@ -1679,7 +1679,7 @@ body.orn .mp-fa{background:#f9f5ee;border-color:#b98a2e;color:#8a5a36}body.orn .
 /* ===== تصميم مستوحى من Itqan (ألوان: gold #C9982E / correct #34D399 / error #F87171 / onyx) ===== */
 .rc-card{background:#1a1a24;border:1px solid color-mix(in srgb,#c9982e 22%,transparent);border-radius:28px;padding:16px}
 .rc-text{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;text-align:center;line-height:1.6}
-.rcw{padding:6px 14px;border-radius:14px;border:1px solid transparent;background:#252530;color:#6b6b80}
+.rcw{padding:6px 14px;border-radius:14px;border:1px solid transparent;background:#252530;color:#b9b9cf}
 .rcw.ok{background:color-mix(in srgb,#34d399 14%,#111118);border-color:color-mix(in srgb,#34d399 55%,transparent);color:#34d399}
 .rcw.miss{background:color-mix(in srgb,#f87171 12%,#111118);border-color:color-mix(in srgb,#f87171 50%,transparent);color:#f87171;text-decoration:none}
 .rcw.cur{background:color-mix(in srgb,#c9982e 16%,#111118);border-color:#c9982e;color:#e8c066;box-shadow:none}
@@ -2087,6 +2087,8 @@ var IC={
  mosque:'<path d="M3 21h18"/><path d="M5 21v-6h14v6"/><path d="M7.5 15a4.5 4.5 0 019 0"/><path d="M12 10.5V7.5"/><path d="M12 7.5a1.6 1.6 0 100-3.2"/><path d="M3.5 21V12M20.5 21V12"/>',
  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/>',
  chart:'<path d="M4 20V11M10 20V4M16 20v-7M22 20H2"/>',
+ coins:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>',
+ report:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 16v-4M12 16V8M16 16v-2"/>',
  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
  chev:'<path d="M15 5l-7 7 7 7"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
@@ -2432,7 +2434,7 @@ function fixShape(o){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(o.fasting.dawudAnchor||''))o.fasting.dawudAnchor=dk();
   return o;
 }
-function load(){try{var r=localStorage.getItem(KEY);if(!r&&window.AlsaerNative&&AlsaerNative.mirrorGet){try{r=AlsaerNative.mirrorGet(KEY);if(r)try{localStorage.setItem(KEY,r)}catch(e2){}}catch(e1){}}if(r)return fixShape(Object.assign(def(),JSON.parse(r)))}catch(e){}return mem||def()}
+function load(){try{var r=localStorage.getItem(KEY);if(!r&&window.AlsaerNative&&AlsaerNative.mirrorGet){try{r=AlsaerNative.mirrorGet(KEY);if(r)try{localStorage.setItem(KEY,r)}catch(e2){}}catch(e1){}}if(r)return fixShape(Object.assign(def(),JSON.parse(r)))}catch(e){/* التخزين المحلي تالف: استرجع من النسخة الاحتياطية المحلية */try{if(window.AlsaerNative&&AlsaerNative.mirrorGet){var r2=AlsaerNative.mirrorGet(KEY);if(r2){var o2=fixShape(Object.assign(def(),JSON.parse(r2)));try{localStorage.setItem(KEY,r2)}catch(e3){}return o2}}}catch(e4){}}return mem||def()}
 var saveTm=0,saveOff=false;
 function saveNow(){if(saveTm){clearTimeout(saveTm);saveTm=0}if(saveOff)return;S.updatedAt=Date.now();mem=S;try{var js=JSON.stringify(S);localStorage.setItem(KEY,js);try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,js)}catch(e3){}}catch(e){toast('لم نتمكن من الحفظ، فقد تكون مساحة التخزين ممتلئة')}}
 function save(){if(saveOff)return;S.updatedAt=Date.now();mem=S;if(!saveTm)saveTm=setTimeout(saveNow,160)}
@@ -2726,7 +2728,7 @@ function topTrig(){
   return best;
 }
 
-var APP_VERSION='1.0.10',APP_BUILD=10145,COPY='';
+var APP_VERSION='1.0.13',APP_BUILD=10145,COPY='';
 function devBtn(){
   var ch=ic('chev').replace('class="i"','class="i dev-chev"');
   return '<button class="dev-btn" data-a="tab" data-v="developer" aria-label="مطوّر السائر إلى الله — Dr. Ahmed Elagamy"><span class="dev-av"><i>Æ</i></span><span class="dev-tx"><span class="dev-role">مطوّر السائر إلى الله · Developer</span><b>أحمد العجمي</b><span class="dev-en">Dr. Ahmed Elagamy</span><span class="dev-free">'+ic('check')+'تطبيق السائر إلى الله مجاني بالكامل · Completely free</span></span><span class="dev-side"><span class="dev-ver">v'+APP_VERSION+'</span>'+ch+'</span></button>'}
@@ -3681,7 +3683,7 @@ function pageSura(p){var r=curP()[p-1];return r?QD().n[r[0]-1]:''}
 function khatmaEta(total){
   var goal=Math.max(1,S.quran.goal),left=QURAN_PAGES-(total%QURAN_PAGES),days=Math.ceil(left/goal),d=new Date();d.setDate(d.getDate()+days);
   var ds=d.toLocaleDateString('ar-EG',{day:'numeric',month:'long',year:'numeric'});
-  return '<section class="card flat khe"><div class="rm-ic">'+ic('flag')+'</div><div class="rm-tx"><b>تنتهي ختمتك بإذن الله في '+esc(ds)+'</b><small>متبقٍ '+ar(left)+' صفحة · نحو '+ar(days)+' يومًا بوردك الحالي ('+ar(goal)+' '+(goal<11?'صفحات':'صفحة')+' يوميًا)</small></div></section>';
+  return '<section class="card flat khe" style="font-variant-numeric:tabular-nums"><div class="rm-ic">'+ic('flag')+'</div><div class="rm-tx"><b>تنتهي ختمتك بإذن الله في '+esc(ds)+'</b><small style="letter-spacing:.4px">متبقٍ '+ar(left)+' صفحة · نحو '+ar(days)+' يومًا بوردك الحالي ('+ar(goal)+' '+(goal<11?'صفحات':'صفحة')+' يوميًا)</small></div></section>';
 }
 function vQuran(){
   var D=QD(),k=dk(),pg=qPages(k),goal=S.quran.goal,pos=S.quran.pos,to=Math.min(604,pos+goal-1),total=0;
@@ -3916,7 +3918,7 @@ function fitSoon(){
   setTimeout(function(){fitReader(false)},400);setTimeout(function(){fitReader(true)},1200);
 }
 var BAD_HABITS=[['smoke','التدخين'],['lie','الكذب'],['deceive','الخداع'],['backbite','الغيبة']];
-var WORSHIP=[['prayer','الصلاة','mosque'],['fast','الصوم','moon'],['adhkar','الأذكار','beads'],['quran','قراءة القرآن','book'],['wird','الورد اليومي','doc'],['istighfar','الاستغفار','refresh'],['salawat','الصلاة على النبي ﷺ','heart'],['charity','الصدقة','heart'],['lesson','حضور درس علم','book'],['night','قيام الليل','moon'],['help','مساعدة محتاج','heart'],['visit','زيارة مريض','user']];
+var WORSHIP=[['prayer','الصلاة','mosque'],['fast','الصوم','sun'],['adhkar','الأذكار','beads'],['quran','قراءة القرآن','book'],['wird','الورد اليومي','doc'],['istighfar','الاستغفار','refresh'],['salawat','الصلاة على النبي ﷺ','heart'],['charity','الصدقة','coins'],['lesson','حضور درس علم','star'],['night','قيام الليل','moon'],['help','مساعدة محتاج','leaf'],['visit','زيارة مريض','user']];
 function worshipItems(){return WORSHIP.concat((S.customWorship||[]).map(function(x){return [x.id,x.t,'sparkles',true]}))}
 function worshipDay(k){return (S.worship||{})[k]||{}}
 function worshipPoints(k){var w=worshipDay(k);return worshipItems().reduce(function(n,x){return n+(w[x[0]]===true?1:0)},0)}
@@ -4106,11 +4108,11 @@ var MI=0;
 function vMore(){
   MI=0;
   var G=[
-   ['العبادة اليومية',[mtile('asma','star','أسماء الله الحسنى','٩٩ اسمًا: حفظ ومسبحة واختبار'),mtile('hisn','beads','الأذكار · حصن المسلم','الصباح والمساء وبعد الصلاة وقبل النوم بعدّاد تكرار'),mtile('msb','sparkles','المسبحة','عدّاد تسبيح بأذكار مخصّصة وصوت نقر'),mtile('ahadith','book','الأحاديث النبوية','تسعة كتب: بحث ومفضلة وحديث اليوم'),mtile('recite','mic','التلاوة والتسميع','تلُ بصوتك ويقيّمها التطبيق كلمةً كلمة (آية آية أو سورة)'),mtile('sacred','moon','الأوقات المستحبة والمنهي عنها','الثلث الأخير والضحى وأوقات النهي'),mtile('khushu','beads','الخشوع والتركيز','مؤقت ورد وذكر، ووضع هادئ للمصلين'),mtile('fasting','moon','الصيام والتذكير','الاثنين والخميس والأيام البيض والمناسبات'),mtile('qada','check','قضاء ما فاتك','عدّاد لصلوات وأيام صيام فاتتك')]],
-   ['القرآن والعلم',[mtile('month','chart','ملخص الشهر','صلواتك وورد القرآن وكتبك وتحدّياتك في شهر'),mtile('chal','target','تحدّي ٣٠ يومًا','التزم بعادة طيبة وتابع سلسلتك يومًا بيوم'),mtile('muh','check','محاسبة النفس','محاسبة يومية قبل النوم وشكر لله'),mtile('books','book','كتابي','أضف كتبك وحدّد وقت قراءتك وتابع ما قرأت وما بقي'),mtile('khatma','book','ختمة القرآن','وردك اليومي حسب مدة تختارها'),mtile('hifz','book','متابعة الحفظ','مراجعة متباعدة لما حفظته'),mtile('notes','pen','ملاحظاتي ومفضلتي','أدعيتك وفوائدك وأذكارك المفضلة وعلامات المصحف')]],
-   ['المناسبات والمال',[mtile('ramadan','moon','وضع رمضان','عدّ تنازلي وجدول عبادات الشهر'),mtile('occasions','cal','المناسبات الهجرية','عدّ تنازلي لعرفة وعاشوراء والأيام البيض'),mtile('zakat','star','حاسبة الزكاة','تقدير النصاب والزكاة وموعد الحول')]],
-   ['المتابعة والتحفيز',[mtile('habits','target','العادات الحسنة والسيئة','متابعة العادات والعدادات اليومية'),mtile('weekly','chart','إحصاءاتي','أسبوعك وأهدافك وأيام الراحة'),mtile('ach','trophy','لوحة الإنجازات','أوسمتك وسلاسل الأيام'),mtile('boost','shield','محفزات ولحظة الرغبة','مؤقت وخطوات عملية وأسبابي'),mtile('cards','sparkles','بطاقات المشاركة','حوّل إنجازك أو ذكرك إلى صورة')]],
-   ['التطبيق',[mtile('diag','check','فحص التطبيق','كشف الأخطاء وفحص الميزات وتقرير للمطوّر'),mtile('settings','gear','الإعدادات','المظهر والقفل والتذكيرات والنوافذ العائمة والودجت والنسخ الاحتياطي')]]
+   ['العبادة اليومية',[mtile('asma','star','أسماء الله الحسنى','٩٩ اسمًا: حفظ ومسبحة واختبار'),mtile('hisn','shield','الأذكار · حصن المسلم','الصباح والمساء وبعد الصلاة وقبل النوم بعدّاد تكرار'),mtile('msb','beads','المسبحة','عدّاد تسبيح بأذكار مخصّصة وصوت نقر'),mtile('ahadith','book','الأحاديث النبوية','تسعة كتب: بحث ومفضلة وحديث اليوم'),mtile('recite','mic','التلاوة والتسميع','تلُ بصوتك ويقيّمها التطبيق كلمةً كلمة (آية آية أو سورة)'),mtile('sacred','clock','الأوقات المستحبة والمنهي عنها','الثلث الأخير والضحى وأوقات النهي'),mtile('khushu','leaf','الخشوع والتركيز','مؤقت ورد وذكر، ووضع هادئ للمصلين'),mtile('fasting','sun','الصيام والتذكير','الاثنين والخميس والأيام البيض والمناسبات'),mtile('qada','check','قضاء ما فاتك','عدّاد لصلوات وأيام صيام فاتتك')]],
+   ['القرآن والعلم',[mtile('month','chart','ملخص الشهر','صلواتك وورد القرآن وكتبك وتحدّياتك في شهر'),mtile('chal','target','تحدّي ٣٠ يومًا','التزم بعادة طيبة وتابع سلسلتك يومًا بيوم'),mtile('muh','user','محاسبة النفس','محاسبة يومية قبل النوم وشكر لله'),mtile('books','doc','كتابي','أضف كتبك وحدّد وقت قراءتك وتابع ما قرأت وما بقي'),mtile('khatma','flag','ختمة القرآن','وردك اليومي حسب مدة تختارها'),mtile('hifz','refresh','متابعة الحفظ','مراجعة متباعدة لما حفظته'),mtile('notes','pen','ملاحظاتي ومفضلتي','أدعيتك وفوائدك وأذكارك المفضلة وعلامات المصحف')]],
+   ['المناسبات والمال',[mtile('ramadan','moon','وضع رمضان','عدّ تنازلي وجدول عبادات الشهر'),mtile('occasions','cal','المناسبات الهجرية','عدّ تنازلي لعرفة وعاشوراء والأيام البيض'),mtile('zakat','coins','حاسبة الزكاة','تقدير النصاب والزكاة وموعد الحول')]],
+   ['المتابعة والتحفيز',[mtile('habits','up','العادات الحسنة والسيئة','متابعة العادات والعدادات اليومية'),mtile('weekly','report','إحصاءاتي','أسبوعك وأهدافك وأيام الراحة'),mtile('ach','trophy','لوحة الإنجازات','أوسمتك وسلاسل الأيام'),mtile('boost','heart','محفزات ولحظة الرغبة','مؤقت وخطوات عملية وأسبابي'),mtile('cards','sparkles','بطاقات المشاركة','حوّل إنجازك أو ذكرك إلى صورة')]],
+   ['التطبيق',[mtile('diag','info','فحص التطبيق','كشف الأخطاء وفحص الميزات وتقرير للمطوّر'),mtile('settings','gear','الإعدادات','المظهر والقفل والتذكيرات والنوافذ العائمة والودجت والنسخ الاحتياطي')]]
   ];
   return '<div class="mr-search"><input id="mr-q" type="search" placeholder="ابحث في المزيد…" autocomplete="off" aria-label="بحث"></div><div id="mr-list">'
    +G.map(function(g){return '<section class="mr-g"><h4 class="mr-h">'+g[0]+'</h4><div class="mt-grid">'+g[1].join('')+'</div></section>'}).join('')+'<p class="note mr-none" id="mr-none" hidden>لا نتائج</p></div>'+devBtn();
@@ -4267,6 +4269,7 @@ function bkApply(raw){
   BK_KEEP.forEach(function(k){delete n[k]});Object.assign(n,keep);n.onboarded=true;
   saveOff=true;if(saveTm){clearTimeout(saveTm);saveTm=0}
   try{localStorage.setItem(KEY,JSON.stringify(n))}catch(e){saveOff=false;return 'تعذّر الحفظ: قد تكون مساحة التخزين ممتلئة.'}
+  try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,JSON.stringify(n))}catch(e){} /* حدّث النسخة الاحتياطية المحلية فور الاسترجاع */
   if(o.rem&&typeof o.rem==='object'&&!Array.isArray(o.rem)){try{localStorage.setItem('alsaer_daily_reminders_v1',JSON.stringify(o.rem))}catch(e){}}
   setTimeout(function(){location.reload()},400);
   return '';
@@ -4688,7 +4691,7 @@ function boChips(act,items,isOn){return '<div class="chips">'+items.map(function
 function boForm(){
   var d=boDraft||(boDraft=boNew());
   var ic2=BO_ICONS.map(function(x){return '<button type="button" class="bo-ico'+(!d.img&&d.i===x?' on':'')+'" data-a="boico" data-v="'+x+'">'+x+'</button>'}).join('');
-  var pre=BO_PRESETS.map(function(x,i){return '<button type="button" class="chip" data-a="bopre" data-v="'+i+'">'+esc(x.i+' '+x.n)+'</button>'}).join('');
+  var pre=BO_PRESETS.map(function(x,i){return '<button type="button" class="chip" data-a="bopre" data-v="'+i+'">'+ic('book')+' '+esc(x.n)+'</button>'}).join('');
   var cols='<div class="bo-cols">'+Object.keys(BO_COLS).map(function(k){return '<button type="button" class="bo-col'+(d.col===k?' on':'')+'" style="background:'+BO_COLS[k]+'" data-a="bocol" data-v="'+k+'" aria-label="لون"></button>'}).join('')+'</div>';
   return '<section class="card" id="bo-form"><h3>'+(boEditId?'تعديل الكتاب':'أضف كتابًا')+'</h3>'
    +(boEditId?'':'<p class="note">اختر كتابًا جاهزًا لملء البيانات، أو اكتب كتابك. الأعداد تقريبية وتختلف بين الطبعات، فعدّلها بحسب نسختك.</p><div class="chips bo-pre">'+pre+'</div>')
@@ -4726,7 +4729,7 @@ function vBooks(){
   else if(o.sort==='name')shown.sort(function(a,b){return a.n.localeCompare(b.n,'ar')});
   return '<div class="bo"><section class="rm5-hero"><small>كتابي</small><b>'+ar(tot)+' صفحة</b><span>هذا الأسبوع: '+ar(wk)+' · كتب أتممتها: '+ar(dn)+'</span>'+bars
    +(gl?'<div class="bo-bar"><i style="width:'+Math.min(100,Math.round(td/gl*100))+'%"></i></div><span>اليوم: '+ar(td)+' من '+ar(gl)+' صفحة'+(td>=gl?' ✓':'')+'</span>':'')+'</section>'
-   +'<div class="acts"><button class="btn" data-a="boman">＋ أضف كتابي الخاص</button></div>'
+   +'<div class="acts"><button class="btn" data-a="boman">'+ic('plus')+' أضف كتابي الخاص</button></div>'
    +(shown.length?shown.map(boCard).join(''):'<section class="card"><p class="note">'+(L.length?'لا كتب لعرضها بهذا الإعداد.':'لم تُضف كتابًا بعد. أضف أول كتاب من الأسفل، وحدّد وقتك اليومي ليذكّرك التطبيق.')+'</p></section>')
    +(L.length?boOptions():'')+boForm()+'</div>';
 }
@@ -5025,7 +5028,7 @@ function vFloatFeed(){
     +'<div class="ns-g"><b>طريقة الظهور</b>'+ffSetChips('mode',[['interval','كل فترة'],['times','أوقات أحددها']],c.mode)+'</div>';
   if(c.mode==='times'){
     h+='<div class="ns-g"><b>الأوقات</b><div class="chips">'+c.times.map(function(t,i){return '<button type="button" class="chip on" data-a="ffdel" data-v="'+i+'">'+hmFmtSafe(t)+' ✕</button>'}).join('')+'</div></div>'
-      +'<div class="ff-add"><input id="ff-add" class="qd-i" type="time" value="09:00"><button class="btn ghost" data-a="ffadd">＋ إضافة وقت</button></div>';
+      +'<div class="ff-add"><input id="ff-add" class="qd-i" type="time" value="09:00"><button class="btn ghost" data-a="ffadd">'+ic('plus')+' إضافة وقت</button></div>';
   }else{
     h+='<div class="ns-g"><b>على مدار ٢٤ ساعة</b>'+ffSetChips('all',[[true,'نعم، طوال اليوم'],[false,'لا، في فترة محددة']],c.all)+'</div>'
       +'<div class="ns-g"><b>تتكرر كل</b>'+ffSetChips('every',FF_EVERY,c.every)+'</div>';
@@ -5035,7 +5038,7 @@ function vFloatFeed(){
   h+='<section class="card"><h3>المحتوى</h3><div class="ns-g"><b>ما الذي يظهر؟</b>'+ffChips('fftype',FF_TYPES,function(v){return c.types.indexOf(v)>=0})+'</div>'
     +'<p class="note">المتاح الآن: '+ar(String(psz))+' نصًّا بين مضمّن ومجلوب من الإنترنت، ويعمل بلا اتصال بعد الجلب.</p>'
     +'<div class="ns-g"><b>نصوصي الخاصة</b>'+(c.custom.length?'<div class="ff-cl">'+c.custom.map(function(t,i){return '<div class="ff-ci"><span>'+esc(t)+'</span><button type="button" class="ib" data-a="ffctdel" data-v="'+i+'" aria-label="حذف">✕</button></div>'}).join('')+'</div>':'')
-    +'<textarea id="ff-ct" class="qd-i" rows="2" maxlength="260" placeholder="اكتب دعاءً أو تذكيرًا يظهر ضمن النوافذ"></textarea><div class="acts"><button class="btn ghost" data-a="ffct">＋ أضف نصًا</button></div></div>'
+    +'<textarea id="ff-ct" class="qd-i" rows="2" maxlength="260" placeholder="اكتب دعاءً أو تذكيرًا يظهر ضمن النوافذ"></textarea><div class="acts"><button class="btn ghost" data-a="ffct">'+ic('plus')+' أضف نصًا</button></div></div>'
     +'<div class="ns-g"><b>ترتيب الظهور</b>'+ffSetChips('order',[['rand','عشوائي'],['seq','بالتتابع']],c.order)+'</div>'
     +'<div class="ns-g"><b>سطر المصدر تحت النص</b>'+ffSetChips('src',[[false,'يخفى'],[true,'يظهر']],c.src)+'</div>'
     +'<div class="ns-g"><b>الربط بالإشعارات</b>'+ffSetChips('linked',[[false,'منفصلة (موصى به)'],[true,'تظهر أيضًا مع إشعارات الصلاة والتذكيرات']],c.linked)+'</div></section>';
@@ -5088,7 +5091,7 @@ function chCard(c){
 function vChal(){
   var L=chList(),h='<div class="ns"><section class="card"><p class="note">اختر عادة طيبة والتزم بها ٣٠ يومًا. أتمم كل يوم بضغطة، وتابع سلسلتك المتواصلة.</p>'
     +'<div class="chips">'+CH_PRE.map(function(p,i){return '<button type="button" class="chip" data-a="chnew" data-v="'+i+'">'+p[1]+' '+p[0]+'</button>'}).join('')+'</div>'
-    +'<div class="ff-add" style="margin-top:12px"><input id="ch-name" class="qd-i" type="text" type="text" maxlength="60" placeholder="أو اكتب تحدّيك الخاص"><button class="btn ghost" data-a="chadd">＋ ابدأ</button></div></section>';
+    +'<div class="ff-add" style="margin-top:12px"><input id="ch-name" class="qd-i" type="text" type="text" maxlength="60" placeholder="أو اكتب تحدّيك الخاص"><button class="btn ghost" data-a="chadd">'+ic('plus')+' ابدأ</button></div></section>';
   h+=L.length?L.map(chCard).join(''):'<section class="card"><p class="note">لا تحدّيات بعد. ابدأ بأول واحد ممّا فوق.</p></section>';
   return h+'</div>';
 }
@@ -5553,10 +5556,10 @@ sv.innerHTML='<filter id="mpt1" x="0" y="0" width="100%" height="100%"><feCompon
    المحرّك (rcNorm / rcFeed) مستقل عن مصدر الصوت. يستقبل نصًا مُتعرَّفًا عليه ويطابقه مع نص السورة.
    مصدر الصوت يُركَّب لاحقًا عبر window.ReciteASR = { start(onText, onErr), stop() } — انظر docs/RECITE_PLAN.md
    (وضع الكتابة اليدوي أُزيل.) */
-var rc={sura:0,ay:0,w:[],st:[],hd:[],pos:0,on:false,msg:'',busy:false,ok:0,miss:0,hear:'',res:null,wk:-1,u:null,pick:false,adv:false,stat:false};
+var rc={sura:0,ay:0,w:[],st:[],hd:[],pos:0,on:false,msg:'',busy:false,ok:0,miss:0,hear:'',res:null,wk:-1,u:null,pick:false,adv:false,stat:false,hlog:[]};
 function rcNorm(s){
-  return String(s||'').replace(/[ؐ-ًؚ-ٰٟۖ-ۭـ]/g,'')
-    .replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي')
+  return String(s||'').normalize('NFC').replace(/[ؐ-ًؚ-ٰٟۖ-ۭـ]/g,'')
+    .replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ء/g,'')
     .replace(/[^ء-ي ]/g,' ').replace(/\s+/g,' ').trim();
 }
 function rcLev(a,b){
@@ -5571,9 +5574,9 @@ function rcSkel(n){return n.replace(/ا/g,'').replace(/وه$/,'ه')}
 /* حروف يخلط بينها المعرِّف الصوتي كثيرًا (ض/ظ، ص/س/ث، ذ/ز، ط/ت، ق/ك، ح/ه، ع/ء): تُوحَّد في مقارنة صوتية أخفّ عقوبة */
 function rcPh(n){return rcSkel(n).replace(/[ظ]/g,'ض').replace(/[صث]/g,'س').replace(/[ذ]/g,'ز').replace(/[ط]/g,'ت').replace(/[ق]/g,'ك').replace(/[ح]/g,'ه').replace(/[ع]/g,'ء').replace(/ت$/,'ه').replace(/(.)\1+/g,'$1')}
 function rcSim2(a,b){var x=rcSim(a,b);if(x>=1||a.length<3||b.length<3)return x;var y=rcSim(rcSkel(a),rcSkel(b));if(y>x)x=y;var z=rcSim(rcPh(a),rcPh(b))*.96;return z>x?z:x}
-function rcPref(){var P=S.rcp;if(!P||typeof P!=='object')P=S.rcp={size:25,hifz:false,hist:[]};if(!P.hist)P.hist=[];return P}
+function rcPref(){var P=S.rcp;if(!P||typeof P!=='object')P=S.rcp={size:25,hifz:false,hist:[],rr:false};if(!P.hist)P.hist=[];return P}
 function rcLoad(c,a){
-  var Q=QD(),t=Q.s&&Q.s[c-1];rc.sura=c;rc.ay=a||0;rc.w=[];rc.st=[];rc.hd=[];rc.pos=0;rc.ok=0;rc.miss=0;rc.hear='';rc.res=null;rc.wk=-1;rc.u=null;
+  var Q=QD(),t=Q.s&&Q.s[c-1];rc.sura=c;rc.ay=a||0;rc.w=[];rc.st=[];rc.hd=[];rc.pos=0;rc.ok=0;rc.miss=0;rc.hear='';rc.res=null;rc.wk=-1;rc.u=null;rc.hlog=[];
   if(!t)return false;
   t.forEach(function(ay,ai){String(ay).split(/\s+/).forEach(function(w){var n=rcNorm(w);if(n)rc.w.push({t:w,n:n,a:ai+1})})});
   /* نص تنزيل يضع البسملة في أول آية لكل السور؛ هي آية في الفاتحة فقط، فنحذفها من غيرها */
@@ -5625,7 +5628,7 @@ function rcHyp(alts,fin){
   }
   rcRestore(best);rc.hear=bt;
   var moved=rc.pos>rc.u.pos;
-  if(fin)rc.u=null;
+  if(fin){rc.u=null;var tk=rcNorm(bt).split(' ').filter(Boolean);rc.hlog.push.apply(rc.hlog,tk);if(rc.hlog.length>6000)rc.hlog.splice(0,2000)}
   return true;
 }
 /* كلمات متوقَّعة تُمرَّر لخدمة التعرّف كتلميح (تحسّن الدقة على أندرويد 13+) */
@@ -5651,9 +5654,29 @@ function rcPaint(){
   var cur=sp[Math.min(rc.pos,n-1)];if(cur&&cur.scrollIntoView&&rc.pos>0){try{cur.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}}
   if(rc.pos>=n&&n&&rc.on)rcFinish();
 }
+/* محاذاة عامة (LCS) بين كل ما سُمع فعلًا ونص المصحف: مرور ثانٍ يسترد الكلمات التي حكم عليها التتبّع اللحظي خطأً بالتخطّي،
+   ولا يخفّض أي كلمة نجحت لحظيًا — ترقية فقط. */
+function rcAlignPass(att){
+  var hw=rc.hlog||[];if(!hw.length||!att)return;
+  var n=Math.min(att,rc.w.length),m=hw.length,i,j;
+  if(!n||!m||n*m>3000000)return; /* نصوص طويلة جدًا: نكتفي بالتتبّع اللحظي تفاديًا للحوسبة الثقيلة */
+  var dp=new Array(m+1);for(i=0;i<=m;i++){dp[i]=new Array(n+1);for(j=0;j<=n;j++)dp[i][j]=0}
+  for(i=1;i<=m;i++){var h=hw[i-1];for(j=1;j<=n;j++){
+    var bj=dp[i][j-1],up=dp[i-1][j],dg=dp[i-1][j-1]+((h===rc.w[j-1].n||rcSim2(h,rc.w[j-1].n)>=.86)?1:0);
+    dp[i][j]=dg>=bj&&dg>=up?dg:(bj>=up?bj:up);
+  }}
+  i=m;j=n;while(i>0&&j>0){
+    var h2=hw[i-1],okM=h2===rc.w[j-1].n||rcSim2(h2,rc.w[j-1].n)>=.86;
+    if(okM&&dp[i][j]===dp[i-1][j-1]+1){if(rc.st[j-1]!==1){rc.st[j-1]=1;rc.hd[j-1]=h2}i--;j--}
+    else if(dp[i-1][j]>=dp[i][j-1])i--;else j--;
+  }
+  var o=0,ms=0;for(i=0;i<n;i++){if(rc.st[i]===1)o++;else if(rc.st[i]===2)ms++}
+  rc.ok=o;rc.miss=ms;
+}
 /* ---- نتيجة التلاوة: دقة الكلمات والحروف والإكمال — محسوبة من التعرّف الفعلي (لا درجات عشوائية). التجويد لا يُقيَّم. ---- */
 function rcResult(){
   var n=rc.w.length,att=Math.min(rc.pos,n),i;if(!n||!att)return null;
+  rcAlignPass(att);
   var okc=0,ls=0,weak=[];
   for(i=0;i<att;i++){
     if(rc.st[i]===1){okc++;var sim=rc.hd[i]?rcSim2(rc.hd[i],rc.w[i].n):1;ls+=sim;if(sim<.85)weak.push({i:i,sim:sim})}
@@ -5663,7 +5686,8 @@ function rcResult(){
   return {t:Math.min(100,T),w:Math.round(W),l:Math.round(L),c:Math.round(C),weak:weak,att:att,n:n};
 }
 function rcFinish(){
-  rcStop();var r=rcResult();if(!r){try{render()}catch(e){}return}
+  rcStop();if(rcPref().rr)rc.pos=rc.w.length; /* وضع التسجيل: الحصة تغطي النص كله، والمحاذاة العامة هي الحكم */
+  var r=rcResult();if(!r){try{render()}catch(e){}return}
   rc.res=r;rc.wk=-1;var P=rcPref();
   P.hist.push({s:rc.sura,ay:rc.ay,d:Date.now(),a:r.t,m:rc.miss,w:r.att,k:Math.round(r.w/100*r.att)});if(P.hist.length>120)P.hist.shift();var T=P.tot||(P.tot={n:0,w:0,k:0,best:0});T.n++;T.w+=r.att;T.k+=Math.round(r.w/100*r.att);if(r.t>T.best)T.best=r.t;save();
   rc.msg=r.c>=100?'أتممت '+(rc.ay?'الآية':'السورة')+' — تقبّل الله ✓':'';
@@ -5697,7 +5721,11 @@ function rcStart2(){
   var A=window.ReciteASR;if(!A)return;
   rc.on=true;rc.msg='';rc.busy=false;rc.last=Date.now();
   clearInterval(rc.idle);rc.idle=setInterval(function(){if(!rc.on){clearInterval(rc.idle);return}if(Date.now()-rc.last>120000){rcStop();rc.msg='أُوقف الميكروفون تلقائيًا لأنك لم تتلُ لدقيقتين. اضغط الميكروفون للمتابعة.';try{render()}catch(x){}}},10000);
-  try{A.start(function(t,fin){if(!rc.on)return;rc.last=Date.now();rcHyp(Array.isArray(t)?t:[t],fin!==false);rcPaint()},function(e){rc.on=false;rc.busy=false;rc.msg=String(e||'تعذّر تشغيل التعرّف على الصوت.');try{render()}catch(x){}},rcSay)}
+  try{A.start(function(t,fin){if(!rc.on)return;rc.last=Date.now();
+    if(rcPref().rr){ /* وضع التسجيل ثم المراجعة: بلا مطابقة لحظية — نجمع النص ونحلّله عند التوقف */
+      if(fin!==false){var alts=Array.isArray(t)?t:[t];if(alts[0]){var tk=rcNorm(alts[0]).split(' ').filter(Boolean);rc.hlog.push.apply(rc.hlog,tk);if(rc.hlog.length>6000)rc.hlog.splice(0,2000);rc.hear=alts[0]}}
+      rcPaint();return}
+    rcHyp(Array.isArray(t)?t:[t],fin!==false);rcPaint()},function(e){rc.on=false;rc.busy=false;rc.msg=String(e||'تعذّر تشغيل التعرّف على الصوت.');try{render()}catch(x){}},rcSay)}
   catch(e){rc.on=false;rc.msg='تعذّر تشغيل التعرّف على الصوت.'}
 }
 function rcAct(a,v){
@@ -5716,12 +5744,13 @@ function rcAct(a,v){
   else if(a==='rchistclr'){rcPref().hist=[];save()}
   else if(a==='rcagain'){rcStop();rcLoad(rc.sura,rc.ay);rc.msg=''}
   else if(a==='rcwk'){rc.wk=(rc.wk===parseInt(v,10))?-1:parseInt(v,10)}
-  else if(a==='rcmodel'){var P3=rcPref(),od=document.getElementById('rc-od');if(od)P3.od=od.checked;var bp=document.getElementById('rc-beep');if(bp)P3.beep=bp.checked;var lm=document.querySelector('input[name="rclm"]:checked');if(lm)P3.lm=lm.value||'';save();rcStop();rcAsrStop();rcAsr.natBad=false;rcAsr.wsBad=false;rc.adv=false;toast('✅ تم حفظ الإعدادات');rc.msg='';return false}
+  else if(a==='rcmodel'){var P3=rcPref(),od=document.getElementById('rc-od');if(od)P3.od=od.checked;var bp=document.getElementById('rc-beep');if(bp)P3.beep=bp.checked;var rr=document.getElementById('rc-rr');if(rr)P3.rr=rr.checked;var lm=document.querySelector('input[name="rclm"]:checked');if(lm)P3.lm=lm.value||'';save();rcStop();rcAsrStop();rcAsr.natBad=false;rcAsr.wsBad=false;rc.adv=false;toast('✅ تم حفظ الإعدادات');rc.msg='';return false}
   else if(a==='rcdl'){try{if(window.AlsaerNative&&AlsaerNative.asrDownload)AlsaerNative.asrDownload(v)}catch(e){}return true}
   else if(a==='rcdlx'){try{if(window.AlsaerNative&&AlsaerNative.asrCancelDownload)AlsaerNative.asrCancelDownload()}catch(e){}return false}
   else if(a==='rcdel'){try{if(window.AlsaerNative&&AlsaerNative.asrDelete)AlsaerNative.asrDelete(v)}catch(e){}toast('تم حذف النموذج')}
   else if(a==='rcfs'){var P=rcPref();P.size=Math.max(18,Math.min(40,(P.size||25)+(parseInt(v,10)||0)*2));save()}
   else if(a==='rcpick'){rc.pick=!rc.pick}
+  else if(a==='rcdiag'){try{if(window.AlsaerNative&&AlsaerNative.asrDiag){AlsaerNative.shareText('تشخيص التلاوة — السائر',AlsaerNative.asrDiag()||'لا يوجد سجل بعد')}else toast('التشخيص غير متاح في هذه النسخة')}catch(e){}return false}
   else if(a==='rcadv'){rc.adv=!rc.adv;if(rc.adv)rc.stat=false}
   else if(a==='rchifz'){var P2=rcPref();P2.hifz=!P2.hifz;save()}
   else if(a==='rcreset'){rcStop();rcLoad(rc.sura||1,rc.ay);rc.msg=''}
@@ -5787,7 +5816,9 @@ function rcSheet(P,last){
    +rcLocalHtml(P)
    +'<div class="rc-grp"><h4>🎙 التعرّف على الصوت</h4><p class="note">يستخدم التطبيق تعرّف Google في هاتفك (مجاني وسريع، يحتاج إنترنت) ما لم تختر النموذج المحلي أعلاه.</p>'
      +'<label class="rc-mt"><input type="checkbox" id="rc-beep"'+(P.beep!==false?' checked':'')+'><span><b>كتم صوت «بيب» الميكروفون 🔇</b><small>يكتم أصوات الهاتف لحظة بدء الاستماع فقط (أقل من ثانيتين) ثم يعيدها تلقائيًا، ولا يغيّر مستوى الصوت المحفوظ.</small></span></label>'
+     +'<label class="rc-mt"><input type="checkbox" id="rc-rr"'+(P.rr?' checked':'')+'><span><b>تسجيل ثم مراجعة 🐢</b><small>للأجهزة الضعيفة: يجمع تلاوتك كاملة ثم يحلّلها عند التوقف بدل المطابقة اللحظية — أخف على المعالج ويثبّت النتيجة.</small></span></label>'
      +'<label class="rc-mt"><input type="checkbox" id="rc-od"'+(P.od?' checked':'')+'><span><b>تعرّف داخل الهاتف 🔒</b><small>يبقى صوتك على جهازك (أندرويد ١٣+ وحزمة العربية من إعدادات الصوت)، وإن لم تتوفر يعود تلقائيًا للعادي ويُرسَل الصوت إلى Google.</small></span></label></div>'
+   +'<div class="rc-grp"><h4>🛠 تشخيص التعرّف</h4><p class="note">سجل فني (أحداث تشغيل فقط، بلا صوت ولا نصوص تلاوة) يفيدنا عند الإبلاغ عن مشكلة في التسميع.</p><div class="acts"><button class="btn ghost" data-a="rcdiag">مشاركة سجل التشخيص</button></div></div>'
    +'<div class="acts"><button class="btn" data-a="rcmodel">حفظ</button></div></section>';
 }
 /* تقدّم تنزيل النموذج المحلي: تحديث شريط التقدّم مباشرة، وإعادة العرض عند الاكتمال/الخطأ/الإلغاء */
@@ -5902,7 +5933,8 @@ window.__rcAsr=function(t,sid,d){
     if(L.wd){clearTimeout(L.wd);L.wd=null}
     L.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
     if(d==='9'){L.onErr('لم يُسمح بالميكروفون. فعّله من إعدادات الهاتف ← التطبيقات ← السائر ← الأذونات.');return}
-    if(d==='nomodel'){L.fallback();return}
+    if(d==='nomodel'){L.say('النموذج غير منزّل بعد — نزّله من إعدادات التلاوة؛ عدنا لتعرّف Google مؤقتًا.',true);L.fallback();return}
+    if(d==='dec'){L.say('حدث خطأ أثناء فك التشفير على جهازك (غالبًا ذاكرة). جرّب النموذج «الخفيف» من إعدادات التلاوة.',true);return}
     /* تعذّر تحميل النموذج أو تشغيله (ذاكرة/ملفات): نعود لتعرّف Google مرة واحدة مع تنبيه */
     L.say('تعذّر تشغيل النموذج المحلي؛ عدنا لتعرّف Google مؤقتًا.',true);
     L.fallback();return}
@@ -6520,7 +6552,7 @@ function digitsWalk(root){
     var v=n.nodeValue;if(!(west?/[٠-٩]/:/\d/).test(v))continue;var r=digitsConv(v,west);if(r!==v)n.nodeValue=r}
 }
 function digitsApply(force){
-  if(!U().digits)return;
+  if(!U().digits)U().digits='east'; /* الافتراضي مشرقية كما تعرض شاشة الإعدادات */
   ['app','top','tabs'].forEach(function(i){digitsWalk(document.getElementById(i))});
   if(force)try{render()}catch(e){}
 }
@@ -6703,12 +6735,12 @@ function ensureDailyHadith(force){
   paintHadith(data);
 }
 function renderFirstUpdateNotice(){
-  var key='alsaer_seen_update_1016',old=document.getElementById('update109-notice');
+  var key='alsaer_seen_update_1013',old=document.getElementById('update109-notice');
   var seen=false;try{seen=localStorage.getItem(key)==='1'}catch(e){seen=false}
   if(!unlocked||!S.onboarded||seen){if(old)old.remove();return}
   if(old)return;
   var wrap=document.createElement('div');wrap.id='update109-notice';wrap.className='update109-backdrop';
-  wrap.innerHTML='<section class="update109-card" role="dialog" aria-modal="true" aria-labelledby="update109-title"><h2 id="update109-title">ما الجديد في السائر إلى الله؟</h2><div class="ver">الإصدار '+APP_VERSION+' · جديد</div><ul><li>جولة تفاعلية تعرّفك بالتطبيق (وتُعاد من الإعدادات ← المساعدة).</li><li>«المسبحة» صفحة مستقلة: ذكر مخصّص وصوت نقر.</li><li>الأذكار تفتح من «حصن المسلم»، وزر «تخصيص الرئيسية» في أعلى الصفحة.</li><li>إعدادات أبسط: خمسة أقسام وخيارات متقدمة مطويّة.</li><li>شاشة التسميع تظهر كاملة مع الإحصائيات.</li></ul><p class="free-note">تطبيق السائر إلى الله مجاني بالكامل</p><button class="btn" data-a="update109Done">متابعة إلى التطبيق</button></section>';
+  wrap.innerHTML='<section class="update109-card" role="dialog" aria-modal="true" aria-labelledby="update109-title"><h2 id="update109-title">ما الجديد في السائر إلى الله؟</h2><div class="ver">الإصدار '+APP_VERSION+' · جديد</div><ul><li>جولة تفاعلية تعرّفك بالتطبيق (وتُعاد من الإعدادات ← المساعدة).</li><li>«المسبحة» صفحة مستقلة: ذكر مخصّص وصوت نقر.</li><li>الأذكار تفتح من «حصن المسلم»، وزر «تخصيص الرئيسية» في أعلى الصفحة.</li><li>إعدادات أبسط: خمسة أقسام وخيارات متقدمة مطويّة.</li><li>شاشة التسميع تظهر كاملة مع الإحصائيات.</li><li>تحسينات في دقة التسميع الصوتي وإصلاحات عامة في الأداء والتصميم.</li></ul><p class="free-note">تطبيق السائر إلى الله مجاني بالكامل</p><button class="btn" data-a="update109Done">متابعة إلى التطبيق</button></section>';
   document.body.appendChild(wrap);
 }
 function render(){
@@ -7016,7 +7048,7 @@ document.addEventListener('click',async function(e){
   else if(a==='fastrecord'){var fk=dk(),fl='f:'+fk,fcur=S.fasting.records[fk],fnew=v==='done'?'done':'missed';if(fcur&&fcur!==fnew&&lockLeft(fl)>0){lockBlock(lockLeft(fl));return}if(!fcur||inGrace(fl))lockSet(fl);S.fasting.records[fk]=fnew;save();toast(v==='done'?'تم تسجيل صيام اليوم':'تم تسجيل عدم الصيام')}
   else if(a==='fastcustom'){var fc=document.getElementById('fast-custom-date'),fd=fc&&fc.value;if(!fd)toast('اختر التاريخ أولًا');else if(S.fasting.customDates.indexOf(fd)<0){S.fasting.customDates.push(fd);save();toast('تمت إضافة يوم الصيام')}else toast('هذا اليوم مضاف مسبقًا')}
   else if(a==='fastcustomdel'){S.fasting.customDates=(S.fasting.customDates||[]).filter(function(x){return x!==v});save();toast('تم حذف اليوم')}
-  else if(a==='fasttimes'){var su=document.getElementById('suhoor-time'),it=document.getElementById('iftar-time');if(su&&/^\\d{2}:\\d{2}$/.test(su.value))S.fasting.reminders.suhoorTime=su.value;if(it&&/^\\d{2}:\\d{2}$/.test(it.value))S.fasting.reminders.iftarTime=it.value;save();toast('تم حفظ أوقات التذكير')}
+  else if(a==='fasttimes'){var su=document.getElementById('suhoor-time'),it=document.getElementById('iftar-time');if(su&&/^\d{2}:\d{2}$/.test(su.value))S.fasting.reminders.suhoorTime=su.value;if(it&&/^\d{2}:\d{2}$/.test(it.value))S.fasting.reminders.iftarTime=it.value;save();toast('تم حفظ أوقات التذكير')}
   else if(a==='fastdismiss'){toast('يمكنك العودة إلى جدول الصيام من المزيد')}
   else if(a==='per'){per=v==='month'?'month':'week'}
   else if(a==='showlog'){showLog=!showLog}
@@ -7260,7 +7292,7 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
     function smartCards(r){
       var ev=parseInt(r.salatEvery,10)||0,cnt=0;if(ev>=15){var a1=r.salatFrom.split(':'),a2=r.salatTo.split(':');cnt=Math.floor(((+a2[0])*60+(+a2[1])-(+a1[0])*60-(+a1[1]))/ev)+1}
       var tk=dk(),sc=(S.salawat&&S.salawat[tk])||0;
-      return '<section class="card sm-card"><h4>'+ic('mosque')+'الصلاة على النبي ﷺ</h4><p class="note">اختر التكرار والفترة، وسيصلك تذكير بصيغة مختلفة كل مرة.'+(sc?' · صلّيتَ اليوم '+remAr(sc)+' مرة.':'')+'</p>'
+      return '<section class="card sm-card"><h4>'+ic('heart')+'الصلاة على النبي ﷺ</h4><p class="note">اختر التكرار والفترة، وسيصلك تذكير بصيغة مختلفة كل مرة.'+(sc?' · صلّيتَ اليوم '+remAr(sc)+' مرة.':'')+'</p>'
         +'<div class="sm-g"><label>التكرار</label>'+selO('salatEvery',ev,[[0,'مرة يوميًا'],[120,'كل ساعتين'],[60,'كل ساعة'],[30,'كل نصف ساعة'],[15,'كل ١٥ دقيقة']])+'</div>'
         +(ev>=15?'<div class="sm-g"><label>من</label>'+tm('salatFrom',r.salatFrom)+'<label>إلى</label>'+tm('salatTo',r.salatTo)+'</div><p class="note">≈ '+remAr(cnt)+' إشعارًا في اليوم</p>':'<div class="sm-g"><label>الوقت</label>'+tm('salatTime',r.salatTime)+'</div>')+'</section>'
        +'<section class="card sm-card"><h4>'+ic('sparkles')+'ورد القرآن اليومي</h4><p class="note">يُذكّرك بما بقي من وردك، ولا يُرسَل إذا أتممته.</p>'
@@ -7285,7 +7317,7 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
       return '<label class="rm-day'+(sel?' on':'')+'"><input type="checkbox" data-rem-cday="'+i+'" '+(sel?'checked':'')+'><span>'+d+'</span></label>';
     }).join('');
     return '<section class="rm-hero"><span class="rm-hic">'+ic('bell')+'</span><div><h2>مركز التذكيرات</h2><p>تذكيرات تلقائية بأوقات مدروسة، تصلك حتى والتطبيق مغلق</p></div></section>'
-      +'<div class="rm-master"><div class="rm-tx"><b>جدول التذكيرات التلقائي</b><small>'+(nat?'يعمل على مستوى النظام: مع الشاشة المقفلة وبعد إعادة تشغيل الهاتف':'يعمل أثناء فتح التطبيق')+'</small></div>'+sw('data-rem-master',r.enabled)+'</div>'
+      +'<div class="rm-master"><div class="rm-tx"><b>جدول التذكيرات التلقائي</b><small>'+(nat?'يعمل على مستوى النظام: مع الشاشة المقفلة وبعد إعادة تشغيل الهاتف':'يعمل أثناء فتح التطبيق')+'</small></div><span class="rm-state" style="font-size:12px;font-weight:800;color:'+(r.enabled?'var(--gold)':'var(--muted)')+'">'+(r.enabled?'مفعّل':'متوقف')+'</span>'+sw('data-rem-master',r.enabled)+'</div>'
       +'<div class="rm-seg">'+[['main','التذكيرات'],['smart','ذكي'],['mine','تذكيري'],['tools','الفحص']].map(function(x){return '<button type="button" class="'+(REM_PANE===x[0]?'on':'')+'" data-rem-pane="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
       +'<div class="rm-pane'+(REM_PANE==='main'?' on':'')+'">'
       +remRow2('malik','book','سورة الملك','كل ليلة · وقت تلقائي مدروس','malik')
@@ -7357,6 +7389,7 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
     box.querySelector('#rem-close').onclick=function(){box.remove()};
   }
   function remCheck(){
+    if(window.AlsaerNative)return; /* الإشعارات الأصلية تتولى التسليم — منع التكرار والتطبيق مفتوح */
     var r=remLoad(); if(!r.enabled||!r.consent||!document.hasFocus())return;
     var d=new Date(),day=d.getDay(),hh=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
     var date=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
@@ -7653,12 +7686,11 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
   };
   /* أي حفظ لبيانات التطبيق أو إعدادات التذكير يعيد مزامنة الجدول */
   var _save=save;save=function(){var r=_save.apply(this,arguments);syncSoon();return r};
-  document.addEventListener('change',function(){syncSoon()},true);
-  document.addEventListener('click',function(){syncSoon()},true);
+  /* syncSoon مربوط بـ save() فقط — إزالة مزامنة كل ضغطة/تغيير توفيرًا للبطارية */
   document.addEventListener('visibilitychange',function(){if(!document.hidden)window.alsaerPoll()});
   window.addEventListener('focus',function(){window.alsaerPoll()});
   window.addEventListener('pageshow',function(){window.alsaerPoll()});
-  setInterval(function(){if(!document.hidden)window.alsaerPoll(true)},5000);
+  setInterval(function(){if(!document.hidden)window.alsaerPoll(true)},30000);
   function remLoad(){var x=null;try{x=JSON.parse(localStorage.getItem(REM_KEY)||'null')}catch(e){}return Object.assign(cfg(),x||{})}
   function remSave(x){try{localStorage.setItem(REM_KEY,JSON.stringify(x))}catch(e){}}
   function permOk(){var n=nat();try{return !!(n&&n.notificationsEnabled&&n.notificationsEnabled())}catch(e){return false}}
@@ -7679,7 +7711,5 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
   var _poll=window.alsaerPoll;window.alsaerPoll=function(){try{autoEnable()}catch(e){}return _poll.apply(this,arguments)};
   var tries=0,iv=setInterval(function(){tries++;if(nat()){clearInterval(iv);window.alsaerPoll();sync(true)}else if(tries>40)clearInterval(iv)},500);
 })();
-
-})();
-
+})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */
 </script></body></html>

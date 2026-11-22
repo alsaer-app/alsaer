@@ -61,7 +61,8 @@ window.__rcAsr=function(t,sid,d){
     if(L.wd){clearTimeout(L.wd);L.wd=null}
     L.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
     if(d==='9'){L.onErr('لم يُسمح بالميكروفون. فعّله من إعدادات الهاتف ← التطبيقات ← السائر ← الأذونات.');return}
-    if(d==='nomodel'){L.fallback();return}
+    if(d==='nomodel'){L.say('النموذج غير منزّل بعد — نزّله من إعدادات التلاوة؛ عدنا لتعرّف Google مؤقتًا.',true);L.fallback();return}
+    if(d==='dec'){L.say('حدث خطأ أثناء فك التشفير على جهازك (غالبًا ذاكرة). جرّب النموذج «الخفيف» من إعدادات التلاوة.',true);return}
     /* تعذّر تحميل النموذج أو تشغيله (ذاكرة/ملفات): نعود لتعرّف Google مرة واحدة مع تنبيه */
     L.say('تعذّر تشغيل النموذج المحلي؛ عدنا لتعرّف Google مؤقتًا.',true);
     L.fallback();return}

@@ -223,7 +223,7 @@ document.addEventListener('click',async function(e){
   else if(a==='fastrecord'){var fk=dk(),fl='f:'+fk,fcur=S.fasting.records[fk],fnew=v==='done'?'done':'missed';if(fcur&&fcur!==fnew&&lockLeft(fl)>0){lockBlock(lockLeft(fl));return}if(!fcur||inGrace(fl))lockSet(fl);S.fasting.records[fk]=fnew;save();toast(v==='done'?'تم تسجيل صيام اليوم':'تم تسجيل عدم الصيام')}
   else if(a==='fastcustom'){var fc=document.getElementById('fast-custom-date'),fd=fc&&fc.value;if(!fd)toast('اختر التاريخ أولًا');else if(S.fasting.customDates.indexOf(fd)<0){S.fasting.customDates.push(fd);save();toast('تمت إضافة يوم الصيام')}else toast('هذا اليوم مضاف مسبقًا')}
   else if(a==='fastcustomdel'){S.fasting.customDates=(S.fasting.customDates||[]).filter(function(x){return x!==v});save();toast('تم حذف اليوم')}
-  else if(a==='fasttimes'){var su=document.getElementById('suhoor-time'),it=document.getElementById('iftar-time');if(su&&/^\\d{2}:\\d{2}$/.test(su.value))S.fasting.reminders.suhoorTime=su.value;if(it&&/^\\d{2}:\\d{2}$/.test(it.value))S.fasting.reminders.iftarTime=it.value;save();toast('تم حفظ أوقات التذكير')}
+  else if(a==='fasttimes'){var su=document.getElementById('suhoor-time'),it=document.getElementById('iftar-time');if(su&&/^\d{2}:\d{2}$/.test(su.value))S.fasting.reminders.suhoorTime=su.value;if(it&&/^\d{2}:\d{2}$/.test(it.value))S.fasting.reminders.iftarTime=it.value;save();toast('تم حفظ أوقات التذكير')}
   else if(a==='fastdismiss'){toast('يمكنك العودة إلى جدول الصيام من المزيد')}
   else if(a==='per'){per=v==='month'?'month':'week'}
   else if(a==='showlog'){showLog=!showLog}
