@@ -5969,7 +5969,14 @@ function rcLocOk(){return !!rcLocKind()}
 window.__rcAsr=function(t,sid,d){
   var L=rcAsr.loc;if(!L||L.dead||sid!==L.sid)return;
   if(t==='ready'){L.ready=true;if(L.wd){clearTimeout(L.wd);L.wd=null}L.say('النموذج القرآني يعمل — تلُ الآن… أسمعك',false);return}
-  if(t==='loading'){if(typeof rc==='object'&&rc)rc.last=Date.now();if(L.armWd)L.armWd();L.say('ما زال تجهيز النموذج جاريًا… (أول مرة فقط قد تأخذ دقيقة أو أكثر)',true);return}
+  if(t==='loading'){if(typeof rc==='object'&&rc)rc.last=Date.now();if(L.armWd)L.armWd();if(!L.dl)L.say('ما زال تجهيز النموذج جاريًا… (أول مرة فقط قد تأخذ دقيقة أو أكثر)',true);return}
+  if(t==='dl'){ /* محرك V4: تقدّم التنزيل ومراحل التجهيز — نسبة مئوية بدل انتظار أعمى */
+    L.dl=true;if(typeof rc==='object'&&rc)rc.last=Date.now();if(L.armWd)L.armWd();
+    if(d==='open'){L.say('اكتمل التنزيل — جارٍ فتح النموذج على الجهاز…',true);return}
+    if(d==='ref'){L.say('جارٍ تجهيز بيانات المرجع…',true);return}
+    var pp=String(d||'0/0').split('/'),dn=+pp[0]||0,tt=+pp[1]||0;
+    if(tt>0){L.say('جارٍ تنزيل نموذج V4: '+Math.floor(dn*100/tt)+'% ('+Math.floor(dn/1048576)+' من '+Math.ceil(tt/1048576)+' ميجا) — أول مرة فقط، ويكمل من حيث توقّف',true);return}
+    L.say('ما زال تجهيز النموذج جاريًا… (أول مرة فقط قد تأخذ دقيقة أو أكثر)',true);return}
   if(t==='err'){
     if(L.wd){clearTimeout(L.wd);L.wd=null}
     L.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
@@ -5980,6 +5987,9 @@ window.__rcAsr=function(t,sid,d){
     if(d==='nokey'){L.onErr('مفتاح Quran Lab غير مضبوط في هذا البناء التجريبي.');return}
     if(d==='noref'){L.onErr('تعذّر تجهيز بيانات المرجع لمحرك V4 — يحتاج إنترنت في أول مرة. تحقّق من الاتصال وأعد المحاولة.');return}
     if(d==='oldsdk'){L.onErr('محرك V4 التجريبي يحتاج أندرويد 8 أو أحدث. استخدم أحد النماذج المحلية من ⚙ إعدادات التلاوة.');return}
+    if(d==='net'){L.onErr('تعذّر الوصول إلى خادم Quran Lab — تحقّق من الإنترنت (يفضّل واي فاي، التنزيل ~63 ميجا) ثم أعد المحاولة. التنزيل يكمل من حيث توقّف.');return}
+    if(d==='dlstall'){L.onErr('توقّف تجهيز نموذج V4 بلا تقدّم لأكثر من دقيقتين. تحقّق من الإنترنت وأعد المحاولة — التنزيل يكمل من حيث توقّف.');return}
+    if(d==='key'){L.onErr('رفض Quran Lab مفتاح هذا البناء التجريبي أو صار قديمًا. أرسل السجل للمطوّر.');return}
     if(d==='run'||d==='start'){L.onErr('تعذّر تشغيل محرك V4 التجريبي على جهازك. أعد المحاولة، أو استخدم أحد النماذج المحلية من ⚙ إعدادات التلاوة.');return}
     /* تعذّر تحميل النموذج أو تشغيله (ذاكرة/ملفات): رسالة واضحة فقط — لا بديل سحابي */
     L.onErr('تعذّر تشغيل النموذج القرآني على جهازك. أغلق التطبيقات الثقيلة وأعد المحاولة، أو جرّب النموذج «الخفيف» من ⚙ إعدادات التلاوة.');return}

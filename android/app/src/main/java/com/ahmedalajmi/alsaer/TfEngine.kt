@@ -10,6 +10,7 @@ import ai.quranlab.tajweedformer.TajweedEvent
 import ai.quranlab.tajweedformer.TajweedModel
 import ai.quranlab.tajweedformer.TajweedSession
 import ai.quranlab.tajweedformer.TajweedSessionOptions
+import ai.quranlab.tajweedformer.TajweedError
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -80,6 +81,10 @@ object TfEngine {
         } catch (t: Throwable) { SherpaAsr.diag("tf: إعداد نافذة غير صالح") }
     }
 
+    /* ختم آخر تقدّم في التجهيز: يُحدَّث من خيط التنزيل ويقرؤه مراقب التوقف */
+    private val advStamp = java.util.concurrent.atomic.AtomicLong(0L)
+    @Volatile private var stalled = false
+
     fun start(act: Activity, jsid: Int) {
         sid = jsid
         if (Build.VERSION.SDK_INT < 26) { emitErr(jsid, "oldsdk"); return }
@@ -87,24 +92,60 @@ object TfEngine {
         if (key.isNullOrEmpty()) { emitErr(jsid, "nokey"); return }
         stopInternal()
         running = true
+        stalled = false
+        advStamp.set(android.os.SystemClock.elapsedRealtime())
         emit(jsid, "loading", "")
         /* نبضة تحميل كل ١٢ ثانية: تنزيل النموذج أول مرة قد يطول، والصفحة تفترض الفشل بعد ٤٥ ثانية بلا نبضة */
         ticker = scope.launch {
             while (isActive) { delay(12000); if (running) emit(jsid, "loading", "") }
         }
         mainJob = scope.launch {
+            /* مراقب التوقف: ١٥٠ ثانية بلا أي تقدّم (بايتات أو انتقال مرحلة) = فشل واضح بدل انتظار بلا نهاية.
+               SDK نفسه يقطع الطلب بعد ٣٠ ثانية جمود ويستأنف (٥ مرات كحد أقصى لكل ملف)، لكن حلول الاسم (DNS)
+               بلا مهلة فيه، والرابط البطيء الحي لا يُقطع أبدًا — من هنا جاء «تعليق» ١٠١٨٧ بلا أي مؤشر */
+            val wd = scope.launch {
+                while (isActive) {
+                    delay(5000)
+                    if (running && android.os.SystemClock.elapsedRealtime() - advStamp.get() > 150_000) {
+                        stalled = true
+                        mainJob?.cancel()
+                        break
+                    }
+                }
+            }
             try {
                 val c = TajweedClient.current ?: TajweedClient(act.applicationContext, key,
                     TajweedClientOptions(appId = act.packageName))
                 client = c
-                val m = c.model()                                  // ينزّل النموذج عند أول مرة ثم يفتحه
+                SherpaAsr.diag("tf: العميل جاهز — فحص النموذج وتنزيله (~63MB أول مرة)")
+                advStamp.set(android.os.SystemClock.elapsedRealtime())
+                var lastPct = -10
+                c.prefetch(unmeteredOnly = false) { done, total ->
+                    advStamp.set(android.os.SystemClock.elapsedRealtime())
+                    val pct = if (total > 0) ((done * 100) / total).toInt() else -1
+                    if (pct >= lastPct + 10 || (total > 0 && done >= total && lastPct < 100)) {
+                        lastPct = pct
+                        SherpaAsr.diag("tf: تنزيل النموذج ${done / 1048576}/${total / 1048576}MB ($pct%)")
+                        emit(jsid, "dl", "$done/$total")
+                    }
+                }
+                if (!running || sid != jsid) return@launch
+                SherpaAsr.diag("tf: التنزيل مكتمل — فتح النموذج")
+                emit(jsid, "dl", "open")
+                advStamp.set(android.os.SystemClock.elapsedRealtime())
+                val m = c.model()                                  // يفتح النموذج: فحوص Core واختباره الذاتي
                 if (!running || sid != jsid) return@launch
                 model = m
+                SherpaAsr.diag("tf: النموذج مفتوح — جلب بيانات المرجع")
+                emit(jsid, "dl", "ref")
+                advStamp.set(android.os.SystemClock.elapsedRealtime())
                 val ref = m.reference
                 if (ref == null) { fail(jsid, "noref", "بناء النموذج بلا بيانات مرجع"); return@launch }
-                try { ref.fetch() } catch (t: Throwable) { fail(jsid, "noref", "reference: ${t.javaClass.simpleName}"); return@launch }
+                try { ref.fetch() } catch (t: Throwable) { failSdk(jsid, "noref", t); return@launch }
                 if (!buildExpected(m, ref)) { fail(jsid, "noref", "تعذر بناء التسلسل المتوقع"); return@launch }
                 if (!running || sid != jsid) return@launch
+                SherpaAsr.diag("tf: المرجع جاهز — بدء جلسة الاستماع")
+                advStamp.set(android.os.SystemClock.elapsedRealtime())
                 val s = m.listen(TajweedSessionOptions(backend = TajweedSessionOptions.Backend.CPU))          // بلا إيقاف صمتي: مراقب الخمول في الصفحة يملك الإيقاف
                 session = s
                 resetAlign()
@@ -113,10 +154,31 @@ object TfEngine {
                 SherpaAsr.diag("tf: جاهز (${exp.size} وحدة متوقعة، $totalJsWords كلمة)")
                 collectAll(s, jsid)
             } catch (t: Throwable) {
-                if (t is kotlinx.coroutines.CancellationException) throw t
-                fail(jsid, "start", t.javaClass.simpleName)
+                if (t is kotlinx.coroutines.CancellationException && !stalled) throw t
+                if (stalled) fail(jsid, "dlstall", "لا تقدّم في التجهيز لأكثر من ١٥٠ ثانية")
+                else failSdk(jsid, "start", t)
+            } finally {
+                wd.cancel()
             }
         }
+    }
+
+    /* فشل من SDK أو غيره: نسجّل الرمز الثابت والإصلاح المقترح وتقرير diagnose ثم نُعلم الصفحة برمز مفهوم */
+    private suspend fun failSdk(jsid: Int, stage: String, t: Throwable) {
+        val e = t as? TajweedError
+        val code = e?.code ?: t.javaClass.simpleName
+        val fix = e?.fix ?: ""
+        SherpaAsr.diag("tf: فشل مرحلة $stage: $code — $fix")
+        try {
+            val d = client?.diagnose()?.toJson()
+            if (d != null) SherpaAsr.diag("tf: diagnose: " + if (d.length > 500) d.substring(0, 500) + "…" else d)
+        } catch (x: Throwable) { }
+        val uiCode = when (code) {
+            "needs_connection", "network_not_permitted", "download_failed" -> "net"
+            "invalid_key", "server_rejected", "sdk_too_old" -> "key"
+            else -> stage
+        }
+        fail(jsid, uiCode, code)
     }
 
     fun stop() {
