@@ -61,7 +61,7 @@ cd android && ./gradlew assembleDebug
 عند كل Tag جديد (`v*`) يبني workflow الإصدارَ الموقع ويرفعه إلى Releases ويحدّث ملف [`update.json`](update.json) على الفرع الرئيسي. يمكن للتطبيق لاحقًا فحص:
 
 ```
-https://raw.githubusercontent.com/ahmed010910aa-droid/alsaer/main/update.json
+https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 ```
 
 ومقارنة `versionCode` بالنسخة المثبتة، ثم تنزيل `apkUrl` بعد التحقق من `sha256`. (آلية الفحص داخل التطبيق تُنفَّذ في إصدار قادم.)
