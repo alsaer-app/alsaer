@@ -88,6 +88,8 @@ public class SherpaAsr {
     private ExecutorService decPool;
     private volatile boolean running = false;
     private volatile int sid = 0;
+    /** قفل دورة حياة المتعرّف: يمنع تحميلين متزامنين (تسخين + بدء) يستهلكان ضعف الذاكرة ويسببان تعليقًا/نفاد ذاكرة */
+    private final Object recLock = new Object();
 
     private volatile Thread dlThread;
     private volatile boolean dlCancel = false;
@@ -271,6 +273,12 @@ public class SherpaAsr {
     }
 
     private boolean ensureRec(String kind) {
+        synchronized (recLock) {
+            return ensureRecLocked(kind);
+        }
+    }
+
+    private boolean ensureRecLocked(String kind) {
         if (rec != null && recKind.equals(kind)) return true;
         releaseRec();
         int i = idxOf(kind);
@@ -390,7 +398,10 @@ public class SherpaAsr {
     public synchronized void warmup(String kind) {
         if (running || (rec != null && recKind.equals(kind))) return;
         if (idxOf(kind) < 0 || !installed(kind)) return;
-        new Thread(() -> ensureRec(kind), "asr-warm").start();
+        new Thread(() -> {
+            /* لو بدأت جلسة استماع فعلًا لا نسخّن: start ستحمّل عبر نفس القفل */
+            if (!running) ensureRec(kind);
+        }, "asr-warm").start();
     }
 
     private void drainVad(int mySid) {
