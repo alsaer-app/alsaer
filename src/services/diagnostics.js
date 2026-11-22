@@ -26,7 +26,7 @@ function vRenderFail(e,t){
    +'<div class="acts"><button class="btn" data-a="tab" data-v="home">الرئيسية</button><button class="btn ghost" data-a="tab" data-v="diag">فحص التطبيق</button></div></section>';
 }
 function dgViews(){
-  return {home:vHome,worship:vWorship,calendar:vCal,progress:vProgress,more:vMore,fasting:vFasting,prayers:vPrayers,quran:vQuran,reminders:vReminders,books:vBooks,chal:vChal,month:vMonth,recite:vRecite,sacred:vSacred,muh:vMuh,floatfeed:vFloatFeed,floatset:vFloatSet,widgetset:vWidgetSet,habits:vHabits,boost:vBoost,ach:vAch,developer:vDeveloper,settings:vSettings,qada:vQada,ramadan:vRamadan,occasions:vOccasions,cards:vCards,hifz:vHifz,khushu:vKhushu,khatma:vKhatma,weekly:vWeekly,notes:vNotes,zakat:vZakat,backup:vBackup,msb:vMsb,asma:vAsma,hisn:vHisn,ahadith:vAhadith,ptloc:vPtLoc};
+  return {home:vHome,worship:vWorship,calendar:vCal,progress:vProgress,more:vMore,fasting:vFasting,prayers:vPrayers,quran:vQuran,reminders:vReminders,books:vBooks,chal:vChal,month:vMonth,sacred:vSacred,muh:vMuh,floatfeed:vFloatFeed,floatset:vFloatSet,widgetset:vWidgetSet,habits:vHabits,boost:vBoost,ach:vAch,developer:vDeveloper,settings:vSettings,qada:vQada,ramadan:vRamadan,occasions:vOccasions,cards:vCards,hifz:vHifz,khushu:vKhushu,khatma:vKhatma,weekly:vWeekly,notes:vNotes,zakat:vZakat,backup:vBackup,msb:vMsb,asma:vAsma,hisn:vHisn,ahadith:vAhadith,ptloc:vPtLoc};
 }
 function dgCheck(){
   var R=[],t0;
@@ -52,11 +52,10 @@ function dgCheck(){
   add('الشاشات ('+cnt+')',!bad.length,bad.length?bad.join(' | '):'كلها تُبنى دون أخطاء'+(slow.length?' (بطيئة: '+slow.join('، ')+')':''),!bad.length&&slow.length>0);
   /* الجسر الأصلي */
   var N=window.AlsaerNative;
-  if(!N)add('الجسر الأصلي (أندرويد)',true,'غير موجود — أنت في متصفح، الميزات الأصلية (التذكيرات، الميكروفون) لا تعمل هنا',true);
+  if(!N)add('الجسر الأصلي (أندرويد)',true,'غير موجود — أنت في متصفح، الميزات الأصلية (التذكيرات) لا تعمل هنا',true);
   else{
-    var need=['speechStart2','speechStop','speechAvailable'],miss=need.filter(function(x){return typeof N[x]!=='function'});
+    var need=['appBuildInfo'],miss=need.filter(function(x){return typeof N[x]!=='function'});
     add('الجسر الأصلي (أندرويد)',!miss.length,miss.length?('دوال ناقصة: '+miss.join('، ')):'متصل');
-    try{add('تعرّف أندرويد (Google)',!!N.speechAvailable(),N.speechAvailable()?'متاح ✓':'غير متاح — فعّل خدمات Google الصوتية',!N.speechAvailable())}catch(e){}
   }
   add('الإنترنت',true,navigator.onLine?'متصل':'غير متصل',!navigator.onLine);
   var er=dgRead().filter(function(x){return Date.now()-x.t<86400000});
