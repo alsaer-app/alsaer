@@ -307,6 +307,11 @@ public class SherpaAsr {
 
     /* تراكم مقاطع للتقسيم المبكر عند الوقفات الطبيعية */
     private final java.util.ArrayList<float[]> segAcc = new java.util.ArrayList<>();
+    /** مرجّع دمج مقاطع VAD القصيرة: whisper يجوع على مقطع ١-٣ ثوانٍ بلا سياق (مُثبت بالتجربة)،
+       فنراكم المقاطع المتتالية حتى ~٦ ثوانٍ قبل الفك، ونصرّف عند وقفة طويلة أو عند الإيقاف */
+    private final java.util.ArrayList<float[]> mergeAcc = new java.util.ArrayList<>();
+    private int mergeLen = 0;
+    private volatile long lastVadSegAt = 0;
     private int segAccLen = 0;
     private float segPeak = 0f;
     /* كسب تلقائي برمجي للمصدر الخام: يُعاد ضبطه كل جلسة */
@@ -483,6 +488,8 @@ public class SherpaAsr {
                     float[] chunk = (n == fbuf.length) ? fbuf.clone() : java.util.Arrays.copyOf(fbuf, n);
                     vad.acceptWaveform(chunk);
                     drainVad(mySid);
+                    /* وقفة طويلة بعد مقاطع مُدمجة غير مكتملة: صرّفها الآن لئلا ينتظر المستخدم الآية التالية */
+                    if (mergeLen > 0 && SystemClock.elapsedRealtime() - lastVadSegAt > 2500) mergeFlush(mySid);
                     /* تقسيم مبكر عند وقفة طبيعية: بعد ٨ ثوانٍ من الصوت، إن كان آخر ٠٫٣٥ ثانية
                        هادئًا (أقل من ٨٪ من ذروة المقطع) نفك تشفير ما تراكم ونبدأ مقطعًا جديدًا،
                        فتظهر الكلمات تدريجيًا دون قطع الكلمات في منتصفها. */
@@ -512,12 +519,14 @@ public class SherpaAsr {
                             segAcc.clear(); segAccLen = 0; segPeak = 0f;
                             try { vad.reset(); } catch (Throwable ignored) {}
                             diag("تقسيم مبكر عند وقفة: " + (early.length / SAMPLE_RATE) + "s");
+                            mergeFlush(mySid); /* حفاظًا على ترتيب التلاوة: صرّف المدموج المعلّق أولًا */
                             submitDecode(mySid, early);
                         }
                     }
                 }
                 vad.flush();
                 drainVad(mySid);
+                mergeFlush(mySid);
             } catch (Throwable t) {
                 if (running) { running = false; emit(mySid, "err", "cap"); }
             } finally {
@@ -548,9 +557,24 @@ public class SherpaAsr {
                 float[] s = seg.getSamples();
                 if (s == null || s.length < SAMPLE_RATE / 2) continue; // تجاهل ما دون 0.5 ثانية (حماية من هلوسة الضجيج والمقاطع القصيرة)
                 if (s.length > SAMPLE_RATE * 28) s = java.util.Arrays.copyOf(s, SAMPLE_RATE * 28);
-                submitDecode(mySid, s);
+                lastVadSegAt = SystemClock.elapsedRealtime();
+                /* دمج مقاطع VAD القصيرة عند الوقفات حتى ~٦ ثوانٍ قبل فك التشفير */
+                if (mergeLen > 0 && mergeLen + s.length > SAMPLE_RATE * 14) mergeFlush(mySid);
+                mergeAcc.add(s); mergeLen += s.length;
+                if (mergeLen >= SAMPLE_RATE * 6) mergeFlush(mySid);
             }
         } catch (Throwable t) { diag("خطأ قراءة مقاطع VAD: " + t); }
+    }
+
+    /** تصريف مرجّع الدمج: يفك ما تراكم من مقاطع VAD القصيرة كمقطع واحد */
+    private void mergeFlush(int mySid) {
+        if (mergeLen <= 0) return;
+        float[] m = new float[mergeLen];
+        int off = 0;
+        for (float[] c : mergeAcc) { System.arraycopy(c, 0, m, off, c.length); off += c.length; }
+        mergeAcc.clear();
+        mergeLen = 0;
+        submitDecode(mySid, m);
     }
 
     private void submitDecode(final int mySid, final float[] seg2) {
