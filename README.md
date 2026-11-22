@@ -43,13 +43,13 @@
 ## لقطات الشاشة
 
 <p align="center">
-  <img src="screenshots/01.png" width="190" alt="الشاشة الرئيسية">
-  <img src="screenshots/02.png" width="190" alt="المصحف">
-  <img src="screenshots/03.png" width="190" alt="التلاوة والتسميع">
-  <img src="screenshots/04.png" width="190" alt="المتابعة اليومية">
+  <img src="screenshots/home.jpg" width="150" alt="الشاشة الرئيسية: حديث اليوم وخطوتك التالية">
+  <img src="screenshots/quran.jpg" width="150" alt="المصحف: سورة الفاتحة بالتجويد الملون">
+  <img src="screenshots/onboarding.jpg" width="150" alt="شاشة الترحيب">
+  <img src="screenshots/progress.jpg" width="150" alt="التقدم والتقييم">
+  <img src="screenshots/calendar.jpg" width="150" alt="التقويم والمتابعة">
+  <img src="screenshots/more.jpg" width="150" alt="شاشة المزيد">
 </p>
-
-> تُضاف اللقطات قريبًا.
 
 ## التثبيت
 
