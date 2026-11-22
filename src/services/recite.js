@@ -132,7 +132,11 @@ function rcResult(){
   return {t:Math.min(100,T),w:Math.round(W),l:Math.round(L),c:Math.round(C),weak:weak,att:att,n:n};
 }
 function rcFinish(){
-  rcStop();if(rcPref().rr)rc.pos=rc.w.length; /* وضع التسجيل: الحصة تغطي النص كله، والمحاذاة العامة هي الحكم */
+  rcStop();
+  if(rcPref().rr){
+    if(!rc.hlog.length){rc.msg='لم نسمع تلاوة بعد — اضغط الميكروفون وتلُ أولًا.';try{render()}catch(e){}return}
+    rc.pos=rc.w.length; /* وضع التسجيل: الحصة تغطي النص كله، والمحاذاة العامة هي الحكم */
+  }
   var r=rcResult();if(!r){try{render()}catch(e){}return}
   rc.res=r;rc.wk=-1;var P=rcPref();
   P.hist.push({s:rc.sura,ay:rc.ay,d:Date.now(),a:r.t,m:rc.miss,w:r.att,k:Math.round(r.w/100*r.att)});if(P.hist.length>120)P.hist.shift();var T=P.tot||(P.tot={n:0,w:0,k:0,best:0});T.n++;T.w+=r.att;T.k+=Math.round(r.w/100*r.att);if(r.t>T.best)T.best=r.t;save();
@@ -155,6 +159,8 @@ function rcResHtml(){
 }
 function rcSay(t,busy){rc.msg=t||'';rc.busy=!!busy;var q=document.getElementById('rc-status');if(q){q.textContent=rc.msg;q.className='rc-status'+(rc.busy?' busy':'')+(rc.msg?'':' empty')}}
 function rcStop(){rc.on=false;clearInterval(rc.idle);try{if(window.ReciteASR)window.ReciteASR.stop()}catch(e){}}
+/* جلسة قائمة: تتبّع لحظي (ok/miss) أو تسجيل-ثم-مراجعة جمع نصًا (hlog) */
+function rcHasSession(){return rc.ok+rc.miss>0||!!(rcPref().rr&&rc.hlog.length)}
 
 function rcStart(){
   if(!rc.w.length&&!rcLoad(rc.sura||1)){rc.msg='تعذّر تحميل نص السورة.';return}
@@ -176,7 +182,7 @@ function rcStart2(){
 }
 function rcAct(a,v){
   if(a==='rcsura'){rcStop();rcLoad(parseInt(v,10)||1,0);rc.msg=''}
-  else if(a==='rcstart'){if(rc.on){rcStop();if(rc.ok+rc.miss>0){rcFinish();return true}}else rcStart()}
+  else if(a==='rcstart'){if(rc.on){rcStop();if(rcHasSession()){rcFinish();return true}}else rcStart()}
   else if(a==='rcayp'||a==='rcayn'){rcStop();var cnt=(QD().s[rc.sura-1]||[]).length,na=Math.max(1,Math.min(cnt,(rc.ay||1)+(a==='rcayn'?1:-1)));rcLoad(rc.sura,na);rc.msg=''}
   else if(a==='rcdone'){rcFinish();return true}
   else if(a==='rcverse'){
@@ -312,7 +318,7 @@ function vRecite(){
    +'<div class="rc-dock">'+wave
    +'<div class="rc-dock-row"><button class="rc-side" data-a="rcreset" aria-label="من البداية">'+ic('refresh')+'<small>من البداية</small></button>'
    +'<button class="rc-mic'+(rc.on?' on':'')+(rc.busy?' busy':'')+'" data-a="rcstart" aria-label="'+(rc.on?'إيقاف':'ابدأ التلاوة')+'">'+ic('mic')+'</button>'
-   +'<button class="rc-side" data-a="'+((rc.ok+rc.miss>0&&!rc.res)?'rcdone':(rc.ay&&rc.ay<cnt?'rcayn':'rcdone'))+'" aria-label="التالي">'+((rc.ok+rc.miss>0&&!rc.res)?ic('check')+'<small>النتيجة</small>':(rc.ay&&rc.ay<cnt?ic('chev')+'<small>التالية</small>':ic('check')+'<small>النتيجة</small>'))+'</button></div>'
+   +'<button class="rc-side" data-a="'+((rcHasSession()&&!rc.res)?'rcdone':(rc.ay&&rc.ay<cnt?'rcayn':'rcdone'))+'" aria-label="التالي">'+((rcHasSession()&&!rc.res)?ic('check')+'<small>النتيجة</small>':(rc.ay&&rc.ay<cnt?ic('chev')+'<small>التالية</small>':ic('check')+'<small>النتيجة</small>'))+'</button></div>'
    +'<div class="rc-cnt"><span>صحيح <b id="rc-ok">'+ar(rc.ok)+'</b></span><span>متخطّى <b id="rc-miss">'+ar(rc.miss)+'</b></span></div></div></div>';
 }
 try{if(/alsaertest/.test(location.search)&&window.__T){window.__T.rc=function(){return {rc:rc,rcLoad:rcLoad,rcHyp:rcHyp,rcPref:rcPref,rcStop:rcStop}}}}catch(e){}

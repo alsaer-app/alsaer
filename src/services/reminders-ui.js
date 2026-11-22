@@ -192,7 +192,7 @@
     box.querySelector('#rem-close').onclick=function(){box.remove()};
   }
   function remCheck(){
-    if(window.AlsaerNative)return; /* الإشعارات الأصلية تتولى التسليم — منع التكرار والتطبيق مفتوح */
+    try{if(window.AlsaerNative&&AlsaerNative.notificationsEnabled&&AlsaerNative.notificationsEnabled())return; /* الإشعارات الأصلية المفعّلة تتولى التسليم */}catch(e){} /* بلا إذن إشعارات: تذكيرات داخل التطبيق كما كانت */
     var r=remLoad(); if(!r.enabled||!r.consent||!document.hasFocus())return;
     var d=new Date(),day=d.getDay(),hh=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
     var date=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();

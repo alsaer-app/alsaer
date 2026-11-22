@@ -2762,7 +2762,7 @@ function remItems(){
 }
 function vReminders(){
   var it=remItems(),h='',k=dk(),fr=S.fasting.reminders,up=nextFastingDays(3),todayFast=fastingReasons(new Date()),now=new Date(),nowMin=now.getHours()*60+now.getMinutes();
-  function within(time,windowM){if(!time||!/^\\d{2}:\\d{2}$/.test(time))return false;var p=time.split(':').map(Number),m=p[0]*60+p[1];return nowMin>=m&&nowMin<=m+windowM}
+  function within(time,windowM){if(!time||!/^\d{2}:\d{2}$/.test(time))return false;var p=time.split(':').map(Number),m=p[0]*60+p[1];return nowMin>=m&&nowMin<=m+windowM}
   if(fr.enabled&&todayFast.length&&fr.suhoor&&within(fr.suhoorTime,120))h+='<section class="card rem fast-alert"><span class="ri">'+ic('moon')+'</span><div style="flex:1"><h4>تذكير السحور</h4><p class="note">هذا أحد أيام الصيام التي اخترتها. جهّز سحورك واضبط نيتك.</p><button class="btn good" data-a="tab" data-v="fasting">فتح جدول الصيام</button></div></section>';
   if(fr.enabled&&todayFast.length&&fr.iftar&&within(fr.iftarTime,120))h+='<section class="card rem fast-alert"><span class="ri">'+ic('sun')+'</span><div style="flex:1"><h4>تذكير الإفطار</h4><p class="note">حان وقت الإفطار بحسب الموعد الذي حددته. لا تنسَ الدعاء.</p><button class="btn good" data-a="tab" data-v="fasting">تسجيل إتمام الصيام</button></div></section>';
   if(fr.enabled&&fr.beforeDay&&up.length){
@@ -5686,7 +5686,11 @@ function rcResult(){
   return {t:Math.min(100,T),w:Math.round(W),l:Math.round(L),c:Math.round(C),weak:weak,att:att,n:n};
 }
 function rcFinish(){
-  rcStop();if(rcPref().rr)rc.pos=rc.w.length; /* وضع التسجيل: الحصة تغطي النص كله، والمحاذاة العامة هي الحكم */
+  rcStop();
+  if(rcPref().rr){
+    if(!rc.hlog.length){rc.msg='لم نسمع تلاوة بعد — اضغط الميكروفون وتلُ أولًا.';try{render()}catch(e){}return}
+    rc.pos=rc.w.length; /* وضع التسجيل: الحصة تغطي النص كله، والمحاذاة العامة هي الحكم */
+  }
   var r=rcResult();if(!r){try{render()}catch(e){}return}
   rc.res=r;rc.wk=-1;var P=rcPref();
   P.hist.push({s:rc.sura,ay:rc.ay,d:Date.now(),a:r.t,m:rc.miss,w:r.att,k:Math.round(r.w/100*r.att)});if(P.hist.length>120)P.hist.shift();var T=P.tot||(P.tot={n:0,w:0,k:0,best:0});T.n++;T.w+=r.att;T.k+=Math.round(r.w/100*r.att);if(r.t>T.best)T.best=r.t;save();
@@ -5709,6 +5713,8 @@ function rcResHtml(){
 }
 function rcSay(t,busy){rc.msg=t||'';rc.busy=!!busy;var q=document.getElementById('rc-status');if(q){q.textContent=rc.msg;q.className='rc-status'+(rc.busy?' busy':'')+(rc.msg?'':' empty')}}
 function rcStop(){rc.on=false;clearInterval(rc.idle);try{if(window.ReciteASR)window.ReciteASR.stop()}catch(e){}}
+/* جلسة قائمة: تتبّع لحظي (ok/miss) أو تسجيل-ثم-مراجعة جمع نصًا (hlog) */
+function rcHasSession(){return rc.ok+rc.miss>0||!!(rcPref().rr&&rc.hlog.length)}
 
 function rcStart(){
   if(!rc.w.length&&!rcLoad(rc.sura||1)){rc.msg='تعذّر تحميل نص السورة.';return}
@@ -5730,7 +5736,7 @@ function rcStart2(){
 }
 function rcAct(a,v){
   if(a==='rcsura'){rcStop();rcLoad(parseInt(v,10)||1,0);rc.msg=''}
-  else if(a==='rcstart'){if(rc.on){rcStop();if(rc.ok+rc.miss>0){rcFinish();return true}}else rcStart()}
+  else if(a==='rcstart'){if(rc.on){rcStop();if(rcHasSession()){rcFinish();return true}}else rcStart()}
   else if(a==='rcayp'||a==='rcayn'){rcStop();var cnt=(QD().s[rc.sura-1]||[]).length,na=Math.max(1,Math.min(cnt,(rc.ay||1)+(a==='rcayn'?1:-1)));rcLoad(rc.sura,na);rc.msg=''}
   else if(a==='rcdone'){rcFinish();return true}
   else if(a==='rcverse'){
@@ -5866,7 +5872,7 @@ function vRecite(){
    +'<div class="rc-dock">'+wave
    +'<div class="rc-dock-row"><button class="rc-side" data-a="rcreset" aria-label="من البداية">'+ic('refresh')+'<small>من البداية</small></button>'
    +'<button class="rc-mic'+(rc.on?' on':'')+(rc.busy?' busy':'')+'" data-a="rcstart" aria-label="'+(rc.on?'إيقاف':'ابدأ التلاوة')+'">'+ic('mic')+'</button>'
-   +'<button class="rc-side" data-a="'+((rc.ok+rc.miss>0&&!rc.res)?'rcdone':(rc.ay&&rc.ay<cnt?'rcayn':'rcdone'))+'" aria-label="التالي">'+((rc.ok+rc.miss>0&&!rc.res)?ic('check')+'<small>النتيجة</small>':(rc.ay&&rc.ay<cnt?ic('chev')+'<small>التالية</small>':ic('check')+'<small>النتيجة</small>'))+'</button></div>'
+   +'<button class="rc-side" data-a="'+((rcHasSession()&&!rc.res)?'rcdone':(rc.ay&&rc.ay<cnt?'rcayn':'rcdone'))+'" aria-label="التالي">'+((rcHasSession()&&!rc.res)?ic('check')+'<small>النتيجة</small>':(rc.ay&&rc.ay<cnt?ic('chev')+'<small>التالية</small>':ic('check')+'<small>النتيجة</small>'))+'</button></div>'
    +'<div class="rc-cnt"><span>صحيح <b id="rc-ok">'+ar(rc.ok)+'</b></span><span>متخطّى <b id="rc-miss">'+ar(rc.miss)+'</b></span></div></div></div>';
 }
 try{if(/alsaertest/.test(location.search)&&window.__T){window.__T.rc=function(){return {rc:rc,rcLoad:rcLoad,rcHyp:rcHyp,rcPref:rcPref,rcStop:rcStop}}}}catch(e){}
@@ -6734,8 +6740,10 @@ function ensureDailyHadith(force){
   try{localStorage.setItem(key,JSON.stringify(data))}catch(e){}
   paintHadith(data);
 }
+/* مفتاح «شوهد» مشتق من رقم الإصدار: يتجدد تلقائيًا مع كل إصدار ولا ينسى طرفاه أبدًا */
+function updateSeenKey(){return 'alsaer_seen_update_'+String(APP_VERSION).replace(/\D/g,'')}
 function renderFirstUpdateNotice(){
-  var key='alsaer_seen_update_1013',old=document.getElementById('update109-notice');
+  var key=updateSeenKey(),old=document.getElementById('update109-notice');
   var seen=false;try{seen=localStorage.getItem(key)==='1'}catch(e){seen=false}
   if(!unlocked||!S.onboarded||seen){if(old)old.remove();return}
   if(old)return;
@@ -7052,7 +7060,7 @@ document.addEventListener('click',async function(e){
   else if(a==='fastdismiss'){toast('يمكنك العودة إلى جدول الصيام من المزيد')}
   else if(a==='per'){per=v==='month'?'month':'week'}
   else if(a==='showlog'){showLog=!showLog}
-  else if(a==='update109Done'){try{localStorage.setItem('alsaer_seen_update_1016','1')}catch(e){}var up=document.getElementById('update109-notice');if(up)up.remove();tourAuto()}
+  else if(a==='update109Done'){try{localStorage.setItem(updateSeenKey(),'1')}catch(e){}var up=document.getElementById('update109-notice');if(up)up.remove();tourAuto()}
   else if(a==='showprivacy'){showPrivacy=!showPrivacy}
   else if(a==='urge'){S.urges=S.urges||[];S.urges.push(Date.now());save();checkNew();toast('أحسنت، سُجّل تجاوزك لهذه الرغبة')}
   else if(a==='cover'){covered=true}
@@ -7093,7 +7101,7 @@ document.addEventListener('click',async function(e){
     var mm=document.querySelector('.msg');if(mm)mm.textContent=msg;return}
   else if(a==='bkcopy'){var txt=JSON.stringify(S),ta=document.getElementById('bk');ta.value=txt;
     (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(txt):Promise.reject()).then(function(){msg='تم النسخ'}).catch(function(){ta.select();msg='حدّد النص وانسخه يدوياً'}).then(function(){var m=document.querySelector('.msg');if(m)m.textContent=msg});return}
-  else if(a==='bkrestore'){try{var raw=document.getElementById('bk').value.trim();if(raw.indexOf('ALSAER-ENC1:')===0){try{raw=await bkDecrypt(raw,(document.getElementById('bkpw')||{}).value||'')}catch(x2){throw 'pw'}}var o=JSON.parse(raw);if(!validBackup(o))throw 0;var restored=fixShape(Object.assign(def(),o));if(restored.pin!==null&&typeof restored.pin!=='string'&&(!restored.pin||restored.pin.type!=='pbkdf2-sha256'||typeof restored.pin.salt!=='string'||typeof restored.pin.hash!=='string'))throw 0;restored.onboarded=true;S=restored;save();unlocked=!S.pin;bioPrompted=false;msg='تم الاسترجاع بعد التحقق من البيانات'}catch(x){msg=(x==='pw')?'كلمة المرور غير صحيحة أو النسخة تالفة؛ لم تتغير بياناتك':'النسخة غير صالحة أو ناقصة؛ لم تتغير بياناتك'}}
+  else if(a==='bkrestore'){try{var raw=document.getElementById('bk').value.trim();if(raw.indexOf('ALSAER-ENC1:')===0){try{raw=await bkDecrypt(raw,(document.getElementById('bkpw')||{}).value||'')}catch(x2){throw 'pw'}}var o=JSON.parse(raw);if(!validBackup(o))throw 0;var restored=fixShape(Object.assign(def(),o));if(restored.pin!==null&&typeof restored.pin!=='string'&&(!restored.pin||restored.pin.type!=='pbkdf2-sha256'||typeof restored.pin.salt!=='string'||typeof restored.pin.hash!=='string'))throw 0;restored.onboarded=true;S=restored;save();try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,JSON.stringify(S))}catch(e){} /* حدّث النسخة المحلية الاحتياطية فور الاسترجاع */unlocked=!S.pin;bioPrompted=false;msg='تم الاسترجاع بعد التحقق من البيانات'}catch(x){msg=(x==='pw')?'كلمة المرور غير صحيحة أو النسخة تالفة؛ لم تتغير بياناتك':'النسخة غير صالحة أو ناقصة؛ لم تتغير بياناتك'}}
   else if(a==='reset'){if(!confirmReset){confirmReset=true}else{S=def();save();confirmReset=false;draft=null;obStep=1;msg='تم المسح'}}
   render();
 });
@@ -7389,7 +7397,7 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
     box.querySelector('#rem-close').onclick=function(){box.remove()};
   }
   function remCheck(){
-    if(window.AlsaerNative)return; /* الإشعارات الأصلية تتولى التسليم — منع التكرار والتطبيق مفتوح */
+    try{if(window.AlsaerNative&&AlsaerNative.notificationsEnabled&&AlsaerNative.notificationsEnabled())return; /* الإشعارات الأصلية المفعّلة تتولى التسليم */}catch(e){} /* بلا إذن إشعارات: تذكيرات داخل التطبيق كما كانت */
     var r=remLoad(); if(!r.enabled||!r.consent||!document.hasFocus())return;
     var d=new Date(),day=d.getDay(),hh=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
     var date=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();

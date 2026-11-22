@@ -227,7 +227,7 @@ document.addEventListener('click',async function(e){
   else if(a==='fastdismiss'){toast('يمكنك العودة إلى جدول الصيام من المزيد')}
   else if(a==='per'){per=v==='month'?'month':'week'}
   else if(a==='showlog'){showLog=!showLog}
-  else if(a==='update109Done'){try{localStorage.setItem('alsaer_seen_update_1016','1')}catch(e){}var up=document.getElementById('update109-notice');if(up)up.remove();tourAuto()}
+  else if(a==='update109Done'){try{localStorage.setItem(updateSeenKey(),'1')}catch(e){}var up=document.getElementById('update109-notice');if(up)up.remove();tourAuto()}
   else if(a==='showprivacy'){showPrivacy=!showPrivacy}
   else if(a==='urge'){S.urges=S.urges||[];S.urges.push(Date.now());save();checkNew();toast('أحسنت، سُجّل تجاوزك لهذه الرغبة')}
   else if(a==='cover'){covered=true}
@@ -268,7 +268,7 @@ document.addEventListener('click',async function(e){
     var mm=document.querySelector('.msg');if(mm)mm.textContent=msg;return}
   else if(a==='bkcopy'){var txt=JSON.stringify(S),ta=document.getElementById('bk');ta.value=txt;
     (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(txt):Promise.reject()).then(function(){msg='تم النسخ'}).catch(function(){ta.select();msg='حدّد النص وانسخه يدوياً'}).then(function(){var m=document.querySelector('.msg');if(m)m.textContent=msg});return}
-  else if(a==='bkrestore'){try{var raw=document.getElementById('bk').value.trim();if(raw.indexOf('ALSAER-ENC1:')===0){try{raw=await bkDecrypt(raw,(document.getElementById('bkpw')||{}).value||'')}catch(x2){throw 'pw'}}var o=JSON.parse(raw);if(!validBackup(o))throw 0;var restored=fixShape(Object.assign(def(),o));if(restored.pin!==null&&typeof restored.pin!=='string'&&(!restored.pin||restored.pin.type!=='pbkdf2-sha256'||typeof restored.pin.salt!=='string'||typeof restored.pin.hash!=='string'))throw 0;restored.onboarded=true;S=restored;save();unlocked=!S.pin;bioPrompted=false;msg='تم الاسترجاع بعد التحقق من البيانات'}catch(x){msg=(x==='pw')?'كلمة المرور غير صحيحة أو النسخة تالفة؛ لم تتغير بياناتك':'النسخة غير صالحة أو ناقصة؛ لم تتغير بياناتك'}}
+  else if(a==='bkrestore'){try{var raw=document.getElementById('bk').value.trim();if(raw.indexOf('ALSAER-ENC1:')===0){try{raw=await bkDecrypt(raw,(document.getElementById('bkpw')||{}).value||'')}catch(x2){throw 'pw'}}var o=JSON.parse(raw);if(!validBackup(o))throw 0;var restored=fixShape(Object.assign(def(),o));if(restored.pin!==null&&typeof restored.pin!=='string'&&(!restored.pin||restored.pin.type!=='pbkdf2-sha256'||typeof restored.pin.salt!=='string'||typeof restored.pin.hash!=='string'))throw 0;restored.onboarded=true;S=restored;save();try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,JSON.stringify(S))}catch(e){} /* حدّث النسخة المحلية الاحتياطية فور الاسترجاع */unlocked=!S.pin;bioPrompted=false;msg='تم الاسترجاع بعد التحقق من البيانات'}catch(x){msg=(x==='pw')?'كلمة المرور غير صحيحة أو النسخة تالفة؛ لم تتغير بياناتك':'النسخة غير صالحة أو ناقصة؛ لم تتغير بياناتك'}}
   else if(a==='reset'){if(!confirmReset){confirmReset=true}else{S=def();save();confirmReset=false;draft=null;obStep=1;msg='تم المسح'}}
   render();
 });

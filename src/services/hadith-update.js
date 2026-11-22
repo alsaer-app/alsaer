@@ -27,8 +27,10 @@ function ensureDailyHadith(force){
   try{localStorage.setItem(key,JSON.stringify(data))}catch(e){}
   paintHadith(data);
 }
+/* مفتاح «شوهد» مشتق من رقم الإصدار: يتجدد تلقائيًا مع كل إصدار ولا ينسى طرفاه أبدًا */
+function updateSeenKey(){return 'alsaer_seen_update_'+String(APP_VERSION).replace(/\D/g,'')}
 function renderFirstUpdateNotice(){
-  var key='alsaer_seen_update_1013',old=document.getElementById('update109-notice');
+  var key=updateSeenKey(),old=document.getElementById('update109-notice');
   var seen=false;try{seen=localStorage.getItem(key)==='1'}catch(e){seen=false}
   if(!unlocked||!S.onboarded||seen){if(old)old.remove();return}
   if(old)return;

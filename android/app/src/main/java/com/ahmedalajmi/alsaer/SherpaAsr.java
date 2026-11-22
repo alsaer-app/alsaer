@@ -434,6 +434,15 @@ public class SherpaAsr {
                        فتظهر الكلمات تدريجيًا دون قطع الكلمات في منتصفها. */
                     segAcc.add(chunk); segAccLen += n;
                     for (int i = 0; i < n; i++) { float a = chunk[i] < 0 ? -chunk[i] : chunk[i]; if (a > segPeak) segPeak = a; }
+                    /* حد أقصى للتراكم: صمت طويل بلا مقطع VAD مكتمل كان ينمّي الذاكرة بلا حد.
+                       صمت خالص → امسح؛ وإلا احتفظ بآخر ١٢ ثانية فقط. */
+                    if (segAccLen > SAMPLE_RATE * 24) {
+                        if (segPeak <= 0.02f) { segAcc.clear(); segAccLen = 0; segPeak = 0f; }
+                        else {
+                            while (segAccLen > SAMPLE_RATE * 12 && !segAcc.isEmpty()) { segAccLen -= segAcc.get(0).length; segAcc.remove(0); }
+                            segPeak = 0f; for (float[] c : segAcc) for (float v : c) { float a = v < 0 ? -v : v; if (a > segPeak) segPeak = a; }
+                        }
+                    }
                     if (segAccLen >= SAMPLE_RATE * 8 && segPeak > 0.02f) {
                         int tailN = (int) (SAMPLE_RATE * 0.35f);
                         double sum = 0; int cnt = 0;

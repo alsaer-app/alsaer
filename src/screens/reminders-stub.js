@@ -7,7 +7,7 @@ function remItems(){
 }
 function vReminders(){
   var it=remItems(),h='',k=dk(),fr=S.fasting.reminders,up=nextFastingDays(3),todayFast=fastingReasons(new Date()),now=new Date(),nowMin=now.getHours()*60+now.getMinutes();
-  function within(time,windowM){if(!time||!/^\\d{2}:\\d{2}$/.test(time))return false;var p=time.split(':').map(Number),m=p[0]*60+p[1];return nowMin>=m&&nowMin<=m+windowM}
+  function within(time,windowM){if(!time||!/^\d{2}:\d{2}$/.test(time))return false;var p=time.split(':').map(Number),m=p[0]*60+p[1];return nowMin>=m&&nowMin<=m+windowM}
   if(fr.enabled&&todayFast.length&&fr.suhoor&&within(fr.suhoorTime,120))h+='<section class="card rem fast-alert"><span class="ri">'+ic('moon')+'</span><div style="flex:1"><h4>تذكير السحور</h4><p class="note">هذا أحد أيام الصيام التي اخترتها. جهّز سحورك واضبط نيتك.</p><button class="btn good" data-a="tab" data-v="fasting">فتح جدول الصيام</button></div></section>';
   if(fr.enabled&&todayFast.length&&fr.iftar&&within(fr.iftarTime,120))h+='<section class="card rem fast-alert"><span class="ri">'+ic('sun')+'</span><div style="flex:1"><h4>تذكير الإفطار</h4><p class="note">حان وقت الإفطار بحسب الموعد الذي حددته. لا تنسَ الدعاء.</p><button class="btn good" data-a="tab" data-v="fasting">تسجيل إتمام الصيام</button></div></section>';
   if(fr.enabled&&fr.beforeDay&&up.length){
