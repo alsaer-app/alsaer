@@ -285,6 +285,8 @@ public class SherpaAsr {
     private final java.util.ArrayList<float[]> segAcc = new java.util.ArrayList<>();
     private int segAccLen = 0;
     private float segPeak = 0f;
+    /* كسب تلقائي برمجي للمصدر الخام: يُعاد ضبطه كل جلسة */
+    private float agcGain = 1f;
     private boolean decErrSent = false;
 
     private void releaseRec() {
@@ -374,6 +376,7 @@ public class SherpaAsr {
         }
         running = true; // منع البدء المزدوج أثناء التحميل
         decErrSent = false;
+        agcGain = 1f;
         diag("بدء الاستماع: " + kind);
         emit(mySid, "loading", kind);
         /* تحميل النموذج قد يأخذ ثواني طويلة على الأجهزة الضعيفة، فلا نحجب خيط الجسر:
@@ -440,6 +443,19 @@ public class SherpaAsr {
                     }
                     readErr = 0;
                     for (int i = 0; i < n; i++) fbuf[i] = buf[i] / 32768.0f;
+                    /* كسب تلقائي برمجي: المصدر الخام بلا AGC يصل خافتًا ~١٠× فيُنتج النموذج نصًا مشوهًا.
+                       هدف rms ≈ ٠٫٠٧ (مستوى الصوت الجاهز الذي نجح به الاختبار الذاتي)، بسقف ٢٠× وبوابة
+                       ضجيج (ما دون ٠٫٠٠٢ صمتٌ فلا تضخيم للهسهسة)، وحدّاد يمنع القصّ فورًا.
+                       التنعيم ٠٫٢٥ لكل قطعة (٣٢ms) ≈ ثابت زمن ٠٫١٣ ثانية: سريع بلا طنين. */
+                    double crs = 0; float cpk = 0;
+                    for (int i = 0; i < n; i++) { float v = fbuf[i]; crs += (double) v * v; float a = v < 0 ? -v : v; if (a > cpk) cpk = a; }
+                    float chunkRms = (float) Math.sqrt(crs / Math.max(1, n));
+                    float want = 1f;
+                    if (chunkRms > 0.002f) want = Math.min(20f, 0.07f / chunkRms);
+                    if (cpk * want > 0.95f) want = 0.95f / Math.max(1e-6f, cpk);
+                    agcGain += (want - agcGain) * 0.25f;
+                    if (cpk * agcGain > 0.98f) agcGain = 0.98f / Math.max(1e-6f, cpk);
+                    for (int i = 0; i < n; i++) fbuf[i] *= agcGain;
                     float[] chunk = (n == fbuf.length) ? fbuf.clone() : java.util.Arrays.copyOf(fbuf, n);
                     vad.acceptWaveform(chunk);
                     drainVad(mySid);
@@ -535,7 +551,7 @@ public class SherpaAsr {
                     }
                 }
                 double ss = 0; for (float v : seg2) ss += (double) v * v;
-                diag("فك تشفير مقطع " + String.format(java.util.Locale.US, "%.1f", seg2.length / (float) SAMPLE_RATE) + "s في " + (SystemClock.elapsedRealtime() - d0) + "ms rms=" + String.format(java.util.Locale.US, "%.4f", Math.sqrt(ss / Math.max(1, seg2.length))));
+                diag("فك تشفير مقطع " + String.format(java.util.Locale.US, "%.1f", seg2.length / (float) SAMPLE_RATE) + "s في " + (SystemClock.elapsedRealtime() - d0) + "ms rms=" + String.format(java.util.Locale.US, "%.4f", Math.sqrt(ss / Math.max(1, seg2.length))) + " g=" + String.format(java.util.Locale.US, "%.1f", agcGain) + "×");
                 if (text != null && !text.trim().isEmpty()) {
                     String tt = text.trim();
                     diag("سمع: «" + (tt.length() > 80 ? tt.substring(0, 80) + "…" : tt) + "»");
