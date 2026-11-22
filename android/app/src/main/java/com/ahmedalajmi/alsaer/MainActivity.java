@@ -40,7 +40,6 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onStop() {
         Speech.stopAll();
-        SherpaAsr.stopAll();
         TfEngine.INSTANCE.stop();
         super.onStop();
     }
@@ -48,7 +47,6 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onDestroy() {
         Speech.stopAll();
-        SherpaAsr.stopAll();
         TfEngine.INSTANCE.stop();
         super.onDestroy();
     }
