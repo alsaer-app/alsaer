@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <!-- SDK Quran Lab يتطلب API 26؛ التطبيق يدعم 24 — المحرك التجريبي يُعطَّل برمجيًا تحت 26 -->
+    <uses-sdk tools:overrideLibrary="ai.quranlab.tajweedformer" />
 
     <application
         android:allowBackup="true"

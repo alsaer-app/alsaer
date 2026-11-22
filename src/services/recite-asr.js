@@ -12,6 +12,7 @@ function rcLocKind(){
   try{
     var P=(typeof rcPref==='function')?rcPref():{},st=rcLocSt();if(!st)return null;
     if(P.lm&&st[P.lm]&&st[P.lm].installed)return P.lm;
+    if(P.lm==='tf'&&st.tf&&st.tf.installed)return 'tf';
     var ks=['vbase','base','tiny'],k;for(k=0;k<ks.length;k++)if(st[ks[k]]&&st[ks[k]].installed)return ks[k];
   }catch(e){}
   return null;
@@ -20,15 +21,32 @@ function rcLocOk(){return !!rcLocKind()}
 window.__rcAsr=function(t,sid,d){
   var L=rcAsr.loc;if(!L||L.dead||sid!==L.sid)return;
   if(t==='ready'){L.ready=true;if(L.wd){clearTimeout(L.wd);L.wd=null}L.say('النموذج القرآني يعمل — تلُ الآن… أسمعك',false);return}
-  if(t==='loading'){if(L.armWd)L.armWd();L.say('ما زال تجهيز النموذج جاريًا… (أول مرة فقط قد تأخذ دقيقة أو أكثر)',true);return}
+  if(t==='loading'){if(typeof rc==='object'&&rc)rc.last=Date.now();if(L.armWd)L.armWd();L.say('ما زال تجهيز النموذج جاريًا… (أول مرة فقط قد تأخذ دقيقة أو أكثر)',true);return}
   if(t==='err'){
     if(L.wd){clearTimeout(L.wd);L.wd=null}
     L.dead=true;rcAsr.loc=null;try{AlsaerNative.asrStop()}catch(e){}
     if(d==='9'){L.onErr('لم يُسمح بالميكروفون. فعّله من إعدادات الهاتف ← التطبيقات ← السائر ← الأذونات.');return}
     if(d==='nomodel'){L.onErr('النموذج القرآني غير منزّل على هذا الهاتف — نزّله من ⚙ إعدادات التلاوة ثم أعد المحاولة.');return}
     if(d==='dec'){L.onErr('حدث خطأ أثناء فك التشفير على جهازك (غالبًا ذاكرة). جرّب النموذج «الخفيف» من ⚙ إعدادات التلاوة.');return}
+    if(d==='stopped'){L.onErr('توقف محرك V4 بسبب خروج التطبيق أو انقطاع الميكروفون. اضغط الميكروفون للمتابعة.');return}
+    if(d==='nokey'){L.onErr('مفتاح Quran Lab غير مضبوط في هذا البناء التجريبي.');return}
+    if(d==='noref'){L.onErr('تعذّر تجهيز بيانات المرجع لمحرك V4 — يحتاج إنترنت في أول مرة. تحقّق من الاتصال وأعد المحاولة.');return}
+    if(d==='oldsdk'){L.onErr('محرك V4 التجريبي يحتاج أندرويد 8 أو أحدث. استخدم أحد النماذج المحلية من ⚙ إعدادات التلاوة.');return}
+    if(d==='run'||d==='start'){L.onErr('تعذّر تشغيل محرك V4 التجريبي على جهازك. أعد المحاولة، أو استخدم أحد النماذج المحلية من ⚙ إعدادات التلاوة.');return}
     /* تعذّر تحميل النموذج أو تشغيله (ذاكرة/ملفات): رسالة واضحة فقط — لا بديل سحابي */
     L.onErr('تعذّر تشغيل النموذج القرآني على جهازك. أغلق التطبيقات الثقيلة وأعد المحاولة، أو جرّب النموذج «الخفيف» من ⚙ إعدادات التلاوة.');return}
+  if(t==='wd'){ /* محرك V4: أحكام كلمات جاهزة من محاذاة الوحدات الصوتية على الجهاز */
+    var o;try{o=JSON.parse(d)}catch(e){return}
+    if(typeof rc==='undefined'||!rc||!rc.w)return;
+    var i,k;
+    if(o.ok)for(i=0;i<o.ok.length;i++){k=o.ok[i];if(k>=0&&k<rc.w.length&&rc.st[k]!==1){rc.st[k]=1;rc.hd[k]=undefined}}
+    if(o.miss)for(i=0;i<o.miss.length;i++){k=o.miss[i];if(k>=0&&k<rc.w.length&&rc.st[k]!==1){rc.st[k]=2}}
+    if(typeof o.pos==='number'&&o.pos>rc.pos)rc.pos=o.pos;
+    rc.ok=0;rc.miss=0;for(i=0;i<rc.w.length;i++){if(rc.st[i]===1)rc.ok++;else if(rc.st[i]===2)rc.miss++}
+    rc.last=Date.now();
+    if(rc.fin){rc.res=rcResult();try{render()}catch(e){}}
+    else try{rcPaint()}catch(e){}
+    return}
   if(t==='f'){var x=String(d||'').trim();if(x)L.onText([x],true);return}
   if(t==='fin'){ /* انتهى تصريف المقاطع المنتظرة بعد الإيقاف: نُغلق مستمع الجلسة بأمان */
     clearTimeout(rc.finWd);
@@ -57,7 +75,17 @@ function rcLocStart(onText,onErr,say){
     if(rcAsr.loc!==gen||gen.dead)return;
     setTimeout(function(){
       if(rcAsr.loc!==gen||gen.dead)return;
-      try{AlsaerNative.asrStart(rcLocKind(),sid)}catch(e){gen.dead=true;rcAsr.loc=null;onErr('تعذّر تشغيل النموذج القرآني على جهازك. أعد المحاولة، أو جرّب النموذج «الخفيف» من ⚙ إعدادات التلاوة.')}
+      try{
+        var kind=rcLocKind();
+        if(kind==='tf'){ /* نافذة الآيات للمحرك التجريبي: سورة/آية/فهرس أول كلمة/عدد الكلمات */
+          var ws=[],map={},wi=0;
+          for(wi=0;wi<rc.w.length;wi++){var ay=rc.w[wi].a,key=rc.sura+':'+ay;
+            if(map[key]===undefined){map[key]=ws.length;ws.push({s:rc.sura,a:ay,i:wi,n:1})}
+            else ws[map[key]].n++}
+          try{AlsaerNative.tfConfig(JSON.stringify({w:ws,pos:rc.pos}))}catch(e){}
+        }
+        AlsaerNative.asrStart(kind,sid)
+      }catch(e){gen.dead=true;rcAsr.loc=null;onErr('تعذّر تشغيل النموذج القرآني على جهازك. أعد المحاولة، أو جرّب النموذج «الخفيف» من ⚙ إعدادات التلاوة.')}
     },250);
   }).catch(function(){
     gen.dead=true;rcAsr.loc=null;

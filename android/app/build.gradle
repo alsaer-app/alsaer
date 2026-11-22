@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     namespace "com.ahmedalajmi.alsaer"
@@ -7,8 +8,10 @@ android {
         applicationId "com.ahmedalajmi.alsaer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10145
-        versionName "1.0.13"
+        versionCode 10187
+        versionName "1.0.16-test10-v4"
+        // مفتاح Quran Lab (تجريبي): من متغير بيئة/سر GitHub فقط، لا يُكتب في المستودع أبدًا
+        buildConfigField "String", "QURANLAB_KEY", groovy.json.JsonOutput.toJson(System.getenv('QURANLAB_KEY') ?: '')
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,6 +19,7 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    buildFeatures { buildConfig true }
     signingConfigs {
         release {
             // Signing values come from the environment / GitHub Secrets only.
@@ -56,6 +60,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
     implementation "androidx.biometric:biometric:1.1.0"
+    implementation "ai.quranlab:tajweedformer:4.0.1"
 }
 
 apply from: 'capacitor.build.gradle'

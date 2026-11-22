@@ -147,6 +147,7 @@ public class SherpaAsr {
                 k.put("bytes", b);
                 o.put(m[0], k);
             }
+            JSONObject tfk = new JSONObject(); tfk.put("installed", TfEngine.INSTANCE.available()); tfk.put("bytes", 0); o.put("tf", tfk);
             if (dlKind != null) {
                 JSONObject dl = new JSONObject();
                 dl.put("kind", dlKind);
@@ -293,7 +294,7 @@ public class SherpaAsr {
 
     /* سجل تشخيصي دائري: يساعد على فهم أي مشكلة تسميع من الجهاز نفسه دون حاسوب */
     private static final java.util.ArrayDeque<String> DIAG = new java.util.ArrayDeque<>();
-    private static synchronized void diag(String m) {
+    static synchronized void diag(String m) {
         String line = new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(new java.util.Date()) + " " + m;
         while (DIAG.size() >= 60) DIAG.pollFirst();
         DIAG.add(line);
@@ -301,6 +302,7 @@ public class SherpaAsr {
     }
     public static synchronized String diagDump() {
         StringBuilder b = new StringBuilder();
+        b.append("Alsaer ").append(BuildConfig.VERSION_NAME).append(" (").append(BuildConfig.VERSION_CODE).append(") | merge=v2-min6s-stop-only\n");
         for (String x : DIAG) b.append(x).append('\n');
         return b.toString();
     }
@@ -308,10 +310,10 @@ public class SherpaAsr {
     /* تراكم مقاطع للتقسيم المبكر عند الوقفات الطبيعية */
     private final java.util.ArrayList<float[]> segAcc = new java.util.ArrayList<>();
     /** مرجّع دمج مقاطع VAD القصيرة: whisper يجوع على مقطع ١-٣ ثوانٍ بلا سياق (مُثبت بالتجربة)،
-       فنراكم المقاطع المتتالية حتى ~٦ ثوانٍ قبل الفك، ونصرّف عند وقفة طويلة أو عند الإيقاف */
+       فنراكم المقاطع المتتالية حتى ~٦ ثوانٍ قبل الفك؛ المتبقي القصير يُصرَّف عند الإيقاف فقط */
     private final java.util.ArrayList<float[]> mergeAcc = new java.util.ArrayList<>();
     private int mergeLen = 0;
-    private volatile long lastVadSegAt = 0;
+
     private int segAccLen = 0;
     private float segPeak = 0f;
     /* كسب تلقائي برمجي للمصدر الخام: يُعاد ضبطه كل جلسة */
@@ -489,7 +491,7 @@ public class SherpaAsr {
                     vad.acceptWaveform(chunk);
                     drainVad(mySid);
                     /* وقفة طويلة بعد مقاطع مُدمجة غير مكتملة: صرّفها الآن لئلا ينتظر المستخدم الآية التالية */
-                    if (mergeLen > 0 && SystemClock.elapsedRealtime() - lastVadSegAt > 2500) mergeFlush(mySid);
+                    // Do not flush a short pending segment on elapsed wall time: the next phrase may still be in VAD.
                     /* تقسيم مبكر عند وقفة طبيعية: بعد ٨ ثوانٍ من الصوت، إن كان آخر ٠٫٣٥ ثانية
                        هادئًا (أقل من ٨٪ من ذروة المقطع) نفك تشفير ما تراكم ونبدأ مقطعًا جديدًا،
                        فتظهر الكلمات تدريجيًا دون قطع الكلمات في منتصفها. */
@@ -519,8 +521,7 @@ public class SherpaAsr {
                             segAcc.clear(); segAccLen = 0; segPeak = 0f;
                             try { vad.reset(); } catch (Throwable ignored) {}
                             diag("تقسيم مبكر عند وقفة: " + (early.length / SAMPLE_RATE) + "s");
-                            mergeFlush(mySid); /* حفاظًا على ترتيب التلاوة: صرّف المدموج المعلّق أولًا */
-                            submitDecode(mySid, early);
+                            mergeAdd(mySid, early);
                         }
                     }
                 }
@@ -557,13 +558,15 @@ public class SherpaAsr {
                 float[] s = seg.getSamples();
                 if (s == null || s.length < SAMPLE_RATE / 2) continue; // تجاهل ما دون 0.5 ثانية (حماية من هلوسة الضجيج والمقاطع القصيرة)
                 if (s.length > SAMPLE_RATE * 28) s = java.util.Arrays.copyOf(s, SAMPLE_RATE * 28);
-                lastVadSegAt = SystemClock.elapsedRealtime();
-                /* دمج مقاطع VAD القصيرة عند الوقفات حتى ~٦ ثوانٍ قبل فك التشفير */
-                if (mergeLen > 0 && mergeLen + s.length > SAMPLE_RATE * 14) mergeFlush(mySid);
-                mergeAcc.add(s); mergeLen += s.length;
-                if (mergeLen >= SAMPLE_RATE * 6) mergeFlush(mySid);
+                mergeAdd(mySid, s);
             }
         } catch (Throwable t) { diag("خطأ قراءة مقاطع VAD: " + t); }
+    }
+
+    private void mergeAdd(int mySid, float[] samples) {
+        mergeAcc.add(samples); mergeLen += samples.length;
+        diag("merge: +" + String.format(java.util.Locale.US, "%.1f", samples.length / (float) SAMPLE_RATE) + "s pending=" + String.format(java.util.Locale.US, "%.1f", mergeLen / (float) SAMPLE_RATE) + "s");
+        if (mergeLen >= SAMPLE_RATE * 6) mergeFlush(mySid);
     }
 
     /** تصريف مرجّع الدمج: يفك ما تراكم من مقاطع VAD القصيرة كمقطع واحد */

@@ -147,13 +147,13 @@ function rcAlignPass(att){
 /* ---- نتيجة التلاوة: دقة الكلمات والحروف والإكمال — محسوبة من التعرّف الفعلي (لا درجات عشوائية). التجويد لا يُقيَّم. ---- */
 function rcResult(){
   var n=rc.w.length,att=Math.min(rc.pos,n),i;if(!n||!att)return null;
-  rcAlignPass(att);
+  if(rcPref().lm!=='tf')rcAlignPass(att);
   var okc=0,ls=0,weak=[];
   for(i=0;i<att;i++){
     if(rc.st[i]===1){okc++;var sim=rc.hd[i]?rcSim2(rc.hd[i],rc.w[i].n):1;ls+=sim;if(sim<.85)weak.push({i:i,sim:sim})}
     else weak.push({i:i,sim:0});
   }
-  var W=okc/att*100,L=ls/att*100,C=att/n*100,T=Math.round(W*.45+L*.35+C*.20);
+  var W=okc/att*100,L=ls/att*100,C=att/n*100,T=rcPref().lm==='tf'?Math.round(W):Math.round(W*.45+L*.35+C*.20);
   return {t:Math.min(100,T),w:Math.round(W),l:Math.round(L),c:Math.round(C),weak:weak,att:att,n:n};
 }
 function rcFinish(){
@@ -183,10 +183,10 @@ function rcResHtml(){
   var d='';if(rc.wk>=0&&rc.w[rc.wk]){var w=rc.w[rc.wk];d='<div class="rc-wd"><b>'+esc(w.t)+'</b><small>'+(rc.st[rc.wk]===1?'سمعناها: «'+esc(rc.hd[rc.wk]||'')+'» — تشابه '+ar(Math.round(rcSim(rc.hd[rc.wk]||'',w.n)*100))+'٪ مع المطلوب':'لم نسمع هذه الكلمة أو تخطّيتها')+'</small></div>'}
   return '<section class="card rc-res"><div class="rc-sc"><div class="rc-sr"><svg viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="rcgold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8c066"/><stop offset="1" stop-color="#c9982e"/></linearGradient></defs><circle cx="40" cy="40" r="34" class="bg"/><circle cx="40" cy="40" r="34" class="fg" style="stroke:'+col+';stroke-dasharray:213.6;stroke-dashoffset:'+(213.6*(1-r.t/100))+'"/></svg><b>'+ar(r.t)+'</b></div>'
    +'<div><h3 class="rc-grade" style="margin:0;color:'+col+'">'+lab+'</h3><small class="muted">'+(rc.ay?'الآية '+ar(rc.ay):'سورة '+esc(QD().n[rc.sura-1]||''))+' · '+ar(r.att)+' من '+ar(r.n)+' كلمة</small></div></div>'
-   +'<h4 class="rc-h">التفاصيل</h4>'+bar('دقة الكلمات',r.w)+bar('دقة الحروف',r.l)+bar('الإكمال',r.c)+'<h4 class="rc-h">تحليل الكلمات</h4><div class="rc-tokrow" dir="rtl">'+rc.w.slice(0,r.att).map(function(w,i){return '<span class="rct '+(rc.st[i]===1?(rc.hd[i]&&rcSim(rc.hd[i],w.n)<.85?'mid':'ok'):'bad')+'">'+esc(w.t)+'</span>'}).join('')+'</div>'
+   +'<h4 class="rc-h">التفاصيل</h4>'+bar(rcPref().lm==='tf'?'تطابق الكلمات الصوتي':'دقة الكلمات',r.w)+(rcPref().lm==='tf'?'':bar('دقة الحروف',r.l))+bar('الإكمال',r.c)+'<h4 class="rc-h">تحليل الكلمات</h4><div class="rc-tokrow" dir="rtl">'+rc.w.slice(0,r.att).map(function(w,i){return '<span class="rct '+(rc.st[i]===1?(rc.hd[i]&&rcSim(rc.hd[i],w.n)<.85?'mid':'ok'):'bad')+'">'+esc(w.t)+'</span>'}).join('')+'</div>'
    +(r.weak.length?'<h4 class="rc-h">ملاحظات</h4>'+r.weak.slice(0,3).map(function(x){var w=rc.w[x.i];return '<div class="rc-note"><b>'+esc(w.t)+'</b><div><em>'+(x.sim===0?'لم تُسمع':'تحتاج تحسينًا')+'</em><small>'+(x.sim===0?'تخطّيت هذه الكلمة أو لم يلتقطها الميكروفون':'سمعنا «'+esc(rc.hd[x.i]||'')+'» — تشابه '+ar(Math.round(x.sim*100))+'٪')+'</small></div></div>'}).join(''):'')
    +(wk?'<h4 style="margin:12px 0 6px">كلمات تحتاج مراجعة <small class="muted">(المس كلمة للتفاصيل)</small></h4><div class="rc-wks">'+wk+'</div>'+d:'<p class="note">لا كلمات تحتاج مراجعة ✓</p>')
-   +'<p class="note">الدرجة تقارن ما سمعه التطبيق بنص المصحف (كلمات وحروف). أحكام التجويد لا تُقيَّم بعد، ودقة التعرّف تتأثر بالضوضاء ووضوح الصوت.</p>'
+   +(rcPref().lm==='tf'?'<p class="note">V4 تجريبي: النتيجة تقدير تطابق الوحدات الصوتية بالكلمات المتوقعة، وليست تصحيح تجويد أو درجة نطق الحروف. لم تُختبر دقته على جهازك بعد.</p>':'<p class="note">الدرجة تقارن ما سمعه التطبيق بنص المصحف (كلمات وحروف). أحكام التجويد لا تُقيَّم بعد، ودقة التعرّف تتأثر بالضوضاء ووضوح الصوت.</p>')
    +'<div class="acts"><button class="btn" data-a="rcagain">إعادة المحاولة</button>'+(rc.ay&&rc.ay<(QD().s[rc.sura-1]||[]).length?'<button class="btn ghost" data-a="rcayn">الآية التالية</button>':'')+'</div></section>';
 }
 function rcSay(t,busy){rc.msg=t||'';rc.busy=!!busy;var q=document.getElementById('rc-status');if(q){q.textContent=rc.msg;q.className='rc-status'+(rc.busy?' busy':'')+(rc.msg?'':' empty')}}
@@ -203,7 +203,7 @@ function rcStart(){
 }
 function rcStart2(){
   var A=window.ReciteASR;if(!A)return;
-  if(rcPref().rr){ /* وضع التسجيل: كل استماع محاولة مستقلة — بقايا جلسة سابقة كانت تلوث محاذاة النتيجة */
+  if(rcPref().rr&&rcPref().lm!=='tf'){ /* وضع التسجيل: كل استماع محاولة مستقلة — بقايا جلسة سابقة كانت تلوث محاذاة النتيجة */
     rc.st=[];rc.hd=[];rc.pos=0;rc.ok=0;rc.miss=0;rc.hear='';rc.res=null;rc.wk=-1;rc.u=null;rc.hlog=[]}
   rc.fin=false;rc.on=true;rc.msg='';rc.busy=false;rc.last=Date.now();
   clearInterval(rc.idle);rc.idle=setInterval(function(){if(!rc.on){clearInterval(rc.idle);return}if(Date.now()-rc.last>120000){rcStop();rc.msg='أُوقف الميكروفون تلقائيًا لأنك لم تتلُ لدقيقتين. اضغط الميكروفون للمتابعة.';try{render()}catch(x){}}},10000);
@@ -246,7 +246,7 @@ function rcAct(a,v){
   else if(a==='rcdel'){try{if(window.AlsaerNative&&AlsaerNative.asrDelete)AlsaerNative.asrDelete(v)}catch(e){}toast('تم حذف النموذج')}
   else if(a==='rcfs'){var P=rcPref();P.size=Math.max(18,Math.min(40,(P.size||25)+(parseInt(v,10)||0)*2));save()}
   else if(a==='rcpick'){rc.pick=!rc.pick}
-  else if(a==='rcselftest'){try{if(window.AlsaerNative&&AlsaerNative.asrSelfTest){var kk=typeof rcLocKind==='function'?rcLocKind():null;if(!kk){toast('نزّل النموذج أولًا من الأعلى')}else{AlsaerNative.asrSelfTest(kk);toast('الاختبار يعمل… بعد ثوانٍ شارك سجل التشخيص من الزر المجاور')}}else toast('غير متاح في هذه النسخة')}catch(e){}return false}
+  else if(a==='rcselftest'){try{if(window.AlsaerNative&&AlsaerNative.asrSelfTest){var kk=typeof rcLocKind==='function'?rcLocKind():null;if(kk==='tf'){toast('الاختبار الجاهز متاح لنماذج whisper فقط في هذه النسخة')}else if(!kk){toast('نزّل النموذج أولًا من الأعلى')}else{AlsaerNative.asrSelfTest(kk);toast('الاختبار يعمل… بعد ثوانٍ شارك سجل التشخيص من الزر المجاور')}}else toast('غير متاح في هذه النسخة')}catch(e){}return false}
   else if(a==='rcdiag'){try{if(window.AlsaerNative&&AlsaerNative.asrDiag){AlsaerNative.shareText('تشخيص التلاوة — السائر',AlsaerNative.asrDiag()||'لا يوجد سجل بعد')}else toast('التشخيص غير متاح في هذه النسخة')}catch(e){}return false}
   else if(a==='rcadv'){rc.adv=!rc.adv;if(rc.adv)rc.stat=false}
   else if(a==='rchifz'){var P2=rcPref();P2.hifz=!P2.hifz;save()}
@@ -302,12 +302,19 @@ function rcLocalHtml(P){
       +'</div></div>';
   }
   var none=!inst('vbase')&&!inst('tiny')&&!inst('base');
+  var tfRow='';
+  if(st.tf&&st.tf.installed){ /* محرك Quran Lab V4 التجريبي: متاح في هذا البناء فقط، بلا زر تنزيل (ينزّل نفسه أول تشغيل) */
+    tfRow='<div class="rc-mdl'+(P.lm==='tf'?' on':'')+'">'
+      +'<label class="rc-mt"><input type="radio" name="rclm" value="tf"'+(P.lm==='tf'?' checked':'')+'><span><b>Quran Lab V4 <small style="font-weight:400;color:var(--muted)">· تجريبي</small></b><small>مطابقة صوتية بالآية — يحتاج إنترنت أول مرة (~٦٣ ميجا) ثم يعمل بلا إنترنت · يحتاج أندرويد 8+</small></span></label>'
+      +'<p class="note">نسخة اختبار شخصية تتجاوز 20MB. مفتاح التطوير مضمّن في APK ويمكن استخراجه؛ لا تشارك الملف مع غيرك.</p><div class="rc-mdl-a"></div></div>';
+  }
   return '<div class="rc-grp"><h4>📖 النموذج القرآني المحلي (دقة قريبة من ترتيل)</h4>'
-   +'<p class="note">تعرّف يعمل بالكامل على جهازك بلا إنترنت؛ الصوت لا يغادر هاتفك أبدًا. التنزيل لمرة واحدة فقط. نماذج whisper مفتوحة المصدر (OpenAI وTarteel AI) بمحرك sherpa-onnx مفتوح المصدر.</p>'
+   +'<p class="note">نماذج whisper تعمل على جهازك بلا إرسال الصوت، بعد تنزيلها مرة واحدة. المحرك التجريبي V4 يعمل محليًا أيضًا، لكنه يتصل بخدمة Quran Lab للتنزيل والتحقق وإحصاءات استخدام مجهولة؛ ولا يشارك تسجيلًا إلا بموافقة منفصلة داخل نافذته. نتائج V4 تقدير تطابق وحدات صوتية بالكلمات وليست تقييم تجويد أو دقة حروف.</p>'
    +(none?'<p class="note"><b>التسميع يحتاج نموذجًا — نزّل «الموصى به» بالزر أسفله لتبدأ.</b></p>':'')
    +row('vbase','الموصى به ⭐',161,'الأقوى على الأصوات الحقيقية بأنماط التلاوة المختلفة — يعمل بلا إنترنت')
    +row('tiny','الخفيف',104,'الأسرع والأصغر — مضبوط على تلاوات الاستوديو، دقته أقل على بعض الأصوات')
    +row('base','القرآني الكبير',161,'مضبوط على القرآن — للأجهزة القوية، أبطأ بوضوح')
+   +tfRow
    +'</div>';
 }
 function rcSheet(P,last){

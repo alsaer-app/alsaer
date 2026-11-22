@@ -55,9 +55,11 @@ public class AlsaerNative {
     @JavascriptInterface public void asrDownload(String kind) { sherpa.download(kind); }
     @JavascriptInterface public void asrCancelDownload() { sherpa.cancelDownload(); }
     @JavascriptInterface public void asrDelete(String kind) { sherpa.delete(kind); }
-    @JavascriptInterface public void asrStart(String kind, int jsid) { sherpa.start(kind, jsid); }
-    @JavascriptInterface public void asrWarmup(String kind) { sherpa.warmup(kind); }
-    @JavascriptInterface public void asrStop() { sherpa.stop(); }
+    @JavascriptInterface public void asrStart(String kind, int jsid) { if ("tf".equals(kind)) { sherpa.stop(); TfEngine.INSTANCE.start(act, jsid); } else { TfEngine.INSTANCE.stop(); sherpa.start(kind, jsid); } }
+    @JavascriptInterface public void tfConfig(String json) { TfEngine.INSTANCE.configure(json); }
+    @JavascriptInterface public void asrWarmup(String kind) { if (!"tf".equals(kind)) sherpa.warmup(kind); }
+    @JavascriptInterface public void asrStop() { sherpa.stop(); TfEngine.INSTANCE.stop(); }
+    @JavascriptInterface public String appBuildInfo() { return BuildConfig.VERSION_NAME + "|" + BuildConfig.VERSION_CODE; }
     @JavascriptInterface public String asrDiag() { return SherpaAsr.diagDump(); }
     @JavascriptInterface public void asrSelfTest(String kind) { sherpa.selfTest(kind); }
     @JavascriptInterface public void shareText(String title, String body) {
