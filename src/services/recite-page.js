@@ -44,7 +44,6 @@ function rpLoad(p){
   try{var P=rcPref();P.pg=p;save()}catch(e){}
   try{S.quran.last=p;save()}catch(e){}
   /* تسخين النموذج المحلي مبكرًا كما في rcLoad */
-  try{if(window.AlsaerNative&&AlsaerNative.asrWarmup&&typeof rcLocKind==='function'){var kk=rcLocKind();if(kk)AlsaerNative.asrWarmup(kk)}}catch(e){}
   return true;
 }
 /* تقليب الصفحات: أثناء التسميع أول تقليبة تُنهي الجلسة وتُظهر نتيجتها، والتالية تنقل فعليًا */
