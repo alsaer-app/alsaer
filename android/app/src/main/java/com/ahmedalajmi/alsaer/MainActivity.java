@@ -40,14 +40,12 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onStop() {
         Speech.stopAll();
-        TfEngine.INSTANCE.stop();
         super.onStop();
     }
 
     @Override
     public void onDestroy() {
         Speech.stopAll();
-        TfEngine.INSTANCE.stop();
         super.onDestroy();
     }
 
