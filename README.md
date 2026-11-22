@@ -9,6 +9,7 @@
   <a href="https://github.com/alsaer-app/alsaer/releases/latest"><img src="https://img.shields.io/github/v/release/alsaer-app/alsaer?color=0F6F63&label=%D8%A3%D8%AD%D8%AF%D8%AB%20%D8%A5%D8%B5%D8%AF%D8%A7%D8%B1" alt="أحدث إصدار"></a>
   <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%A5%D8%B5%D8%AF%D8%A7%D8%B1-1.0.13-0F6F63" alt="الإصدار 1.0.13">
   <img src="https://img.shields.io/badge/minSdk-24-0F6F63?logo=android&logoColor=white" alt="minSdk 24">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AA%D8%B1%D8%AE%D9%8A%D8%B5-MIT-0F6F63" alt="الترخيص MIT"></a>
   <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AE%D8%B5%D9%88%D8%B5%D9%8A%D8%A9-%D8%AF%D9%88%D9%86%20%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA-0F6F63" alt="دون إنترنت">
 </p>
 
@@ -94,6 +95,7 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 - نسخ احتياطي تلقائي مشفر إلى Google Drive الخاص بالمستخدم (التشفير على الجهاز قبل الرفع).
 - ودجت محسّن: مواقيت الصلاة ومتابعة ورد اليوم.
 - خطة ختمة ذكية بأهداف قابلة للتعديل التلقائي.
+- فاحص تحديثات داخل التطبيق: قراءة update.json ومقارنة رقم الإصدار والتنزيل مع تحقق sha256.
 - تحسينات مستمرة لمحرك التسميع المحلي (سرعة ودقة).
 - لوحة إنجازات وإحصاءات أعمق.
 
@@ -102,7 +104,7 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 - نص المصحف: مشروع تنزيل (tanzil.net)، رواية حفص بالرسم العثماني، رخصة CC BY 3.0، منقول دون تعديل (يجب إبقاء هذه الإشارة).
 - تخطيط صفحات المصحف: zonetecde/mushaf-layout (QPC1) وcpfair/quran-tajweed (CC BY 4.0) وfawazahmed0/quran-api (Unlicense).
 - الخط: UthmanicHafs (مجمع الملك فهد لطباعة المصحف الشريف).
-- حقوق الاسم والتصميم والكود لصاحب المشروع © 2026 AHMED ELAGAMY.
+- الكود متاح تحت رخصة [MIT](LICENSE) صدقةً عن صاحبه ووالديه؛ حقوق الاسم والشعار والهوية البصرية محفوظة لصاحب المشروع © 2026 AHMED ELAGAMY.
 
 ## التواصل
 
@@ -126,4 +128,4 @@ A private, **offline-first** Android companion for worship and self-improvement.
 
 **Releases & auto-update:** pushing a `v*` tag builds a signed APK, publishes a GitHub Release, and refreshes `update.json` on `main` for in-app update checks. Signing uses GitHub Secrets only — see [SETUP-SECRETS-AR.md](SETUP-SECRETS-AR.md).
 
-**Credits:** Quran text from tanzil.net (Hafs, Uthmani script, CC BY 3.0, unchanged — attribution required); page layout from zonetecde/mushaf-layout (QPC1), cpfair/quran-tajweed (CC BY 4.0), fawazahmed0/quran-api (Unlicense); UthmanicHafs font (King Fahd Glorious Quran Printing Complex). Name, design and code © 2026 AHMED ELAGAMY.
+**Credits:** Quran text from tanzil.net (Hafs, Uthmani script, CC BY 3.0, unchanged — attribution required); page layout from zonetecde/mushaf-layout (QPC1), cpfair/quran-tajweed (CC BY 4.0), fawazahmed0/quran-api (Unlicense); UthmanicHafs font (King Fahd Glorious Quran Printing Complex). Code is available under the [MIT License](LICENSE); the name, logo and visual identity remain © 2026 AHMED ELAGAMY.
