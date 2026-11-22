@@ -43,6 +43,21 @@ fun main() {
  check(st.logs.size==1) { "stall log not throttled" }
  val fresh=Harness();fresh.heardAll.addAll(listOf(20,21,22,23,24,25,26,27));fresh.clock=1000;fresh.alignAndJudge(1,false)
  check(fresh.logs.isEmpty()) { "stall logged before the 3 s grace" }
+ val j6=Harness();j6.exp=intArrayOf(1,2,3,4,5,6);j6.expWordJs=intArrayOf(0,0,0,0,0,0);j6.wordUnits=intArrayOf(6);j6.totalJsWords=1;j6.judged=BooleanArray(1)
+ j6.heardAll.addAll(listOf(1,2,90,4,91,6));j6.alignAndJudge(1,true)
+ check(j6.judged[0]&&j6.logs.contains("word 0 matched=4/6 ok")) { "4/6 must be accepted: "+j6.logs }
+ check(j6.logs.contains("word 0 units exp=[1,2,3,4,5,6] heard=[1,2,90,4,91,6] ops=MMSMSM ins=0")) { "unit log missing: "+j6.logs }
+ val j6b=Harness();j6b.exp=j6.exp;j6b.expWordJs=j6.expWordJs;j6b.wordUnits=intArrayOf(6);j6b.totalJsWords=1;j6b.judged=BooleanArray(1)
+ j6b.heardAll.addAll(listOf(1,2,3,90,91,92));j6b.alignAndJudge(1,true)
+ check(j6b.logs.contains("word 0 matched=3/6 miss")) { "3/6 must stay a miss: "+j6b.logs }
+ val j3=Harness();j3.exp=intArrayOf(1,2,3,4,5,6,7);j3.expWordJs=intArrayOf(0,0,0,0,1,1,1);j3.wordUnits=intArrayOf(4,3);j3.totalJsWords=2;j3.judged=BooleanArray(2)
+ j3.heardAll.addAll(listOf(1,2,3,4,5,90,7));j3.alignAndJudge(1,true)
+ check(j3.logs.contains("word 1 matched=2/3 ok")&&j3.logs.contains("word 0 matched=4/4 ok")) { "2/3 must be accepted: "+j3.logs }
+ check(j3.logs.none{it.startsWith("word 0 units")}) { "perfect word must not log units" }
+ val j2=Harness();j2.exp=intArrayOf(1,2,3,4,5,6,7);j2.expWordJs=intArrayOf(0,0,0,0,1,1,1);j2.wordUnits=intArrayOf(4,3);j2.totalJsWords=2;j2.judged=BooleanArray(2)
+ j2.heardAll.addAll(listOf(1,2,3,4,5,90,91));j2.alignAndJudge(1,true)
+ check(j2.logs.contains("word 1 matched=1/3 miss")) { "1/3 must be a miss: "+j2.logs }
+ println("PASS judging rule 60%: 4/6 and 2/3 accepted, 3/6 and 1/3 missed, unit log")
  println("PASS phoneme alignment: partial, consume, continuation, final, noise, word and stall diagnostics")
 }
 '''
