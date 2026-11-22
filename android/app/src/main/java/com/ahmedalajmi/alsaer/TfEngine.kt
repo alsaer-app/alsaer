@@ -91,7 +91,7 @@ object TfEngine {
                 if (x.s in 1..114 && x.a >= 1 && x.n > 0) tmp.add(x)
             }
             synchronized(winsLock) { wins.clear(); wins.addAll(tmp) }
-        } catch (t: Throwable) { SherpaAsr.diag("tf: إعداد نافذة غير صالح") }
+        } catch (t: Throwable) { AsrLog.diag("tf: إعداد نافذة غير صالح") }
     }
 
     /* ختم آخر تقدّم في التجهيز: يُحدَّث من خيط التنزيل ويقرؤه مراقب التوقف */
@@ -131,7 +131,7 @@ object TfEngine {
                 val c = TajweedClient.current ?: TajweedClient(act.applicationContext, key,
                     TajweedClientOptions(appId = act.packageName))
                 client = c
-                SherpaAsr.diag("tf: العميل جاهز — فحص النموذج وتنزيله (~63MB أول مرة)")
+                AsrLog.diag("tf: العميل جاهز — فحص النموذج وتنزيله (~63MB أول مرة)")
                 advStamp.set(android.os.SystemClock.elapsedRealtime())
                 var lastPct = -10
                 c.prefetch(unmeteredOnly = false) { done, total ->
@@ -139,30 +139,30 @@ object TfEngine {
                     val pct = if (total > 0) ((done * 100) / total).toInt() else -1
                     if (pct >= lastPct + 10 || (total > 0 && done >= total && lastPct < 100)) {
                         lastPct = pct
-                        SherpaAsr.diag("tf: تنزيل النموذج ${done / 1048576}/${total / 1048576}MB ($pct%)")
+                        AsrLog.diag("tf: تنزيل النموذج ${done / 1048576}/${total / 1048576}MB ($pct%)")
                         emit(jsid, "dl", "$done/$total")
                     }
                 }
                 if (!running || sid != jsid) return@launch
-                SherpaAsr.diag("tf: التنزيل مكتمل — فتح النموذج")
+                AsrLog.diag("tf: التنزيل مكتمل — فتح النموذج")
                 emit(jsid, "dl", "open")
                 advStamp.set(android.os.SystemClock.elapsedRealtime())
                 var m = c.model()                                  // يفتح النموذج: فحوص Core واختباره الذاتي
                 if (!running || sid != jsid) return@launch
                 model = m
-                SherpaAsr.diag("tf: النموذج مفتوح — جلب بيانات المرجع")
+                AsrLog.diag("tf: النموذج مفتوح — جلب بيانات المرجع")
                 emit(jsid, "dl", "ref")
                 advStamp.set(android.os.SystemClock.elapsedRealtime())
                 var ref = m.reference
                 if (ref == null) { fail(jsid, "noref", "بناء النموذج بلا بيانات مرجع"); return@launch }
                 val wasInstalled = ref.isDownloaded
-                SherpaAsr.diag("tf: reference installed=$wasInstalled scope=${synchronized(winsLock) { wins.size }} ayahs")
+                AsrLog.diag("tf: reference installed=$wasInstalled scope=${synchronized(winsLock) { wins.size }} ayahs")
                 try {
                     ref.fetch()
                     // SDK 4.0 installs a newly fetched reference only before opening a model.
                     // model() alone reuses the current object, so explicitly close it first.
                     if (!wasInstalled) {
-                        SherpaAsr.diag("tf: reference fetched; closing/reopening model to install")
+                        AsrLog.diag("tf: reference fetched; closing/reopening model to install")
                         m.close()
                         m = c.model()
                         model = m
@@ -176,14 +176,14 @@ object TfEngine {
                 val expectedError = buildExpected(m, ref)
                 if (expectedError != null) { fail(jsid, expectedError, "see ayah/count details above"); return@launch }
                 if (!running || sid != jsid) return@launch
-                SherpaAsr.diag("tf: المرجع جاهز — بدء جلسة الاستماع")
+                AsrLog.diag("tf: المرجع جاهز — بدء جلسة الاستماع")
                 advStamp.set(android.os.SystemClock.elapsedRealtime())
                 val s = openTake(m, jsid)          // بلا إيقاف صمتي: مراقب الخمول في الصفحة يملك الإيقاف
                 session = s
                 resetAlign()
                 ticker?.cancel()
                 emit(jsid, "ready", "")
-                SherpaAsr.diag("tf: جاهز (${exp.size} وحدة متوقعة، $totalJsWords كلمة)")
+                AsrLog.diag("tf: جاهز (${exp.size} وحدة متوقعة، $totalJsWords كلمة)")
                 collectAll(s, jsid)
             } catch (t: Throwable) {
                 if (t is kotlinx.coroutines.CancellationException && !stalled) throw t
@@ -200,10 +200,10 @@ object TfEngine {
         val e = t as? TajweedError
         val code = e?.code ?: t.javaClass.simpleName
         val fix = e?.fix ?: ""
-        SherpaAsr.diag("tf: فشل مرحلة $stage: $code — $fix")
+        AsrLog.diag("tf: فشل مرحلة $stage: $code — $fix")
         try {
             val d = client?.diagnose()?.toJson()
-            if (d != null) SherpaAsr.diag("tf: diagnose: " + if (d.length > 500) d.substring(0, 500) + "…" else d)
+            if (d != null) AsrLog.diag("tf: diagnose: " + if (d.length > 500) d.substring(0, 500) + "…" else d)
         } catch (x: Throwable) { }
         val uiCode = when (code) {
             "needs_connection", "network_not_permitted", "download_failed" -> "net"
@@ -222,7 +222,7 @@ object TfEngine {
         ticker?.cancel()
         capJob?.cancel()
         scope.launch {
-            try { s?.finish() } catch (t: Throwable) { SherpaAsr.diag("tf: finish: $t") }
+            try { s?.finish() } catch (t: Throwable) { AsrLog.diag("tf: finish: $t") }
             collectors?.cancel()
             emit(jsid, "fin", "")
         }
@@ -241,14 +241,14 @@ object TfEngine {
     private fun fail(jsid: Int, code: String, why: String) {
         running = false
         ticker?.cancel()
-        SherpaAsr.diag("tf: فشل ($code): $why")
+        AsrLog.diag("tf: فشل ($code): $why")
         emitErr(jsid, code)
     }
 
     /* بناء التسلسل المتوقع من بيانات المرجع: وحدات كل آية بلا فواصل، مع فهرس الكلمة العام */
     private fun buildExpected(m: TajweedModel, ref: ai.quranlab.tajweedformer.TajweedReference): String? {
         val ws: List<Win> = synchronized(winsLock) { ArrayList(wins) }
-        if (ws.isEmpty()) { SherpaAsr.diag("tf: wordmap empty UI scope"); return "wordmap" }
+        if (ws.isEmpty()) { AsrLog.diag("tf: wordmap empty UI scope"); return "wordmap" }
         barId = m.tokens.wordBar
         val e = ArrayList<Int>()
         val ewj = ArrayList<Int>()
@@ -258,24 +258,24 @@ object TfEngine {
         for (w in ws) {
             val units = try { ref.units(w.s, w.a) } catch (t: Throwable) {
                 val code = (t as? TajweedError)?.code ?: t.javaClass.simpleName
-                SherpaAsr.diag("tf: refread ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=unavailable code=$code cause=${t.cause?.javaClass?.simpleName ?: "none"}")
+                AsrLog.diag("tf: refread ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=unavailable code=$code cause=${t.cause?.javaClass?.simpleName ?: "none"}")
                 return "refread"
             }
             val referenceWords = if (units.isEmpty()) 0 else units.count { it == barId } + if (units.last() == barId) 0 else 1
             val wordMap = TfWordMap.map(w.s, w.a, referenceWords, w.n)
             if (wordMap == null) {
-                SherpaAsr.diag("tf: wordmap mismatch ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=$referenceWords openingWords=${TfWordMap.openingWords(w.s, w.a)} units=${units.size}")
+                AsrLog.diag("tf: wordmap mismatch ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=$referenceWords openingWords=${TfWordMap.openingWords(w.s, w.a)} units=${units.size}")
                 return "wordmap"
             }
             if (referenceWords != w.n) {
                 folded++
-                SherpaAsr.diag("tf: wordmap opening ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=$referenceWords mapped=ok")
+                AsrLog.diag("tf: wordmap opening ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=$referenceWords mapped=ok")
             }
             var referenceWord = 0
             for (id in units) {
                 if (id == barId) { referenceWord++; continue }
                 if (referenceWord !in wordMap.indices) {
-                    SherpaAsr.diag("tf: wordmap invalid boundary ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=$referenceWords index=$referenceWord")
+                    AsrLog.diag("tf: wordmap invalid boundary ayah=${w.s}:${w.a} uiWords=${w.n} referenceWords=$referenceWords index=$referenceWord")
                     return "wordmap"
                 }
                 e.add(id)
@@ -289,7 +289,7 @@ object TfEngine {
         expWordJs = ewj.toIntArray()
         wordUnits = IntArray(total) { wu[it] ?: 1 }
         totalJsWords = total
-        SherpaAsr.diag("tf: wordmap ready ayahs=${ws.size} uiWords=$total foldedOpenings=$folded units=${exp.size}")
+        AsrLog.diag("tf: wordmap ready ayahs=${ws.size} uiWords=$total foldedOpenings=$folded units=${exp.size}")
         return if (exp.isNotEmpty()) null else "wordmap"
     }
 
@@ -313,7 +313,7 @@ object TfEngine {
     }
 
     private fun nowMs(): Long = android.os.SystemClock.elapsedRealtime()
-    private fun dbg(m: String) { SherpaAsr.diag("tf: $m") }
+    private fun dbg(m: String) { AsrLog.diag("tf: $m") }
 
     /* جلسة V4 بصوتنا نحن: التقاط خام (UNPROCESSED ثم MIC) 16kHz مع الكسب التلقائي نفسه الذي في 10183، ودفعه إلى SDK.
        SDK نفسه يلتقط بمصدر VOICE_RECOGNITION بمعدل الجهاز؛ إن تعذر التقاطنا (إذن/جهاز) نرجع إلى ميكروفون SDK. */
@@ -333,7 +333,7 @@ object TfEngine {
                 if (r.state == AudioRecord.STATE_INITIALIZED) {
                     val nm = when (src) { MediaRecorder.AudioSource.UNPROCESSED -> "UNPROCESSED"; MediaRecorder.AudioSource.MIC -> "MIC"; else -> "VOICE_RECOGNITION" }
                     dbg("mic: own capture source=$nm rate=${r.sampleRate}Hz (SDK mic would be VOICE_RECOGNITION at the device rate)")
-                    SherpaAsr.pinned = "tf: mic source=$nm rate=${r.sampleRate}Hz own-capture+AGC (SDK mic would be VOICE_RECOGNITION)"
+                    AsrLog.pinned = "tf: mic source=$nm rate=${r.sampleRate}Hz own-capture+AGC (SDK mic would be VOICE_RECOGNITION)"
                     return r
                 }
                 r.release()
@@ -347,7 +347,7 @@ object TfEngine {
         val r = openRecord()
         if (r == null) {
             dbg("mic: SDK capture in use (no own capture, no AGC)")
-            SherpaAsr.pinned = "tf: mic source=SDK-VOICE_RECOGNITION (own capture unavailable, no AGC)"
+            AsrLog.pinned = "tf: mic source=SDK-VOICE_RECOGNITION (own capture unavailable, no AGC)"
             return m.listen(TajweedSessionOptions(backend = TajweedSessionOptions.Backend.CPU))
         }
         val s = try { m.session(TajweedSessionOptions(backend = TajweedSessionOptions.Backend.CPU, sampleRate = 16000)) }
@@ -412,11 +412,11 @@ object TfEngine {
         collectors = parent
         scope.launch(parent) {
             try { s.chunks.collect { ch -> onChunk(ch, jsid) } }
-            catch (t: Throwable) { if (t !is kotlinx.coroutines.CancellationException) SherpaAsr.diag("tf: chunks: $t") }
+            catch (t: Throwable) { if (t !is kotlinx.coroutines.CancellationException) AsrLog.diag("tf: chunks: $t") }
         }
         scope.launch(parent) {
             try { s.events.collect { ev -> onEvent(ev, jsid) } }
-            catch (t: Throwable) { if (t !is kotlinx.coroutines.CancellationException) SherpaAsr.diag("tf: events: $t") }
+            catch (t: Throwable) { if (t !is kotlinx.coroutines.CancellationException) AsrLog.diag("tf: events: $t") }
         }
     }
 
@@ -442,7 +442,7 @@ object TfEngine {
             }
             if (exp.isEmpty()) return
             alignAndJudge(jsid, d.isFinal)
-        } catch (t: Throwable) { SherpaAsr.diag("tf: chunk: $t") }
+        } catch (t: Throwable) { AsrLog.diag("tf: chunk: $t") }
     }
 
     /* يسجّل توقف المؤشر: وحدات مسموعة متراكمة بلا تقدّم لأكثر من ٣ ثوانٍ (مرة كل ٣ ثوانٍ كحد أقصى) */
@@ -576,7 +576,7 @@ object TfEngine {
         when (ev) {
             is TajweedEvent.Ended -> when (ev.reason) {
                 TajweedEvent.Ended.Reason.ERROR -> {
-                    SherpaAsr.diag("tf: انتهى بخطأ: ${ev.error?.code}")
+                    AsrLog.diag("tf: انتهى بخطأ: ${ev.error?.code}")
                     running = false
                     emitErr(jsid, "run")
                 }
@@ -590,32 +590,32 @@ object TfEngine {
                             session = s
                             resetTake()
                             collectAll(s, jsid)
-                            SherpaAsr.diag("tf: مقطع جديد بعد حد ٢٠ دقيقة")
+                            AsrLog.diag("tf: مقطع جديد بعد حد ٢٠ دقيقة")
                         } catch (t: Throwable) { fail(jsid, "run", t.javaClass.simpleName) }
                     }
                 }
                 else -> {
-                    SherpaAsr.diag("tf: انتهى المقطع (${ev.reason})")
+                    AsrLog.diag("tf: انتهى المقطع (${ev.reason})")
                     if (running) { running = false; emitErr(jsid, "stopped") }
                 }
             }
-            is TajweedEvent.BackendChanged -> SherpaAsr.diag("tf: تبديل المسرّع إلى ${ev.backend} من المقطع ${ev.fromChunk}")
+            is TajweedEvent.BackendChanged -> AsrLog.diag("tf: تبديل المسرّع إلى ${ev.backend} من المقطع ${ev.fromChunk}")
             else -> {}
         }
     }
 
-    /* ---------- إيصال الأحداث للصفحة (نفس صيغة SherpaAsr) ---------- */
+    /* ---------- إيصال الأحداث للصفحة (صيغة __rcAsr) ---------- */
 
     private fun emit(s: Int, type: String, data: String) {
         val js = "window.__rcAsr&&window.__rcAsr(" + JSONObject.quote(type) + "," + s + "," + JSONObject.quote(data) + ")"
         ui.post {
             try { Speech.wv?.evaluateJavascript(js, null) }
-            catch (e: Exception) { SherpaAsr.diag("فشل إيصال حدث tf للصفحة (wv)") }
+            catch (e: Exception) { AsrLog.diag("فشل إيصال حدث tf للصفحة (wv)") }
         }
     }
 
     private fun emitErr(s: Int, code: String) {
-        SherpaAsr.diag("tf err: $code")
+        AsrLog.diag("tf err: $code")
         emit(s, "err", code)
     }
 }
