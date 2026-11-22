@@ -99,9 +99,6 @@
 "file": "styles/features9.css"
 },
 {
-"file": "styles/recite.css"
-},
-{
 "file": "styles/asma.css"
 },
 {
@@ -268,15 +265,6 @@
 },
 {
 "file": "services/mushaf-img.js"
-},
-{
-"file": "services/recite.js"
-},
-{
-"file": "services/recite-asr.js"
-},
-{
-"file": "services/recite-page.js"
 },
 {
 "file": "services/asma.js"
