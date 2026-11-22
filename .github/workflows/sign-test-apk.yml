@@ -9,6 +9,10 @@ on:
         description: 'Version name without the v, e.g. 1.0.14-test'
         required: true
         default: '1.0.14-test'
+      code_offset:
+        description: 'Added to 10145+run_number for versionCode (avoid downgrade vs earlier test APKs)'
+        required: true
+        default: '0'
 
 permissions:
   contents: read
@@ -48,7 +52,7 @@ jobs:
           npx @capacitor/cli@5 sync android
       - name: Set test version metadata
         run: |
-          CODE=$((10145 + ${{ github.run_number }}))
+          CODE=$((10145 + ${{ github.run_number }} + ${{ inputs.code_offset }}))
           python3 - <<PY
           import os, re
           from pathlib import Path
