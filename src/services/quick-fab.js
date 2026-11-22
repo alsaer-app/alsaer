@@ -1,5 +1,5 @@
 /* ===== زر «+» (على الحافة اليسرى، باهت) → مهام سريعة، ويمكن للمستخدم إضافة مهامه ===== */
-var QA=[['tab','msb','beads','تسبيح'],['adkopen','AUTO','sparkles','أذكار الوقت'],['tab','quran','book','ورد القرآن'],['tab','recite','mic','تسميع'],['tab','prayers','mosque','صلواتي'],['qworship','','plus','عبادة جديدة'],['tab','muh','check','محاسبة النفس'],['tab','boost','sos','أشعر برغبة']];
+var QA=[['tab','msb','beads','تسبيح'],['adkopen','AUTO','sparkles','أذكار الوقت'],['tab','quran','book','ورد القرآن'],['tab','prayers','mosque','صلواتي'],['qworship','','plus','عبادة جديدة'],['tab','muh','check','محاسبة النفس'],['tab','boost','sos','أشعر برغبة']];
 var qEdit=false,qPick=false;
 /* شاشات يمكن إضافتها كمهمة سريعة: [المعرّف، الأيقونة] — الاسم من TITLES */
 var QX=[['hisn','beads'],['asma','star'],['worship','sparkles'],['tasbih','beads'],['reader','book'],['khatma','book'],['hifz','book'],['fasting','moon'],['habits','target'],['chal','target'],['month','chart'],['weekly','chart'],['notes','pen'],['qada','check'],['zakat','chart'],['ramadan','moon'],['occasions','cal'],['reminders','bell'],['ach','trophy'],['backup','cloud'],['settings','gear']];
