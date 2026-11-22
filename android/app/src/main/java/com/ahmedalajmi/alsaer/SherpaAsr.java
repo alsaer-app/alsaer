@@ -571,9 +571,10 @@ public class SherpaAsr {
         for (float v : samples) { peak = Math.max(peak, Math.abs(v)); power += (double) v * v; }
         if (Math.sqrt(power / Math.max(1, samples.length)) < 0.002) return;
         int lo = 0, hi = samples.length;
-        float threshold = peak * 0.015f;
+        float threshold = peak * 0.02f;
         while (lo < hi && Math.abs(samples[lo]) < threshold) lo++;
         while (hi > lo && Math.abs(samples[hi - 1]) < threshold) hi--;
+        lo = Math.max(0, lo - (int) (SAMPLE_RATE * 0.15f));
         if (samples.length - (hi - lo) > SAMPLE_RATE / 2) samples = java.util.Arrays.copyOfRange(samples, lo, hi);
         if (samples.length < SAMPLE_RATE / 2) return;
         mergeAcc.add(samples); mergeLen += samples.length;
@@ -603,12 +604,8 @@ public class SherpaAsr {
                 float pk = 0f; double s0 = 0;
                 for (float v : seg2) { float a = v < 0 ? -v : v; if (a > pk) pk = a; s0 += (double) v * v; }
                 if (Math.sqrt(s0 / Math.max(1, seg2.length)) < 0.002) return;
-                float th = pk * 0.02f;
-                int lo = 0, hi = seg2.length;
-                while (lo < hi && Math.abs(seg2[lo]) < th) lo++;
-                while (hi > lo && Math.abs(seg2[hi - 1]) < th) hi--;
-                lo = Math.max(0, lo - (int) (SAMPLE_RATE * 0.15f));
-                final float[] seg = (seg2.length - (hi - lo) > SAMPLE_RATE / 2) ? java.util.Arrays.copyOfRange(seg2, lo, hi) : seg2;
+                // mergeAdd already trimmed before counting context. Never shorten it again here.
+                final float[] seg = seg2;
                 if (seg.length < SAMPLE_RATE / 2) return;
                 String text;
                 synchronized (recLock) { /* منع تحرير النموذج أثناء فك التشفير */

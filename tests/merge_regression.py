@@ -38,9 +38,9 @@ public class MergeRegression {
    MergeRegression padded=new MergeRegression();
    float[] eight=new float[SAMPLE_RATE*8];Arrays.fill(eight,SAMPLE_RATE*3,SAMPLE_RATE*5,.1f);
    padded.mergeAdd(1,eight);
-   check(padded.decoded.isEmpty()&&padded.mergeLen==SAMPLE_RATE*2,"8s early split with 2s speech cannot defeat minimum");
+   check(padded.decoded.isEmpty()&&padded.mergeLen==(int)(SAMPLE_RATE*2.15),"8s early split with 2s speech cannot defeat minimum");
    padded.mergeAdd(1,sec(4));
-   check(padded.decoded.size()==1&&padded.decoded.get(0)==SAMPLE_RATE*6,"minimum counts trimmed context, not silence");
+   check(padded.decoded.size()==1&&padded.decoded.get(0)==(int)(SAMPLE_RATE*6.15),"minimum counts trimmed context, not silence");
  }
 }
 '''
