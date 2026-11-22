@@ -44,7 +44,7 @@ function rcSkel(n){return n.replace(/ا/g,'').replace(/وه$/,'ه')}
 /* حروف يخلط بينها المعرِّف الصوتي كثيرًا (ض/ظ، ص/س/ث، ذ/ز، ط/ت، ق/ك، ح/ه، ع/ء): تُوحَّد في مقارنة صوتية أخفّ عقوبة */
 function rcPh(n){return rcSkel(n).replace(/[ظ]/g,'ض').replace(/[صث]/g,'س').replace(/[ذ]/g,'ز').replace(/[ط]/g,'ت').replace(/[ق]/g,'ك').replace(/[ح]/g,'ه').replace(/[ع]/g,'ء').replace(/ت$/,'ه').replace(/(.)\1+/g,'$1')}
 function rcSim2(a,b){var x=rcSim(a,b);if(x>=1||a.length<3||b.length<3)return x;var y=rcSim(rcSkel(a),rcSkel(b));if(y>x)x=y;var z=rcSim(rcPh(a),rcPh(b))*.96;return z>x?z:x}
-function rcPref(){var P=S.rcp;if(!P||typeof P!=='object')P=S.rcp={size:25,hifz:false,hist:[],rr:false};if(!P.hist)P.hist=[];P.lm='tf';return P}
+function rcPref(){var P=S.rcp;if(!P||typeof P!=='object')P=S.rcp={size:25,hifz:false,hist:[],rr:false};if(!P.hist)P.hist=[];P.lm='';return P}
 function rcLoad(c,a){
   var Q=QD(),t=Q.s&&Q.s[c-1];rc.sura=c;rc.ay=a||0;rc.pgScope=0;rc.w=[];rc.st=[];rc.hd=[];rc.pos=0;rc.ok=0;rc.miss=0;rc.hear='';rc.res=null;rc.wk=-1;rc.u=null;rc.hlog=[];rc.fin=false;
   if(!t)return false;
@@ -145,13 +145,13 @@ function rcAlignPass(att){
 /* ---- نتيجة التلاوة: دقة الكلمات والحروف والإكمال — محسوبة من التعرّف الفعلي (لا درجات عشوائية). التجويد لا يُقيَّم. ---- */
 function rcResult(){
   var n=rc.w.length,att=Math.min(rc.pos,n),i;if(!n||!att)return null;
-  if(rcPref().lm!=='tf')rcAlignPass(att);
+  rcAlignPass(att);
   var okc=0,ls=0,weak=[];
   for(i=0;i<att;i++){
     if(rc.st[i]===1){okc++;var sim=rc.hd[i]?rcSim2(rc.hd[i],rc.w[i].n):1;ls+=sim;if(sim<.85)weak.push({i:i,sim:sim})}
     else weak.push({i:i,sim:0});
   }
-  var W=okc/att*100,L=ls/att*100,C=att/n*100,T=rcPref().lm==='tf'?Math.round(W):Math.round(W*.45+L*.35+C*.20);
+  var W=okc/att*100,L=ls/att*100,C=att/n*100,T=Math.round(W*.45+L*.35+C*.20);
   return {t:Math.min(100,T),w:Math.round(W),l:Math.round(L),c:Math.round(C),weak:weak,att:att,n:n};
 }
 function rcFinish(){
@@ -181,10 +181,10 @@ function rcResHtml(){
   var d='';if(rc.wk>=0&&rc.w[rc.wk]){var w=rc.w[rc.wk];d='<div class="rc-wd"><b>'+mTok(w.t)+'</b><small>'+(rc.st[rc.wk]===1?'سمعناها: «'+esc(rc.hd[rc.wk]||'')+'» — تشابه '+ar(Math.round(rcSim(rc.hd[rc.wk]||'',w.n)*100))+'٪ مع المطلوب':'لم نسمع هذه الكلمة أو تخطّيتها')+'</small></div>'}
   return '<section class="card rc-res"><div class="rc-sc"><div class="rc-sr"><svg viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="rcgold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8c066"/><stop offset="1" stop-color="#c9982e"/></linearGradient></defs><circle cx="40" cy="40" r="34" class="bg"/><circle cx="40" cy="40" r="34" class="fg" style="stroke:'+col+';stroke-dasharray:213.6;stroke-dashoffset:'+(213.6*(1-r.t/100))+'"/></svg><b>'+ar(r.t)+'</b></div>'
    +'<div><h3 class="rc-grade" style="margin:0;color:'+col+'">'+lab+'</h3><small class="muted">'+(rc.pgScope?'صفحة '+ar(rc.pgScope):(rc.ay?'الآية '+ar(rc.ay):'سورة '+esc(QD().n[rc.sura-1]||'')))+' · '+ar(r.att)+' من '+ar(r.n)+' كلمة</small></div></div>'
-   +'<h4 class="rc-h">التفاصيل</h4>'+bar(rcPref().lm==='tf'?'تطابق الكلمات الصوتي':'دقة الكلمات',r.w)+(rcPref().lm==='tf'?'':bar('دقة الحروف',r.l))+bar('الإكمال',r.c)+'<h4 class="rc-h">تحليل الكلمات</h4><div class="rc-tokrow" dir="rtl">'+rc.w.slice(0,r.att).map(function(w,i){return '<span class="rct '+(rc.st[i]===1?(rc.hd[i]&&rcSim(rc.hd[i],w.n)<.85?'mid':'ok'):'bad')+'">'+mTok(w.t)+'</span>'}).join('')+'</div>'
+   +'<h4 class="rc-h">التفاصيل</h4>'+bar('دقة الكلمات',r.w)+bar('دقة الحروف',r.l)+bar('الإكمال',r.c)+'<h4 class="rc-h">تحليل الكلمات</h4><div class="rc-tokrow" dir="rtl">'+rc.w.slice(0,r.att).map(function(w,i){return '<span class="rct '+(rc.st[i]===1?(rc.hd[i]&&rcSim(rc.hd[i],w.n)<.85?'mid':'ok'):'bad')+'">'+mTok(w.t)+'</span>'}).join('')+'</div>'
    +(r.weak.length?'<h4 class="rc-h">ملاحظات</h4>'+r.weak.slice(0,3).map(function(x){var w=rc.w[x.i];return '<div class="rc-note"><b>'+mTok(w.t)+'</b><div><em>'+(x.sim===0?'لم تُسمع':'تحتاج تحسينًا')+'</em><small>'+(x.sim===0?'تخطّيت هذه الكلمة أو لم يلتقطها الميكروفون':'سمعنا «'+esc(rc.hd[x.i]||'')+'» — تشابه '+ar(Math.round(x.sim*100))+'٪')+'</small></div></div>'}).join(''):'')
    +(wk?'<h4 style="margin:12px 0 6px">كلمات تحتاج مراجعة <small class="muted">(المس كلمة للتفاصيل)</small></h4><div class="rc-wks">'+wk+'</div>'+d:'<p class="note">لا كلمات تحتاج مراجعة ✓</p>')
-   +(rcPref().lm==='tf'?'<p class="note">V4 تجريبي: النتيجة تقدير تطابق الوحدات الصوتية بالكلمات المتوقعة، وليست تصحيح تجويد أو درجة نطق الحروف. لم تُختبر دقته على جهازك بعد.</p>':'<p class="note">الدرجة تقارن ما سمعه التطبيق بنص المصحف (كلمات وحروف). أحكام التجويد لا تُقيَّم بعد، ودقة التعرّف تتأثر بالضوضاء ووضوح الصوت.</p>')
+   +'<p class="note">الدرجة تقارن ما سمعه التطبيق بنص المصحف (كلمات وحروف). أحكام التجويد لا تُقيَّم بعد، ودقة التعرّف تتأثر بالضوضاء ووضوح الصوت.</p>'
    +'<div class="acts"><button class="btn" data-a="rcagain">إعادة المحاولة</button>'+(rc.pgScope?(rc.pgScope<604?'<button class="btn ghost" data-a="rcayn">الصفحة التالية</button>':''):(rc.ay&&rc.ay<(QD().s[rc.sura-1]||[]).length?'<button class="btn ghost" data-a="rcayn">الآية التالية</button>':''))+'</div></section>';
 }
 function rcSay(t,busy){rc.msg=t||'';rc.busy=!!busy;var q=document.getElementById('rc-status');if(q){q.textContent=rc.msg;q.className='rc-status'+(rc.busy?' busy':'')+(rc.msg?'':' empty')}}
@@ -201,7 +201,7 @@ function rcStart(){
 }
 function rcStart2(){
   var A=window.ReciteASR;if(!A)return;
-  if(rcPref().rr&&rcPref().lm!=='tf'){ /* وضع التسجيل: كل استماع محاولة مستقلة — بقايا جلسة سابقة كانت تلوث محاذاة النتيجة */
+  if(rcPref().rr){ /* وضع التسجيل: كل استماع محاولة مستقلة — بقايا جلسة سابقة كانت تلوث محاذاة النتيجة */
     rc.st=[];rc.hd=[];rc.pos=0;rc.ok=0;rc.miss=0;rc.hear='';rc.res=null;rc.wk=-1;rc.u=null;rc.hlog=[]}
   rc.fin=false;rc.on=true;rc.msg='';rc.busy=false;rc.last=Date.now();
   clearInterval(rc.idle);rc.idle=setInterval(function(){if(!rc.on){clearInterval(rc.idle);return}if(Date.now()-rc.last>120000){rcStop();rc.msg='أُوقف الميكروفون تلقائيًا لأنك لم تتلُ لدقيقتين. اضغط الميكروفون للمتابعة.';try{render()}catch(x){}}},10000);
@@ -238,7 +238,7 @@ function rcAct(a,v){
   else if(a==='rchistclr'){rcPref().hist=[];save()}
   else if(a==='rcagain'){rcStop();if(rc.pgScope)rpLoad(rp.page);else rcLoad(rc.sura,rc.ay);rc.msg=''}
   else if(a==='rcwk'){rc.wk=(rc.wk===parseInt(v,10))?-1:parseInt(v,10)}
-  else if(a==='rcmodel'){var P3=rcPref();var rr=document.getElementById('rc-rr');if(rr)P3.rr=rr.checked;var lm=document.querySelector('input[name="rclm"]:checked');if(lm)P3.lm=lm.value||'';save();rcStop();rcAsrStop();rc.adv=false;toast('✅ تم حفظ الإعدادات');rc.msg='';return false}
+  else if(a==='rcmodel'){var P3=rcPref();var rr=document.getElementById('rc-rr');if(rr)P3.rr=rr.checked;save();rcStop();rcAsrStop();rc.adv=false;toast('✅ تم حفظ الإعدادات');rc.msg='';return false}
   else if(a==='rcfs'){var P=rcPref();P.size=Math.max(18,Math.min(40,(P.size||25)+(parseInt(v,10)||0)*2));save()}
   else if(a==='rcpick'){rc.pick=!rc.pick}
   else if(a==='rcdiag'){try{if(window.AlsaerNative&&AlsaerNative.asrDiag){AlsaerNative.shareText('تشخيص التلاوة — السائر',AlsaerNative.asrDiag()||'لا يوجد سجل بعد')}else toast('التشخيص غير متاح في هذه النسخة')}catch(e){}return false}
@@ -281,14 +281,8 @@ function rcStatSheet(P){
 }
 /* بطاقة النموذج القرآني المحلي في إعدادات التلاوة: اختيار المحرّك + تنزيل/حذف النماذج */
 function rcLocalHtml(P){
-  if(!window.AlsaerNative||typeof AlsaerNative.asrStatus!=='function')return '';
-  var st=null;try{st=JSON.parse(AlsaerNative.asrStatus()||'{}')}catch(e){}
-  if(!st)return '';
-  var ok=!!(st.tf&&st.tf.installed);
-  return '<div class="rc-grp"><h4>📖 محرك التسميع المحلي: Quran Lab V4 (تجريبي)</h4>'
-   +'<p class="note">يعمل التعرّف على جهازك، والصوت لا يغادر الهاتف. يتصل بخدمة Quran Lab للتنزيل (~٦٣ ميجا أول مرة فقط) والتحقق وإحصاءات استخدام مجهولة، ولا يشارك تسجيلًا إلا بموافقة منفصلة. يحتاج أندرويد 8+. لا يوجد بديل سحابي ولا تعرّف Google.</p>'
-   +(ok?'<p class="note"><b>جاهز ✓</b></p>':'<p class="note"><b>المحرك غير متاح في هذا البناء.</b></p>')
-   +'<p class="note">نسخة اختبار شخصية تتجاوز 20MB. مفتاح التطوير مضمّن في APK ويمكن استخراجه؛ لا تشارك الملف مع غيرك.</p></div>';
+  return '<div class="rc-grp"><h4>🎙 محرك التسميع: تعرّف Google (تجريبي)</h4>'
+   +'<p class="note">الصوت يغادر هاتفك: على أندرويد 13+ نجرّب التعرّف على الجهاز أولًا إن توفّرت الحزمة العربية، وإلا يُرسَل لخدمة Google عبر الإنترنت. المطابقة نصية مع طيّ الحروف المقطعة. لا يلتقط أخطاء التجويد، وقد «يصحّح» Google الخطأ إلى كلمة شائعة فيُخفيه. نسخة اختبار شخصية.</p></div>';
 }
 function rcSheet(P,last){
   return '<section class="rc-sheet card"><div class="rc-sh-h"><b>⚙ إعدادات التلاوة</b>'+(last?'<small>آخر جلسة '+ar(last.a)+'٪</small>':'')+'<button class="rc-tb" data-a="rcadv" aria-label="إغلاق">✕</button></div>'
@@ -319,7 +313,7 @@ function vReciteOld(){
    +'<div class="rc-pb"><i id="rc-bar" style="width:'+Math.round(pct*100)+'%"></i></div>'
    +rcResHtml()
    +'<section class="rc-read"><div id="rc-text" class="rc-text'+(P.hifz?' rc-hifz':'')+'" dir="rtl" style="font-size:'+(P.size||28)+'px">'+words+'</div></section>'
-   +(rc.consentAsk?'<section class="card rc-consent"><h4>🔒 قبل أن نبدأ</h4><p class="note">'+'التسميع يعمل بالكامل على هاتفك: نموذج قرآني محلي يفكّ الصوت دون إنترنت، ولا يغادر صوتك'+' جهازك أبدًا، ولا يحفظ تطبيق «السائر» أي تسجيل. الميكروفون يعمل فقط أثناء شاشة التلاوة ويتوقف عند الخروج أو بعد دقيقتين صمت.</p><div class="acts"><button class="btn" data-a="rcconsent">أوافق وأبدأ</button><button class="btn ghost" data-a="rcconsentno">ليس الآن</button></div></section>':'')
+   +(rc.consentAsk?'<section class="card rc-consent"><h4>🔒 قبل أن نبدأ</h4><p class="note">'+'التسميع في هذه النسخة التجريبية يستخدم تعرّف الكلام في أندرويد (Google): قد يُرسَل صوتك إلى خدمة Google عبر الإنترنت ليتحوّل إلى نص،'+' ولا يحفظ تطبيق «السائر» أي تسجيل. الميكروفون يعمل فقط أثناء شاشة التلاوة ويتوقف عند الخروج أو بعد دقيقتين صمت.</p><div class="acts"><button class="btn" data-a="rcconsent">أوافق وأبدأ</button><button class="btn ghost" data-a="rcconsentno">ليس الآن</button></div></section>':'')
    +'<div class="rc-live"><p class="rc-hear" id="rc-hear">'+(rc.hear?esc(rc.hear):(rc.on?'تلُ الآن… أسمعك':'اضغط الميكروفون وابدأ التلاوة'))+'</p>'
    +'<div id="rc-status" class="rc-status'+(rc.busy?' busy':'')+(rc.msg?'':' empty')+'">'+esc(rc.msg)+'</div>'
    +((rc.ok+rc.miss>0&&!rc.res)?'<button class="rc-redo" data-a="rcverse">↺ أعد هذه الآية</button>':'')+'</div>'
