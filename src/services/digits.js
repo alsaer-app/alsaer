@@ -9,7 +9,8 @@ function digitsWalk(root){
 }
 function digitsApply(force){
   if(!U().digits)U().digits='east'; /* الافتراضي مشرقية كما تعرض شاشة الإعدادات */
-  ['app','top','tabs'].forEach(function(i){digitsWalk(document.getElementById(i))});
+  /* Sheets, dialogs and toasts are appended directly to body, outside app/top/tabs. */
+  digitsWalk(document.body);
   if(force)try{render()}catch(e){}
 }
 (function(){if(!window.MutationObserver)return;var t=null;
