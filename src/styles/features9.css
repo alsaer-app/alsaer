@@ -188,3 +188,5 @@ body.orn .mp-fa{background:#f9f5ee;border-color:#b98a2e;color:#8a5a36}body.orn .
 .home-cfg .i{width:18px;height:18px;color:var(--gold)}
 .sc-adv{margin:12px 0;border:1px solid var(--line);border-radius:16px;padding:4px 10px}.sc-adv>summary{cursor:pointer;padding:12px 4px;color:var(--muted);font-size:14px;list-style:none}.sc-adv>summary::-webkit-details-marker{display:none}.sc-adv[open]>summary{color:var(--gold)}
 .sc-grid>*:last-child:nth-child(odd){grid-column:1/-1}
+
+.rd-ix .rd-ri[hidden]{display:none}
