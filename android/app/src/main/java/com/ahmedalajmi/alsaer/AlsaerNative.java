@@ -105,6 +105,7 @@ public class AlsaerNative {
         if (updRunning) return "busy";
         android.content.SharedPreferences p = updPrefs();
         long done = 0;
+        if (!url.equals(p.getString("url", "")) && updPart().exists()) updPart().delete();
         if (url.equals(p.getString("url", "")) && updPart().exists()) done = updPart().length();
         p.edit().putString("url", url).putLong("size", size).putString("sha", sha == null ? "" : sha)
                 .putLong("done", done).putString("st", "downloading").putString("err", "").apply();
