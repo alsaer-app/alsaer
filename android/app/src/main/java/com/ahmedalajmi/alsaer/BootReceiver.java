@@ -8,7 +8,15 @@ import android.content.Intent;
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context c, Intent i) {
-        AlarmScheduler.scheduleAll(c);
-        FloatFeed.schedule(c);
+        final PendingResult pr = goAsync();
+        final Context app = c.getApplicationContext();
+        new Thread(() -> {
+            try {
+                AlarmScheduler.scheduleAll(app);
+                FloatFeed.schedule(app);
+            } finally {
+                pr.finish();
+            }
+        }).start();
     }
 }
