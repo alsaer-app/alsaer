@@ -1,4 +1,4 @@
-name: Redesign A notif 112 (redesign-a-notif) (temporary)
+name: Redesign A update fixes 112 (temporary)
 on:
   push:
     branches: [exp/redesign-a-notif]
