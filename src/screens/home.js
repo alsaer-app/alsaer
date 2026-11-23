@@ -25,7 +25,7 @@ function vHome(){
    tracker:function(){return trackerCard()}
   };
   var body=homeEdit?heGrid():homeOrder().map(function(key){if(hidH(key))return '';var h=B[key]();return h?'<div class="hs" data-hs="'+key+'">'+h+'</div>':''}).join('');
-  return updBanner()+nfix+profile+body
+  return nfix+profile+body
   +(homeEdit?'':(tt?'<section class="card tipc"><h3>نصيحة بحسب محفّزاتك</h3><p style="margin:0">'+TTIPS[tt]+'</p></section>':'')+'<button class="sos" data-a="goboost">'+ic('sos')+'أشعر برغبة الآن</button>'+COPY);
 }
 
