@@ -19,6 +19,7 @@ function render(){
   tabs.hidden=(tab==='reader');app.style.paddingBottom=(tab==='reader'?'16px':'');document.body.classList.toggle('rd',tab==='reader');document.body.classList.toggle('rdi',tab==='reader'&&mpImm());document.body.classList.toggle('orn',tab==='reader'&&!!window.MUSHAF&&S.quran.pg===undefined||tab==='reader'&&S.quran.pg==='ornate');
   tabs.innerHTML=NAV.map(function(t){return '<button class="tab'+(par===t[0]?' on':'')+'" data-a="tab" data-v="'+t[0]+'"><span class="pill">'+ic(t[2])+'</span>'+t[1]+'</button>'}).join('');
   var v={home:vHome,worship:vWorship,calendar:vCal,progress:vProgress,more:vMore,fasting:vFasting,prayers:vPrayers,quran:vQuran,reader:vReader,reminders:vReminders,books:vBooks,chal:vChal,month:vMonth,sacred:vSacred,muh:vMuh,floatfeed:vFloatFeed,floatset:vFloatSet,widgetset:vWidgetSet,habits:vHabits,boost:vBoost,ach:vAch,developer:vDeveloper,settings:vSettings,qada:vQada,ramadan:vRamadan,occasions:vOccasions,cards:vCards,hifz:vHifz,khushu:vKhushu,khatma:vKhatma,weekly:vWeekly,notes:vNotes,zakat:vZakat,backup:vBackup,msb:vMsb,asma:vAsma,hisn:vHisn,ahadith:vAhadith,ptloc:vPtLoc}[tab];
+  if(tab==='reminders'&&lastTab!=='reminders'&&typeof window.alsaerRemindersEnter==='function')window.alsaerRemindersEnter();
   var vh;try{if(typeof v!=='function')throw new Error('شاشة غير معروفة: '+tab);vh=v()}catch(ex){vh=vRenderFail(ex,tab)}
   app.innerHTML=vh;
   if(tab!==lastTab){
