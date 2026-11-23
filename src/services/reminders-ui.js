@@ -39,6 +39,8 @@
     else remStatus('صوت النظام يُختبر على الهاتف نفسه عند وصول إشعار.');
   }
   var CU_DRAFT=null,REM_PANE='main';
+  /* Re-entering the center must not strand its main tabs behind the checkup subpage. */
+  window.alsaerRemindersEnter=function(){if(REM_PANE==='checkup'||['main','smart','mine'].indexOf(REM_PANE)<0)REM_PANE='main'};
   function apL(pm){try{if(typeof lang==='function'&&lang()!=='ar')return pm?'PM':'AM'}catch(e){}return pm?'م':'ص'}
   function remAr(x){try{if(typeof lang==='function'&&lang()!=='ar')return String(x);return typeof ar==='function'?ar(x):String(x)}catch(e){return String(x)}}
   function remPad(n){return (n<10?'0':'')+n}
