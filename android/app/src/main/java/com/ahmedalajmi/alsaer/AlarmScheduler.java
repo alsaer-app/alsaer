@@ -32,6 +32,8 @@ public final class AlarmScheduler {
     static final String ACTION_DONE = "com.ahmedalajmi.alsaer.DONE";
     static final String ACTION_SNOOZE = "com.ahmedalajmi.alsaer.SNOOZE";
     static final long SNOOZE_MS = 10L * 60L * 1000L;
+    /* مهلة لحاق للتنبيهات المفردة الفائتة (إغلاق/إعادة تشغيل): تُطلق خلال ١٠ ثوانٍ بدل أن تضيع */
+    static final long GRACE_MS = 45L * 60L * 1000L;
 
     private AlarmScheduler() {}
 
@@ -82,7 +84,10 @@ public final class AlarmScheduler {
     /** الموعد التالي بعد الوقت now (0 = لا يوجد). dow: 0=الأحد ... 6=السبت (مثل getDay في JS). */
     static long nextTrigger(JSONObject it, long now) {
         long at = it.optLong("at", 0);
-        if (at > 0) return at > now ? at : 0;
+        if (at > 0) {
+            if (at > now) return at;
+            return now - at <= GRACE_MS ? now + 10000L : 0;
+        }
         int h = it.optInt("h", -1), m = it.optInt("m", 0);
         if (h < 0) return 0;
         JSONArray dow = it.optJSONArray("dow");
