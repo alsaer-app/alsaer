@@ -50,9 +50,9 @@ jobs:
           "$BT/aapt" dump xmltree "$APK" AndroidManifest.xml | tee /tmp/manifest.txt
           grep -q 'AlsaerWidget' /tmp/manifest.txt
           grep -q 'android.appwidget.action.APPWIDGET_UPDATE' /tmp/manifest.txt
-          "$BT/aapt" list "$APK" | tee /tmp/apkfiles.txt
-          grep -qE 'res/layout[^/]*/alsaer_widget.xml' /tmp/apkfiles.txt
-          grep -q 'res/xml/alsaer_widget_info.xml' /tmp/apkfiles.txt
+          "$BT/aapt" dump resources "$APK" | tee /tmp/apkfiles.txt
+          grep -q 'layout/alsaer_widget:' /tmp/apkfiles.txt
+          grep -q 'xml/alsaer_widget_info:' /tmp/apkfiles.txt
           stat -c '%s bytes' "$APK" && sha256sum "$APK" && git rev-parse HEAD
       - uses: actions/upload-artifact@v4
         with: {name: alsaer-gdrive-native-auth-112-signed-test, path: android/app/build/outputs/apk/release/app-release.apk, retention-days: 3, if-no-files-found: error}
