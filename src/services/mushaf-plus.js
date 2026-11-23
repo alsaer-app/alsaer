@@ -392,4 +392,4 @@ function qwBanner(riw){
   d.innerHTML=ic('sparkles')+' أنت الآن على رواية '+(riw==='warsh'?'ورش':'حفص');
   document.body.appendChild(d);
   setTimeout(function(){d.classList.add('out');setTimeout(function(){if(d.parentNode)d.remove()},420)},1600);
-                                                                              }
+                                   }
