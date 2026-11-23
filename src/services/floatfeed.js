@@ -63,7 +63,7 @@ function ffUpcomingJs(c,n){
   var sl=ffSlots(c),out=[],t=Date.now();if(!sl.length)return out;
   for(var k=0;k<n;k++){
     var found=0;
-    for(var d=0;d<9&&!found;d++){
+    for(var d=-1;d<9&&!found;d++){
       var day=new Date();day.setHours(0,0,0,0);day.setDate(day.getDate()+d);
       if(c.days&&c.days.length&&c.days.indexOf(day.getDay())<0)continue;
       for(var i=0;i<sl.length;i++){var x=new Date(day.getTime());x.setMinutes(sl[i]);if(x.getTime()>t){out.push(x.getTime());t=x.getTime();found=1;break}}
