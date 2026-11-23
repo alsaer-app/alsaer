@@ -48,6 +48,21 @@ async def main():
     assert await p.locator('.rd-menu [data-a=qidx]').count()==1
     assert await p.locator('.rd-menu [data-a=mpset]').count()==1
     assert await p.locator('.rd-menu #mq-q').is_visible()
+    tj=p.locator('.rd-menu [data-a=qtj]');bm=p.locator('.rd-menu [data-a=bmtog]')
+    assert await tj.get_attribute('aria-pressed')=='true'
+    assert await tj.evaluate('(e)=>getComputedStyle(e).boxShadow')!='none'
+    await act('qtj');tj=p.locator('.rd-menu [data-a=qtj]')
+    assert await tj.get_attribute('aria-pressed')=='false'
+    assert await tj.evaluate('(e)=>getComputedStyle(e).boxShadow')=='none'
+    await act('qtj')
+    assert await bm.get_attribute('aria-pressed')=='false'
+    await act('bmtog');bm=p.locator('.rd-menu [data-a=bmtog]')
+    assert await bm.get_attribute('aria-pressed')=='true'
+    assert await bm.evaluate('(e)=>getComputedStyle(e).boxShadow')!='none'
+    if immersive:assert await p.locator('.rd-r [data-a=bmtog]').get_attribute('aria-pressed')=='true'
+    await p.screenshot(path=f'/tmp/glow-{mode}-{riwaya}-{immersive}.png')
+    await act('bmtog');assert await bm.get_attribute('aria-pressed')=='false'
+
     assert await p.evaluate('document.querySelector(".rd-mg").getBoundingClientRect().top>document.querySelector(".rd-mwc").getBoundingClientRect().top')
     assert await p.locator('.rd-tajweed-key .tjl span').count()==6
     assert await p.evaluate('document.querySelector(".rd-tajweed-key").compareDocumentPosition(document.querySelector(".rd-mtb"))&2')
