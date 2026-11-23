@@ -6,7 +6,7 @@ function fixShape(o){
   if(!isO(o.prayers))o.prayers={};if(!isO(o.ptimes))o.ptimes={};
   if(!isO(o.quran))o.quran={goal:2,log:{},pos:1,fs:26};if(!isO(o.quran.log))o.quran.log={};
   var g=parseInt(o.quran.goal,10);o.quran.goal=(g>=1&&g<=30)?g:2;var ps=parseInt(o.quran.pos,10);o.quran.pos=(ps>=1&&ps<=604)?ps:1;var fz=parseInt(o.quran.fs,10);o.quran.fs=(fz>=18&&fz<=44)?fz:26;
-  if(!isO(o.profile))o.profile={name:'',age:'',photo:''};o.profile.name=String(o.profile.name||'').slice(0,40);o.profile.age=String(o.profile.age||'').slice(0,3);o.profile.photo=typeof o.profile.photo==='string'&&o.profile.photo.indexOf('data:image/')===0&&o.profile.photo.length<100000?o.profile.photo:'';
+  if(!isO(o.profile))o.profile={name:'',age:'',photo:''};o.profile.name=String(o.profile.name||'').slice(0,40);var rawAge=String(o.profile.age||'').trim(),ageN=/^\d{1,3}$/.test(rawAge)?Number(rawAge):0;o.profile.age=ageN>=1&&ageN<=120?String(ageN):'';o.profile.photo=typeof o.profile.photo==='string'&&o.profile.photo.indexOf('data:image/')===0&&o.profile.photo.length<100000?o.profile.photo:'';
   if(!isO(o.ui))o.ui={};
   if(o.lockType!=='pattern'||!o.pin)delete o.lockType;
   if(!o.security||typeof o.security!=='object')o.security={method:'pin'};if(!['pin','password'].includes(o.security.method))o.security.method='pin';
