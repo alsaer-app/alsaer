@@ -27,7 +27,7 @@ async def main():
     await act('tab','settings');await p.locator('.settings-dev').scroll_into_view_if_needed();await p.wait_for_timeout(400)
     assert await p.locator('.settings-dev-name b').inner_text()=='Ahmed Elagamy'
     assert await p.locator('.settings-dev a').count()==3
-    feedback=p.locator('.settings-app a')
+    feedback=p.locator('.sg-main a')
     assert await feedback.get_attribute('href')==await p.locator('.settings-dev a[aria-label=Facebook]').get_attribute('href')
     assert await feedback.get_attribute('aria-disabled') is None
     assert await feedback.get_attribute('target')=='_blank'
