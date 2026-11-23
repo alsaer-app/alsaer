@@ -92,7 +92,7 @@ function gpsFix(silent){
   function busy(on,label){var bt=document.querySelector('[data-a=gps]');if(!bt)return;bt.classList.toggle('busy',!!on);if(label&&bt.lastChild)bt.lastChild.nodeValue=' '+label}
   if(!navigator.geolocation){if(!silent)say('الجهاز لا يدعم تحديد الموقع. اختر مدينتك يدويًا.','bad');return}
   gpsBusy=true;gpsBusyAt=Date.now();
-  var myAt=gpsBusyAt;if(!silent)setTimeout(function(){if(gpsBusy&&gpsBusyAt===myAt&&!(S.loc&&S.loc.gpsAt>=myAt)){locDialog()}},7000);
+
   if(!silent){say('نطلب إذن الموقع… اضغط «سماح» إن ظهر لك طلب.','busy');busy(true,'جارٍ التحديد…');var t2=document.querySelector('.pt-lt b');if(t2)t2.textContent='جارٍ تحديد موقعك…'}
   function apply(p,final){
     S.loc=S.loc||{};
@@ -110,7 +110,7 @@ function gpsFix(silent){
       try{navigator.geolocation.getCurrentPosition(function(q){if((q.coords.accuracy||1e9)<(p.coords.accuracy||1e9))apply(q)},function(){},{enableHighAccuracy:true,timeout:25000,maximumAge:0})}catch(e){}
     }
   },function(er){
-    if(!silent&&er&&er.code===2){gpsBusy=false;busy(false);say('خدمة الموقع مغلقة. فعّلها من الإعدادات ثم أعد المحاولة.','bad');locDialog();return}
+    if(!silent&&er&&er.code===2){gpsBusy=false;busy(false);say('تعذّر الحصول على الموقع. تحقق من الإعدادات أو جرّب في مكان مفتوح.','bad');locDialog();return}
     if(er&&er.code===1){gpsBusy=false;busy(false);if(!silent){say('لم يُسمح بالوصول للموقع. فعّله من إعدادات الهاتف ثم أعد المحاولة، أو اختر مدينتك يدويًا.','bad');var t2=document.querySelector('.pt-lt b');if(t2)t2.textContent='لم يُحدَّد الموقع بعد'}return}
     /* لم يصل موقع سريع: جرّب الدقة العالية مرة أخيرة */
     if(!silent)say('جارٍ البحث عن إشارة الموقع… قد يستغرق ذلك لحظات.','busy');
