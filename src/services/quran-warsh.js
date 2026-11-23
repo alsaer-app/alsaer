@@ -50,7 +50,7 @@ function vWarshReader(){
   +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button>'
   +'<button class="ib" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+ic('chev')+'</button></div>'
   +(useImg?'':lg)
-  +'<div class="fsz"><button class="ib" data-a="mpset">'+ic('gear')+'إعدادات المصحف</button><button class="ib" data-a="qtj" aria-pressed="'+tj+'">ألوان التجويد: '+(tj?'تشغيل':'إيقاف')+'</button></div>';
+  +'<div class="fsz"><button class="ib" data-a="mpset">'+ic('gear')+'المصحف</button><button class="ib" data-a="qtj" aria-pressed="'+tj+'">التجويد</button><button class="ib" data-a="qwird">'+ic('flag')+'الورد والرواية</button></div>';
   return mpWrap(mainH,ctlH,p,mu);
 }
 function QD(){return window.QDATA||{n:[],s:[],p:[]}}
