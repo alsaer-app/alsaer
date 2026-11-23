@@ -13,3 +13,26 @@
 .drive-mock .sg-card{overflow:hidden}.dm-intro{text-align:center;padding:19px 18px 14px}.dm-intro>.sg-ic{display:flex;margin:0 auto 9px;width:44px;height:44px;align-items:center;justify-content:center}.dm-intro>b{display:block;font-size:18px}.dm-intro .note{line-height:1.9;margin:7px 0 0}.drive-mock .sg-row{padding:15px 13px;gap:9px}.drive-mock .sg-tx b{font-size:14px}.drive-mock .sg-tx small{font-size:11px}.dm-unlink,.dm-period{border:0;background:transparent;color:var(--ac);font:inherit;font-size:12px;white-space:nowrap;padding:10px 0}.dm-period{border-radius:12px;background:rgba(95,207,193,.09);padding:10px}.dm-store{padding:16px 14px 17px}.dm-store>b{font-size:14px}.dm-segment{display:flex;margin-top:12px;padding:4px;gap:4px;border-radius:16px;background:rgba(95,207,193,.07)}.dm-segment button{flex:1;border:0;border-radius:12px;color:inherit;background:transparent;font:inherit;font-size:13px;padding:12px 3px}.dm-segment .selected{background:rgba(95,207,193,.18);color:var(--ac);font-weight:700}.dm-last{font-size:10px!important;margin:9px 0 14px!important}.dm-actions{display:flex;gap:9px}.dm-actions>.btn{flex:1;justify-content:center;padding:13px 6px;font-size:14px}.dm-foot{text-align:center;font-size:11px!important;margin:13px 9px 0!important;line-height:1.8}
 
 .drive-mock .dm-email{display:block;overflow-wrap:anywhere;font-size:11px}.drive-mock .sg-tx{min-width:0}.drive-mock #gd-backup-pw{margin:8px 0}.drive-mock .dm-foot{margin-bottom:12px}
+
+/* Shared toolbar for legacy non-fullscreen Mushaf only, outside page content. */
+.rd-fallback-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}.rd-fallback-tools>b{font-size:14px}.rd-fallback-tools .ib{display:flex;flex-direction:column;gap:2px}.rd-fallback-tools small{font-size:9px}
+
+/* Approved menu legend: no page overlay, existing tajweed palette. */
+.rd-tajweed-key{margin:12px 0;padding:15px 12px;border:1px solid var(--line)}
+.rd-tajweed-key h3{font-size:15px;margin:0 0 12px;color:var(--gold)}
+.rd-tajweed-key .tjl{display:grid;grid-template-columns:1fr 1fr;gap:12px 7px;margin:0;font-size:11px}
+
+/* Reviewed developer card, inherited app theme and accent only. */
+.settings-dev{padding:18px 16px;margin-bottom:15px}
+.settings-dev-head{display:flex;align-items:center;gap:13px}
+.settings-dev-avatar{width:48px;height:48px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:600;direction:ltr;background:color-mix(in srgb,var(--gold) 13%,transparent);color:var(--gold)}
+.settings-dev-name{flex:1;min-width:0}
+.settings-dev-name b{display:block;text-align:right;font-size:14px;white-space:nowrap}
+.settings-dev-name p{font-size:11px;white-space:nowrap;margin:4px 0 0;color:var(--muted)}
+.settings-dev-version{font-size:11px;border-radius:20px;padding:6px 9px;background:color-mix(in srgb,var(--gold) 10%,transparent);color:var(--gold)}
+.settings-dev-links{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:9px;margin-top:15px}
+.settings-dev-links a{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--gold) 7%,transparent);color:var(--muted)}
+.settings-dev-links svg{width:18px;height:18px}
+.settings-dev-links a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.settings-app{margin-bottom:15px}
+.settings-app a.sg-row{text-decoration:none;color:inherit}
