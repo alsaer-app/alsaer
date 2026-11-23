@@ -11,11 +11,17 @@ import com.getcapacitor.BridgeActivity;
  */
 public class MainActivity extends BridgeActivity {
     private DriveAuthorization driveAuthorization;
+    private BackupDocuments backupDocuments;
+    void backupDocument(boolean save,String content,String name){
+        if(backupDocuments==null)backupDocuments=new BackupDocuments(this);
+        backupDocuments.launch(save,content,name);
+    }
     void authorizeDrive(boolean interactive) {
         if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
         driveAuthorization.authorize(interactive);
     }
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (backupDocuments != null && backupDocuments.onResult(requestCode,resultCode,data)) return;
         if (driveAuthorization != null && driveAuthorization.onResult(requestCode, resultCode, data)) return;
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -108,4 +114,4 @@ public class MainActivity extends BridgeActivity {
             intent.removeExtra("alsaer_route");
         }
     }
-    }
+}
