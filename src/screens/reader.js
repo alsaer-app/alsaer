@@ -44,4 +44,4 @@ function vReader(){
   +(useImg?'':lg)
   +'<div class="fsz"><button class="ib" data-a="mpset">'+ic('gear')+'المصحف</button><button class="ib" data-a="qjump" aria-pressed="'+!!rd.jump+'">'+ic('search')+'انتقال</button><button class="ib" data-a="qtj" aria-pressed="'+tj+'">التجويد</button><button class="ib" data-a="qwird">'+ic('flag')+'الورد والرواية</button>'+'</div>'+(rd.jump?mpJump(p):'');
   return mpWrap(mainH,ctlH,p,m);
-    }
+}
