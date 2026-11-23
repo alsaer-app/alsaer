@@ -103,3 +103,20 @@
 .upd-bar>div{height:100%;border-radius:99px;background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 60%,#0E8A86),var(--gold));transition:width .4s ease}
 .upd-meta{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);font-weight:700}
 .lrow small{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:2px}
+
+/* ===== ورقة الورد والرواية + بانر الرواية ===== */
+.ups-card.qws{bottom:calc(10px + env(safe-area-inset-bottom,0px));max-height:calc(100dvh - 48px);overflow-y:auto}
+.qws .qws-t{font-size:17px;font-weight:800;margin:2px 2px 4px}
+.qws-sub{color:var(--muted);font-size:12.5px;margin:0 2px 12px}
+.qws-col{flex-direction:column;align-items:stretch;gap:10px}
+.qws-head{display:flex;align-items:center;gap:12px}
+.qws-head .sg-tx{flex:1;min-width:0}
+.qws-bar{margin:0}
+.qws-step{display:flex;width:100%;justify-content:flex-end;align-items:center;gap:8px;margin:0}
+.qws-step b{font-size:20px;min-width:30px;text-align:center}
+.qws-step .ib{width:34px;height:34px;border-radius:11px}
+.riw-banner{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:96;display:flex;align-items:center;gap:9px;padding:11px 18px;border-radius:999px;background:color-mix(in srgb,var(--gold) 16%,var(--bg));border:1px solid color-mix(in srgb,var(--gold) 65%,transparent);color:var(--gold);font-weight:800;font-size:14.5px;white-space:nowrap;box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 12%,transparent),0 8px 30px color-mix(in srgb,var(--gold) 45%,transparent);animation:riwGlow 1.6s ease-in-out;transition:opacity .4s}
+.riw-banner .i{width:19px;height:19px}
+.riw-banner.out{opacity:0}
+@keyframes riwGlow{0%,100%{box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 12%,transparent),0 8px 30px color-mix(in srgb,var(--gold) 45%,transparent)}50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--gold) 7%,transparent),0 8px 40px color-mix(in srgb,var(--gold) 70%,transparent)}}
+html[data-trans="none"] .riw-banner{animation:none}
