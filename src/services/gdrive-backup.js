@@ -165,10 +165,10 @@ function gdRestorePanel(){
 }
 function gdRestoreApply(raw){
   /* Parse before creating the safety copy. Invalid downloads must not replace it. */
-  var o;try{o=JSON.parse(raw);if(!(o&&o.app==='alsaer'&&o.S&&typeof o.S==='object'&&!Array.isArray(o.S))&&!validBackup(o))throw new Error('invalid');fixShape(Object.assign(def(),o.S||o))}catch(e){throw new Error('invalid-backup')}
+  var o;try{o=JSON.parse(raw);if(!(o&&o.app==='alsaer'&&o.S&&typeof o.S==='object'&&!Array.isArray(o.S))&&!validBackup(o))throw new Error('invalid');if(!validBackup(o.S||o))throw Error('invalid-backup');fixShape(Object.assign(def(),o.S||o))}catch(e){throw new Error('invalid-backup')}
   var safety=bkBuild();
   try{localStorage.setItem(GD_SAFETY_KEY,safety);if(localStorage.getItem(GD_SAFETY_KEY)!==safety)throw new Error('storage')}catch(e){throw new Error('safety-failed')}
-  var statusBefore=gdStatus(),statusAfter=Object.assign({},statusBefore);statusAfter[gdRestoreSource==='file'?'fileRestoreAt':'driveRestoreAt']=Date.now();
+  var statusBefore=gdStatus(),statusAfter=Object.assign({},statusBefore);statusAfter[gdRestoreSource==='file'?'fileRestoreAt':gdRestoreSource==='safety'?'safetyRestoreAt':'driveRestoreAt']=Date.now();
   try{localStorage.setItem(GD_META,JSON.stringify(statusAfter))}catch(e){throw Error('safety-failed')}
   var er=bkApply(raw);if(er){localStorage.setItem(GD_META,JSON.stringify(statusBefore));throw new Error(er)}
   gdVerified='';
@@ -329,7 +329,7 @@ function gdPickerPanel(){
   return h+'<p class="note gd-dialog-msg" role="status">'+esc(bkMsg)+'</p><button class="btn ghost block" data-a="gdpickcancel">إلغاء</button></div></section>';
 }
 function gdStage(raw,source,file){gdRestoreRaw=String(raw||'');gdRestoreSource=source;gdChosen=file||{};gdVerified='';gdPicker=null;gdSelected=[];bkSay('اختر كلمة المرور إن لزم ثم تحقق من الملف قبل الاستعادة.');render()}
-function gdValidateRestore(raw){var o=JSON.parse(raw);if(!(o&&o.app==='alsaer'&&o.S&&typeof o.S==='object'&&!Array.isArray(o.S))&&!validBackup(o))throw Error('invalid-backup');fixShape(Object.assign(def(),o.S||o));return o}
+function gdValidateRestore(raw){var o=JSON.parse(raw);if(!(o&&o.app==='alsaer'&&o.S&&typeof o.S==='object'&&!Array.isArray(o.S))&&!validBackup(o))throw Error('invalid-backup');if(!validBackup(o.S||o))throw Error('invalid-backup');fixShape(Object.assign(def(),o.S||o));return o}
 function gdVerifyRestore(){
   if(gdBusy||!gdRestoreRaw)return Promise.resolve(false);var pw=(document.getElementById('gd-restore-pw')||{}).value||'';
   gdBusy=true;
@@ -352,7 +352,7 @@ function gdExportFile(){
 function gdImportFile(){
   if(gdBusy||gdDocPending||gdRestoreRaw)return;
   if(!(window.AlsaerNative&&AlsaerNative.backupImport)){bkSay('اختيار الملفات متاح في تطبيق Android.');return}
-  gdPicker=null;gdDocPending=true;AlsaerNative.backupImport();render();
+  gdPicker=null;gdDocPending=true;try{AlsaerNative.backupImport()}catch(e){gdDocPending=false;bkSay('تعذّر فتح منتقي الملفات؛ أعد المحاولة.')}render();
 }
 window.gdriveOnDocument=function(status,raw,name,size){
   gdDocPending=false;
