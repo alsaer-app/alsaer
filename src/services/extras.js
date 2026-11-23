@@ -40,7 +40,7 @@ function bkApply(raw){
       saveOff=true;if(saveTm){clearTimeout(saveTm);saveTm=0}
       try{localStorage.setItem(KEY,JSON.stringify(n0))}catch(e){saveOff=false;return 'تعذّر الحفظ: قد تكون مساحة التخزين ممتلئة.'}
       try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,JSON.stringify(n0))}catch(e){}
-      setTimeout(function(){location.reload()},400);
+      S=n0;mem=n0;setTimeout(function(){location.reload()},400);
       return '';
     }
     return 'هذا ليس ملف نسخة احتياطية من «السائر إلى الله».';
@@ -52,7 +52,7 @@ function bkApply(raw){
   try{localStorage.setItem(KEY,JSON.stringify(n))}catch(e){saveOff=false;return 'تعذّر الحفظ: قد تكون مساحة التخزين ممتلئة.'}
   try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,JSON.stringify(n))}catch(e){} /* حدّث النسخة الاحتياطية المحلية فور الاسترجاع */
   if(o.rem&&typeof o.rem==='object'&&!Array.isArray(o.rem)){try{localStorage.setItem('alsaer_daily_reminders_v1',JSON.stringify(o.rem))}catch(e){}}
-  setTimeout(function(){location.reload()},400);
+  S=n;mem=n;setTimeout(function(){location.reload()},400);
   return '';
 }
 function bkAgo(t){
@@ -78,27 +78,12 @@ function vGdRows(){
   }
   return h+gdRestorePanel()+'</div>';
 }
-function vBackup(){
-  var rr={};try{rr=JSON.parse(localStorage.getItem('alsaer_daily_reminders_v1')||'{}')}catch(e){}
-  var ago=S.bkAt?('آخر نسخة: <b>'+bkAgo(S.bkAt)+'</b>'):'لم تصدّر أي نسخة بعد';
-  var h='<div class="bk">'
-   +'<div class="okcard"><span class="oki">'+ic('shield')+'</span><div><b>'+ago+'</b><small>بياناتك على جهازك ولا تتضمن النسخة رمز القفل'+(S.bkAt&&Date.now()-S.bkAt>7*864e5?' · يُستحسن تصدير نسخة جديدة':'')+'</small></div></div>'
-   +'<div class="sg-t">على هذا الجهاز</div><div class="sg-card">'
-   +bkRow('bkmode','lock','تصدير نسخة مشفّرة','ملف واحد تحفظه أين تشاء (موصى به)','export')
-   +(bkMode==='export'?'<div class="panel"><p class="note" style="margin-top:0">كلمة المرور تحمي النسخة؛ لا يمكن استرجاعها بدونها.</p><input type="password" id="bk-pw" autocomplete="off" placeholder="كلمة مرور (٦ أحرف فأكثر)" style="margin:0 0 8px"><button class="btn block" data-a="bkexenc">'+ic('check')+' تصدير مشفّر</button>'+(bkText?'<textarea id="bk-out" class="bk-ta" readonly rows="5" dir="ltr" style="margin-top:8px">'+esc(bkText)+'</textarea><button class="btn ghost block" data-a="bkcopy" style="margin-top:6px">نسخ النص</button>':'')+'</div>':'')
-   +bkRow('bkmode','up','استيراد نسخة','من ملف أو نص — تظهر خياراته عند الحاجة فقط','import')
-   +(bkMode==='import'?'<div class="panel"><textarea id="bk-in" class="bk-ta" rows="4" dir="ltr" placeholder="الصق نص النسخة هنا">'+esc(bkIn)+'</textarea><input type="password" id="bk-pw" autocomplete="off" placeholder="كلمة المرور (للنسخة المشفّرة فقط)" style="margin:8px 0"><div class="acts"><label class="btn ghost bk-file">اختيار ملف<input id="bk-file" type="file" accept=".json,.txt,application/json,text/plain" hidden></label><button class="btn'+(bkConfirm?' bad':'')+'" data-a="bkimport">'+(bkConfirm?'تأكيد الاستبدال الآن':'استيراد')+'</button></div><p class="note">سيحلّ محلّ بياناتك الحالية بعد التأكيد.</p></div>':'')
-   +'</div>'
-   +vGdRows()
-   +'<div class="sg-t">تذكير</div><div class="sg-card"><div class="sg-row'+(rr.backup?' lit':'')+'"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>تذكير أسبوعي بالنسخ</b><small>كل جمعة مساءً</small></div><div class="sg-ctl"><label class="rm-sw"><input type="checkbox" data-rem-toggle="backup" '+(rr.backup?'checked':'')+'><i></i></label></div></div></div>'
-   +'<p class="note bk-msg" id="bk-msg"'+(bkMsg?'':' hidden')+'>'+esc(bkMsg)+'</p></div>';
-  return h;
-}
+function vBackup(){return '<div class="bk drive-mock"><section class="sg-card"><div class="panel dm-intro"><span class="sg-ic">'+ic('cloud')+'</span><b>نسختك محفوظة معك</b><p class="note">احتفظ بنسخة من بيانات السائر على Google Drive واستعدها عند الحاجة. لا يصل التطبيق إلا إلى الملفات التي ينشئها.</p></div><div class="sg-row"><span class="sg-ic">'+ic('lock')+'</span><div class="sg-tx"><b>تشفير النسخة بكلمة مرور</b><small>اختياري، لحماية محتوى النسخة</small></div><div class="sg-ctl"><label class="rm-sw"><input type="checkbox" data-gd-encrypt '+((gdPrefs().encrypt||gdPwOpen)?'checked':'')+'><i></i></label></div></div><div class="sg-row"><span class="sg-ic">'+ic('check')+'</span><div class="sg-tx"><b>'+(gdHasRt()?'حساب Google مربوط':'حساب Google')+'</b><small>'+(gdEmail()?'<span dir="ltr" class="dm-email">'+esc(gdEmail())+'</span>':(gdHasRt()?'جارٍ قراءة الحساب…':'غير مربوط'))+'</small></div><div class="sg-ctl"><button class="dm-unlink" data-a="'+(gdHasRt()?'gddisc':'gdconnect')+'">'+(gdHasRt()?'فك الربط':'ربط الحساب')+'</button></div></div><div class="sg-row"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>نسخ احتياطي تلقائي</b><small>عند فتح التطبيق بعد مرور المدة</small></div><div class="sg-ctl"><button class="dm-period" data-a="gdauto">'+(gdPrefs().auto?'كل ٧ أيام':'متوقف')+'</button></div></div><div class="panel dm-store"><b>مكان حفظ النسخة</b><div class="dm-segment"><button data-a="gdstore" data-v="drive" class="'+(gdPrefs().storage==='drive'?'selected':'')+'">Drive فقط</button><button data-a="gdstore" data-v="both" class="'+(gdPrefs().storage==='both'?'selected':'')+'">Drive والهاتف</button></div><p class="note dm-last">'+(S.gdAt?'آخر رفع إلى Drive: '+bkAgo(S.gdAt):'لم ترفع نسخة بعد')+(gdPrefs().phoneAt?' · آخر نسخة على الهاتف: '+bkAgo(gdPrefs().phoneAt):'')+'</p><div class="dm-actions"><button class="btn" data-a="gdup">'+ic('up')+' نسخ الآن</button><button class="btn ghost" data-a="gddown">'+ic('cloud')+' استعادة</button></div></div>'+gdPasswordPanel()+gdRestorePanel()+'</section><p class="note dm-foot">تبقى بياناتك على جهازك. النسخة المشفّرة تحتاج كلمة مرورها عند الاستعادة.</p><p class="note bk-msg" id="bk-msg"'+(bkMsg?'':' hidden')+'>'+esc(bkMsg)+'</p></div>';}
 function bkSay(t){bkMsg=t;var q=document.getElementById('bk-msg');if(q){q.textContent=t;q.hidden=!t}else try{render()}catch(e){}}
 document.addEventListener('input',function(e){var t=e.target;if(t&&t.id==='bk-in')bkIn=t.value});
 document.addEventListener('change',function(e){var t=e.target;if(t&&t.id==='bk-file'&&t.files&&t.files[0]){var r=new FileReader();r.onload=function(){var ta=document.getElementById('bk-in');if(ta){ta.value=bkIn=String(r.result||'');bkConfirm=false;bkSay('قُرئ الملف. اضغط «استيراد» ثم «تأكيد».')}};r.onerror=function(){bkSay('تعذّرت قراءة الملف.')};r.readAsText(t.files[0])}});
 function extraAct(a,v){
-  if(a.indexOf('gd')===0){return gdAct(a)}
+  if(a.indexOf('gd')===0){return gdAct(a,v)}
   if(a==='qdchg'){var p=String(v).split(':'),k=p[0],d=parseInt(p[1],10)||0,q=qdGet();
     if(d<0&&q[k]>0){q[k]--;q.done=(parseInt(q.done,10)||0)+1;hapGo([40])}else if(d>0&&q[k]<99999)q[k]++;
     save();qdPaint();return true}
