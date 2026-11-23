@@ -32,9 +32,15 @@ function fixShape(o){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(o.fasting.dawudAnchor||''))o.fasting.dawudAnchor=dk();
   return o;
 }
-function load(){try{var r=localStorage.getItem(KEY);if(!r&&window.AlsaerNative&&AlsaerNative.mirrorGet){try{r=AlsaerNative.mirrorGet(KEY);if(r)try{localStorage.setItem(KEY,r)}catch(e2){}}catch(e1){}}if(r)return fixShape(Object.assign(def(),JSON.parse(r)))}catch(e){/* التخزين المحلي تالف: استرجع من النسخة الاحتياطية المحلية */try{if(window.AlsaerNative&&AlsaerNative.mirrorGet){var r2=AlsaerNative.mirrorGet(KEY);if(r2){var o2=fixShape(Object.assign(def(),JSON.parse(r2)));try{localStorage.setItem(KEY,r2)}catch(e3){}return o2}}}catch(e4){}}return mem||def()}
+function load(){
+  var local=null,mirror=null,raw=null,mraw=null;
+  try{raw=localStorage.getItem(KEY);if(raw){var lo=JSON.parse(raw);if(lo&&typeof lo==='object'&&!Array.isArray(lo))local=fixShape(Object.assign(def(),lo))}}catch(e){}
+  try{if(window.AlsaerNative&&AlsaerNative.mirrorGet){mraw=AlsaerNative.mirrorGet(KEY);if(mraw){var mo=JSON.parse(mraw);if(mo&&typeof mo==='object'&&!Array.isArray(mo))mirror=fixShape(Object.assign(def(),mo))}}}catch(e){}
+  if(mirror&&(!local||Number(mirror.updatedAt)>Number(local.updatedAt))){try{localStorage.setItem(KEY,mraw)}catch(e){}return mirror}
+  return local||mirror||mem||def();
+}
 var saveTm=0,saveOff=false;
-function saveNow(){if(saveTm){clearTimeout(saveTm);saveTm=0}if(saveOff)return;S.updatedAt=Date.now();mem=S;try{var js=JSON.stringify(S);localStorage.setItem(KEY,js);try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,js)}catch(e3){}}catch(e){toast('لم نتمكن من الحفظ، فقد تكون مساحة التخزين ممتلئة')}}
+function saveNow(){if(saveTm){clearTimeout(saveTm);saveTm=0}if(saveOff)return;S.updatedAt=Date.now();mem=S;var js;try{js=JSON.stringify(S)}catch(e){toast('تعذّر تجهيز بيانات الحفظ');return}var localOK=false,mirrorOK=false;try{localStorage.setItem(KEY,js);localOK=true}catch(e){}try{if(window.AlsaerNative&&AlsaerNative.mirrorSet){AlsaerNative.mirrorSet(KEY,js);mirrorOK=true}}catch(e){}if(!localOK)toast(mirrorOK?'تعذّر الحفظ في تخزين الواجهة؛ حُفظت نسخة الهاتف':'لم نتمكن من الحفظ، فقد تكون مساحة التخزين ممتلئة')}
 function save(){if(saveOff)return;S.updatedAt=Date.now();mem=S;if(!saveTm)saveTm=setTimeout(saveNow,160)}
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'&&saveTm)saveNow()});
 window.addEventListener('pagehide',function(){if(saveTm)saveNow()});
@@ -66,7 +72,7 @@ function validBackup(o){
   if(o.fasting!==undefined&&!obj(o.fasting))return false;
   if(o.startDate&&!/^\d{4}-\d{2}-\d{2}$/.test(o.startDate))return false;
   if(Object.keys(o.days).length>5000||Object.keys(o.counters).length>5000||(o.reasons||[]).length>500||(o.urges||[]).length>50000)return false;
-  for(var k of Object.keys(o.days)){var d=o.days[k];if(!/^\d{4}-\d{2}-\d{2}$/.test(k)||!obj(d)||!['success','relapse'].includes(d.status)||typeof (d.note||'')!=='string'||(d.note||'').length>4000||!Array.isArray(d.trig||[]))return false;}
+  for(var k of Object.keys(o.days)){var d=o.days[k];if(!/^\d{4}-\d{2}-\d{2}$/.test(k)||!obj(d)||!(d.status===undefined||['success','relapse'].includes(d.status))||typeof (d.note||'')!=='string'||(d.note||'').length>4000||!Array.isArray(d.trig||[]))return false;}
   for(var k2 of Object.keys(o.counters)){if(!/^\d{4}-\d{2}-\d{2}$/.test(k2)||!obj(o.counters[k2]))return false;for(var id of Object.keys(o.counters[k2])){var n=o.counters[k2][id];if(!Number.isInteger(n)||n<0||n>100000)return false;}}
   if((o.reasons||[]).some(function(x){return typeof x!=='string'||x.length>1000;}))return false;
   if(Object.keys(o.habits||{}).length>5000)return false;
