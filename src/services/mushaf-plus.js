@@ -21,8 +21,18 @@ function mpAct(a,v){
   return false;
 }
 /* السحب: يمينًا = الصفحة السابقة، يسارًا = التالية (كالمصحف الورقي العربي) */
-var mpSwAt=0;
-document.addEventListener('click',function(e){if(mpSwAt&&Date.now()-mpSwAt<700){e.stopPropagation();e.preventDefault()}},true);
+/* حارس النقرة الشبح: بعد ضغطة مطوّلة أو قلبة سحب يولّد المتصفح نقرة عند موضع رفع الإصبع
+   قد تصيب زرًا ظهر تحت الإصبع. الابتلاع مرة واحدة فقط، خلال 400ms، وعلى بعد 60px من موضع
+   الإصبع — أي نقرة حقيقية أبعد أو لاحقة تمر فورًا (كان 700ms تبتلع كل النقرات). */
+var mpSwAt=0,mpSwX=0,mpSwY=0;
+function mpSwallow(x,y){mpSwAt=Date.now();mpSwX=x;mpSwY=y}
+document.addEventListener('click',function(e){
+  if(!mpSwAt)return;
+  if(Date.now()-mpSwAt>400){mpSwAt=0;return}
+  var dx=e.clientX-mpSwX,dy=e.clientY-mpSwY;
+  if(dx*dx+dy*dy>3600)return; /* نقرة بعيدة عن موضع الإصبع = نقرة مقصودة جديدة */
+  mpSwAt=0;e.stopPropagation();e.preventDefault();
+},true);
 
 /* ---------- ملء الشاشة + البحث عن آية ---------- */
 var MP_SV='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>',mpHint=false,mpIdx=null;
@@ -95,23 +105,117 @@ function mpVAttr(t){
 function mpVm(){if(!S.quran.vm||typeof S.quran.vm!=='object')S.quran.vm={};return S.quran.vm}
 function mpHl(v){
   if(document.querySelector('#mp.mpi')){mpHlLast=v;try{mpiPaint(v)}catch(e){}return}
-  mpHlLast=v;var L=document.querySelectorAll('#mp .mw.vhl');for(var i=0;i<L.length;i++)L[i].classList.remove('vhl');
+  mpHlLast=v;var L=document.querySelectorAll('#mp .mw.vhl');for(var i=0;i<L.length;i++)L[i].classList.remove('vhl','vhl-ls','vhl-le');
   if(!v)return;var W=document.querySelectorAll('#mp .mw[data-v="'+v+'"]');for(var j=0;j<W.length;j++)W[j].classList.add('vhl');
+  /* شريط متصل لكل سطر: الحواف الدائرية عند أول كلمة وآخر كلمة في السطر فقط */
+  var lines={};for(j=0;j<W.length;j++){var k=String(Math.round(W[j].offsetTop/4));if(!lines[k])lines[k]=[W[j],W[j]];else lines[k][1]=W[j]}
+  for(var y in lines){lines[y][0].classList.add('vhl-ls');lines[y][1].classList.add('vhl-le')}
 }
 function mpVName(v){var q=String(v).split(':');return 'سورة '+QD().n[(+q[0])-1]+' · آية '+ar(+q[1])}
-var mpTf={k:'',t:''};
+var mpTf={k:'',t:''},mpMk={k:'',t:''};
 function mpApplySel(){
   var bar=document.getElementById('mp-vb');
-  if(tab!=='reader'||!rd||!document.getElementById('mp')){if(bar)bar.remove();mpSel='';return}
+  if(tab!=='reader'||!rd||!document.getElementById('mp')){if(bar)mpDismissBar(bar);mpSel='';return}
   var vm=mpVm(),W=document.querySelectorAll('#mp .mw[data-v]');
   for(var i=0;i<W.length;i++)W[i].classList.toggle('vmk',!!vm[W[i].getAttribute('data-v')]);
   mpHl(mpSel);
-  if(!mpSel){if(bar)bar.remove();return}
-  if(!bar){bar=document.createElement('div');bar.id='mp-vb';bar.className='mp-vb';document.body.appendChild(bar)}
+  if(mpAu.k&&mpAu.k!==mpSel)mpAuStop();
+  if(mpImg.k&&mpImg.k!==mpSel)mpImgClear();
+  if(!mpSel){if(bar)mpDismissBar(bar);return}
+  if(!bar){bar=document.createElement('div');bar.id='mp-vb';bar.className='mp-vb';document.body.appendChild(bar)}else if(bar._closing){bar._closing=0;bar.classList.remove('mp-closing')}
   var mk=!!vm[mpSel];
-  bar.innerHTML='<b>'+esc(mpVName(mpSel))+'</b>'+((mpTf.k===mpSel&&mpTf.t)?'<div class="mp-tf" dir="rtl">'+esc(mpTf.t)+'</div>':'')+'<div class="mp-vbb"><button data-mp2="tf" class="'+(mpTf.k===mpSel?'on':'')+'">تفسير</button><button data-mp2="copy">نسخ</button><button data-mp2="mark" class="'+(mk?'on':'')+'">'+(mk?'★ علامة':'☆ علامة حفظ')+'</button><button data-mp2="share">مشاركة</button><button data-mp2="x" aria-label="إغلاق">✕</button></div>';
+  bar.innerHTML='<i class="mp-grip" aria-hidden="true"></i><div class="mp-vbh"><b>'+esc(mpVName(mpSel))+'</b><button data-mp2="x" class="mp-vx" aria-label="إغلاق">✕</button></div>'+((mpTf.k===mpSel&&mpTf.t)?'<div class="mp-tf" dir="rtl">'+esc(mpTf.t)+'</div>':'')+((mpMk.k===mpSel&&mpMk.t)?'<div class="mp-tf" dir="rtl">'+esc(mpMk.t)+'</div><div class="mp-src"><span>المختصر في التفسير · مركز تفسير للدراسات القرآنية</span><button data-mp2="mkre">تحديث</button></div>':'')+((mpImg.k===mpSel&&mpImg.url)?'<img class="mp-shi" src="'+mpImg.url+'" alt="بطاقة الآية"><span class="mp-shb"><button data-mp2="imgsh">مشاركة الصورة</button><button data-mp2="imgdl">حفظ</button></span>':'')+'<div class="mp-vbb"><div class="mp-br"><button data-mp2="tf" class="'+(mpTf.k===mpSel?'on':'')+'">تفسير</button><button data-mp2="mk" class="'+(mpMk.k===mpSel?'on':'')+'">مختصر</button><button data-mp2="listen" class="'+(mpAu.k===mpSel?'on':'')+'">'+(mpAu.k===mpSel?'إيقاف':'استماع')+'</button><button data-mp2="img" class="'+(mpImg.k===mpSel?'on':'')+'">صورة</button></div><div class="mp-br"><button data-mp2="copy">نسخ</button><button data-mp2="mark" class="'+(mk?'on':'')+'">'+(mk?'★ علامة':'☆ علامة حفظ')+'</button><button data-mp2="share">مشاركة</button></div></div>';
+  mpPlaceBar(bar);
+  var im=bar.querySelector('img.mp-shi');if(im)im.addEventListener('load',function(){mpPlaceBar(bar)},{once:true});
 }
+/* إغلاق متحرك: يزيل الشريط بعد انتهاء حركة الخروج */
+function mpDismissBar(bar){
+  if(!bar||bar._closing)return;bar._closing=1;
+  bar.classList.add('mp-closing');
+  setTimeout(function(){if(bar._closing)bar.remove()},175);
+}
+/* يثبّت الشريط فوق الآية المحددة أو تحتها (أيهما أوسع) ولا يغطيها؛ وإن طال بمحتوى مفتوح يقلّص مساحة النص/الصورة داخله لتتّسع */
+function mpPlaceBar(bar){
+  bar.style.top='';bar.style.bottom='';
+  var ws=document.querySelectorAll('#mp .mw.vhl');if(!ws||!ws.length)return;
+  var top=1e9,bot=-1e9;
+  for(var i=0;i<ws.length;i++){var r=ws[i].getBoundingClientRect();if(!(r.height>0))continue;if(r.top<top)top=r.top;if(r.bottom>bot)bot=r.bottom}
+  if(top>1e8)return;
+  var vh=window.innerHeight,gap=8,hd=56;
+  var spaceAbove=(top-gap)-hd, spaceBelow=(vh-10)-(bot+gap);
+  var useAbove=spaceAbove>=bar.offsetHeight||(spaceBelow<bar.offsetHeight&&spaceAbove>=spaceBelow);
+  var space=useAbove?spaceAbove:spaceBelow;
+  if(bar.offsetHeight>space){
+    var flex=bar.querySelector('.mp-tf,img.mp-shi');
+    if(flex){var over=bar.offsetHeight-space,cur=flex.getBoundingClientRect().height;
+      flex.style.maxHeight=Math.max(80,cur-over)+'px'}
+  }
+  var h=bar.offsetHeight;
+  if(useAbove){bar.style.top=Math.max(hd,top-gap-h)+'px';bar.style.bottom='auto'}
+  else{bar.style.top=Math.max(hd,Math.min(bot+gap,vh-10-h))+'px';bar.style.bottom='auto'}
+}
+window.addEventListener('resize',function(){var b=document.getElementById('mp-vb');if(b&&mpSel)mpPlaceBar(b)});
 function mpVerseText(v){var q=String(v).split(':'),t;try{if(isW()&&WD().s[+q[0]-1]&&WD().s[+q[0]-1][+q[1]-1])t=String(WD().s[+q[0]-1][+q[1]-1])}catch(e){}return '﴿'+(t||verseText(+q[0],+q[1]))+'﴾ — '+mpVName(v)}
+/* ---------- مشاركة الآية كصورة: بطاقة بنفس نمط بطاقات المشاركة ---------- */
+var mpImg={k:'',url:'',blob:null};
+function mpImgClear(){if(mpImg.url){try{URL.revokeObjectURL(mpImg.url)}catch(e){}}mpImg={k:'',url:'',blob:null}}
+function mpWrapLines(x,t,mw){var L=[];t.split('\n').forEach(function(par){var ws=par.split(' '),cur='';ws.forEach(function(w){var q=cur?cur+' '+w:w;if(x.measureText(q).width>mw&&cur){L.push(cur);cur=w}else cur=q});L.push(cur)});return L}
+function mpAyahCard(k,cb){
+  var q=k.split(':'),t='';try{t=verseText(+q[0],+q[1])}catch(e){}
+  if(!t){cb(null);return}
+  var ff=getComputedStyle(document.body).fontFamily||'sans-serif';
+  var pal=(function(){var cs=function(n){try{return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}catch(e){return''}};
+    var d=cs('--ac-d'),d2=cs('--ac2-d'),ag=cs('--ac-g'),hex=/^#[0-9a-f]{6}$/i;
+    if(!hex.test(d)||!hex.test(d2))return{g0:'#0E2A2B',g1:'#1B4A45',hd:'#E8C873'}; /* بلا ثيم: النمط الأصلي */
+    return{g0:mix(d,'#0E2A2B',.45),g1:mix(d2,'#1B4A45',.30),hd:hex.test(ag)?ag:'#E8C873'}})();
+  var draw=function(fam){
+    try{
+      var c=document.createElement('canvas');c.width=1080;c.height=1350;var x=c.getContext('2d');
+      var g=x.createLinearGradient(0,0,1080,1350);g.addColorStop(0,pal.g0);g.addColorStop(1,pal.g1);x.fillStyle=g;x.fillRect(0,0,1080,1350);
+      x.strokeStyle='#C9A24B';x.lineWidth=4;x.strokeRect(40,40,1000,1270);x.lineWidth=1.5;x.strokeRect(58,58,964,1234);
+      x.direction='rtl';x.textAlign='center';
+      x.fillStyle=pal.hd;x.font='bold 46px '+ff;x.fillText('السائر إلى الله',540,150);
+      var size=76,lines,lh;
+      for(;;){x.font=size+'px '+fam;lines=mpWrapLines(x,t,880);lh=size*1.7;if(lines.length*lh<=760||size<=34)break;size-=4}
+      x.fillStyle='#fff';var y0=640-lines.length*lh/2+lh*0.6;lines.slice(0,14).forEach(function(l,i){x.fillText(l,540,y0+i*lh)});
+      x.fillStyle='#9FB3AE';x.font='36px '+ff;x.fillText(mpVName(k),540,1180);
+      x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر إلى الله · مجاني بالكامل',540,1250);
+      cb(c)
+    }catch(e){cb(null)}
+  };
+  if(document.fonts&&document.fonts.load){
+    document.fonts.load('64px KFGQPC',t.slice(0,20)).then(function(){
+      var ok=false;try{ok=document.fonts.check('64px KFGQPC')}catch(e){}
+      draw(ok?'KFGQPC':ff)
+    },function(){draw(ff)});
+  }else draw(ff);
+}
+
+/* ---------- استماع للآية: المنشاوي المرتل (islamic.network 128k، واحتياطي everyayah) ---------- */
+var mpAu={k:'',el:null};
+function mpAuStop(){if(mpAu.el){try{mpAu.el.pause()}catch(e){}try{mpAu.el.removeAttribute('src')}catch(e2){}}mpAu={k:'',el:null}}
+function mpGAya(c,v){var A=(window.QDATA&&QDATA.s)?QDATA.s:QD().s,n=0;for(var i=0;i<c-1&&i<A.length;i++)n+=A[i].length;return n+v}
+function mpListen(k){
+  if(mpAu.k===k){mpAuStop();mpApplySel();return}
+  mpAuStop();
+  var q=k.split(':'),c=+q[0],v=+q[1],g=mpGAya(c,v);
+  var p3=function(n){return ('00'+n).slice(-3)};
+  var urls=['https://cdn.islamic.network/quran/audio/128/ar.minshawi/'+g+'.mp3',
+            'https://everyayah.com/data/Minshawy_Murattal_128kbps/'+p3(c)+p3(v)+'.mp3'];
+  var a=new Audio();a.preload='auto';
+  var i=0,tok=0;
+  mpAu={k:k,el:a};
+  function attempt(j){
+    if(j>=urls.length){if(mpAu.k===k){mpAuStop();toast('تعذّر تشغيل التلاوة — تحتاج إنترنتًا');mpApplySel()}return}
+    i=j;tok++;var my=tok;a.src=urls[j];
+    try{var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mpAu.k===k&&my===tok)attempt(i+1)})}catch(e){if(mpAu.k===k&&my===tok)attempt(i+1)}
+  }
+  a.onerror=function(){if(mpAu.k===k)attempt(i+1)};
+  a.onended=function(){if(mpAu.k===k){mpAuStop();mpApplySel()}};
+  attempt(0);
+  mpApplySel();
+}
+
 /* كاش التفسير بسقف: ٣٠٠ آية كحد أقصى، الأقدم يُمسح أولًا، حتى لا تمتلئ مساحة التخزين بصمت */
 var TF_CAP=300,TF_IDX='alsaer_tf_idx',tfMig=false;
 function tfIdx(){try{var a=JSON.parse(localStorage.getItem(TF_IDX)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
@@ -133,10 +237,39 @@ document.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('[data-mp2]');if(!b)return;e.stopPropagation();
   var k=b.getAttribute('data-mp2');
   if(k==='x'){mpSel='';mpApplySel();return}
+  if(k==='listen'){mpListen(mpSel);return}
+  if(k==='img'){
+    var kk3=mpSel;if(mpImg.k===kk3){mpImgClear();mpApplySel();return}
+    mpImgClear();mpApplySel();
+    mpAyahCard(kk3,function(cv){
+      if(!cv){toast('تعذّر إنشاء الصورة');return}
+      try{cv.toBlob(function(b){
+        if(!b){toast('تعذّر إنشاء الصورة');return}
+        mpImg={k:kk3,url:URL.createObjectURL(b),blob:b};
+        if(mpSel===kk3)mpApplySel();
+      },'image/png')}catch(e){toast('تعذّر إنشاء الصورة')}
+    });
+    return}
+  if(k==='imgsh'){var b2=mpImg.blob;if(!b2)return;try{var f=new File([b2],'alsaer-ayah.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return}}catch(e){}toast('المشاركة غير متاحة هنا — اضغط مطوّلًا على الصورة لحفظها');return}
+  if(k==='imgdl'){if(!mpImg.url)return;try{var an=document.createElement('a');an.href=mpImg.url;an.download='alsaer-ayah.png';document.body.appendChild(an);an.click();an.remove();toast('إن لم يبدأ التنزيل، اضغط مطوّلًا على الصورة لحفظها')}catch(e){toast('اضغط مطوّلًا على الصورة لحفظها')}return}
+  if(k==='mk'||k==='mkre'){
+    var kk2=mpSel,re=(k==='mkre');
+    if(!re&&mpMk.k===kk2){mpMk={k:'',t:''};mpApplySel();return}
+    var q9=kk2.split(':'),ck2='alsaer_mk_'+kk2,c1='';
+    if(re){try{localStorage.removeItem(ck2)}catch(x3){}}else{try{c1=localStorage.getItem(ck2)||''}catch(x4){}if(c1)tfTouch(ck2)}
+    mpTf={k:'',t:''};mpMk={k:kk2,t:c1||'جارٍ تحميل المختصر…'};mpApplySel();
+    if(c1)return;
+    var u1='https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir/ar-tafsir-al-mukhtasar/'+q9[0]+'/'+q9[1]+'.json'
+      ,u2='https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/ar-tafsir-al-mukhtasar/'+q9[0]+'/'+q9[1]+'.json';
+    var got=function(j){var t=j&&j.text;if(!t)throw 0;tfPut(ck2,t);if(mpMk.k===kk2){mpMk.t=t;mpApplySel()}};
+    var bad=function(){if(mpMk.k===kk2){mpMk.t='تعذّر تحميل المختصر. يحتاج إنترنتًا أول مرة لكل آية.';mpApplySel()}};
+    fetch(u1).then(function(r){if(!r.ok)throw 0;return r.json()}).then(got)
+     .catch(function(){fetch(u2).then(function(r){if(!r.ok)throw 0;return r.json()}).then(got).catch(bad)});
+    return}
   if(k==='tf'){
     var kk=mpSel;if(mpTf.k===kk){mpTf={k:'',t:''};mpApplySel();return}
     var q8=kk.split(':'),ck='alsaer_tf_'+kk,c0='';try{c0=localStorage.getItem(ck)||''}catch(x){}if(c0)tfTouch(ck)
-    mpTf={k:kk,t:c0||'جارٍ تحميل التفسير…'};mpApplySel();
+    mpMk={k:'',t:''};mpTf={k:kk,t:c0||'جارٍ تحميل التفسير…'};mpApplySel();
     if(!c0){
       fetch('https://api.alquran.cloud/v1/ayah/'+q8[0]+':'+q8[1]+'/ar.muyassar').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
         var t=j&&j.data&&j.data.text;if(!t)throw 0;tfPut(ck,t)
@@ -185,12 +318,13 @@ function mpHap(){try{if(typeof hapGo==='function')hapGo([14]);else if(navigator.
   },{passive:true});
   document.addEventListener('touchend',function(e){
     if(!st)return;var s=st;st=null;if(s.lp)clearTimeout(s.lp);
-    if(s.fired){mpSwAt=Date.now();return}
-    var x=(e.changedTouches&&e.changedTouches[0])?e.changedTouches[0].clientX:s.lx,dx=x-s.x,dt=Math.max(1,Date.now()-s.t);
+    var ct=e.changedTouches&&e.changedTouches[0];
+    if(s.fired){mpSwallow(ct?ct.clientX:s.lx,ct?ct.clientY:s.y);return}
+    var x=ct?ct.clientX:s.lx,dx=x-s.x,dt=Math.max(1,Date.now()-s.t);
     if(s.lock==='h'){
       var ns=nextSign(dx),np=rd.page+ns,fast=Math.abs(s.v)>.45&&Math.abs(dx)>28,far=Math.abs(dx)>s.w*.22;
       if((far||fast)&&np>=1&&np<=604){
-        mpSwAt=Date.now();mpHap();
+        mpSwallow(x,ct?ct.clientY:s.y);mpHap();
         mpSel='';rd.dir=ns;rd.page=np;rd.ui=false;render();window.scrollTo(0,0);
       }else if(far||fast){mpHap()}
       return;
@@ -204,7 +338,7 @@ function mpCloseOverlays(){
   var c=false,e;
   if((e=document.getElementById('mps-wrap'))){e.remove();c=true}
   if((e=document.getElementById('mpi-ask'))){e.remove();c=true}
-  if((e=document.getElementById('mp-vb'))){e.remove();mpSel='';try{mpHl('')}catch(x){}c=true}
+  if((e=document.getElementById('mp-vb'))){mpDismissBar(e);mpSel='';try{mpHl('')}catch(x){}try{mpAuStop()}catch(x2){}try{mpImgClear()}catch(x5){}c=true}
   if(rd&&(rd.jump||rd.srch)&&tab==='reader'){rd.jump=false;rd.srch=false;c=true;render()}
   return c;
 }
