@@ -48,6 +48,9 @@ jobs:
           EOF
           node --check /tmp/bundle-check.js
 
+      - name: Run Python regression tests
+        run: python3 tests/mushaf_wordmap_regression.py
+
       - name: Install Capacitor deps and sync
         run: |
           npm ci || npm install
