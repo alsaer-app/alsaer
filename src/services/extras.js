@@ -91,10 +91,10 @@ function vBackup(){
    +'</div>'
    +vGdRows()
    +'<div class="sg-t">تذكير</div><div class="sg-card"><div class="sg-row'+(rr.backup?' lit':'')+'"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>تذكير أسبوعي بالنسخ</b><small>كل جمعة مساءً</small></div><div class="sg-ctl"><label class="rm-sw"><input type="checkbox" data-rem-toggle="backup" '+(rr.backup?'checked':'')+'><i></i></label></div></div></div>'
-   +(bkMsg?'<p class="note bk-msg" id="bk-msg">'+esc(bkMsg)+'</p>':'')+'</div>';
+   +'<p class="note bk-msg" id="bk-msg"'+(bkMsg?'':' hidden')+'>'+esc(bkMsg)+'</p></div>';
   return h;
 }
-function bkSay(t){bkMsg=t;var q=document.getElementById('bk-msg');if(q)q.textContent=t;else try{render()}catch(e){}}
+function bkSay(t){bkMsg=t;var q=document.getElementById('bk-msg');if(q){q.textContent=t;q.hidden=!t}else try{render()}catch(e){}}
 document.addEventListener('input',function(e){var t=e.target;if(t&&t.id==='bk-in')bkIn=t.value});
 document.addEventListener('change',function(e){var t=e.target;if(t&&t.id==='bk-file'&&t.files&&t.files[0]){var r=new FileReader();r.onload=function(){var ta=document.getElementById('bk-in');if(ta){ta.value=bkIn=String(r.result||'');bkConfirm=false;bkSay('قُرئ الملف. اضغط «استيراد» ثم «تأكيد».')}};r.onerror=function(){bkSay('تعذّرت قراءة الملف.')};r.readAsText(t.files[0])}});
 function extraAct(a,v){
