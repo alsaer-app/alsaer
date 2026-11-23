@@ -44,7 +44,7 @@
     if(r.dua)daily('dua','ساعة إجابة يوم الجمعة','أكثر من الدعاء في ساعة الإجابة، وادعُ بما تحب.',r.duaTime,'16:00','',null,[5]);
     if(r.weekly){var wa=null;try{wa=weekAgg(0)}catch(e){}
       daily('weekly','تقريرك الأسبوعي',wa?('هذا الأسبوع: '+wa.pr+' صلاة من ٣٥، و'+wa.qp+' صفحة قرآن، و'+wa.hb+' عادة حسنة. اضغط للمقارنة بالأسبوع الماضي.'):'اطّلع على إنجازك هذا الأسبوع وقارنه بما قبله.',r.weeklyTime,'20:00','tab:progress',null,[5])}
-    if(r.backup)daily('backup','النسخة الاحتياطية الأسبوعية','صدّر نسخة احتياطية مشفرة من بياناتك واحفظها في مكان آمن: المزيد ← النسخ الاحتياطي.',r.backupTime,'19:00','tab:more',null,[5]);
+    if(r.backup)daily('backup','النسخة الاحتياطية الأسبوعية','صدّر نسخة احتياطية مشفرة من بياناتك واحفظها في مكان آمن: الإعدادات ← الأمان والبيانات ← النسخ الاحتياطي.',r.backupTime,'19:00','tab:backup',null,[5]);
     if(r.wird){
       var got=qPages(TK),goal=S.quran.goal||1,left=Math.max(0,goal-got),doneW=left<=0;
       if(!(r.wirdSmart!==false&&doneW))daily('wird','ورد القرآن',(got>0?'بقي عليك '+left+' من '+goal+' صفحات لإتمام وردك اليوم.':'وردك اليوم '+goal+' من الصفحات. اضغط للبدء من حيث توقفت.'),r.wirdTime,'20:00','quran:start',null,null);
