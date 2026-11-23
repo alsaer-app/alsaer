@@ -18,9 +18,26 @@ public class MainActivity extends BridgeActivity {
         if (getBridge() != null && getBridge().getWebView() != null) {
             getBridge().getWebView().addJavascriptInterface(new AlsaerNative(this), "AlsaerNative");
             try { getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false); } catch (Exception e) { }
+            // ALSAER: حجم خط التطبيق يتبع حجم خط النظام (WebView لا يفعل ذلك افتراضيًا)
+            try {
+                float fs = getResources().getConfiguration().fontScale;
+                getBridge().getWebView().getSettings().setTextZoom(Math.round(fs * 100));
+            } catch (Exception e) { }
         }
         handleRoute(getIntent());
-        AlarmScheduler.scheduleAll(this);
+        // ALSAER: الجدولة خارج الخيط الرئيسي حتى لا تؤخّر الإقلاع
+        final android.content.Context app = getApplicationContext();
+        new Thread(() -> AlarmScheduler.scheduleAll(app)).start();
+    }
+
+    // ALSAER: بعد ردّ المستخدم على طلب إذن الإشعارات نوقظ الواجهة فورًا بدل انتظار دورة الاستطلاع
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        final WebView wv = getBridge() != null ? getBridge().getWebView() : null;
+        if (wv != null) {
+            wv.post(() -> wv.evaluateJavascript("window.alsaerPoll&&window.alsaerPoll()", null));
+        }
     }
 
     @Override
