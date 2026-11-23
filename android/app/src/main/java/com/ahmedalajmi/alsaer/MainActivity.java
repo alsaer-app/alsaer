@@ -25,6 +25,7 @@ public class MainActivity extends BridgeActivity {
             } catch (Exception e) { }
         }
         handleRoute(getIntent());
+        handleGdriveRedirect(getIntent()); // ALSAER
         // ALSAER: الجدولة خارج الخيط الرئيسي حتى لا تؤخّر الإقلاع
         final android.content.Context app = getApplicationContext();
         new Thread(() -> AlarmScheduler.scheduleAll(app)).start();
@@ -45,6 +46,7 @@ public class MainActivity extends BridgeActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         handleRoute(intent); // ALSAER
+        handleGdriveRedirect(intent); // ALSAER
         final WebView wv = getBridge() != null ? getBridge().getWebView() : null;
         if (wv != null) {
             wv.post(() -> wv.evaluateJavascript("window.alsaerPoll&&window.alsaerPoll()", null));
@@ -61,6 +63,19 @@ public class MainActivity extends BridgeActivity {
                 moveTaskToBack(true);
             }
         });
+    }
+
+    // ALSAER: عودة المتصفح برمز موافقة Google Drive (com.ahmedalajmi.alsaer://gdrive?code=...)
+    private void handleGdriveRedirect(Intent intent) {
+        if (intent == null) return;
+        android.net.Uri d = intent.getData();
+        if (d == null || !"com.ahmedalajmi.alsaer".equals(d.getScheme()) || !"gdrive".equals(d.getHost())) return;
+        final WebView wv = getBridge() != null ? getBridge().getWebView() : null;
+        if (wv != null) {
+            final String u = d.toString();
+            wv.post(() -> wv.evaluateJavascript("window.gdriveOnRedirect&&window.gdriveOnRedirect(" + org.json.JSONObject.quote(u) + ")", null));
+        }
+        intent.setData(null);
     }
 
     // ALSAER
