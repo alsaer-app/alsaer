@@ -26,8 +26,6 @@ function render(){
   if(tab==='reminders'&&lastTab!=='reminders'&&typeof window.alsaerRemindersEnter==='function')window.alsaerRemindersEnter();
   var vh;try{if(typeof v!=='function')throw new Error('شاشة غير معروفة: '+tab);vh=v()}catch(ex){vh=vRenderFail(ex,tab)}
   app.innerHTML=vh;
-  /* A transformed view animation must not become the fixed controls' viewport. */
-  var readerOverlay=document.getElementById('rd-ov');if(readerOverlay)document.body.appendChild(readerOverlay);
   if(typeof gdMountDialog==='function')gdMountDialog();
   if(tab!==lastTab){
     if(lastTab!==null&&!popping){
@@ -39,6 +37,8 @@ function render(){
   if(pressKey){var pe=document.querySelector(pressKey);pressKey=null;if(pe){pe.classList.add('pressed');setTimeout(function(){pe&&pe.classList.remove('pressed')},460);
     if(document.documentElement.getAttribute('data-press')==='ripple'&&pressXY&&pressXY[0]!==undefined){var bb=pe.getBoundingClientRect(),sz=Math.max(bb.width,bb.height)*2,rp=document.createElement('span');rp.className='rip';rp.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(pressXY[0]-bb.left-sz/2)+'px;top:'+(pressXY[1]-bb.top-sz/2)+'px';pe.classList.add('rp-clip');pe.appendChild(rp);setTimeout(function(){rp.remove()},480)}}}
   if(lang()!=='ar'){trWalk(app);trWalk(top);trWalk(tabs)}
+  /* A transformed view animation must not become the fixed controls' viewport. */
+  var readerOverlay=document.getElementById('rd-ov');if(readerOverlay)document.body.appendChild(readerOverlay);
   if(tab==='reader'){fitSoon();if(tab==='reader')setTimeout(mpiAskMaybe,350)}else if(typeof mpCloseOverlays==='function'){var kw=document.getElementById('mps-wrap');if(!(kw&&kw.dataset.keep===tab))mpCloseOverlays()}
   renderFirstUpdateNotice();tourAuto();trkFix();qfabSync();
   /* Apply synchronously after every render; MutationObserver remains for later timer/dialog changes. */
