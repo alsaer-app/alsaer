@@ -27,6 +27,16 @@ public class AlsaerNative {
         return act.getSharedPreferences("alsaer_webstore_mirror", 0).getString(k, null);
     }
 
+    /* ALSAER: فتح رابط في متصفح الجهاز (صفحة موافقة Google لربط النسخة الاحتياطية) */
+    @JavascriptInterface public boolean openUrl(String url) {
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            act.startActivity(i);
+            return true;
+        } catch (Exception e) { return false; }
+    }
+
     @JavascriptInterface public String appBuildInfo() { return BuildConfig.VERSION_NAME + "|" + BuildConfig.VERSION_CODE; }
     @JavascriptInterface public void shareText(String title, String body) {
         Intent i = new Intent(Intent.ACTION_SEND);
