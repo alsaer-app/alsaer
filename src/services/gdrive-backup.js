@@ -25,7 +25,7 @@ function gdStartAuth(){
   var rnd=new Uint8Array(32);crypto.getRandomValues(rnd);
   var ver=gdB64url(rnd);
   gdSha256(ver).then(function(ch){
-    try{sessionStorage.setItem(GD_VER_KEY,ver)}catch(e){}
+    try{localStorage.setItem(GD_VER_KEY,ver)}catch(e){} /* localStorage لا sessionStorage: يبقى إن قتل أندرويد التطبيق أثناء الموافقة في المتصفح */
     var u='https://accounts.google.com/o/oauth2/v2/auth?client_id='+encodeURIComponent(GD_CLIENT_ID)
       +'&redirect_uri='+encodeURIComponent(GD_REDIRECT)+'&response_type=code&scope='+encodeURIComponent(GD_SCOPE)
       +'&access_type=offline&prompt=consent&code_challenge='+ch+'&code_challenge_method=S256';
@@ -43,7 +43,7 @@ window.gdriveOnRedirect=function(u){
     if(kv[0]==='error')err=decodeURIComponent(kv[1]||'')})}catch(e){}
   if(err){bkSay('لم يتم الربط: '+(err==='access_denied'?'رُفض الإذن.':err));return}
   if(!code)return;
-  var ver='';try{ver=sessionStorage.getItem(GD_VER_KEY)||'';sessionStorage.removeItem(GD_VER_KEY)}catch(e){}
+  var ver='';try{ver=localStorage.getItem(GD_VER_KEY)||'';localStorage.removeItem(GD_VER_KEY)}catch(e){}
   bkSay('جارٍ إتمام الربط…');
   gdPost('https://oauth2.googleapis.com/token',{client_id:GD_CLIENT_ID,code:code,grant_type:'authorization_code',redirect_uri:GD_REDIRECT,code_verifier:ver})
     .then(function(o){
@@ -54,11 +54,36 @@ window.gdriveOnRedirect=function(u){
     },function(){bkSay('تعذّر إتمام الربط. تحقق من الإنترنت وحاول مجددًا.')});
 };
 
+/* مهلة على كل طلب شبكة: بلاها كانت شبكة معلّقة تبقي gdBusy=true وتعطّل الأزرار حتى إعادة تشغيل التطبيق */
+function gdFetch(url,opt,ms){
+  var ctl=(typeof AbortController==='function')?new AbortController():null;
+  var to=ctl?setTimeout(function(){try{ctl.abort()}catch(e){}},ms):null;
+  opt=opt||{};if(ctl)opt.signal=ctl.signal;
+  return fetch(url,opt).then(function(r){if(to)clearTimeout(to);return r},function(e){
+    if(to)clearTimeout(to);
+    if(e&&e.name==='AbortError')throw new Error('timeout');
+    throw e;
+  });
+}
+
 function gdPost(url,params){
   var body=Object.keys(params).map(function(k){return encodeURIComponent(k)+'='+encodeURIComponent(params[k])}).join('&');
-  return fetch(url,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body})
+  return gdFetch(url,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body},15000)
     .then(function(r){return r.json().then(function(o){if(!r.ok)throw new Error(o&&o.error||'http-'+r.status);return o})});
 }
+
+/* --- سحب رمز عودة معلّق من الطبقة الأصلية ---
+   في الإقلاع البارد يصل الـintent قبل تحميل الصفحة فيضيع أي حقن مبكر؛ لذا تحتفظ MainActivity بالرابط
+   وتسحبه الصفحة عند جاهزيتها. الاستهلاك مرة واحدة في الجهة الأصلية يمنع المعالجة المزدوجة. */
+window.gdrivePullRedirect=function(){
+  try{
+    if(!(window.AlsaerNative&&AlsaerNative.consumeGdriveRedirect))return;
+    var u=AlsaerNative.consumeGdriveRedirect();
+    if(u)window.gdriveOnRedirect(u);
+  }catch(e){}
+};
+/* بعد الإقلاع: اسحب أي رمز معلّق (لا يفعل شيئًا في المتصفح العادي أو بلا رمز معلّق) */
+setTimeout(function(){try{window.gdrivePullRedirect()}catch(e){}},1500);
 
 /* --- رمز وصول صالح (من الذاكرة أو عبر رمز التحديث) --- */
 function gdToken(){
@@ -66,14 +91,18 @@ function gdToken(){
   var rt='';try{rt=localStorage.getItem(GD_RT_KEY)||''}catch(e){}
   if(!rt)return Promise.reject(new Error('no-auth'));
   return gdPost('https://oauth2.googleapis.com/token',{client_id:GD_CLIENT_ID,refresh_token:rt,grant_type:'refresh_token'})
-    .then(function(o){gdTok={t:o.access_token,exp:Date.now()+((o.expires_in||3600)-60)*1000};return gdTok.t});
+    .then(function(o){gdTok={t:o.access_token,exp:Date.now()+((o.expires_in||3600)-60)*1000};return gdTok.t},function(e){
+      /* invalid_grant = رمز التحديث أُلغي أو انتهى: الربط ميت فعليًا — امسحه واطلب إعادة الربط برسالة صحيحة */
+      if(String(e&&e.message)==='invalid_grant'){gdTok={t:'',exp:0};try{localStorage.removeItem(GD_RT_KEY)}catch(x){}throw new Error('no-auth')}
+      throw e;
+    });
 }
 
 function gdReq(url,opt){
   opt=opt||{};
   return gdToken().then(function(t){
     opt.headers=Object.assign({'Authorization':'Bearer '+t},opt.headers||{});
-    return fetch(url,opt).then(function(r){
+    return gdFetch(url,opt,30000).then(function(r){
       if(r.status===401||r.status===403)throw new Error('auth');
       if(!r.ok)throw new Error('http-'+r.status);
       return r;
@@ -142,7 +171,9 @@ function gdAct(a){
     gdUpload().then(function(){
       gdBusy=false;S.gdAt=Date.now();save();bkSay('رُفعت النسخة إلى درايف ✓ («'+GD_FILE+'»)');try{render()}catch(e){}
     },function(e){
-      gdBusy=false;bkSay(String(e&&e.message)==='no-auth'||String(e&&e.message)==='auth'?'انتهت صلاحية الربط — افصل الحساب وأعد ربطه.':'تعذّر الرفع. تحقق من الإنترنت وحاول مجددًا.');
+      gdBusy=false;var m1=String(e&&e.message);
+      bkSay(m1==='no-auth'||m1==='auth'?'انتهت صلاحية الربط — افصل الحساب وأعد ربطه.':'تعذّر الرفع. تحقق من الإنترنت وحاول مجددًا.');
+      try{render()}catch(x){} /* أعد عرض البطاقة بعد أي فشل حتى يزول تعطيل الأزرار بصريًا */
     });
     return true}
   if(a==='gddown'){
@@ -152,7 +183,9 @@ function gdAct(a){
       var ta=document.getElementById('bk-in');if(ta)ta.value=bkIn;
       bkSay('نُزّلت النسخة في صندوق الاستيراد. راجعها ثم اضغط «استيراد» و«تأكيد» إن أردت استبدال بياناتك.');
     },function(e){
-      gdBusy=false;bkSay(String(e&&e.message)==='no-file'?'لا توجد نسخة في درايف بعد — ارفع نسخة أولًا.':'تعذّر التنزيل. تحقق من الإنترنت وحاول مجددًا.');
+      gdBusy=false;var m2=String(e&&e.message);
+      bkSay(m2==='no-file'?'لا توجد نسخة في درايف بعد — ارفع نسخة أولًا.':(m2==='no-auth'||m2==='auth')?'انتهت صلاحية الربط — افصل الحساب وأعد ربطه.':'تعذّر التنزيل. تحقق من الإنترنت وحاول مجددًا.');
+      try{render()}catch(x){} /* كذلك بعد فشل التنزيل */
     });
     return true}
   return false;
