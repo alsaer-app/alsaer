@@ -22,7 +22,6 @@
       +'<label style="display:flex;align-items:center;gap:7px"><input type="checkbox" data-rem-toggle="'+field+'" '+(r[field]?'checked':'')+'><span>تفعيل</span></label></div>'
       +'<div style="display:flex;align-items:center;gap:10px;margin-top:12px"><label for="rem-'+id+'">وقت التذكير</label><input id="rem-'+id+'" type="time" data-rem-time="'+timeField+'" value="'+remEsc(r[timeField])+'" style="padding:9px;border-radius:10px;background:var(--surface);color:var(--text);border:1px solid var(--line);font:inherit"></div></div>';
   }
-  var IC_BELLOFF='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 9.5-4.9M18 11c0 4 1.5 5.5 2 6H6"/><path d="M10 20a2 2 0 0 0 4 0M3 3l18 18"/></svg>';
   var SOUND_PLAYER=null;
   function remPlayTone(){
     try{
@@ -75,37 +74,45 @@
   vReminders=function(){
     var r=remLoad(), nat=window.AlsaerNative||null, cur=r.soundMode||'chime';
     function sw(attr,on){return '<label class="rm-sw"><input type="checkbox" '+attr+' '+(on?'checked':'')+'><i></i></label>'}
-    function remRow2(id,icon,title,desc,field){
+    function sgRemRow(icon,title,desc,field){
       var rr=remLoad(), active=rr.enabled&&rr[field];
-      return '<div class="rm-row'+(active?' on':'')+'"><span class="rm-ic">'+ic(icon)+'</span><div class="rm-tx"><b>'+title+'</b><small>'+desc+'</small></div>'+sw('data-rem-toggle="'+field+'"',rr[field])+'</div>';
-    }
-    function sndOpt(val,icon,label,sub){
-      var on=cur===val;
-      return '<label class="snd-opt'+(on?' on':'')+'" data-snd-name="'+val+'"><span class="snd-ic">'+icon+'</span><b>'+remEsc(label)+'</b><small>'+remEsc(sub)+'</small><span class="snd-chk">'+ic('check')+'</span><input type="radio" name="alsaer-snd" data-rem-sound="'+val+'" '+(on?'checked':'')+'></label>';
+      return '<div class="sg-row'+(active?' lit':'')+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b><small>'+desc+'</small></div><div class="sg-ctl">'+sw('data-rem-toggle="'+field+'"',rr[field])+'</div></div>';
     }
     function selO(field,val,list){return '<select class="rm-sel" data-rem-time="'+field+'">'+list.map(function(x){return '<option value="'+x[0]+'"'+(String(val)===String(x[0])?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select>'}
     function tm(field,val){return '<input class="rm-sel" type="time" data-rem-time="'+field+'" value="'+remEsc(val)+'">'}
+    function ctlRow(title,ctl){return '<div class="sg-row"><div class="sg-tx"><b>'+title+'</b></div><div class="sg-ctl">'+ctl+'</div></div>'}
+    function noteRow(t){return '<div class="sg-row"><div class="sg-tx"><small>'+t+'</small></div></div>'}
+    function swRow(title,desc,field,on){return '<div class="sg-row'+(on?' lit':'')+'"><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div><div class="sg-ctl">'+sw('data-rem-toggle="'+field+'"',on)+'</div></div>'}
     function upRows(L){return L.map(function(x){return '<div class="up-r"><span>'+remEsc(x.t)+'</span><b>'+remEsc(x.w)+'</b></div>'}).join('')}
     window.alsaerUpRefresh=function(){var e=document.getElementById('rm-up-l');if(!e)return;try{var L=window.alsaerUpcoming(6)||[];e.innerHTML=upRows(L)}catch(x){}};
     function upcomingCard(){
       var L=[];try{L=(window.alsaerUpcoming&&window.alsaerUpcoming(6))||[]}catch(x){}
       if(!L.length)return '';
-      return '<section class="card flat rm-up"><h4>'+ic('clock')+'الإشعارات القادمة</h4><div id="rm-up-l">'+upRows(L)+'</div><p class="note">هذه هي التذكيرات المجدولة فعلًا على هاتفك.</p></section>';
+      return '<div class="sg-t">'+ic('clock')+' المجدول فعلًا على هاتفك</div><section class="card flat rm-up"><h4>'+ic('clock')+'الإشعارات القادمة</h4><div id="rm-up-l">'+upRows(L)+'</div><p class="note">هذه هي التذكيرات المجدولة فعلًا على هاتفك.</p></section>';
     }
-    function smartCards(r){
+    function smartGroups(r){
       var ev=parseInt(r.salatEvery,10)||0,cnt=0;if(ev>=15){var a1=r.salatFrom.split(':'),a2=r.salatTo.split(':');cnt=Math.floor(((+a2[0])*60+(+a2[1])-(+a1[0])*60-(+a1[1]))/ev)+1}
       var tk=dk(),sc=(S.salawat&&S.salawat[tk])||0;
-      return '<section class="card sm-card"><h4>'+ic('heart')+'الصلاة على النبي ﷺ</h4><p class="note">اختر التكرار والفترة، وسيصلك تذكير بصيغة مختلفة كل مرة.'+(sc?' · صلّيتَ اليوم '+remAr(sc)+' مرة.':'')+'</p>'
-        +'<div class="sm-g"><label>التكرار</label>'+selO('salatEvery',ev,[[0,'مرة يوميًا'],[120,'كل ساعتين'],[60,'كل ساعة'],[30,'كل نصف ساعة'],[15,'كل ١٥ دقيقة']])+'</div>'
-        +(ev>=15?'<div class="sm-g"><label>من</label>'+tm('salatFrom',r.salatFrom)+'<label>إلى</label>'+tm('salatTo',r.salatTo)+'</div><p class="note">≈ '+remAr(cnt)+' إشعارًا في اليوم</p>':'<div class="sm-g"><label>الوقت</label>'+tm('salatTime',r.salatTime)+'</div>')+'</section>'
-       +'<section class="card sm-card"><h4>'+ic('sparkles')+'ورد القرآن اليومي</h4><p class="note">يُذكّرك بما بقي من وردك، ولا يُرسَل إذا أتممته.</p>'
-        +'<div class="sm-g"><label>الوقت</label>'+tm('wirdTime',r.wirdTime)+'</div>'
-        +'<div class="rm-row'+(r.wirdSmart!==false?' on':'')+'" style="margin:8px 0 0"><div class="rm-tx"><b>تخطَّ التذكير إذا أتممت ورد اليوم</b></div>'+sw('data-rem-toggle="wirdSmart"',r.wirdSmart!==false)+'</div></section>'
-       +'<section class="card sm-card"><h4>'+ic('clock')+'مواقيت الصلاة</h4><p class="note">تنبيه عند دخول وقت الصلاة بحسب مدينتك، وزر «صلّيت» لتسجيلها من الإشعار نفسه.</p>'
-        +'<div class="sm-g"><label>تنبيه قبل دخول الوقت</label>'+selO('prayPre',r.prayPre,[[0,'بلا تنبيه'],[5,'٥ دقائق'],[10,'١٠ دقائق'],[15,'١٥ دقيقة'],[30,'٣٠ دقيقة']])+'</div>'
-        +'<div class="rm-row'+(r.praySkip!==false?' on':'')+'" style="margin:8px 0 0"><div class="rm-tx"><b>تخطَّ تذكير الصلاة التي سجّلتها</b></div>'+sw('data-rem-toggle="praySkip"',r.praySkip!==false)+'</div>'
-        +'<div class="rm-row'+(r.smart?' on':'')+'" style="margin:8px 0 0"><div class="rm-tx"><b>جدولة ذكية للأذكار</b><small>أذكار الصباح بعد الفجر، والمساء بعد العصر، والنوم بعد العشاء، وفق مواقيتك — قواعد تعمل على هاتفك دون إنترنت</small></div>'+sw('data-rem-toggle="smart"',!!r.smart)+'</div></section>'
-       +'<section class="card sm-card"><h4>'+ic('chart')+'التقرير الأسبوعي</h4><p class="note">ملخص بأرقام أسبوعك في الإشعار نفسه، كل جمعة.</p><div class="sm-g"><label>الوقت</label>'+tm('weeklyTime',r.weeklyTime)+'</div></section>';
+      return '<div class="sg-t">'+ic('heart')+' الصلاة على النبي ﷺ</div><div class="sg-card">'
+        +noteRow('اختر التكرار والفترة، وسيصلك تذكير بصيغة مختلفة كل مرة.'+(sc?' صلّيتَ اليوم '+remAr(sc)+' مرة.':''))
+        +ctlRow('التكرار',selO('salatEvery',ev,[[0,'مرة يوميًا'],[120,'كل ساعتين'],[60,'كل ساعة'],[30,'كل نصف ساعة'],[15,'كل ١٥ دقيقة']]))
+        +(ev>=15?ctlRow('من',tm('salatFrom',r.salatFrom))+ctlRow('إلى',tm('salatTo',r.salatTo))+noteRow('≈ '+remAr(cnt)+' إشعارًا في اليوم'):ctlRow('الوقت',tm('salatTime',r.salatTime)))
+        +'</div>'
+       +'<div class="sg-t">'+ic('sparkles')+' ورد القرآن اليومي</div><div class="sg-card">'
+        +noteRow('يُذكّرك بما بقي من وردك، ولا يُرسَل إذا أتممته.')
+        +ctlRow('الوقت',tm('wirdTime',r.wirdTime))
+        +swRow('تخطَّ التذكير إذا أتممت ورد اليوم','','wirdSmart',r.wirdSmart!==false)
+        +'</div>'
+       +'<div class="sg-t">'+ic('clock')+' مواقيت الصلاة</div><div class="sg-card">'
+        +noteRow('تنبيه عند دخول وقت الصلاة بحسب مدينتك، وزر «صلّيت» لتسجيلها من الإشعار نفسه.')
+        +ctlRow('تنبيه قبل دخول الوقت',selO('prayPre',r.prayPre,[[0,'بلا تنبيه'],[5,'٥ دقائق'],[10,'١٠ دقائق'],[15,'١٥ دقيقة'],[30,'٣٠ دقيقة']]))
+        +swRow('تخطَّ تذكير الصلاة التي سجّلتها','','praySkip',r.praySkip!==false)
+        +swRow('جدولة ذكية للأذكار','أذكار الصباح بعد الفجر، والمساء بعد العصر، والنوم بعد العشاء، وفق مواقيتك — قواعد تعمل على هاتفك دون إنترنت','smart',!!r.smart)
+        +'</div>'
+       +'<div class="sg-t">'+ic('chart')+' التقرير الأسبوعي</div><div class="sg-card">'
+        +noteRow('ملخص بأرقام أسبوعك في الإشعار نفسه، كل جمعة.')
+        +ctlRow('الوقت',tm('weeklyTime',r.weeklyTime))
+        +'</div>';
     }
     var st=(r.consent&&r.enabled?'✅ جدول التذكيرات مفعّل':'⏳ غير مفعّل بعد');
     if(nat&&nat.notificationsEnabled&&nat.notificationsEnabled()&&r.consent&&r.enabled)st='✅ تعمل حتى مع الشاشة المقفلة';
@@ -119,49 +126,67 @@
       var sel=!((r.custom||[]).length)||(r.cuDow||[]).indexOf(i)>=0;
       return '<label class="rm-day'+(sel?' on':'')+'"><input type="checkbox" data-rem-cday="'+i+'" '+(sel?'checked':'')+'><span>'+d+'</span></label>';
     }).join('');
+    if(REM_PANE==='checkup'){
+      var CHV=ic('chev').replace('class="i"','class="i chev"');
+      function tRow(icon,t,sub,act){return '<button type="button" class="sg-row sg-btn" data-rem-action="'+act+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+t+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div><div class="sg-ctl">'+CHV+'</div></button>'}
+      var sndN=cur==='chime'?'نغمة السائر':(cur==='silent'?'بلا صوت':'صوت النظام');
+      var h='<div class="sc-head"><button type="button" class="sc-back" data-rem-pane="main">'+ic('chev')+' مركز التذكيرات</button><h2>'+ic('check')+'فحص وإصلاح الإشعارات</h2></div>';
+      if(nat){
+        var pOk=false,eOk=false;try{pOk=!!nat.notificationsEnabled()}catch(x){}try{eOk=!!nat.canExactAlarms()}catch(x){}
+        var cOk=!!(r.consent&&r.enabled);
+        var allOk=pOk&&cOk&&eOk&&!!r.battDone;
+        if(allOk){
+          h+='<div class="okcard"><span class="oki">'+ic('check')+'</span><div><b>كل إعدادات الإشعارات سليمة</b><small>الإذن والمنبّهات الدقيقة والبطارية مضبوطة</small></div></div>'
+            +'<div class="acts" style="margin:6px 0"><button class="btn ghost dim" data-rem-action="battery">فتح الإعدادات</button><button class="btn ghost" data-rem-action="battreset">إعادة الفحص</button></div>';
+        }else{
+          var stp=function(n,ok,t,sub,btn){return '<div class="stp'+(ok?' done':'')+'"><span class="stp-n">'+(ok?'✓':remAr(n))+'</span><div class="stp-b"><b>'+t+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>'+(ok?'':btn||'')+'</div>'};
+          var oem='<details class="stp-oem"'+(r.battDone?'':' open')+'><summary>خطوات الهواتف الخاصة (شاومي · ريدمي · بوكو · أوبو · سامسونج)</summary><ol><li>افتح <b>إعدادات التطبيق</b> ثم <b>التشغيل التلقائي</b> وفعّله.</li><li>اجعل <b>البطارية «بلا قيود»</b> للتطبيق.</li><li>ثبّت التطبيق في <b>قائمة التطبيقات الحديثة</b> (قفل التطبيق).</li><li>ارجع واضغط <b>«تم ✓»</b>. لا يقرأ التطبيق هذا الإعداد تلقائيًا، فتأكيدك هو المعتمد.</li></ol></details>';
+          h+='<section class="card flat rm-help"><h4>فحص الإشعارات</h4><div class="stp-list">'
+           +stp(1,pOk,'إذن الإشعارات','من نظام الهاتف','<button class="btn ghost" data-rem-action="permission">تفعيل</button>')
+           +stp(2,cOk,'جدول التذكيرات','تفعيله داخل التطبيق','<button class="btn ghost" data-rem-action="permission">تفعيل</button>')
+           +stp(3,eOk,'المنبّهات الدقيقة','ليصل الإشعار في موعده','<button class="btn ghost" data-rem-action="exact">السماح</button>')
+           +stp(4,!!r.battDone,'البطارية والتشغيل التلقائي','بلا قيود حتى لا يوقف الهاتف الإشعارات','<button class="btn ghost'+(r.battOpened?' dim':'')+'" data-rem-action="battery">فتح الإعدادات</button><button class="btn" data-rem-action="battdone">تم ✓</button>')
+           +'</div>'+(r.battDone?'':oem)
+           +(r.battDone?'<div class="acts"><button class="btn ghost dim" data-rem-action="battery">فتح الإعدادات</button></div>':'')+'</section>';
+        }
+      }
+      h+='<div class="sg-t">اختبار</div><div class="sg-card">'
+        +tRow('bell','اختبار الإشعار','يصلك إشعار حقيقي بعد ثوانٍ','test')
+        +tRow('sparkles','اختبار الصوت','تشغيل نغمة السائر','soundtest')
+        +tRow('phone','اختبار الاهتزاز','','vibtest')
+        +'</div>'
+        +'<div class="sg-t">الصوت</div><div class="sg-card">'
+        +'<button type="button" class="sg-row sg-btn" data-rem-action="sndopen"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>صوت الإشعار</b><small>النغمة أو بلا صوت أو صوت النظام</small></div><div class="sg-ctl"><span class="sg-val">'+sndN+'</span>'+CHV+'</div></button>'
+        +tRow('gear','صوت الإشعارات في الهاتف','قناة النظام وأهميتها','sndset')
+        +'</div>'
+        +upcomingCard()
+        +'<p id="rem-status" class="rm-status">'+st+'</p>';
+      return h;
+    }
     return '<section class="rm-hero"><span class="rm-hic">'+ic('bell')+'</span><div><h2>مركز التذكيرات</h2><p>تذكيرات تلقائية بأوقات مدروسة، تصلك حتى والتطبيق مغلق</p></div></section>'
-      +'<div class="rm-master"><div class="rm-tx"><b>جدول التذكيرات التلقائي</b><small>'+(nat?'يعمل على مستوى النظام: مع الشاشة المقفلة وبعد إعادة تشغيل الهاتف':'يعمل أثناء فتح التطبيق')+'</small></div><span class="rm-state" style="font-size:12px;font-weight:800;color:'+(r.enabled?'var(--gold)':'var(--muted)')+'">'+(r.enabled?'مفعّل':'متوقف')+'</span>'+sw('data-rem-master',r.enabled)+'</div>'
-      +'<div class="rm-seg">'+[['main','التذكيرات'],['smart','ذكي'],['mine','تذكيري'],['tools','الفحص']].map(function(x){return '<button type="button" class="'+(REM_PANE===x[0]?'on':'')+'" data-rem-pane="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
+      +'<div class="sg-card" style="margin-top:10px"><div class="sg-row'+(r.enabled?' lit':'')+'"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>جدول التذكيرات التلقائي</b><small>'+(nat?'يعمل على مستوى النظام: مع الشاشة المقفلة وبعد إعادة تشغيل الهاتف':'يعمل أثناء فتح التطبيق')+'</small></div><div class="sg-ctl"><span class="sg-pill '+(r.enabled?'ok':'bad')+'">'+(r.enabled?'مفعّل ✓':'متوقف')+'</span>'+sw('data-rem-master',r.enabled)+'</div></div></div>'
+      +'<div class="rm-seg">'+[['main','التذكيرات'],['smart','ذكي'],['mine','تذكيري']].map(function(x){return '<button type="button" class="'+(REM_PANE===x[0]?'on':'')+'" data-rem-pane="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
       +'<div class="rm-pane'+(REM_PANE==='main'?' on':'')+'">'
-      +remRow2('malik','book','سورة الملك','كل ليلة · وقت تلقائي مدروس','malik')
-      +remRow2('kahf','cal','سورة الكهف','كل جمعة بعد العصر','kahf')
-      +remRow2('salat','mosque','الصلاة على النبي ﷺ','تذكير يومي','salat')
-      +remRow2('dua','beads','ساعة إجابة الجمعة','وقت الدعاء يوم الجمعة','dua')
-      +remRow2('wird','sparkles','ورد القرآن اليومي','قبل النوم إذا لم تتم','wird')
-      +remRow2('prayers','mosque','مواقيت الصلوات','بحسب أوقات مدينتك المحفوظة عندك','prayers')
-      +remRow2('fasting','moon','تذكيرات الصيام','سحور وإفطار وقبل يوم الصيام','fasting')
-      +remRow2('weekly','chart','تقرير الأسبوع','كل جمعة مساءً · ملخص إنجازك','weekly')+remRow2('backup','check','النسخة الاحتياطية الأسبوعية','كل جمعة مساءً · تذكير بتصدير نسخة مشفرة','backup')
+      +'<div class="sg-t">تذكيرات يومية</div><div class="sg-card">'
+      +sgRemRow('book','سورة الملك','كل ليلة · وقت تلقائي مدروس','malik')
+      +sgRemRow('mosque','الصلاة على النبي ﷺ','تذكير يومي','salat')
+      +sgRemRow('sparkles','ورد القرآن اليومي','قبل النوم إذا لم تتم','wird')
+      +sgRemRow('mosque','مواقيت الصلوات','بحسب أوقات مدينتك المحفوظة عندك','prayers')
+      +sgRemRow('moon','تذكيرات الصيام','سحور وإفطار وقبل يوم الصيام','fasting')
+      +'</div><div class="sg-t">تذكيرات أسبوعية</div><div class="sg-card">'
+      +sgRemRow('cal','سورة الكهف','كل جمعة بعد العصر','kahf')
+      +sgRemRow('beads','ساعة إجابة الجمعة','وقت الدعاء يوم الجمعة','dua')
+      +sgRemRow('chart','تقرير الأسبوع','كل جمعة مساءً · ملخص إنجازك','weekly')
+      +sgRemRow('check','النسخة الاحتياطية الأسبوعية','كل جمعة مساءً · تذكير بتصدير نسخة مشفرة','backup')
+      +'</div><div class="sg-t">النظام</div><div class="sg-card">'
+      +'<button type="button" class="sg-row sg-btn" data-rem-pane="checkup"><span class="sg-ic">'+ic('check')+'</span><div class="sg-tx"><b>فحص وإصلاح الإشعارات</b><small>خطوات الإذن والبطارية + اختبار حقيقي</small></div><div class="sg-ctl">'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
+      +'</div>'
       +'</div><div class="rm-pane'+(REM_PANE==='smart'?' on':'')+'">'
-      +smartCards(r)
+      +smartGroups(r)
       +'</div><div class="rm-pane'+(REM_PANE==='mine'?' on':'')+'"><div class="rm-sect">'+ic('pen')+'<span>تذكيرك الخاص</span></div>'
       +'<p class="rm-hint">أضف أي تذكير تريده باسمك ووقتك وأيامك المفضلة.</p>'
       +cus
       +'<div class="rm-add"><input id="cu-name" type="text" maxlength="40" placeholder="اسم التذكير (مثال: ذكر الصباح)"><div class="rm-now">'+ic('clock')+'<span>الوقت الحالي في هاتفك: <b>'+remNow()+'</b></span></div>'+remPickHtml()+'<div class="rm-clock"><span>نظام الوقت</span></div>'+clkSeg('rem')+'<div class="sm-g" style="margin:8px 0"><label>عدد الإشعارات</label><select id="cu-n" class="rm-sel">'+[1,2,3,4,5,6,8,10,12].map(function(n){return '<option value="'+n+'">'+remAr(n)+'</option>'}).join('')+'</select><label>كل</label><select id="cu-ev" class="rm-sel">'+[[15,'١٥ دقيقة'],[30,'نصف ساعة'],[60,'ساعة'],[120,'ساعتان']].map(function(x){return '<option value="'+x[0]+'"'+(x[0]===30?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select></div><div class="rm-days">'+dayChips+'</div><button class="btn" data-rem-action="cuadd">'+ic('check')+'إضافة التذكير</button></div>'
-      +'</div><div class="rm-pane'+(REM_PANE==='tools'?' on':'')+'">'
-      +(nat?'<div class="rm-sect">'+ic('bell')+'<span>صوت الإشعارات</span></div><div class="snd-grid">'
-        +sndOpt('chime',ic('bell'),'نغمة هادئة','نغمة السائر')+sndOpt('silent',IC_BELLOFF,'بلا صوت','إشعار صامت')+sndOpt('system',ic('phone'),'صوت النظام','نغمة هاتفك')
-        +'</div><div class="rm-row'+(r.respectSilent?' on':'')+'" style="margin:10px 0 0"><div class="rm-tx"><b>احترام وقت الصامت</b><small>عند صمت الهاتف تصل الإشعارات بلا صوت. يستخدم قناة النظام التي تلتزم بوضع الصامت بدل النغمة الخاصة</small></div>'+sw('data-rem-toggle="respectSilent"',!!r.respectSilent)+'</div>':'')
-      +'<div class="rm-sect">'+ic('check')+'<span>الاختبار</span></div>'
-      +'<div class="rm-tests"><button class="rm-test" data-rem-action="soundtest"><span>'+ic('sparkles')+'</span><b>اختبار الصوت</b></button><button class="rm-test" data-rem-action="test"><span>'+ic('bell')+'</span><b>اختبار الإشعار</b></button><button class="rm-test" data-rem-action="vibtest"><span>'+ic('phone')+'</span><b>اختبار الاهتزاز</b></button>'+'<button class="rm-test" data-rem-action="sndset"><span>'+ic('gear')+'</span><b>صوت الإشعارات في الهاتف</b></button>'+(nat&&typeof nat.canDrawOverlays==='function'?'<button class="rm-test" data-rem-action="float"><span>'+ic('bell')+'</span><b>التذكيرات العائمة: '+((function(){try{return nat.floatingEnabled()&&nat.canDrawOverlays()}catch(x){return false}})()?'تشغيل':'إيقاف')+'</b></button>':'')+(nat&&typeof nat.pauseFloating==='function'&&(function(){try{return nat.floatingEnabled()}catch(x){return false}})()?'<button class="rm-test" data-rem-action="floatpause"><span>'+ic('bell')+'</span><b>'+((function(){try{var pu=Number(nat.floatingPausedUntil());if(pu>Date.now()){var dd=new Date(pu);return 'موقوفة حتى '+ar(('0'+dd.getHours()).slice(-2)+':'+('0'+dd.getMinutes()).slice(-2))}}catch(x){}return 'إيقاف العائمة مؤقتًا'})())+'</b></button>':'')+'<button class="rm-test" data-a="tab" data-v="floatset"><span>'+ic('gear')+'</span><b>التحكم في النوافذ العائمة</b></button><button class="rm-test" data-a="tab" data-v="widgetset"><span>'+ic('gear')+'</span><b>التحكم في الودجت</b></button></div>'
-      +(function(){var pk=false,ek=false;try{pk=!!(nat&&nat.notificationsEnabled())}catch(x){}try{ek=!!(nat&&nat.canExactAlarms())}catch(x){}
-        var bs=(!(r.consent&&r.enabled&&pk)?'<button class="btn" data-rem-action="permission">'+ic('check')+'تفعيل الإشعارات</button>':'')
-          +(nat&&!ek?'<button class="btn ghost" data-rem-action="exact">إذن المنبه الدقيق</button>':'')
-          +(nat&&!r.battDone?'<button class="btn ghost'+(r.battOpened?' dim':'')+'" data-rem-action="battery">استثناء البطارية</button>':'');
-        return bs?'<div class="rm-actions">'+bs+'</div>':'';})()+(nat?(function(){
-        var pOk=false,eOk=false;try{pOk=!!nat.notificationsEnabled()}catch(x){}try{eOk=!!nat.canExactAlarms()}catch(x){}
-        var cOk=!!(r.consent&&r.enabled),row=function(ok,t,fix){return '<div class="dg-r '+(ok?'ok':'bad')+'"><i>'+(ok?'✓':'✗')+'</i><span>'+t+'</span>'+(!ok&&fix?fix:'')+'</div>'};
-        var allOk=pOk&&cOk&&eOk&&!!r.battDone;
-        if(allOk)return '<section class="card flat rm-help rm-allok"><div class="dg-r ok"><i>✓</i><span><b>كل إعدادات الإشعارات سليمة</b><br><small>الإذن والمنبّهات الدقيقة والبطارية مضبوطة</small></span></div><div class="acts"><button class="btn" data-rem-action="test">اختبار الإشعار الآن</button><button class="btn ghost dim" data-rem-action="battery">فتح الإعدادات</button><button class="btn ghost" data-rem-action="battreset">إعادة الفحص</button></div></section>'+upcomingCard();
-        var stp=function(n,ok,t,sub,btn){return '<div class="stp'+(ok?' done':'')+'"><span class="stp-n">'+(ok?'✓':remAr(n))+'</span><div class="stp-b"><b>'+t+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div>'+(ok?'':btn||'')+'</div>'};
-        var oem='<details class="stp-oem"'+(r.battDone?'':' open')+'><summary>خطوات الهواتف الخاصة (شاومي · ريدمي · بوكو · أوبو · سامسونج)</summary><ol><li>افتح <b>إعدادات التطبيق</b> ثم <b>التشغيل التلقائي</b> وفعّله.</li><li>اجعل <b>البطارية «بلا قيود»</b> للتطبيق.</li><li>ثبّت التطبيق في <b>قائمة التطبيقات الحديثة</b> (قفل التطبيق).</li><li>ارجع واضغط <b>«تم ✓»</b>. لا يقرأ التطبيق هذا الإعداد تلقائيًا، فتأكيدك هو المعتمد.</li></ol></details>';
-        return '<section class="card flat rm-help"><h4>فحص الإشعارات</h4><div class="stp-list">'
-         +stp(1,pOk,'إذن الإشعارات','من نظام الهاتف','<button class="btn ghost" data-rem-action="permission">تفعيل</button>')
-         +stp(2,cOk,'جدول التذكيرات','تفعيله داخل التطبيق','<button class="btn ghost" data-rem-action="permission">تفعيل</button>')
-         +stp(3,eOk,'المنبّهات الدقيقة','ليصل الإشعار في موعده','<button class="btn ghost" data-rem-action="exact">السماح</button>')
-         +stp(4,!!r.battDone,'البطارية والتشغيل التلقائي','بلا قيود حتى لا يوقف الهاتف الإشعارات','<button class="btn ghost'+(r.battOpened?' dim':'')+'" data-rem-action="battery">فتح الإعدادات</button><button class="btn" data-rem-action="battdone">تم ✓</button>')
-         +'</div>'+(r.battDone?'':oem)
-         +'<div class="acts"><button class="btn" data-rem-action="test">اختبار الإشعار الآن</button>'+(r.battDone?'<button class="btn ghost dim" data-rem-action="battery">فتح الإعدادات</button>':'')+'</div></section>'+upcomingCard();
-      })():'')
       +'</div><p id="rem-status" class="rm-status">'+st+'</p>';
   };
   function remStatus(t){var e=document.getElementById('rem-status');if(e)e.textContent=t; if(typeof toast==='function')toast(t);}
@@ -250,6 +275,7 @@
       try{var pu2=Number(nq.floatingPausedUntil()),left=pu2>Date.now()?(pu2-Date.now())/60000:0,nx=left<=0?60:left<=61?180:left<=181?480:0;
         nq.pauseFloating(nx);remStatus(nx?'أُوقفت التذكيرات العائمة '+ar(String(nx/60))+' ساعة (اضغط للتمديد)':'عادت التذكيرات العائمة')}catch(x){remStatus('هذه الميزة غير متاحة في هذه النسخة')}
       render();return}
+    if(act==='sndopen'){try{setCat='notif';setSub='';setOpen='snd';scAnim=1;tab='settings';window.scrollTo(0,0);render()}catch(x){}return}
     if(act==='sndset'){remStatus('افتح: إعدادات الهاتف ← التطبيقات ← السائر ← الإشعارات، ثم فعّل الصوت واجعل الأهمية «عالية»');return}
     if(act==='soundtest'){remSoundTest();return}
     var nv=window.AlsaerNative;
