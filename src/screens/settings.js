@@ -138,7 +138,7 @@ function vSettings(){
   var ABOUT='<div class="sg-card">'
    +sgNav('sys','info','حالة النظام','الجهاز والإصدار وحالة التذكيرات','')
    +P('sys',sgStatus())
-   +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>التحقق والتنزيل داخل التطبيق</small></div><div class="sg-ctl"><span class="sg-val">'+(upd?('يتوفر '+esc(upd.versionName||String(upd.versionCode))):'التطبيق محدّث')+'</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
+   +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>التحقق والتنزيل داخل التطبيق</small></div><div class="sg-ctl"><span class="sg-val">'+(upd?('يتوفر '+esc(upd.versionName||String(upd.versionCode))):updCurrentLabel())+'</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
    +'<button type="button" class="sg-row sg-btn" data-a="tourreplay"><span class="sg-ic">'+ic('sparkles')+'</span><div class="sg-tx"><b>إعادة الجولة التعريفية</b><small>جولة سريعة على أهم الشاشات</small></div>'+sgCtlV('')+'</button>'
    +sgNavTab('developer','info','عن التطبيق','المطوّر · التواصل والدعم · سجل الإصدارات · الخصوصية','')
    +'</div>';
@@ -169,4 +169,4 @@ function vSettings(){
   return '<button type="button" class="sc-me" data-a="scat" data-v="prof"><span class="sc-av">'+profileAvatar(52)+'</span><span class="sc-mt"><b>'+esc(nm)+'</b><small>الملف الشخصي</small></span>'+ic('chev')+'</button>'
    +'<div class="sc-grid">'+Object.keys(cats).filter(function(k){return k!=='prof'}).map(function(k){return sgLit('<button type="button" class="sc-tile sc-'+k+'" data-a="scat" data-v="'+k+'"><span class="sc-ic">'+ic(cats[k][1])+'</span><b>'+cats[k][0]+'</b><small>'+catSub[k]+'</small></button>',(k==='notif'&&(nOn||fOn||wOn)))}).join('')+'</div>'
    +COPY;
-             }
+}
