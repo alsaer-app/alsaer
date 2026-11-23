@@ -103,7 +103,7 @@
     try{
       var out=[],now=Date.now();
       for(var dd=0;dd<3;dd++){
-        var day=new Date(now+dd*86400000),T=null;
+        var day=new Date(now);day.setDate(day.getDate()+dd);var T=null;
         try{if(typeof locOk==='function'&&locOk())T=ptCompute(day,S.loc.lat,S.loc.lng,S.loc.method||'egypt',S.loc.asr||1)}catch(e){}
         T=T||S.ptimes||{};
         PR.forEach(function(p){var m=/^(\d{1,2}):(\d{2})$/.exec(T[p[0]]||'');if(!m)return;
