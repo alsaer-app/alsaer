@@ -51,7 +51,7 @@ function vSettings(){
   var LOOK=''+srow('look',isDark()?'moon':'sun','المظهر',isDark()?'داكن':'فاتح')
   +P('look',vAppearance())
   +srow('digits','hash','نمط الأرقام',dg==='west'?'0-9 عادية':'٠-٩ مشرقية')
-  +P('digits','<section class="card"><p class="note">أرقام مشرقية (٠-٩) أو عادية (0-9) في كل التطبيق.</p>'+sgSeg([['east','٠-٩ مشرقية'],['west','0-9 عادية']],dg,'udigits')+'</section>')
+  +P('digits','<section class="card keepar"><p class="note">أرقام مشرقية (٠-٩) أو عادية (0-9) في كل التطبيق.</p>'+sgSeg([['east','٠-٩ مشرقية'],['west','0-9 عادية']],dg,'udigits')+'</section>')
   +srow('clk','clock','نظام الساعة',clk12()?'١٢ ساعة':'٢٤ ساعة')
   +P('clk','<section class="card"><p class="note">يُطبَّق على كل المواقيت وحقول الوقت والتذكيرات في التطبيق.</p>'+sgSeg([['12','١٢ ساعة'],['24','٢٤ ساعة']],clk12()?'12':'24','clkset')+'</section>');
   var HOME=''+srow('homecfg','menu','الصفحة الرئيسية','إظهار البطاقات وإخفاؤها')
@@ -75,6 +75,7 @@ function vSettings(){
   +P('rst','<section class="card"><p class="note">سيُحذف كل ما سجّلته على هذا الجهاز نهائياً.</p><button class="btn bad" data-a="reset">'+(confirmReset?'تأكيد المسح النهائي؟ اضغط مرة أخرى':'مسح')+'</button>'+M+'</section>');
   var SYS=''+srow('sys','info','حالة النظام','')
   +P('sys',sgStatus())
+  +'<button class="lrow" data-a="updopen">'+ic('refresh')+'<span class="t">التحديثات<small>'+updRowSub()+'</small></span>'+CH+'</button>'
   +'<a class="lrow" href="https://wa.me/201020372842" target="_blank" rel="noopener">'+ic('help')+'<span class="t">مساعدة ودعم</span>'+CH+'</a>'
   +'<button class="lrow" data-a="tourreplay">'+ic('sparkles')+'<span class="t">إعادة الجولة التعريفية</span>'+CH+'</button>'
   +'<button class="lrow" data-a="tab" data-v="developer">'+ic('info')+'<span class="t">عن التطبيق</span>'+CH+'</button>';
@@ -86,7 +87,7 @@ function vSettings(){
    prof:['ملفي الشخصي','user',PROF],
    about:['المساعدة والمعلومات','info',SYS]
   };
-  var catSub={look:'المظهر · الأرقام · الساعة · الرئيسية',notif:'تنبيهات · نوافذ عائمة · ودجت',loc:esc((S.loc&&S.loc.city)||'تحديد المدينة'),sec:secLevelLabel()+' · نسخ احتياطي',prof:esc((S.profile&&S.profile.name)||'الاسم والصورة'),about:'حالة النظام · الدعم · عن التطبيق'};
+  var catSub={look:'المظهر · الأرقام · الساعة · الرئيسية',notif:'تنبيهات · نوافذ عائمة · ودجت',loc:esc((S.loc&&S.loc.city)||'تحديد المدينة'),sec:secLevelLabel()+' · نسخ احتياطي',prof:esc((S.profile&&S.profile.name)||'الاسم والصورة'),about:'حالة النظام · التحديثات · الدعم'};
   if(setCat&&cats[setCat]){
     var c=cats[setCat];
     return '<div class="sc-head"><button type="button" class="sc-back" data-a="scat" data-v="">'+ic('chev')+' الإعدادات</button><h2>'+ic(c[1])+c[0]+'</h2></div><div class="lrows">'+c[2]+'</div>'+COPY;
