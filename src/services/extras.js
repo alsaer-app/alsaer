@@ -73,10 +73,10 @@ function vGdRows(){
   }else{
     h+='<div class="sg-row lit"><span class="sg-ic">'+ic('cloud')+'</span><div class="sg-tx"><b>النسخة السحابية</b><small>'+(S.gdAt?'آخر رفع: '+bkAgo(S.gdAt):'لم ترفع نسخة بعد')+'</small></div><div class="sg-ctl"><span class="sg-pill ok">مربوط ✓</span></div></div>'
       +'<div class="panel"><div class="acts" style="margin:2px 0"><button class="btn'+(gdBusy?' dis':'')+'" data-a="gdup">رفع نسخة الآن</button>'
-      +'<button class="btn ghost'+(gdBusy?' dis':'')+'" data-a="gddown">تنزيل آخر نسخة</button>'
+      +'<button class="btn ghost'+(gdBusy?' dis':'')+'" data-a="gddown">استعادة آخر نسخة</button>'
       +'<button class="btn ghost" data-a="gddisc">فصل الحساب</button></div></div>';
   }
-  return h+'</div>';
+  return h+gdRestorePanel()+'</div>';
 }
 function vBackup(){
   var rr={};try{rr=JSON.parse(localStorage.getItem('alsaer_daily_reminders_v1')||'{}')}catch(e){}
