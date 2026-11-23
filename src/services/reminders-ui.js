@@ -224,7 +224,7 @@
     var d=new Date(),day=d.getDay(),hh=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
     var date=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
     var checks=[
-      ['malik',r.malik,r.malikTime,0,'قراءة سورة الملك','حان وقت ورد سورة الملك قبل النوم.','الملك'],
+      ['malik',r.malik,r.malikTime,-1,'قراءة سورة الملك','حان وقت ورد سورة الملك قبل النوم.','الملك'],
       ['kahf',r.kahf,r.kahfTime,5,'قراءة سورة الكهف','اليوم الجمعة؛ لا تنس قراءة سورة الكهف بعد العصر.','الكهف'],
       ['salat',r.salat,r.salatTime,-1,'الصلاة على النبي ﷺ','اللهم صل وسلم على نبينا محمد ﷺ',''],
       ['dua',r.dua,r.duaTime,5,'ساعة إجابة يوم الجمعة','أكثر من الدعاء في ساعة الإجابة، وادعُ بما تحب.','']
