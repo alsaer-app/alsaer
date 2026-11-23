@@ -27,6 +27,10 @@ public class AlsaerNative {
         return act.getSharedPreferences("alsaer_webstore_mirror", 0).getString(k, null);
     }
 
+    @JavascriptInterface public void gdriveAuthorize(boolean interactive) {
+        act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).authorizeDrive(interactive); });
+    }
+
     /* ALSAER: فتح رابط في متصفح الجهاز (صفحة موافقة Google لربط النسخة الاحتياطية) */
     @JavascriptInterface public boolean openUrl(String url) {
         try {
