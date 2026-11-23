@@ -68,15 +68,15 @@ body.rd .tabbar{display:none}
 .dev-btn:before{content:"";position:absolute;inset-inline-end:-40px;top:-50px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--gold) 22%,transparent),transparent 70%);pointer-events:none}
 .dev-av{position:relative;flex:0 0 auto;width:58px;height:58px;border-radius:50%;padding:3px;background:conic-gradient(from 210deg,var(--gold),color-mix(in srgb,var(--gold) 30%,transparent),var(--gold));display:grid;place-items:center}
 .dev-av i{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:var(--surface);color:var(--gold);font-style:normal;font-weight:900;font-size:25px}
-.dev-tx{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;line-height:1.3}
+.dev-tx{position:relative;flex:1 1 0;min-width:150px;display:flex;flex-direction:column;gap:3px;line-height:1.3}
 .dev-role{font-size:11px;font-weight:800;color:var(--gold);letter-spacing:.2px}
 .dev-tx b{font-size:19px;font-weight:900}
 .dev-en{direction:ltr;text-align:start;font-size:14px;font-weight:700;color:var(--muted);font-family:var(--font-ui,inherit)}
 [dir=rtl] .dev-en{text-align:right}
 .dev-free{display:inline-flex;align-items:center;gap:5px;align-self:flex-start;margin-top:6px;padding:4px 11px;border-radius:999px;font-size:11px;font-weight:800;color:var(--gold);background:color-mix(in srgb,var(--gold) 13%,transparent)}
 .dev-free .i{width:13px;height:13px}
-.dev-side{position:relative;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:8px}
-.dev-ver{direction:ltr;font-size:12px;font-weight:900;padding:5px 12px;border-radius:999px;background:var(--gold);color:var(--on-gold,#1b1405)}
+.dev-side{position:relative;flex:0 1 auto;min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.dev-ver{direction:ltr;font-size:12px;font-weight:900;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 12px;border-radius:999px;background:var(--gold);color:var(--on-gold,#1b1405)}
 .dev-chev{width:18px;height:18px;color:var(--muted)}
 .dev-btn:active{transform:scale(.985)}
 .update109-card .free-note{font-weight:800;color:var(--gold);text-align:center;margin:14px 0 4px}
