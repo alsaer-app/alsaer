@@ -1,4 +1,4 @@
-name: Alsaer 2.0.0 backup deferred QA and reader shell test
+name: Alsaer 2.0.0 isolated backup and deferred QA test
 on:
   push:
     branches: [exp/deferred-qa-backup]
@@ -45,6 +45,7 @@ jobs:
           python3 tests/native_bridge_contract.py
           python3 tests/widget_packaging_contract.py
           python3 tests/alarm_request_ids_contract.py
+          node tests/data_integrity_contract.cjs
           node tests/reminder_fallback_contract.cjs
           node tests/backup_versions_contract.cjs
           node tests/backup_destinations_contract.cjs
@@ -53,6 +54,12 @@ jobs:
           python3 tools/build_web.py
           npm ci && npx @capacitor/cli@5 sync android
           python3 tests/mushaf_wordmap_regression.py
+      - name: Native date and prayer formula regression gate
+        run: |
+          curl --fail --location -o /tmp/alsaer-json.jar https://repo.maven.apache.org/maven2/org/json/json/20240303/json-20240303.jar
+          curl --fail --location -o /tmp/alsaer-android-all.jar https://repo.maven.apache.org/maven2/org/robolectric/android-all/14-robolectric-10818077/android-all-14-robolectric-10818077.jar
+          python3 -c 'from zipfile import ZipFile,ZIP_DEFLATED; z=ZipFile("/tmp/alsaer-android-all.jar"); o=ZipFile("/tmp/alsaer-android-api.jar","w",ZIP_DEFLATED); [o.writestr(i,z.read(i)) for i in z.infolist() if not i.filename.startswith(("java/","javax/","sun/","com/sun/","jdk/","org/json/"))]; o.close(); z.close()'
+          ANDROID_API_JAR=/tmp/alsaer-android-api.jar JSON_JAR=/tmp/alsaer-json.jar python3 tests/alarm_dates_contract.py
       - name: Real browser regression gates (transports stubbed, no live Drive data)
         run: |
           python3 -m pip install playwright
@@ -63,6 +70,7 @@ jobs:
           python3 tests/webview_compat_e2e.py
           python3 tests/reader_shell_e2e.py
           python3 tests/mushaf_toolbar_e2e.py
+          python3 tests/more_grid_e2e.py
       - name: Decode signing key inside GitHub only
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
