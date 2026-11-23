@@ -9,7 +9,7 @@ from playwright.async_api import async_playwright
 ROOT=Path(__file__).resolve().parents[1]
 async def main():
     html=(ROOT/'www/index.html').read_text()
-    hook="window.__driveTest={download:function(raw){gdDownload=function(){return Promise.resolve(raw)}},encrypt:bkEncrypt};"
+    hook="window.__driveTest={download:function(raw){gdListFiles=function(){return Promise.resolve([{id:'test-version',name:'alsaer-backup-example.json',size:128,modifiedTime:'2026-11-23T22:05:00Z',appProperties:{alsaerBackup:'v2'}}])};gdReq=function(){return Promise.resolve({text:function(){return Promise.resolve(raw)}})}},encrypt:bkEncrypt};"
     html=html.replace('})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */',hook+'})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */')
     with tempfile.TemporaryDirectory() as tmp:
       target=Path(tmp)/'index.html';target.write_text(html)
@@ -33,17 +33,17 @@ async def main():
         await p.evaluate('localStorage.setItem("restore_test_origin_marker","same-origin")')
         raw=json.dumps({'app':'alsaer','S':{'profile':{'name':'المستعاد'}}})
         await p.evaluate('(r)=>__driveTest.download(r)',raw)
-        await p.click('[data-a=gddown]');await p.locator('[data-a=gdrestore]').wait_for()
+        await p.click('[data-a=gddown]');await p.check('[data-gd-select]');await p.click('[data-a=gdpickgo]');await p.click('[data-a=gdverify]');await p.locator('[data-a=gdrestore]').wait_for()
         assert await p.evaluate('JSON.parse(localStorage.tawba_v1).profile.name')=='الحالي'
         await p.locator('[data-a=gdcancel]').scroll_into_view_if_needed();await p.screenshot(path='/tmp/drive-restore-confirm.png')
         await p.click('[data-a=gdcancel]');assert await p.locator('[data-a=gdrestore]').count()==0
         enc=await p.evaluate('(r)=>__driveTest.encrypt(r,"test-password")',raw)
-        await p.evaluate('(r)=>__driveTest.download(r)',enc);await p.click('[data-a=gddown]');await p.fill('#gd-restore-pw','wrong')
-        await p.click('[data-a=gdrestore]');await p.wait_for_timeout(600)
+        await p.evaluate('(r)=>__driveTest.download(r)',enc);await p.click('[data-a=gddown]');await p.check('[data-gd-select]');await p.click('[data-a=gdpickgo]');await p.fill('#gd-restore-pw','wrong')
+        await p.click('[data-a=gdverify]');await p.wait_for_timeout(600)
         assert 'غير صحيحة' in await p.locator('#bk-msg').inner_text()
         assert await p.evaluate('JSON.parse(localStorage.tawba_v1).profile.name')=='الحالي'
         await p.fill('#gd-restore-pw','test-password')
-        await p.screenshot(path='/tmp/drive-restore-password.png')
+        await p.click('[data-a=gdverify]');await p.screenshot(path='/tmp/drive-restore-password.png')
         async with p.expect_navigation(wait_until='load'):
           await p.click('[data-a=gdrestore]')
         await p.wait_for_function('()=>JSON.parse(localStorage.tawba_v1).profile.name==="المستعاد"')
@@ -51,6 +51,7 @@ async def main():
         assert await p.evaluate('JSON.parse(localStorage.tawba_v1).profile.name')=='المستعاد'
         assert await p.evaluate('JSON.parse(localStorage.alsaer_drive_restore_safety_v1).S.profile.name')=='الحالي'
         await backup();assert await p.locator('[data-a=gdsafety]').count()==0
+        assert await p.evaluate('JSON.parse(localStorage.alsaer_backup_status_v2).driveRestoreAt>0')
         assert await p.evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth')
         assert not errors,errors
         print('PASS UI: download opens confirmation without replacing; cancel; actual AES wrong/correct password; restore persists through reload; internal safety snapshot retained; recovery button hidden; no page errors/overflow')
