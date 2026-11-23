@@ -33,6 +33,8 @@ function render(){
   if(lang()!=='ar'){trWalk(app);trWalk(top);trWalk(tabs)}
   if(tab==='reader'){fitSoon();if(tab==='reader')setTimeout(mpiAskMaybe,350)}else if(typeof mpCloseOverlays==='function'){var kw=document.getElementById('mps-wrap');if(!(kw&&kw.dataset.keep===tab))mpCloseOverlays()}
   renderFirstUpdateNotice();tourAuto();trkFix();qfabSync();
+  /* Apply synchronously after every render; MutationObserver remains for later timer/dialog changes. */
+  if(typeof digitsApply==='function')digitsApply(false);
 }
 function stopTimer(){clearInterval(tmr);tmr=null;secs=null;timerDeadline=0}
 function startTimerTick(){clearInterval(tmr);if(!timerDeadline)return;secs=Math.max(0,Math.ceil((timerDeadline-Date.now())/1000));if(secs<=0){stopTimer();render();toast('انتهت الدقائق الخمس، ثبّتك الله');return}var el=document.getElementById('timer');if(el)el.textContent=digitsConv(fmt(secs),U().digits==='west');if(document.visibilityState==='hidden')return;tmr=setInterval(function(){if(document.visibilityState==='hidden'){clearInterval(tmr);tmr=null;return}secs=Math.max(0,Math.ceil((timerDeadline-Date.now())/1000));var node=document.getElementById('timer');if(node)node.textContent=digitsConv(fmt(secs),U().digits==='west');if(secs<=0){stopTimer();render();toast('انتهت الدقائق الخمس، ثبّتك الله')}},1000)}
