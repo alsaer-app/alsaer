@@ -184,8 +184,8 @@ document.addEventListener('click',async function(e){
   else if(a==='qopen'){loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));rd={from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1};tab='reader';window.scrollTo(0,0)}
   else if(a==='qpage'){if(rd){try{mpSel='';mpHap()}catch(e){}rd.dir=v==='1'?1:-1;rd.page=Math.max(1,Math.min(604,rd.page+(v==='1'?1:-1)))}}
   else if(a==='qjump'||a==='qjgo'){if(mpAct(a,v))return}
+  else if(a==='qidx'||a==='qixgo'){if(mpIdxAct(a,v))return}
   else if(/^(qsrch|qsclose|qsdo|qsgo|qimm)$/.test(a)){if(mpAct2(a,v))return}
-  else if(/^dg[a-z]+$/.test(a)){if(dgAct(a,v))return}
   else if(/^hdt[a-z]+$/.test(a)){if(typeof hdtAct==='function'&&hdtAct(a,v)===false)return}
   else if(/^hsn[a-z]+$/.test(a)){if(typeof hsnAct==='function'&&hsnAct(a,v)===false)return}
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}
@@ -193,7 +193,6 @@ document.addEventListener('click',async function(e){
   else if(a==='qriw'){loadHeavy(function(){S.quran.riwaya=(v==='warsh'&&window.WDATA)?'warsh':'hafs';save();window.scrollTo(0,0);render()})}
   else if(a==='qtj'){S.quran.tj=S.quran.tj===false;save()}
   else if(a==='qfs'){S.quran.fs=Math.max(18,Math.min(44,S.quran.fs+(v==='2'?2:-2)));save()}
-  else if(a==='showidx'){showIdx=!showIdx}
   else if(a==='qdone'){if(rd&&rd.free){if(rd.sura)markSuraDone(rd.sura);rd=null;tab='home';window.scrollTo(0,0);toast('تقبّل الله منك')}else if(rd){if(!(qPages(dk())>0))lockSet('q:'+dk());var nn=Math.max(1,rd.page-rd.from+1),kq=dk(),before=qPages(kq);S.quran.log[kq]=before+nn;var wrap=rd.page>=604;S.quran.pos=wrap?1:rd.page+1;rd=null;tab='quran';save();window.scrollTo(0,0);toast(wrap?'ما شاء الله، أتممت ختمة المصحف':(S.quran.log[kq]>=S.quran.goal?'تقبّل الله منك، أتممت وردك اليوم':'تم تسجيل '+ar(nn)+' صفحة'));checkNew()}}
   else if(a==='qadd'){var qk=dk();if(!(S.quran.log[qk]>0))lockSet('q:'+qk);S.quran.log[qk]=Math.min(604,(S.quran.log[qk]||0)+1);save()}
   else if(a==='qsub'){var qk2=dk();if(lockLeft('q:'+qk2)>0){lockBlock(lockLeft('q:'+qk2));return}S.quran.log[qk2]=Math.max(0,(S.quran.log[qk2]||0)-1);if(!S.quran.log[qk2])delete S.quran.log[qk2];save()}
