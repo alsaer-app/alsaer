@@ -1,4 +1,4 @@
-name: Alsaer 2.0.0 isolated backup and deferred QA test
+name: Alsaer 2.0.0 backup deferred QA and reader shell test
 on:
   push:
     branches: [exp/deferred-qa-backup]
