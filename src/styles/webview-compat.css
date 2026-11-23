@@ -1,0 +1,16 @@
+/* Compatibility only. Modern engines never enter these feature-gated rules.
+   Reader selectors and viewport geometry deliberately excluded. */
+@supports not (color:color-mix(in srgb,red,blue)){
+ body:not(.rd) .sg-ic,body:not(.rd) .rm-ic,body:not(.rd) .rm-hic{background:rgba(95,207,193,.14)}
+ body:not(.rd) .sg-seg,body:not(.rd) .rm-sw i{background:rgba(141,177,177,.25)}
+ body:not(.rd) .sg-pill.ok{background:rgba(60,196,135,.10)}
+ body:not(.rd) .sg-card.dng{border-color:var(--bad,#c2412d)}
+ body:not(.rd) .sg-card.dng .sg-ic{background:rgba(194,65,45,.12)}
+ body:not(.rd) .rm-hero,body:not(.rd) .rm-master{background:var(--surface);border-color:var(--line)}
+ body:not(.rd) .rm-row.on,body:not(.rd) .snd-opt.on{border-color:var(--gold)}
+ body:not(.rd) .rm-add{border-color:var(--gold)}
+ body:not(.rd) .rm-day.on span,body:not(.rd) .rm-clock label.on b,body:not(.rd) .snd-opt.on{background:var(--surface-2)}
+ body:not(.rd) .settings-dev-avatar,body:not(.rd) .settings-dev-version,body:not(.rd) .settings-dev-links a{background:var(--surface-2)}
+ body:not(.rd) .btn.ghost,body:not(.rd) input[type=text],body:not(.rd) input[type=password],body:not(.rd) input[type=number],body:not(.rd) textarea{background:var(--surface-2)}
+}
+@supports not (height:100dvh){body:not(.rd) .ups-card.qws{max-height:calc(100vh - 48px)}}
