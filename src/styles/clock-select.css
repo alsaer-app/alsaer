@@ -1,5 +1,7 @@
 /* منع تحديد النص وقائمة القص/النسخ خارج حقول الإدخال + تخطيط حقول الوقت على الشاشات الضيقة */
 .tin{flex-wrap:nowrap;white-space:nowrap;max-width:100%}
+/* إصلاح قصّ الأرقام: قاعدة inputs.css العامة لحقول النص (padding:11px 14px وmin-height:46px) كانت تتغلب على تنسيق حقل الوقت المخصص فتترك ~12px فقط للرقمين داخل صندوق 42px */
+.tin input[type=text]{padding:0;min-height:0;height:42px;font-size:18px;text-align:center}
 .tin input{width:46px;height:42px;font-size:18px;-webkit-touch-callout:none}
 .tin b{font-size:18px}
 .tin-ap{flex:none;margin-inline-start:4px}
