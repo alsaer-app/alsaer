@@ -48,7 +48,7 @@ function vMore(){
    ['المتابعة والتحفيز',[mtile('habits','up','العادات الحسنة والسيئة','متابعة العادات والعدادات اليومية'),mtile('weekly','report','إحصاءاتي','أسبوعك وأهدافك وأيام الراحة'),mtile('ach','trophy','لوحة الإنجازات','أوسمتك وسلاسل الأيام'),mtile('boost','heart','محفزات ولحظة الرغبة','مؤقت وخطوات عملية وأسبابي'),mtile('cards','sparkles','بطاقات المشاركة','حوّل إنجازك أو ذكرك إلى صورة')]],
    ['التطبيق',[mtile('settings','gear','الإعدادات','المظهر والقفل والتذكيرات والنوافذ العائمة والودجت والنسخ الاحتياطي')]]
   ];
-  return updBanner()+'<div class="mr-search"><input id="mr-q" type="search" placeholder="ابحث في المزيد…" autocomplete="off" aria-label="بحث"></div><div id="mr-list">'
+  return '<div class="mr-search"><input id="mr-q" type="search" placeholder="ابحث في المزيد…" autocomplete="off" aria-label="بحث"></div><div id="mr-list">'
    +G.map(function(g){return '<section class="mr-g"><h4 class="mr-h">'+g[0]+'</h4><div class="mt-grid">'+g[1].join('')+'</div></section>'}).join('')+'<p class="note mr-none" id="mr-none" hidden>لا نتائج</p></div>'+devBtn();
 }
 document.addEventListener('input',function(e){var t=e.target;if(!t||t.id!=='mr-q')return;var q=t.value.trim(),any=false;
