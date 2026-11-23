@@ -7,3 +7,9 @@
 .qd-i{width:64px;text-align:center;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:12px;padding:8px 4px;font:inherit;font-size:16px}
 .bk-ta{width:100%;box-sizing:border-box;margin:8px 0;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:12px;padding:10px;font:12px/1.5 monospace}
 .bk-file{display:inline-block;margin:4px 0}.bk-msg{color:var(--gold)}.bk .acts{margin-top:8px}
+
+/* Approved Drive backup screen */
+
+.drive-mock .sg-card{overflow:hidden}.dm-intro{text-align:center;padding:19px 18px 14px}.dm-intro>.sg-ic{display:flex;margin:0 auto 9px;width:44px;height:44px;align-items:center;justify-content:center}.dm-intro>b{display:block;font-size:18px}.dm-intro .note{line-height:1.9;margin:7px 0 0}.drive-mock .sg-row{padding:15px 13px;gap:9px}.drive-mock .sg-tx b{font-size:14px}.drive-mock .sg-tx small{font-size:11px}.dm-unlink,.dm-period{border:0;background:transparent;color:var(--ac);font:inherit;font-size:12px;white-space:nowrap;padding:10px 0}.dm-period{border-radius:12px;background:rgba(95,207,193,.09);padding:10px}.dm-store{padding:16px 14px 17px}.dm-store>b{font-size:14px}.dm-segment{display:flex;margin-top:12px;padding:4px;gap:4px;border-radius:16px;background:rgba(95,207,193,.07)}.dm-segment button{flex:1;border:0;border-radius:12px;color:inherit;background:transparent;font:inherit;font-size:13px;padding:12px 3px}.dm-segment .selected{background:rgba(95,207,193,.18);color:var(--ac);font-weight:700}.dm-last{font-size:10px!important;margin:9px 0 14px!important}.dm-actions{display:flex;gap:9px}.dm-actions>.btn{flex:1;justify-content:center;padding:13px 6px;font-size:14px}.dm-foot{text-align:center;font-size:11px!important;margin:13px 9px 0!important;line-height:1.8}
+
+.drive-mock .dm-email{display:block;overflow-wrap:anywhere;font-size:11px}.drive-mock .sg-tx{min-width:0}.drive-mock #gd-backup-pw{margin:8px 0}.drive-mock .dm-foot{margin-bottom:12px}
