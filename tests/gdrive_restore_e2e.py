@@ -14,7 +14,7 @@ async def main():
         p=await b.new_page(viewport={'width':360,'height':780});errors=[]
         p.on('pageerror',lambda e:errors.append(str(e)))
         seed={'onboarded':True,'tour':{'done':1},'profile':{'name':'الحالي'},'ui':{'mode':'dark','accent':'maleem','digits':'east','press':'glow','trans':'slide'}}
-        await p.add_init_script('if(!localStorage.tawba_v1)localStorage.tawba_v1='+json.dumps(json.dumps(seed))+';localStorage.alsaer_gdrive_rt="test";')
+        await p.add_init_script('if(!localStorage.tawba_v1)localStorage.tawba_v1='+json.dumps(json.dumps(seed))+';localStorage.alsaer_gdrive_rt="test";localStorage.alsaer_drive_prefs=JSON.stringify({auto:false});')
         await p.goto(target.as_uri());await p.wait_for_timeout(1500)
         for sel in ['[data-a=update109Done]','text=تخطي']:
           try:await p.click(sel,timeout=400)
@@ -33,13 +33,12 @@ async def main():
         await p.click('[data-a=gdrestore]');await p.wait_for_timeout(600)
         assert 'غير صحيحة' in await p.locator('#bk-msg').inner_text()
         assert await p.evaluate('JSON.parse(localStorage.tawba_v1).profile.name')=='الحالي'
-        await p.fill('#gd-restore-pw','test-password');await p.screenshot(path='/tmp/drive-restore-password.png');await p.click('[data-a=gdrestore]');await p.wait_for_timeout(1500)
+        await p.fill('#gd-restore-pw','test-password');await p.screenshot(path='/tmp/drive-restore-password.png');await p.click('[data-a=gdrestore]');await p.wait_for_function('()=>JSON.parse(localStorage.tawba_v1).profile.name==="المستعاد"');await p.wait_for_timeout(1700)
         assert await p.evaluate('JSON.parse(localStorage.tawba_v1).profile.name')=='المستعاد'
         assert await p.evaluate('JSON.parse(localStorage.alsaer_drive_restore_safety_v1).S.profile.name')=='الحالي'
-        await backup();await p.click('[data-a=gdsafety]');await p.click('[data-a=gdrestore]');await p.wait_for_timeout(1200)
-        assert await p.evaluate('JSON.parse(localStorage.tawba_v1).profile.name')=='الحالي'
+        await backup();assert await p.locator('[data-a=gdsafety]').count()==0
         assert await p.evaluate('document.documentElement.scrollWidth<=document.documentElement.clientWidth')
         assert not errors,errors
-        print('PASS UI: download opens confirmation without replacing; cancel; actual AES wrong/correct password; restore persists through reload; local safety recovery; no page errors/overflow')
+        print('PASS UI: download opens confirmation without replacing; cancel; actual AES wrong/correct password; restore persists through reload; internal safety snapshot retained; recovery button hidden; no page errors/overflow')
         await b.close()
 asyncio.run(main())
