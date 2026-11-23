@@ -79,7 +79,12 @@ document.addEventListener('click',async function(e){
   if(/^(pray|hab|worship|tap|qadd|badinc|fastrecord)$/.test(a)){hapGo([45])}
   if(a==='goback'){if(innerBack())return;if(navTrail.length>1){history.back();return}tab=v||'home';confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='tab'){if(v==='quran'||v==='reader')loadHeavy();if(v==='settings'&&tab==='more')setCat='';tab=v;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
-  else if(a==='updlater'){var us=updState(),ui=updInfo();if(ui){us.dismissed=ui.versionCode;updSave(us)}}
+  else if(a==='updlater'){var us=updState(),ui=updInfo();if(ui){us.dismissed=ui.versionCode;updSave(us)}updSheetClose()}
+  else if(a==='updopen'){updSheetOpen()}
+  else if(a==='updclose'){updSheetClose()}
+  else if(a==='updnow'){updStartDl()}
+  else if(a==='updinst'){updInstall()}
+  else if(a==='updchecknow'){updCheckNow()}
   else if(a==='notifFix'){if(window.alsaerNotifFix)window.alsaerNotifFix();tab='reminders';window.scrollTo(0,0)}
   else if(/^he[a-z]+$/.test(a)){if(heAct(a,v)===false)return}
   else if(a==='mpset'){mpOpen()}
@@ -163,15 +168,22 @@ document.addEventListener('click',async function(e){
   else if(a==='saveworship'){var wi=document.getElementById('new-worship-name'),wt=wi?wi.value.trim().slice(0,60):'';if(wt&&(S.customWorship||[]).length<30){S.customWorship=S.customWorship||[];S.customWorship.push({id:'cw'+Date.now().toString(36),t:wt});save();addingWorship=false;toast('تمت إضافة العبادة الخاصة بك')}else if(!wt)toast('اكتب اسم العبادة أولًا من فضلك')}
   else if(a==='delworship'){S.customWorship=(S.customWorship||[]).filter(function(x){return x.id!==v});Object.keys(S.worship||{}).forEach(function(k){if(S.worship[k])delete S.worship[k][v]});save();toast('تم حذف العبادة')}
   else if(a==='hab'){S.habits=S.habits||{};var hk=dk();S.habits[hk]=S.habits[hk]||{};var hl='h:'+hk+':'+v;if(S.habits[hk][v]){if(lockLeft(hl)>0){lockBlock(lockLeft(hl));return}if(S.locks)delete S.locks[hl]}else lockSet(hl);S.habits[hk][v]=!S.habits[hk][v];save();checkNew()}
-  else if(a==='pray'){var pk=dk();S.prayers[pk]=S.prayers[pk]||{};if(PR.some(function(p){return p[0]===v})){var pl='p:'+pk+':'+v;if(S.prayers[pk][v]){if(lockLeft(pl)>0){lockBlock(lockLeft(pl));return}if(S.locks)delete S.locks[pl]}else lockSet(pl);S.prayers[pk][v]=!S.prayers[pk][v]}save();checkNew()}
+  else if(a==='pray'){var pk=dk();S.prayers[pk]=S.prayers[pk]||{};if(PR.some(function(p){return p[0]===v})){var pl='p:'+pk+':'+v;if(S.prayers[pk][v]){if(lockLeft(pl)>0){lockBlock(lockLeft(pl));return}if(S.locks)delete S.locks[pl]}else lockSet(pl);S.prayers[pk][v]=!S.prayers[pk][v]}save();checkNew();
+    /* شاشة الصلوات: حدّث صف الصلاة وبطاقة المعدل في مكانهما بدل إعادة بناء الشاشة كلها (سبب الوميض عند التسجيل) */
+    var prow=b.closest&&b.closest('.cli');
+    if(prow&&tab==='prayers'){var pon=!!S.prayers[pk][v];prow.classList.toggle('on',pon);b.setAttribute('aria-pressed',String(pon));
+      var pc=0;for(var pi=0;pi<7;pi++){var pd=new Date();pd.setDate(pd.getDate()-pi);var pday=S.prayers[dk(pd)]||{};PR.forEach(function(x){if(pday[x[0]])pc++})}
+      var prate=Math.round(pc/35*100),prl=document.querySelector('.rateline');
+      if(prl){var pbt=prl.querySelector('b');if(pbt)pbt.textContent=prate+'%';var pbar=prl.parentElement.querySelector('.bar>div');if(pbar)pbar.style.width=prate+'%'}
+      return}}
   else if(a==='qstart'){loadHeavy();var st0=S.quran.pos;rd={from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0};tab='reader';window.scrollTo(0,0)}
   else if(a==='qsura'){loadHeavy(function(){var c=parseInt(v,10)||1,st=suraPage(c),en=c<114?Math.max(st,suraPage(c+1)-1):604;rd={from:st,to:en,page:st,free:true,sura:c};tab='reader';window.scrollTo(0,0);render()})}
   else if(a==='adkopen'){group=v;hsnOpen(v);window.scrollTo(0,0)}
   else if(a==='qopen'){loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));rd={from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1};tab='reader';window.scrollTo(0,0)}
   else if(a==='qpage'){if(rd){try{mpSel='';mpHap()}catch(e){}rd.dir=v==='1'?1:-1;rd.page=Math.max(1,Math.min(604,rd.page+(v==='1'?1:-1)))}}
-  else if(a==='qjump'||a==='qjgo'){if(mpAct(a,v))return}
+  else if(a==='qjump'||a==='qjgo'||a==='qmt'){if(mpAct(a,v))return}
   else if(a==='qidx'||a==='qixgo'){if(mpIdxAct(a,v))return}
-  else if(/^(qsrch|qsclose|qsdo|qsgo|qimm)$/.test(a)){if(mpAct2(a,v))return}
+  else if(/^(qsrch|qsclose|qsdo|qsgo|qimm|qms)$/.test(a)){if(mpAct2(a,v))return}
   else if(/^hdt[a-z]+$/.test(a)){if(typeof hdtAct==='function'&&hdtAct(a,v)===false)return}
   else if(/^hsn[a-z]+$/.test(a)){if(typeof hsnAct==='function'&&hsnAct(a,v)===false)return}
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}
