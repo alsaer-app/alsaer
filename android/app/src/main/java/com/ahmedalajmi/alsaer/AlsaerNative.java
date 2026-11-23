@@ -31,6 +31,13 @@ public class AlsaerNative {
         act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).authorizeDrive(interactive); });
     }
 
+    @JavascriptInterface public void backupExport(String content,String name) {
+        act.runOnUiThread(()->{if(act instanceof MainActivity)((MainActivity)act).backupDocument(true,content,name);});
+    }
+    @JavascriptInterface public void backupImport() {
+        act.runOnUiThread(()->{if(act instanceof MainActivity)((MainActivity)act).backupDocument(false,null,null);});
+    }
+
     /* Backup password is encrypted with a non-exportable Android Keystore key. */
     private javax.crypto.SecretKey driveBackupKey() throws Exception {
         java.security.KeyStore ks = java.security.KeyStore.getInstance("AndroidKeyStore"); ks.load(null);
@@ -408,4 +415,4 @@ public class AlsaerNative {
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try { act.startActivity(i); return true; } catch (Exception e) { return false; }
     }
-                                          }
+}
