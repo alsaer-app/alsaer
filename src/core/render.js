@@ -3,6 +3,9 @@ function vRenderFail(e,t){
    +'<div class="acts"><button class="btn" data-a="tab" data-v="home">الرئيسية</button></div></section>';
 }
 function render(){
+  var oldReaderOverlay=document.getElementById('rd-ov');if(oldReaderOverlay)oldReaderOverlay.remove();
+  app.style.removeProperty('padding-top');
+  document.body.style.removeProperty('padding-bottom');
   var backupDialog=document.getElementById('gd-dialog-host');if(backupDialog)backupDialog.remove();
   var popping=backPopHandling;backPopHandling=false;
   applyUI();
@@ -23,6 +26,8 @@ function render(){
   if(tab==='reminders'&&lastTab!=='reminders'&&typeof window.alsaerRemindersEnter==='function')window.alsaerRemindersEnter();
   var vh;try{if(typeof v!=='function')throw new Error('شاشة غير معروفة: '+tab);vh=v()}catch(ex){vh=vRenderFail(ex,tab)}
   app.innerHTML=vh;
+  /* A transformed view animation must not become the fixed controls' viewport. */
+  var readerOverlay=document.getElementById('rd-ov');if(readerOverlay)document.body.appendChild(readerOverlay);
   if(typeof gdMountDialog==='function')gdMountDialog();
   if(tab!==lastTab){
     if(lastTab!==null&&!popping){
