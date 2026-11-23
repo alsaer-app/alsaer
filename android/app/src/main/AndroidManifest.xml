@@ -69,6 +69,8 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- ALSAER: تثبيت التحديثات المحمَّلة داخل التطبيق -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
 
     <!-- ALSAER: صلاحيات الإشعارات المحلية -->
