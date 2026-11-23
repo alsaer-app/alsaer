@@ -41,7 +41,7 @@ jobs:
           "$BT/apksigner" verify --print-certs "$APK" | tee /tmp/cert.txt
           grep -q '647b477f5e19a79ec542b70d12476a166f3bf262ae7b5c2b1602bcc58a1c85e0' /tmp/cert.txt
           "$BT/aapt" dump badging "$APK" | head -1 | tee /tmp/meta.txt
-          grep -q "versionCode='10196'" /tmp/meta.txt && grep -q "versionName='1.0.20-test19-no-recite'" /tmp/meta.txt
+          grep -q "versionCode='112'" /tmp/meta.txt && grep -q "versionName='1.1.2'" /tmp/meta.txt
           "$BT/aapt" dump permissions "$APK" | tee /tmp/perm.txt
           ! grep -qE 'RECORD_AUDIO|MODIFY_AUDIO' /tmp/perm.txt
           stat -c '%s bytes' "$APK" && sha256sum "$APK" && git rev-parse HEAD
