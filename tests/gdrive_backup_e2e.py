@@ -22,17 +22,18 @@ async def main():
    assert await p.locator('[data-a=gddown]').count()==1
    assert await p.locator('[data-a=gdsafety]').count()==0
    assert await p.locator('.dm-email').inner_text()=='preview@example.com'
+   assert await p.locator('[data-a=gdfileout]').count()==1
+   assert await p.locator('[data-a=gddelete]').count()==1
    assert await p.locator('#gd-backup-pw').count()==0
    await p.wait_for_timeout(700);await p.screenshot(path='/tmp/drive-approved-screen-360.png')
-   await p.click('[data-a=gdstore][data-v=drive]');assert await p.evaluate('__driveTest.prefs().storage')=='drive'
    await p.click('[data-a=gdauto]');assert not await p.evaluate('__driveTest.prefs().auto')
    await p.check('[data-gd-encrypt]');await p.fill('#gd-backup-pw','test-password');await p.click('[data-a=gdpwsave]');assert await p.evaluate('__driveTest.prefs().encrypt')
    await p.click('[data-a=gdup]');await p.wait_for_timeout(700);assert await p.evaluate('__uploaded.startsWith("ALSAER-ENC1:")')
-   await p.uncheck('[data-gd-encrypt]');await p.click('[data-a=gdstore][data-v=both]');await p.click('[data-a=gdup]');await p.wait_for_timeout(300)
+   await p.uncheck('[data-gd-encrypt]');await p.click('[data-a=gdup]');await p.wait_for_timeout(300)
    assert await p.evaluate('JSON.parse(__uploaded).app')=='alsaer'
    assert await p.evaluate('__phone===__uploaded')
    assert await p.evaluate('document.documentElement.scrollWidth<=360')
    assert not errs,errs
-   print('PASS approved UI: real state changes; optional crypto; signed-in email; one backup and restore; storage selector; auto off; phone copy; no overflow/errors')
+   print('PASS approved UI: real state changes; optional crypto; signed-in email; Drive and file destinations; auto off; phone copy; no overflow/errors')
    await b.close()
 asyncio.run(main())
