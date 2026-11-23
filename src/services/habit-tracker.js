@@ -1,5 +1,5 @@
 /* ===== متتبّع العادة المستهدفة: تسجيل متعدد المرات في اليوم + تقرير ===== */
-var manageTargets=false,repRange='week',showRep=false,showAllChips=false;
+var manageTargets=false,repRange='week',showRep=false;
 function mainName(){return String(S.mainName||'').trim()||'العادة الرئيسية'}
 function trackables(){
   var l=[['main',mainName(),'bad']];
