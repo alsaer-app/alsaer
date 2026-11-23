@@ -45,6 +45,7 @@ jobs:
           python3 tests/native_bridge_contract.py
           python3 tests/widget_packaging_contract.py
           python3 tests/alarm_request_ids_contract.py
+          node tests/reminder_fallback_contract.cjs
           node tests/backup_versions_contract.cjs
           node tests/backup_destinations_contract.cjs
           node tests/gdrive_backup_contract.cjs
@@ -60,6 +61,8 @@ jobs:
           python3 tests/gdrive_restore_e2e.py
           python3 tests/backup_versions_e2e.py
           python3 tests/webview_compat_e2e.py
+          python3 tests/reader_shell_e2e.py
+          python3 tests/mushaf_toolbar_e2e.py
       - name: Decode signing key inside GitHub only
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
