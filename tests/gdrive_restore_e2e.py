@@ -31,7 +31,7 @@ async def main():
           await p.evaluate('let b=document.createElement("button");b.dataset.a="tab";b.dataset.v="backup";document.body.append(b);b.click();b.remove()')
         await backup()
         await p.evaluate('localStorage.setItem("restore_test_origin_marker","same-origin")')
-        raw=json.dumps({'app':'alsaer','S':{'profile':{'name':'المستعاد'}}})
+        raw=json.dumps({'app':'alsaer','S':{'days':{},'counters':{},'profile':{'name':'المستعاد'}}})
         await p.evaluate('(r)=>__driveTest.download(r)',raw)
         await p.click('[data-a=gddown]');await p.check('[data-gd-select]');await p.click('[data-a=gdpickgo]');await p.click('[data-a=gdverify]');await p.locator('[data-a=gdrestore]').wait_for()
         assert await p.evaluate('JSON.parse(localStorage.tawba_v1).profile.name')=='الحالي'
