@@ -24,6 +24,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- ALSAER: عودة موافقة Google Drive -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.ahmedalajmi.alsaer" android:host="gdrive" />
+            </intent-filter>
+
         </activity>
 
         <!-- ALSAER: مستقبلات الإشعارات المحلية -->
