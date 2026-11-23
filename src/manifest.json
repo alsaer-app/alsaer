@@ -237,9 +237,6 @@
 "file": "screens/more.js"
 },
 {
-"file": "services/diagnostics.js"
-},
-{
 "file": "services/extras.js"
 },
 {
@@ -262,6 +259,9 @@
 },
 {
 "file": "services/mushaf-plus.js"
+},
+{
+"file": "services/reader-index.js"
 },
 {
 "file": "services/mushaf-img.js"
