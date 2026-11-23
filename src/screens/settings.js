@@ -61,6 +61,8 @@ function vSettings(){
   var u=U(),md=uiMode(),sid=pick(Object.keys(STY),u.style,'calm'),lk=pick(LOOKS,u.look,'classic');
   var lkE=LOOKS.filter(function(x){return x[0]===lk})[0]||LOOKS[0];
   var fn=pick(FONTS,u.font,'plex'),fnN=(FONTS.filter(function(x){return x[0]===fn})[0]||[])[1]||'';
+  var pr=pick(PRESSES,u.press,'bounce'),prN=(PRESSES.filter(function(x){return x[0]===pr})[0]||[])[1]||'';
+  var tr=pick(TRANSES,u.trans,'rise'),trN=(TRANSES.filter(function(x){return x[0]===tr})[0]||[])[1]||'';
   var ac=apAcc();
   var hidN=HOME_SECS.filter(function(x){return !(S.homeHide&&S.homeHide[x[0]])}).length;
   var LOOK='<div class="sg-card">'
@@ -80,7 +82,11 @@ function vSettings(){
    +sgNav('font','pen','الخط','',fnN+' · '+(u.fontW==='bold'?'عريض':'عادي'))
    +P('font','<div style="padding:4px 2px 8px"><div class="font-grid">'+FONTS.map(function(x){return oBtn('ufont',x[0],fn,'<span class="fo-s fo-'+x[0]+'">أبجد</span><small>'+x[1]+'</small>','uo fo')}).join('')+'</div><div class="seg" style="margin-top:10px"><button class="'+(u.fontW!=='bold'?'on':'')+'" data-a="ufw" data-v="normal">عادي</button><button class="'+(u.fontW==='bold'?'on':'')+'" data-a="ufw" data-v="bold" style="font-weight:800">عريض</button></div></div>')
    +sgSegRow('sparkles','الحركات','حركة الضغط والانتقالات في مفتاح واحد',sgSeg([['full','كاملة'],['reduced','مخففة'],['none','بلا']],apMotionCur(),'umotion'))
-   +'</div><p class="note" style="margin:10px 6px 0">«مخففة» تُبقي الانتقالات الأساسية فقط · «بلا» توقف كل الحركة</p>'
+   +sgNav('press','star','حركة الضغط','',prN)
+   +P('press','<div style="padding:4px 2px 8px"><div class="opt-list">'+PRESSES.map(function(x){return oBtn('upress',x[0],pr,'<b>'+x[1]+'</b><small>'+x[2]+'</small>','uo ol')}).join('')+'</div></div>')
+   +sgNav('trans','up','حركة الانتقال','',trN)
+   +P('trans','<div style="padding:4px 2px 8px"><div class="opt-list">'+TRANSES.map(function(x){return oBtn('utrans',x[0],tr,'<b>'+x[1]+'</b><small>'+x[2]+'</small>','uo ol')}).join('')+'</div></div>')
+   +'</div><p class="note" style="margin:10px 6px 0">«مخففة» تُبقي الانتقالات الأساسية فقط · «بلا» توقف كل الحركة · ويمكنك ضبط الضغط والانتقال كلٌّ على حدة من الصفين أعلاه</p>'
    +'<p class="note" style="margin:8px 6px 0">الاهتزاز: يهتز الهاتف قليلًا عند المسبحة وتسجيل العبادات. إن لم تشعر به فعّل «ردود الفعل اللمسية» من إعدادات الصوت والاهتزاز في هاتفك.</p>';
 
   /* ===== التنبيهات ===== */
@@ -163,4 +169,4 @@ function vSettings(){
   return '<button type="button" class="sc-me" data-a="scat" data-v="prof"><span class="sc-av">'+profileAvatar(52)+'</span><span class="sc-mt"><b>'+esc(nm)+'</b><small>الملف الشخصي</small></span>'+ic('chev')+'</button>'
    +'<div class="sc-grid">'+Object.keys(cats).filter(function(k){return k!=='prof'}).map(function(k){return sgLit('<button type="button" class="sc-tile sc-'+k+'" data-a="scat" data-v="'+k+'"><span class="sc-ic">'+ic(cats[k][1])+'</span><b>'+cats[k][0]+'</b><small>'+catSub[k]+'</small></button>',(k==='notif'&&(nOn||fOn||wOn)))}).join('')+'</div>'
    +COPY;
-}
+             }
