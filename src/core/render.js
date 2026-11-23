@@ -73,9 +73,9 @@ document.addEventListener('change',function(e){
   var t=e.target,k=t&&t.dataset&&t.dataset.loc;if(!k)return;
   S.loc=S.loc||{};
   if(k==='city'){var c=CITIES[parseInt(t.value,10)];if(c){delete S.loc.gps;S.loc.city=c[0];S.loc.lat=c[1];S.loc.lng=c[2];if(S.loc.auto===undefined)S.loc.auto=true;if(S.loc.auto)autoPtimes()}}
-  else if(k==='method'){S.loc.method=t.value}
+  else if(k==='method'){S.loc.method=t.value;if(S.loc.auto)autoPtimes()}
   else if(k==='clk'){setClockMode(t.value)}
-  else if(k==='asr'){S.loc.asr=parseInt(t.value,10)===2?2:1}
+  else if(k==='asr'){S.loc.asr=parseInt(t.value,10)===2?2:1;if(S.loc.auto)autoPtimes()}
   else if(k==='auto'){S.loc.auto=!!t.checked;if(S.loc.auto)autoPtimes()}
   save();compassStop();render();
 });
