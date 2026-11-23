@@ -260,6 +260,7 @@ try{S.quran=S.quran||{};if(!S.quran.v2){if(S.quran.pg===undefined||S.quran.pg===
 bioProbePoll();
 /* رجوع داخلي: يغلق نوافذ المصحف العائمة، أو يعود من قسم الإعدادات إلى قائمة الأقسام، قبل مغادرة الشاشة */
 function innerBack(){
+  if(document.getElementById('qwirdsheet')){qwSheetClose();return true}
   if(typeof mpCloseOverlays==='function'&&mpCloseOverlays())return true;
   if(tab==='settings'&&setSub){setSub='';setOpen=null;msg='';scAnim=1;window.scrollTo(0,0);render();return true}
   if(tab==='settings'&&setCat){setCat='';setOpen=null;msg='';scAnim=1;window.scrollTo(0,0);render();return true}
