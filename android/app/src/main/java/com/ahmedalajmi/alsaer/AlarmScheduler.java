@@ -73,6 +73,8 @@ public final class AlarmScheduler {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject it = arr.optJSONObject(i);
             if (it == null) continue;
+            long once=it.optLong("at",0);
+            if(once>0&&prefs(c).getLong("fired-once:"+it.optString("id"),0)==once)continue;
             long at = nextTrigger(it, now);
             if (at <= 0) continue;
             scheduleAt(c, it, at, false);
@@ -145,8 +147,13 @@ public final class AlarmScheduler {
         for (int d = 0; d < 8; d++) {
             Calendar c2 = (Calendar) base.clone();
             c2.add(Calendar.DAY_OF_YEAR, d);
-            c2.set(Calendar.HOUR_OF_DAY, h);
-            c2.set(Calendar.MINUTE, m);
+            String dayKey=String.format(java.util.Locale.US,"%04d-%02d-%02d",c2.get(Calendar.YEAR),c2.get(Calendar.MONTH)+1,c2.get(Calendar.DAY_OF_MONTH));
+            if(dayKey.equals(it.optString("skipDate")))continue;
+            JSONObject prayer=it.optJSONObject("prayer");
+            int clock=prayer==null?h*60+m:PrayerClock.minutes(c2,prayer);
+            if(clock<0)continue;
+            c2.set(Calendar.HOUR_OF_DAY, clock/60);
+            c2.set(Calendar.MINUTE, clock%60);
             c2.set(Calendar.SECOND, 0);
             c2.set(Calendar.MILLISECOND, 0);
             if (c2.getTimeInMillis() <= now) continue;
@@ -294,8 +301,9 @@ public final class AlarmScheduler {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_REMINDER);
         if (Build.VERSION.SDK_INT < 26) {
-            b.setSound(Uri.parse("android.resource://" + c.getPackageName() + "/" + R.raw.alsaer_tone));
-            b.setVibrate(new long[]{0, 120, 80, 120, 80, 260});
+            String sound=soundMode(c);
+            b.setSound("silent".equals(sound)?null:"system".equals(sound)?Settings.System.DEFAULT_NOTIFICATION_URI:Uri.parse("android.resource://" + c.getPackageName() + "/" + R.raw.alsaer_tone));
+            b.setVibrate("silent".equals(sound)?new long[]{0}:new long[]{0, 120, 80, 120, 80, 260});
         }
 
         JSONObject act = it.optJSONObject("act");
