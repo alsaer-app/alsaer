@@ -39,6 +39,7 @@ jobs:
         run: chmod +x gradlew && ./gradlew --no-daemon assembleRelease
       - name: Verify signed APK and metadata
         run: |
+          set -x
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | tail -1); APK=android/app/build/outputs/apk/release/app-release.apk
           "$BT/apksigner" verify --print-certs "$APK" | tee /tmp/cert.txt
           grep -q '647b477f5e19a79ec542b70d12476a166f3bf262ae7b5c2b1602bcc58a1c85e0' /tmp/cert.txt
@@ -46,11 +47,11 @@ jobs:
           grep -q "versionCode='112'" /tmp/meta.txt && grep -q "versionName='1.1.2'" /tmp/meta.txt
           "$BT/aapt" dump permissions "$APK" | tee /tmp/perm.txt
           ! grep -qE 'RECORD_AUDIO|MODIFY_AUDIO' /tmp/perm.txt
-          "$BT/aapt" dump xmltree "$APK" AndroidManifest.xml > /tmp/manifest.txt
+          "$BT/aapt" dump xmltree "$APK" AndroidManifest.xml | tee /tmp/manifest.txt
           grep -q 'AlsaerWidget' /tmp/manifest.txt
           grep -q 'android.appwidget.action.APPWIDGET_UPDATE' /tmp/manifest.txt
-          "$BT/aapt" list "$APK" > /tmp/apkfiles.txt
-          grep -q 'res/layout/alsaer_widget.xml' /tmp/apkfiles.txt
+          "$BT/aapt" list "$APK" | tee /tmp/apkfiles.txt
+          grep -qE 'res/layout[^/]*/alsaer_widget.xml' /tmp/apkfiles.txt
           grep -q 'res/xml/alsaer_widget_info.xml' /tmp/apkfiles.txt
           stat -c '%s bytes' "$APK" && sha256sum "$APK" && git rev-parse HEAD
       - uses: actions/upload-artifact@v4
