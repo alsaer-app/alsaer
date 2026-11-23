@@ -71,6 +71,9 @@ jobs:
           python3 tests/reader_shell_e2e.py
           python3 tests/mushaf_toolbar_e2e.py
           python3 tests/more_grid_e2e.py
+          python3 tests/settings_grid_e2e.py
+          python3 tests/settings_bottom_e2e.py
+          python3 tests/reminders_reentry_e2e.py
       - name: Decode signing key inside GitHub only
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
