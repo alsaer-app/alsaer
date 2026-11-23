@@ -2,7 +2,7 @@
 import pathlib,re
 root=pathlib.Path(__file__).resolve().parents[1]
 s=(root/'android/app/src/main/java/com/ahmedalajmi/alsaer/AlsaerNative.java').read_text()
-required='setSchedule notificationsEnabled canExactAlarms requestNotificationPermission testNotification setSoundMode getSoundMode takePending takeRoute openAppNotificationSettings openExactAlarmSettings openBatterySettings canDrawOverlays floatingEnabled setFloating setWidget setWidgetStyle getWidgetStyle widgetActive setFloatStyle getFloatStyle pauseFloating floatingPausedUntil openOverlaySettings testFloating setFloatFeed getFloatFeed setFloatPool floatPoolSize floatUpcoming floatLastShown floatLastError floatRefresh consumeGdriveRedirect shareText appBuildInfo mirrorGet mirrorSet openUrl updateStart'.split()
+required='setSchedule notificationsEnabled canExactAlarms requestNotificationPermission testNotification setSoundMode getSoundMode takePending takeRoute openAppNotificationSettings openExactAlarmSettings openBatterySettings canDrawOverlays floatingEnabled setFloating setWidget setWidgetStyle getWidgetStyle widgetActive setFloatStyle getFloatStyle pauseFloating floatingPausedUntil openOverlaySettings testFloating setFloatFeed getFloatFeed setFloatPool floatPoolSize floatUpcoming floatLastShown floatLastError floatRefresh consumeGdriveRedirect shareText appBuildInfo mirrorGet mirrorSet openUrl updateStart backupExport backupImport'.split()
 exposed=set(re.findall(r'@JavascriptInterface\s+public\s+[\w.<>]+\s+(\w+)\s*\(',s))
 missing=set(required)-exposed
 assert not missing, 'Missing @JavascriptInterface bridge methods: '+', '.join(sorted(missing))
