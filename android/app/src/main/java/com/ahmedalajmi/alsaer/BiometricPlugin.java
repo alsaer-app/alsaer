@@ -19,17 +19,24 @@ public class BiometricPlugin extends Plugin {
     @PluginMethod
     public void isAvailable(PluginCall call) {
         Context context = getContext();
+        BiometricManager manager = BiometricManager.from(context);
 
-        int status = BiometricManager.from(context)
-                .canAuthenticate(
-                        BiometricManager.Authenticators.BIOMETRIC_STRONG
-                );
+        int status = manager.canAuthenticate(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG
+        );
+
+        // نفس منطق authenticate: جهاز بقارئ «ضعيف» فقط ما زال يستطيع المصادقة،
+        // فلا نظهر له «الجهاز لا يدعم البصمة».
+        boolean available = status == BiometricManager.BIOMETRIC_SUCCESS;
+        if (!available) {
+            int weak = manager.canAuthenticate(
+                    BiometricManager.Authenticators.BIOMETRIC_WEAK
+            );
+            available = weak == BiometricManager.BIOMETRIC_SUCCESS;
+        }
 
         JSObject result = new JSObject();
-        result.put(
-                "available",
-                status == BiometricManager.BIOMETRIC_SUCCESS
-        );
+        result.put("available", available);
         result.put("code", status);
 
         call.resolve(result);
