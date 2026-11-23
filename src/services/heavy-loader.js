@@ -5,7 +5,7 @@ function loadHeavy(cb){
   if(heavyState)return;heavyState=1;
   var files=['mushaf.js','warsh.js','tajweed_warsh.js'],i=0;
   (function nx(){
-    if(i>=files.length){heavyState=2;heavyCbs.splice(0).forEach(function(f){try{f()}catch(e){}});if(tab==='quran'||tab==='reader')render();return}
+    if(i>=files.length){heavyState=(window.MUSHAF&&window.WDATA&&window.WTJ)?2:0;heavyCbs.splice(0).forEach(function(f){try{f()}catch(e){}});if(tab==='quran'||tab==='reader')render();return}
     var sc=document.createElement('script');sc.src=files[i++];sc.onload=nx;sc.onerror=nx;document.head.appendChild(sc);
   })();
 }
