@@ -149,7 +149,7 @@
     if(p[0]==='tab'&&p[1]){tab=p[1];window.scrollTo(0,0);render()}
     else if(p[0]==='adk'&&p[1]){group=p[1];hsnOpen(p[1]);window.scrollTo(0,0);render()}
     else if(p[0]==='quran'&&p[1]==='start'){var st=S.quran.pos;rd={from:st,to:Math.min(604,st+S.quran.goal-1),page:st};tab='reader';render();window.scrollTo(0,0)}
-    else if(p[0]==='sura'){tab='quran';S.quran.sura=p.slice(1).join(':');save();render();window.scrollTo(0,0)}
+    else if(p[0]==='sura'){loadHeavy(function(){var name=p.slice(1).join(':'),si=QD().n.indexOf(name),pg=si>=0?suraPage(si+1):S.quran.pos;rd={from:pg,to:pg,page:pg};tab='reader';render();window.scrollTo(0,0)})}
   }
   window.alsaerPoll=function(quiet){
     var n=nat();if(!n||typeof S==='undefined')return;
