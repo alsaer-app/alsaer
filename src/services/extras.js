@@ -56,7 +56,7 @@ function vBackup(){
 
    +'<div class="acts"><button class="btn" data-a="bkexport">'+ic('check')+' تصدير بياناتي</button></div>'
    +(bkText?'<textarea id="bk-out" class="bk-ta" readonly rows="5" dir="ltr">'+esc(bkText)+'</textarea><div class="acts"><button class="btn ghost" data-a="bkcopy">نسخ النص</button></div>':'')
-   +'</section><section class="card"><h3>استيراد</h3><p class="note">الصق نص النسخة الاحتياطية أو اختر الملف. سيحلّ محلّ بياناتك الحالية.</p>'
+   +'</section>'+vGdCard()+'<section class="card"><h3>استيراد</h3><p class="note">الصق نص النسخة الاحتياطية أو اختر الملف. سيحلّ محلّ بياناتك الحالية.</p>'
    +'<textarea id="bk-in" class="bk-ta" rows="4" dir="ltr" placeholder="الصق النص هنا">'+esc(bkIn)+'</textarea>'
    +'<label class="btn ghost bk-file">اختيار ملف<input id="bk-file" type="file" accept=".json,application/json,text/plain" hidden></label>'
    +'<div class="acts"><button class="btn'+(bkConfirm?' bad':'')+'" data-a="bkimport">'+(bkConfirm?'تأكيد الاستبدال الآن':'استيراد')+'</button></div></section>'
@@ -66,6 +66,7 @@ function bkSay(t){bkMsg=t;var q=document.getElementById('bk-msg');if(q)q.textCon
 document.addEventListener('input',function(e){var t=e.target;if(t&&t.id==='bk-in')bkIn=t.value});
 document.addEventListener('change',function(e){var t=e.target;if(t&&t.id==='bk-file'&&t.files&&t.files[0]){var r=new FileReader();r.onload=function(){var ta=document.getElementById('bk-in');if(ta){ta.value=bkIn=String(r.result||'');bkConfirm=false;bkSay('قُرئ الملف. اضغط «استيراد» ثم «تأكيد».')}};r.onerror=function(){bkSay('تعذّرت قراءة الملف.')};r.readAsText(t.files[0])}});
 function extraAct(a,v){
+  if(a.indexOf('gd')===0){return gdAct(a)}
   if(a==='qdchg'){var p=String(v).split(':'),k=p[0],d=parseInt(p[1],10)||0,q=qdGet();
     if(d<0&&q[k]>0){q[k]--;q.done=(parseInt(q.done,10)||0)+1;hapGo([40])}else if(d>0&&q[k]<99999)q[k]++;
     save();qdPaint();return true}
