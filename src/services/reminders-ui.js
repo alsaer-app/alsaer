@@ -200,6 +200,7 @@
     }else remStatus('لم تُمنح صلاحية الإشعارات بعد. اضغط «موافقة وتفعيل الإشعارات».');
   }
   function remOpenReader(sura){
+    if(sura&&sura.indexOf(':')>=0&&typeof window.alsaerReminderGo==='function'){window.alsaerReminderGo(sura);return}
     try{
       if(typeof tab!=='undefined'&&typeof render==='function'){
         tab='quran'; if(typeof S!=='undefined'){S.quran=S.quran||{};S.quran.sura=sura;save()}
@@ -223,17 +224,20 @@
     var r=remLoad(); if(!r.enabled||!r.consent||!document.hasFocus())return;
     var d=new Date(),day=d.getDay(),hh=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
     var date=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
-    var checks=[
-      ['malik',r.malik,r.malikTime,-1,'قراءة سورة الملك','حان وقت ورد سورة الملك قبل النوم.','الملك'],
-      ['kahf',r.kahf,r.kahfTime,5,'قراءة سورة الكهف','اليوم الجمعة؛ لا تنس قراءة سورة الكهف بعد العصر.','الكهف'],
-      ['salat',r.salat,r.salatTime,-1,'الصلاة على النبي ﷺ','اللهم صل وسلم على نبينا محمد ﷺ',''],
-      ['dua',r.dua,r.duaTime,5,'ساعة إجابة يوم الجمعة','أكثر من الدعاء في ساعة الإجابة، وادعُ بما تحب.','']
+    var checks=typeof window.alsaerReminderItems==='function'?window.alsaerReminderItems():[
+      {id:'malik',on:r.malik,h:+r.malikTime.split(':')[0],m:+r.malikTime.split(':')[1],title:'قراءة سورة الملك',body:'حان وقت ورد سورة الملك قبل النوم.',route:'sura:الملك'},
+      {id:'salat',on:r.salat,h:+r.salatTime.split(':')[0],m:+r.salatTime.split(':')[1],title:'الصلاة على النبي ﷺ',body:'اللهم صل وسلم على نبينا محمد ﷺ'},
+      {id:'kahf',on:r.kahf,h:+r.kahfTime.split(':')[0],m:+r.kahfTime.split(':')[1],dow:[5],title:'قراءة سورة الكهف',body:'حان وقت قراءة سورة الكهف.',route:'sura:الكهف'},
+      {id:'dua',on:r.dua,h:+r.duaTime.split(':')[0],m:+r.duaTime.split(':')[1],dow:[5],title:'ساعة إجابة يوم الجمعة',body:'أكثر من الدعاء.'}
     ];
-    var changed=false;
+    var changed=false;if(!r.last||typeof r.last!=='object')r.last={};
     checks.forEach(function(x){
-      if(!x[1]||x[2]!==hh||(x[3]!==-1&&x[3]!==day))return;
-      var k=x[0]+'_'+date;if(r.last[k])return;
-      r.last[k]=true;changed=true;remNotify(x[4],x[5],x[6]);
+      if(x.on===false||x.skipDate===dk(d))return;
+      if(x.prayer&&typeof ptCompute==='function'){var pt=ptCompute(d,x.prayer.lat,x.prayer.lng,x.prayer.method,x.prayer.asr)[x.prayer.key];if(!pt)return;var pta=pt.split(':'),pmin=(+pta[0]*60+ +pta[1]-x.prayer.pre+1440)%1440;x.h=Math.floor(pmin/60);x.m=pmin%60;}
+      if(x.at){if(x.at>Date.now()||Date.now()-x.at>45000)return}
+      else if(x.h!==d.getHours()||x.m!==d.getMinutes()||(x.dow&&x.dow.length&&x.dow.indexOf(day)<0))return;
+      var k=x.id+'_'+date;if(r.last[k])return;
+      r.last[k]=true;changed=true;remNotify(x.title,x.body,x.route||'');
     });
     if(changed)remSave(r);
   }
