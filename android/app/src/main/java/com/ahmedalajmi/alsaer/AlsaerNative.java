@@ -31,6 +31,47 @@ public class AlsaerNative {
         act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).authorizeDrive(interactive); });
     }
 
+    /* Backup password is encrypted with a non-exportable Android Keystore key. */
+    private javax.crypto.SecretKey driveBackupKey() throws Exception {
+        java.security.KeyStore ks = java.security.KeyStore.getInstance("AndroidKeyStore"); ks.load(null);
+        String alias = "alsaer_drive_backup_password_v1";
+        if (ks.containsAlias(alias)) return (javax.crypto.SecretKey) ks.getKey(alias, null);
+        javax.crypto.KeyGenerator gen = javax.crypto.KeyGenerator.getInstance("AES", "AndroidKeyStore");
+        gen.init(new android.security.keystore.KeyGenParameterSpec.Builder(alias,
+            android.security.keystore.KeyProperties.PURPOSE_ENCRYPT | android.security.keystore.KeyProperties.PURPOSE_DECRYPT)
+            .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
+            .setEncryptionPaddings(android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE).build());
+        return gen.generateKey();
+    }
+    @JavascriptInterface public String gdriveSeal(String password) {
+        try {
+            javax.crypto.Cipher c = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding");
+            c.init(javax.crypto.Cipher.ENCRYPT_MODE, driveBackupKey());
+            byte[] data = c.doFinal(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return android.util.Base64.encodeToString(c.getIV(), android.util.Base64.NO_WRAP) + ":" + android.util.Base64.encodeToString(data, android.util.Base64.NO_WRAP);
+        } catch (Exception e) { return ""; }
+    }
+    @JavascriptInterface public String gdriveOpen(String sealed) {
+        try {
+            String[] parts = sealed.split(":", 2); if (parts.length != 2) return "";
+            javax.crypto.Cipher c = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding");
+            c.init(javax.crypto.Cipher.DECRYPT_MODE, driveBackupKey(), new javax.crypto.spec.GCMParameterSpec(128, android.util.Base64.decode(parts[0], android.util.Base64.NO_WRAP)));
+            return new String(c.doFinal(android.util.Base64.decode(parts[1], android.util.Base64.NO_WRAP)), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) { return ""; }
+    }
+    @JavascriptInterface public boolean gdriveSaveBackup(String content) {
+        if (content == null || content.isEmpty()) return false;
+        try {
+            java.io.File dir = new java.io.File(act.getFilesDir(), "backups");
+            if (!dir.exists() && !dir.mkdirs()) return false;
+            android.util.AtomicFile file = new android.util.AtomicFile(new java.io.File(dir, "alsaer-backup.txt"));
+            java.io.FileOutputStream out = null;
+            try { out = file.startWrite(); out.write(content.getBytes(java.nio.charset.StandardCharsets.UTF_8)); file.finishWrite(out); }
+            catch (Exception e) { if (out != null) file.failWrite(out); return false; }
+            return true;
+        } catch (Exception e) { return false; }
+    }
+
     /* ALSAER: فتح رابط في متصفح الجهاز (صفحة موافقة Google لربط النسخة الاحتياطية) */
     @JavascriptInterface public boolean openUrl(String url) {
         try {
@@ -367,4 +408,4 @@ public class AlsaerNative {
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try { act.startActivity(i); return true; } catch (Exception e) { return false; }
     }
-}
+                                          }
