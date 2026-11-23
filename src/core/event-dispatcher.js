@@ -78,7 +78,7 @@ document.addEventListener('click',async function(e){
   var a=b.dataset.a,v=b.dataset.v,d=b.dataset;
   if(/^(pray|hab|worship|tap|qadd|badinc|fastrecord)$/.test(a)){hapGo([45])}
   if(a==='goback'){if(innerBack())return;if(navTrail.length>1){history.back();return}tab=v||'home';confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
-  else if(a==='tab'){if(v==='quran'||v==='reader')loadHeavy();if(v==='settings'&&tab==='more')setCat='';tab=v;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
+  else if(a==='tab'){if(v==='quran'||v==='reader')loadHeavy();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='updlater'){var us=updState(),ui=updInfo();if(ui){us.dismissed=ui.versionCode;updSave(us)}updSheetClose()}
   else if(a==='updopen'){updSheetOpen()}
   else if(a==='updclose'){updSheetClose()}
@@ -103,12 +103,13 @@ document.addEventListener('click',async function(e){
   else if(a==='uhap'){setUI('hap',v);hapGo([40,50,30])}
   else if(a==='upress'){setUI('press',v);pressKey='[data-a="upress"][data-v="'+v+'"]'}
   else if(a==='utrans'){setUI('trans',v);lastTab=null}
+  else if(a==='umotion'){if(v==='none'){setUI('press','none');setUI('trans','none')}else if(v==='reduced'){setUI('press','soft');setUI('trans','fade')}else{setUI('press','bounce');setUI('trans','rise')}lastTab=null}
   else if(a==='gender'){S.gender=v==='female'?'female':'male';save();toast('تم تحديث طريقة المخاطبة')}
   else if(a==='savereview'){var rv=document.getElementById('review-note');S.reviews=S.reviews||[];S.reviews.push({date:dk(),note:rv?rv.value.slice(0,2000):''});save();toast('تم حفظ مراجعتك على هذا الجهاز')}
   else if(a==='lockdelay'){S.lockDelay=parseInt(v,10);save();toast('تم حفظ مهلة القفل')}
   else if(/^(bmtog|bmdel|frz|cdsrc|cdmake|cdshare|cddl|hfadd|hfrev|hfdel|ktdur|ktstart|ktstop)$/.test(a)){if(f7Act(a,v,d))return}
   else if(/^(ramtog|khset|khgoal|khreset|ntkind|ntadd|ntdel|adkfav|adkall|adkcopy|adkshare|zkbase|zkhawl)$/.test(a)){if(featAct(a,v,d))return}
-  else if(/^(qdchg|bkexport|bkcopy|bkimport|gdconnect|gdup|gddown|gddisc)$/.test(a)){if(extraAct(a,v))return}
+  else if(/^(qdchg|bkmode|bkexenc|bkcopy|bkimport|gdconnect|gdup|gddown|gddisc)$/.test(a)){if(extraAct(a,v))return}
   else if(/^(nsf|nsw|nsfreset|nswreset|nsfen|nsftest|nsfpause)$/.test(a)){if(nsAct(a,v))return}
   else if(/^(ffset|fftype|ffday|ffsave|ffadd|ffdel|ffct|ffctdel|ffrefresh)$/.test(a)){if(ffAct(a,v))return}
   else if(/^(boman|boadd|bodel|bolog|boundo|boedit|bopre|boico|boclr|bocancel|bocol|boset|bodayf|boopt|bopos|bopause|borate)$/.test(a)){if(boAct(a,v))return}
@@ -118,7 +119,8 @@ document.addEventListener('click',async function(e){
   else if(/^(mhq|mhsave)$/.test(a)){if(mhAct(a,v))return}
   else if(a==='gps'){setTimeout(function(){gpsFix(false)},30)}
   else if(a==='qibla'){if(compassOn)compassStop();else{var DOE=window.DeviceOrientationEvent;if(DOE&&typeof DOE.requestPermission==='function'){try{DOE.requestPermission().then(function(r){if(r==='granted'){compassStart(parseFloat(v));render()}})}catch(x){}}else compassStart(parseFloat(v))}}
-  else if(a==='scat'){setCat=v||'';setOpen=null;msg='';window.scrollTo(0,0)}
+  else if(a==='scat'){setCat=v||'';setSub='';setOpen=null;scAnim=1;msg='';window.scrollTo(0,0)}
+  else if(a==='ssub'){setSub=v||'';setOpen=null;scAnim=1;msg='';window.scrollTo(0,0)}
   else if(a==='sopen'){setOpen=(setOpen===v)?null:v;msg='';secOk=''}
   else if(a==='secchoose'){
     secOk='';
@@ -248,14 +250,6 @@ document.addEventListener('click',async function(e){
   else if(a==='delr'){S.reasons.splice(+d.i,1);save()}
   else if(a==='unlock'){await tryUnlock(document.getElementById('lk').value)}
   else if(a==='biounlock'){bioPrompt(false)}
-  else if(a==='bkenc'){
-    var pw=(document.getElementById('bkpw')||{}).value||'',tb=document.getElementById('bk');
-    if(pw.length<6)msg='كلمة مرور النسخة يجب ألا تقل عن ٦ أحرف. احفظها جيدًا؛ لا يمكن استرجاع النسخة بدونها.';
-    else{try{var et=await bkEncrypt(JSON.stringify(S),pw);tb.value=et;try{await navigator.clipboard.writeText(et);msg='تم نسخ النسخة المشفّرة'}catch(x){tb.select();msg='حدّد النص وانسخه يدوياً'}}catch(x){msg='تعذر التشفير على هذا الجهاز'}}
-    var mm=document.querySelector('.msg');if(mm)mm.textContent=msg;return}
-  else if(a==='bkcopy'){var txt=JSON.stringify(S),ta=document.getElementById('bk');ta.value=txt;
-    (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(txt):Promise.reject()).then(function(){msg='تم النسخ'}).catch(function(){ta.select();msg='حدّد النص وانسخه يدوياً'}).then(function(){var m=document.querySelector('.msg');if(m)m.textContent=msg});return}
-  else if(a==='bkrestore'){try{var raw=document.getElementById('bk').value.trim();if(raw.indexOf('ALSAER-ENC1:')===0){try{raw=await bkDecrypt(raw,(document.getElementById('bkpw')||{}).value||'')}catch(x2){throw 'pw'}}var o=JSON.parse(raw);if(!validBackup(o))throw 0;var restored=fixShape(Object.assign(def(),o));if(restored.pin!==null&&typeof restored.pin!=='string'&&(!restored.pin||restored.pin.type!=='pbkdf2-sha256'||typeof restored.pin.salt!=='string'||typeof restored.pin.hash!=='string'))throw 0;restored.onboarded=true;S=restored;save();try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,JSON.stringify(S))}catch(e){} /* حدّث النسخة المحلية الاحتياطية فور الاسترجاع */unlocked=!S.pin;bioPrompted=false;msg='تم الاسترجاع بعد التحقق من البيانات'}catch(x){msg=(x==='pw')?'كلمة المرور غير صحيحة أو النسخة تالفة؛ لم تتغير بياناتك':'النسخة غير صالحة أو ناقصة؛ لم تتغير بياناتك'}}
   else if(a==='reset'){if(!confirmReset){confirmReset=true}else{S=def();save();confirmReset=false;draft=null;obStep=1;msg='تم المسح'}}
   render();
 });
@@ -265,7 +259,8 @@ bioProbePoll();
 /* رجوع داخلي: يغلق نوافذ المصحف العائمة، أو يعود من قسم الإعدادات إلى قائمة الأقسام، قبل مغادرة الشاشة */
 function innerBack(){
   if(typeof mpCloseOverlays==='function'&&mpCloseOverlays())return true;
-  if(tab==='settings'&&setCat){setCat='';setOpen=null;msg='';window.scrollTo(0,0);render();return true}
+  if(tab==='settings'&&setSub){setSub='';setOpen=null;msg='';scAnim=1;window.scrollTo(0,0);render();return true}
+  if(tab==='settings'&&setCat){setCat='';setOpen=null;msg='';scAnim=1;window.scrollTo(0,0);render();return true}
   return false;
 }
 var ignorePop=false;
