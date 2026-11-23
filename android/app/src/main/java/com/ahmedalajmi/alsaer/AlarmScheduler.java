@@ -41,14 +41,26 @@ public final class AlarmScheduler {
         return c.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    static int code(String id) { return id.hashCode() & 0x7fffffff; }
+    static int legacyCode(String id) { return id.hashCode() & 0x7fffffff; }
+
+    /* Persisted allocation, keyed by the full id AND purpose, never a hash. */
+    static int code(Context c,String id,String purpose) {
+        final SharedPreferences p=prefs(c);
+        return AlarmRequestIds.allocate(new AlarmRequestIds.Store(){
+            public int get(String key,int fallback){return p.getInt(key,fallback);}
+            public boolean save(String key,int value,int next){return p.edit().putInt(key,value).putInt("request-v2-next",next).commit();}
+        },id,purpose);
+    }
+    static Uri alarmIdentity(String id,boolean snooze){
+        return new Uri.Builder().scheme("alsaer-alarm").authority(snooze?"snooze":"normal").appendPath(id).build();
+    }
 
     static int immutable() { return Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0; }
 
     /* ---------- الجدول ---------- */
 
     public static synchronized void saveAndSchedule(Context c, String json) {
-        prefs(c).edit().putString(K_ITEMS, json == null ? "[]" : json).apply();
+        prefs(c).edit().putString("legacy-items-v2",prefs(c).getString(K_ITEMS,"[]")).putString(K_ITEMS, json == null ? "[]" : json).apply();
         scheduleAll(c);
     }
 
@@ -64,21 +76,58 @@ public final class AlarmScheduler {
             long at = nextTrigger(it, now);
             if (at <= 0) continue;
             scheduleAt(c, it, at, false);
-            ids.put(code(it.optString("id")));
+            ids.put(code(c,it.optString("id"),"alarm"));
         }
         prefs(c).edit().putString(K_IDS, ids.toString()).apply();
     }
 
     static void cancelAll(Context c) {
-        AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
-        JSONArray ids;
-        try { ids = new JSONArray(prefs(c).getString(K_IDS, "[]")); } catch (Exception e) { return; }
-        for (int i = 0; i < ids.length(); i++) {
-            Intent in = new Intent(c, AlarmReceiver.class).setAction(ACTION_ALARM);
-            PendingIntent pi = PendingIntent.getBroadcast(c, ids.optInt(i), in,
-                    PendingIntent.FLAG_NO_CREATE | immutable());
-            if (pi != null) { am.cancel(pi); pi.cancel(); }
-        }
+        AlarmManager am=(AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
+        /* Old integer-only records cancel pre-upgrade alarms without data URIs. */
+        try {
+            JSONArray ids=new JSONArray(prefs(c).getString(K_IDS,"[]"));
+            for(int n=0;n<ids.length();n++)cancelIntent(c,am,ids.optInt(n),new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM));
+        }catch(Exception ignored){}
+        /* Both normal and snooze entries are tracked as exact identity records, including deleted items. */
+        try {
+            JSONArray records=new JSONArray(prefs(c).getString("alarm-records-v2","[]"));
+            for(int n=0;n<records.length();n++){
+                JSONObject r=records.optJSONObject(n);if(r==null)continue;
+                Intent in=new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM).setData(Uri.parse(r.optString("uri")));
+                cancelIntent(c,am,r.optInt("rc"),in);
+            }
+        }catch(Exception ignored){}
+        /* Legacy snoozes were never in K_IDS. Recover every previously known item's snooze. */
+        try {
+            JSONArray old=new JSONArray(prefs(c).getString("legacy-items-v2",prefs(c).getString(K_ITEMS,"[]")));
+            for(int n=0;n<old.length();n++){
+                JSONObject it=old.optJSONObject(n);if(it==null)continue;String id=it.optString("id");
+                if(!prefs(c).getBoolean("legacy-identity-cleaned-v2",false)){
+                    NotificationManagerCompat.from(c).cancel(legacyCode(id));
+                    cancelLegacyAction(c,legacyCode(id+"#done"),ACTION_DONE);
+                    cancelLegacyAction(c,legacyCode(id+"#snzact"),ACTION_SNOOZE);
+                    PendingIntent open=PendingIntent.getActivity(c,legacyCode(id),new Intent(c,MainActivity.class),PendingIntent.FLAG_NO_CREATE|immutable());if(open!=null)open.cancel();
+                }
+                cancelIntent(c,am,legacyCode(id),new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM));
+                cancelIntent(c,am,legacyCode(id+"#snz"),new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM));
+            }
+        }catch(Exception ignored){}
+        prefs(c).edit().putBoolean("legacy-identity-cleaned-v2",true).putString("alarm-records-v2","[]").putString("legacy-items-v2",prefs(c).getString(K_ITEMS,"[]")).apply();
+    }
+    static void cancelLegacyAction(Context c,int rc,String action){
+        PendingIntent pi=PendingIntent.getBroadcast(c,rc,new Intent(c,ActionReceiver.class).setAction(action),PendingIntent.FLAG_NO_CREATE|immutable());if(pi!=null)pi.cancel();
+    }
+    static void cancelIntent(Context c,AlarmManager am,int rc,Intent in){
+        PendingIntent pi=PendingIntent.getBroadcast(c,rc,in,PendingIntent.FLAG_NO_CREATE|immutable());
+        if(pi!=null){if(am!=null)am.cancel(pi);pi.cancel();}
+    }
+    static synchronized void rememberAlarm(Context c,int rc,Uri uri){
+        try{
+            JSONArray old=new JSONArray(prefs(c).getString("alarm-records-v2","[]")),records=new JSONArray();
+            for(int n=0;n<old.length();n++){JSONObject r=old.optJSONObject(n);if(r!=null&&r.optInt("rc")!=rc)records.put(r);}
+            records.put(new JSONObject().put("rc",rc).put("uri",uri.toString()));
+            if(!prefs(c).edit().putString("alarm-records-v2",records.toString()).commit())throw new IllegalStateException("alarm record not saved");
+        }catch(org.json.JSONException e){throw new IllegalStateException(e);}
     }
 
     /** الموعد التالي بعد الوقت now (0 = لا يوجد). dow: 0=الأحد ... 6=السبت (مثل getDay في JS). */
@@ -120,8 +169,10 @@ public final class AlarmScheduler {
     static void scheduleAt(Context c, JSONObject it, long at, boolean snooze) {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         String id = it.optString("id");
-        int rc = snooze ? code(id + "#snz") : code(id);
-        Intent in = new Intent(c, AlarmReceiver.class).setAction(ACTION_ALARM);
+        int rc = code(c,id,snooze?"snooze":"alarm");
+        Uri identity=alarmIdentity(id,snooze);
+        Intent in = new Intent(c, AlarmReceiver.class).setAction(ACTION_ALARM).setData(identity);
+        rememberAlarm(c,rc,identity);
         in.putExtra("item", it.toString());
         in.putExtra("snooze", snooze);
         PendingIntent pi = PendingIntent.getBroadcast(c, rc, in, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
@@ -223,7 +274,7 @@ public final class AlarmScheduler {
     static void show(Context c, JSONObject it) {
         ensureChannel(c);
         String id = it.optString("id");
-        int nid = code(id);
+        int nid = code(c,id,"notification");
         String title = it.optString("title", "السائر إلى الله");
         String body = it.optString("body", "");
 
@@ -252,13 +303,13 @@ public final class AlarmScheduler {
             Intent done = new Intent(c, ActionReceiver.class).setAction(ACTION_DONE);
             done.putExtra("key", act.optString("k"));
             done.putExtra("nid", nid);
-            PendingIntent dpi = PendingIntent.getBroadcast(c, code(id + "#done"), done, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
+            PendingIntent dpi = PendingIntent.getBroadcast(c, code(c,id,"done"), done, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
             b.addAction(0, act.optString("l", "تم"), dpi);
         }
         Intent snz = new Intent(c, ActionReceiver.class).setAction(ACTION_SNOOZE);
         snz.putExtra("item", it.toString());
         snz.putExtra("nid", nid);
-        PendingIntent spi = PendingIntent.getBroadcast(c, code(id + "#snzact"), snz, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
+        PendingIntent spi = PendingIntent.getBroadcast(c, code(c,id,"snooze-action"), snz, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
         b.addAction(0, "ذكّرني بعد ١٠ دقائق", spi);
 
         try { NotificationManagerCompat.from(c).notify(nid, b.build()); } catch (SecurityException ignored) {}
