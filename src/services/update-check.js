@@ -60,32 +60,42 @@ function updRowSub(){
   return 'الإصدار '+cur+' · أحدث إصدار';
 }
 function updSheetHtml(){
+  var cur=ar(String((typeof APP_VERSION!=='undefined')?APP_VERSION:''));
   var i=updInfo();
   var h='<div class="ups-back" data-a="updclose"></div><div class="ups-card"><div class="ups-grab"></div>';
   if(!i){
-    return h+'<div class="ups-head"><span class="ups-ic ok">'+ic('check')+'</span><div><b>أنت على أحدث إصدار</b><small>الإصدار '+ar(String((typeof APP_VERSION!=='undefined')?APP_VERSION:''))+'</small></div></div>'
+    return h+'<div class="upd-top"><span class="upd-ic ok">'+ic('check')+'</span><div><h3>أنت على أحدث إصدار</h3><small>الإصدار '+cur+'</small></div></div>'
       +'<button class="btn block" data-a="updchecknow">'+ic('refresh')+' التحقق من جديد</button>'
       +'<button class="btn ghost block" data-a="updclose">إغلاق</button></div>';
   }
-  h+='<div class="ups-head"><span class="ups-ic">'+ic('refresh')+'</span><div><b>تحديث جديد متاح</b><small>الإصدار '+esc(i.versionName||String(i.versionCode))+(i.sizeBytes?' · '+updFmtSize(i.sizeBytes):'')+'</small></div></div>';
-  h+='<div class="ups-notes"><b>ما الجديد</b><p>'+esc(i.notes||'تحسينات وإصلاحات عامة.')+'</p></div>';
-  var inApp=updNative()&&/^https:\/\/.+\.apk(\?|#|$)/i.test(i.apkUrl||'')&&!!i.sha256;
+  var vn=esc(i.versionName||String(i.versionCode));
+  var top=function(icn,t,sub,pill,ok){return '<div class="upd-top"><span class="upd-ic'+(ok?' ok':'')+'">'+ic(icn)+'</span><div><h3>'+t+'</h3><small>'+sub+'</small></div>'+(pill?'<span class="vpill" style="margin-inline-start:auto">'+pill+'</span>':'')+'</div>'};
   if(UPD_DL&&UPD_DL.st==='downloading'){
-    h+='<div class="upd-p"><div class="upd-bar"><div style="width:'+(UPD_DL.pct>=0?UPD_DL.pct:5)+'%"></div></div><small>'+(UPD_DL.pct>=0?ar(UPD_DL.pct)+'٪':'جارٍ التحميل…')+'</small></div>'
-      +'<p class="note ups-st">'+(UPD_DL.run===false?'توقّف التحميل عند إغلاق التطبيق ويُستكمل من حيث توقف.':'يُستكمل التحميل تلقائيًا حتى لو أغلقت هذه النافذة.')+'</p>'
+    var pct=UPD_DL.pct>=0?ar(UPD_DL.pct)+'٪':'…';
+    h+=top('refresh','يجري تنزيل '+vn,'يستأنف تلقائيًا إذا انقطع الاتصال',pct)
+      +'<div class="upd-bar"><div style="width:'+(UPD_DL.pct>=0?UPD_DL.pct:5)+'%"></div></div>'
+      +'<div class="upd-meta"><span>'+(UPD_DL.total>0?updFmtSize(UPD_DL.done)+' من '+updFmtSize(UPD_DL.total):'جارٍ التحميل…')+'</span><span>التحقق من السلامة بعد التنزيل</span></div>'
+      +'<p class="note ups-st">يُستكمل التحميل تلقائيًا حتى لو أغلقت هذه النافذة.</p>'
       +(UPD_DL.run===false?'<button class="btn block" data-a="updnow">'+ic('refresh')+' استئناف التحميل</button>':'')
       +'<button class="btn ghost block" data-a="updclose">إغلاق</button>';
   }else if(UPD_DL&&UPD_DL.st==='verifying'){
-    h+='<p class="ups-st"><b>جارٍ التحقق من سلامة الملف…</b></p>';
+    h+=top('refresh','يجري تنزيل '+vn,'اكتمل التنزيل','التحقق')
+      +'<div class="upd-bar"><div style="width:100%"></div></div>'
+      +'<div class="upd-meta"><span>اكتمل التنزيل</span><span>جارٍ التحقق من سلامة الملف…</span></div>';
   }else if(UPD_DL&&UPD_DL.st==='done'){
-    h+='<p class="ups-st ups-ok">'+ic('check')+' اكتمل التحميل وتم التحقق من سلامة الملف.</p>'
+    h+=top('check','الإصدار '+vn+' جاهز للتثبيت','اكتمل التحميل وتم التحقق من سلامة الملف','',true)
       +'<button class="btn block" data-a="updinst">تثبيت الآن</button>'
       +'<button class="btn ghost block" data-a="updclose">لاحقًا</button>';
   }else if(UPD_DL&&UPD_DL.st==='failed'){
-    h+='<p class="ups-st ups-err">تعذّر التحميل: '+esc(UPD_DL.err||'خطأ في الشبكة')+'.'+(UPD_DL.done>0?' وصل التحميل إلى '+updFmtSize(UPD_DL.done)+' وسيُستكمل من حيث توقف.':'')+'</p>'
+    h+=top('refresh','تعذّر تحميل '+vn,esc(UPD_DL.err||'خطأ في الشبكة'),'فشل')
+      +(UPD_DL.done>0?'<div class="upd-meta"><span>وصل التحميل إلى '+updFmtSize(UPD_DL.done)+'</span><span>سيُستكمل من حيث توقف</span></div>':'')
       +'<button class="btn block" data-a="updnow">'+ic('refresh')+' إعادة المحاولة</button>'
       +'<button class="btn ghost block" data-a="updclose">لاحقًا</button>';
   }else{
+    h+=top('refresh','الإصدار '+vn+' جاهز','أنت على '+cur+(i.sizeBytes?' · '+updFmtSize(i.sizeBytes):''),'جديد');
+    var items=String(i.notes||'تحسينات وإصلاحات عامة.').split(/\n+/).map(function(x){return x.trim()}).filter(Boolean);
+    h+='<div class="upd-notes"><ul>'+items.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
+    var inApp=updNative()&&/^https:\/\/.+\.apk(\?|#|$)/i.test(i.apkUrl||'')&&!!i.sha256;
     if(inApp)h+='<button class="btn block" data-a="updnow">'+ic('refresh')+' تحديث الآن</button>';
     h+='<a class="btn'+(inApp?' ghost':'')+' block" href="'+esc(i.apkUrl||'https://github.com/alsaer-app/alsaer/releases/latest')+'" target="_blank" rel="noopener noreferrer">صفحة الإصدار</a>';
     if(!inApp)h+='<p class="note ups-st">التحميل الداخلي غير متاح لهذا الإصدار — حمّل من صفحة الإصدار.</p>';
@@ -118,7 +128,8 @@ function updStartPoll(){
     UPD_DL={st:j.st,pct:j.pct,done:j.done,total:j.total,err:j.err,url:j.url,run:j.run};
     if(j.st==='downloading'&&prev==='downloading'){
       var bar=document.querySelector('#upsheet .upd-bar>div');if(bar&&j.pct>=0)bar.style.width=j.pct+'%';
-      var sm=document.querySelector('#upsheet .upd-p small');if(sm)sm.textContent=j.pct>=0?ar(j.pct)+'٪':'جارٍ التحميل…';
+      var sm=document.querySelector('#upsheet .vpill');if(sm)sm.textContent=j.pct>=0?ar(j.pct)+'٪':'…';
+      var mt=document.querySelector('#upsheet .upd-meta span');if(mt&&j.total>0)mt.textContent=updFmtSize(j.done)+' من '+updFmtSize(j.total);
     }else if(j.st!==prev){
       updSheetPaint();
       if(tab==='settings')render();
