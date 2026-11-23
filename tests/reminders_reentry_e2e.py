@@ -25,20 +25,20 @@ async def main():
             async def go(target):
                 await page.evaluate('(v)=>{let b=document.createElement("button");b.dataset.a="tab";b.dataset.v=v;document.body.append(b);b.click();b.remove()}', target)
             await go('reminders')
-            assert await page.locator('.rm-seg button').count() == 3
+            assert await page.locator('.sg-rem-nav button').count() == 3
             await page.click('[data-rem-pane=checkup]')
-            assert await page.locator('.rm-seg button').count() == 0
+            assert await page.locator('.sg-rem-nav button').count() == 0
             await go('home')
             await go('settings')
             await page.click('[data-a=scat][data-v=notif]')
             await page.click('[data-a=tab][data-v=reminders]')
-            assert await page.locator('.rm-seg button').all_inner_texts() == ['التذكيرات', 'ذكي', 'تذكيري']
+            assert await page.locator('.sg-rem-nav button').all_inner_texts() == ['التذكيرات', 'ذكي', 'تذكيري']
             await page.click('[data-rem-pane=smart]')
             assert await page.locator('[data-rem-time=wirdTime]').count() == 1
             await page.reload()
             await page.wait_for_timeout(1500)
             await go('reminders')
-            assert await page.locator('.rm-seg button').count() == 3
+            assert await page.locator('.sg-rem-nav button').count() == 3
             assert not errors, errors
             print('PASS', name, 'checkup exit/re-entry and reload retain center tabs without clearing data')
             await browser.close()
