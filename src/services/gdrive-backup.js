@@ -1,6 +1,6 @@
 /* ===== نسخ احتياطي اختياري إلى Google Drive =====
    يعمل فقط بعد أن يضع مطوّر التطبيق معرّف عميل OAuth خاصه في GD_CLIENT_ID (انظر docs/GDRIVE-SETUP-AR.md).
-   أقل صلاحية ممكنة: drive.file — الوصول للملفات التي ينشئها التطبيق فقط (ملف alsaer-backup.json).
+   drive.file: ملفات أنشأها التطبيق أو أتاحها المستخدم له، لا وصول شامل إلى Drive.
    لا يُخزَّن أي سر في المستودع؛ رمز التحديث يبقى على الجهاز مثل بقية البيانات (غير مشفّر سكونًا). */
 var GD_CLIENT_ID='794360516005-hrt6lc8vtrgd5k9ok9476f9gdkh98rt8.apps.googleusercontent.com'; /* عميل OAuth نوع Android — عام وليس سرًا */
 var GD_REDIRECT='com.ahmedalajmi.alsaer://gdrive';
@@ -124,7 +124,8 @@ function gdReq(url,opt){
   return gdToken().then(function(t){
     opt.headers=Object.assign({'Authorization':'Bearer '+t},opt.headers||{});
     return gdFetch(url,opt,30000).then(function(r){
-      if(r.status===401||r.status===403)throw new Error('auth');
+      if(r.status===401)throw new Error('auth');
+      if(r.status===403)throw new Error('forbidden');
       if(!r.ok)throw new Error('http-'+r.status);
       return r;
     });
@@ -138,19 +139,10 @@ function gdFindFile(){
 
 /* --- رفع النسخة (إنشاء أو استبدال الملف نفسه) --- */
 function gdUpload(provided){
-  var content=provided||bkBuild();
-  return gdFindFile().then(function(f){
-    if(f){
-      return gdReq('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(f.id)+'?uploadType=media',
-        {method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body:content});
-    }
-    var b='gd'+Date.now();
-    var meta=JSON.stringify({name:GD_FILE,mimeType:'application/json'});
-    var body='--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta
-      +'\r\n--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+content+'\r\n--'+b+'--';
-    return gdReq('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
-      {method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:body});
-  });
+  var content=provided||bkBuild(),now=Date.now(),boundary='gd'+now;
+  var meta=JSON.stringify({name:'alsaer-backup-'+new Date(now).toISOString().replace(/[:.]/g,'-')+'.json',mimeType:'application/json',appProperties:{alsaerBackup:'v2',backupAt:String(now),encrypted:content.trim().indexOf('ALSAER-ENC1:')===0?'true':'false'}});
+  var body='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+content+'\r\n--'+boundary+'--';
+  return gdReq('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+boundary},body:body});
 }
 
 /* --- استعادة آخر نسخة إلى صندوق الاستيراد (دون تطبيقها؛ التأكيد يبقى بيد المستخدم) --- */
@@ -165,20 +157,21 @@ function gdDownload(){
 /* Restore stays pending until the explicit replacement button is pressed. */
 function gdSafetyExists(){try{return !!localStorage.getItem(GD_SAFETY_KEY)}catch(e){return false}}
 function gdRestorePanel(){
-  var h='';
-  if(gdRestoreRaw){
-    h+='<div class="panel" id="gd-restore"><p class="note">'+(gdRestoreSource==='safety'?'استرجاع النسخة المحلية قبل آخر استعادة.':'نُزّلت آخر نسخة من Google Drive.')+' ستُستبدل بياناتك الحالية بعد التأكيد. تُحفظ نسخة أمان محلية تلقائيًا أولًا، للحماية عند حدوث خطأ.</p>';
-    if(gdRestoreRaw.trim().indexOf('ALSAER-ENC1:')===0)h+='<input type="password" id="gd-restore-pw" autocomplete="off" aria-label="كلمة مرور النسخة" placeholder="كلمة مرور النسخة المشفّرة">';
-    h+='<div class="acts"><button class="btn bad" data-a="gdrestore">تأكيد الاستعادة واستبدال البيانات</button><button class="btn ghost" data-a="gdcancel">إلغاء</button></div></div>';
-  }
-  return h;
+ if(!gdRestoreRaw)return '';
+ var h='<section class="gd-dialog" role="dialog" aria-modal="true"><div class="gd-box" id="gd-restore"><h3>'+(gdVerified?'تأكيد استعادة هذه النسخة؟':'التحقق من النسخة المختارة')+'</h3><p class="gd-file-name keepar" dir="ltr">'+esc((gdChosen||{}).name||'backup')+'</p><p class="note">المصدر: '+(gdRestoreSource==='file'?'ملف مستقل':gdRestoreSource==='safety'?'نسخة أمان داخل التطبيق':'Google Drive')+' · '+gdBytes((gdChosen||{}).size)+'</p>';
+ if(!gdVerified){if(gdRestoreRaw.trim().indexOf('ALSAER-ENC1:')===0)h+='<input type="password" id="gd-restore-pw" autocomplete="off" aria-label="كلمة مرور النسخة" placeholder="كلمة مرور النسخة المشفّرة">';h+='<button class="btn block" data-a="gdverify">التحقق من الملف</button>'}
+ else h+='<p class="note">تاريخ الإنشاء داخل الملف: <b>'+esc(gdDate((gdChosen||{}).at))+'</b><br>بتوقيت هذا الجهاز. الملفات القديمة دون تاريخ لا نختلق لها تاريخًا.</p><p class="note gd-warning">ستُستبدل بيانات التطبيق الحالية. تُحفظ نسخة أمان محلية أولًا، وإن تعذّر حفظها تتوقف الاستعادة.</p><button class="btn bad block" data-a="gdrestore">تأكيد الاستعادة واستبدال البيانات</button>';
+ return h+'<p class="note gd-dialog-msg" role="status">'+esc(bkMsg)+'</p><button class="btn ghost block" data-a="gdcancel">إلغاء والاحتفاظ بالبيانات</button></div></section>';
 }
 function gdRestoreApply(raw){
   /* Parse before creating the safety copy. Invalid downloads must not replace it. */
   var o;try{o=JSON.parse(raw);if(!(o&&o.app==='alsaer'&&o.S&&typeof o.S==='object'&&!Array.isArray(o.S))&&!validBackup(o))throw new Error('invalid');fixShape(Object.assign(def(),o.S||o))}catch(e){throw new Error('invalid-backup')}
   var safety=bkBuild();
   try{localStorage.setItem(GD_SAFETY_KEY,safety);if(localStorage.getItem(GD_SAFETY_KEY)!==safety)throw new Error('storage')}catch(e){throw new Error('safety-failed')}
-  var er=bkApply(raw);if(er)throw new Error(er);
+  var statusBefore=gdStatus(),statusAfter=Object.assign({},statusBefore);statusAfter[gdRestoreSource==='file'?'fileRestoreAt':'driveRestoreAt']=Date.now();
+  try{localStorage.setItem(GD_META,JSON.stringify(statusAfter))}catch(e){throw Error('safety-failed')}
+  var er=bkApply(raw);if(er){localStorage.setItem(GD_META,JSON.stringify(statusBefore));throw new Error(er)}
+  gdVerified='';
   gdRestoreRaw='';bkSay('تمت الاستعادة وحُفظت نسخة الأمان المحلية. جارٍ إعادة التشغيل…');
 }
 
@@ -206,7 +199,21 @@ function vGdCard(){
 }
 
 function gdAct(a,v){
-  if(a==='gdauto'){var p=gdPrefs();p.auto=!p.auto;gdSetPrefs(p);render();return true}
+  if(a==='gdfileout'){gdExportFile();return true}
+  if(a==='gdfilein'){gdImportFile();return true}
+  if(a==='gddelete'){gdLoadPicker('delete');return true}
+  if(a==='gdverify'){gdVerifyRestore();return true}
+  if(a==='gdpickcancel'){if(!gdBusy){gdPicker=null;gdSelected=[];render()}return true}
+  if(a==='gddeleteback'){if(!gdBusy&&gdPicker){gdPicker.confirm=false;render()}return true}
+  if(a==='gddeletego'){gdDeleteSelected();return true}
+  if(a==='gdpickgo'){
+    if(gdBusy||!gdPicker||!gdSelected.length)return true;
+    if(gdPicker.mode==='delete'){gdPicker.confirm=true;render();return true}
+    var f=gdPicker.files.filter(function(f){return f.id===gdSelected[0]})[0];if(!f)return true;
+    gdBusy=true;gdReq('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media').then(function(r){return r.text()}).then(function(raw){gdStage(raw,'drive',f)},function(e){bkSay(gdFailure(e))}).finally(function(){gdBusy=false;render()});return true;
+  }
+
+  if(a==='gdauto'){if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending)return true;var p=gdPrefs();p.auto=!p.auto;gdSetPrefs(p);render();return true}
   if(a==='gdstore'){if(gdBusy)return true;var p=gdPrefs();p.storage=v==='drive'?'drive':'both';gdSetPrefs(p);render();return true}
   if(a==='gdpwsave'){
     var pw=(document.getElementById('gd-backup-pw')||{}).value||'';
@@ -214,37 +221,20 @@ function gdAct(a,v){
     try{if(!gdSealPassword(pw))throw Error('seal');var p=gdPrefs();p.encrypt=true;gdSetPrefs(p);gdPwOpen=false;bkSay('فُعّل التشفير الاختياري.');render()}catch(e){bkSay('تعذّر حفظ كلمة المرور بأمان على هذا الجهاز؛ لم يُفعّل التشفير.')}
     return true;
   }
-  if(a==='gdcancel'){if(gdBusy)return true;gdRestoreRaw='';bkSay('أُلغيت الاستعادة؛ لم تتغير بياناتك.');render();return true}
+  if(a==='gdcancel'){if(gdBusy)return true;gdRestoreRaw='';gdVerified='';gdChosen=null;bkSay('أُلغيت الاستعادة؛ لم تتغير بياناتك.');render();return true}
   if(a==='gdsafety'){
     if(gdBusy)return true;
     try{gdRestoreRaw=localStorage.getItem(GD_SAFETY_KEY)||''}catch(e){gdRestoreRaw=''}
     gdRestoreSource='safety';bkSay(gdRestoreRaw?'راجع تأكيد استرجاع نسخة الأمان.':'لا توجد نسخة أمان محلية.');render();return true;
   }
   if(a==='gdrestore'){
-    if(gdBusy||!gdRestoreRaw)return true;
-    var raw=gdRestoreRaw,pw=(document.getElementById('gd-restore-pw')||{}).value||'';
-    if(raw.trim().indexOf('ALSAER-ENC1:')===0&&!pw){bkSay('أدخل كلمة مرور النسخة المشفّرة أولًا.');return true}
-    gdBusy=true;bkSay('جارٍ التحقق من النسخة وحفظ نسخة الأمان…');
-    var dec=raw.trim().indexOf('ALSAER-ENC1:')===0?bkDecrypt(raw.trim(),pw).catch(function(){throw new Error('decrypt-failed')}):Promise.resolve(raw);
-    dec.then(gdRestoreApply).catch(function(e){
-      bkSay(e.message==='decrypt-failed'?'كلمة المرور غير صحيحة أو النسخة تالفة؛ لم تتغير بياناتك.':e.message==='safety-failed'?'تعذّر حفظ نسخة الأمان المحلية. أُوقفت الاستعادة ولم تتغير بياناتك.':e.message==='invalid-backup'?'ملف النسخة غير صالح؛ لم تتغير بياناتك.':e.message);
-    }).finally(function(){gdBusy=false});return true;
+    if(gdBusy||!gdVerified)return true;
+    gdBusy=true;try{gdRestoreApply(gdVerified)}catch(e){bkSay(e.message==='safety-failed'?'تعذّر حفظ نسخة الأمان؛ أُوقفت الاستعادة.':e.message)}finally{gdBusy=false;render()}return true;
   }
-  if(a==='gdconnect'){gdStartAuth();return true}
-  if(a==='gddisc'){if(gdBusy)return true;Promise.resolve(gdDisconnect()).then(function(){bkSay('فُصل حساب Google Drive. ملف النسخة يبقى في درايف حتى تحذفه بنفسك.');render()},function(){bkSay('تعذّر إلغاء الوصول. تحقق من الإنترنت، أو ألغِ إذن السائر من حساب Google ثم أعد المحاولة.')});return true}
+  if(a==='gdconnect'){if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending)return true;gdStartAuth();return true}
+  if(a==='gddisc'){if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending)return true;Promise.resolve(gdDisconnect()).then(function(){bkSay('فُصل حساب Google Drive. ملف النسخة يبقى في درايف حتى تحذفه بنفسك.');render()},function(){bkSay('تعذّر إلغاء الوصول. تحقق من الإنترنت، أو ألغِ إذن السائر من حساب Google ثم أعد المحاولة.')});return true}
   if(a==='gdup'){gdRunBackup(false);return true}
-  if(a==='gddown'){
-    if(!gdHasRt()){bkSay('اربط حساب Google أولًا.');return true}
-    if(gdBusy)return true;gdBusy=true;bkSay('جارٍ استعادة آخر نسخة من درايف…');
-    gdDownload().then(function(txt){
-      gdBusy=false;gdRestoreRaw=String(txt||'');gdRestoreSource='drive';bkConfirm=false;
-      bkSay(gdRestoreRaw.trim()?'نُزّلت النسخة. أكّد الاستعادة أدناه لاستبدال بياناتك.':'ملف النسخة فارغ؛ لم تتغير بياناتك.');render();
-    },function(e){
-      gdBusy=false;var m2=String(e&&e.message);
-      bkSay(m2==='no-file'?'لا توجد نسخة في درايف بعد — ارفع نسخة أولًا.':(m2==='no-auth'||m2==='auth')?'انتهت صلاحية الربط — افصل الحساب وأعد ربطه.':'تعذّر التنزيل. تحقق من الإنترنت وحاول مجددًا.');
-      try{render()}catch(x){} /* كذلك بعد فشل التنزيل */
-    });
-    return true}
+  if(a==='gddown'){gdLoadPicker('restore');return true}
   return false;
 }
 
@@ -261,25 +251,119 @@ document.addEventListener('change',function(e){if(e.target&&e.target.hasAttribut
 function gdSavePhone(content){
   if(window.AlsaerNative&&AlsaerNative.gdriveSaveBackup){if(!AlsaerNative.gdriveSaveBackup(content))throw Error('phone-save');}
   else{localStorage.setItem('alsaer_phone_backup_v1',content);if(localStorage.getItem('alsaer_phone_backup_v1')!==content)throw Error('phone-save');}
-  var p=gdPrefs();p.phoneAt=Date.now();gdSetPrefs(p);
+  var p=gdPrefs();p.phoneAt=Date.now();p.phoneRetry=false;gdSetPrefs(p);
+}
+function gdPrepareBackup(){
+  var pref=gdPrefs(),password=pref.encrypt?gdOpenPassword():'';
+  if(pref.encrypt&&!password){gdPwOpen=true;throw Error('password-required')}
+  var raw=bkBuild();return pref.encrypt?bkEncrypt(raw,password):Promise.resolve(raw);
 }
 function gdRunBackup(automatic){
-  if(gdBusy||!gdHasRt()){if(!automatic)bkSay('اربط حساب Google أولًا.');return Promise.resolve(false)}
-  var pref=gdPrefs(),password=pref.encrypt?gdOpenPassword():'';
-  if(pref.encrypt&&!password){if(!automatic){gdPwOpen=true;bkSay('أدخل كلمة مرور النسخ المشفّرة لتفعيلها على هذا الجهاز.');render()}return Promise.resolve(false)}
-  gdBusy=true;bkSay('جارٍ تجهيز النسخة ورفعها إلى Google Drive…');
-  var raw=bkBuild(),prepare=pref.encrypt?bkEncrypt(raw,password):Promise.resolve(raw);
-  return prepare.then(function(content){return gdUpload(content).then(function(){S.gdAt=Date.now();save();if(pref.storage==='both')gdSavePhone(content);return true})}).then(function(){bkSay(pref.storage==='both'?'تم النسخ إلى Drive والهاتف داخل مجلد ملفات التطبيق.':'تم النسخ إلى Google Drive.');return true},function(e){bkSay(e.message==='phone-save'?'تم الرفع إلى Drive، لكن تعذّر حفظ نسخة الهاتف.':'تعذّر النسخ. تحقق من الاتصال وصلاحية الربط وحاول مجددًا.');return false}).finally(function(){gdBusy=false;try{render()}catch(e){}});
+  if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending)return Promise.resolve(false);
+  var pref=gdPrefs(),now=Date.now(),localDue=!automatic||!pref.phoneAt||now-pref.phoneAt>=7*864e5||pref.phoneRetry;
+  var driveDue=gdHasRt()&&(!automatic||!gdStatus().driveAt||now-gdStatus().driveAt>=7*864e5);
+  gdBusy=true;bkSay('جارٍ تجهيز النسخة…');
+  return Promise.resolve().then(gdPrepareBackup).then(function(content){
+    var localOK=!localDue,driveOK=!driveDue;
+    /* A network error must never prevent the independent app-private safety copy. */
+    if(localDue)try{gdSavePhone(content);localOK=true}catch(e){var retry=gdPrefs();retry.phoneRetry=true;try{gdSetPrefs(retry)}catch(x){}}
+    return (driveDue?gdUpload(content).then(function(){S.gdAt=Date.now();gdStatusSet('driveAt',S.gdAt);save();driveOK=true},function(){}):Promise.resolve()).then(function(){
+      bkSay((localDue?(localOK?'حُفظت نسخة الأمان داخل التطبيق. ':'تعذّر حفظ نسخة الأمان داخل التطبيق. '):'')+(driveDue?(driveOK?'تم الرفع إلى Drive.':'تعذّر الرفع إلى Drive؛ تحقق من الاتصال وصلاحية الربط.'):(gdHasRt()?'نسخة Drive حديثة ولم تُرفع مجددًا.':'لم يُرفع شيء إلى Drive؛ الحساب غير مربوط.')));
+      return localOK&&driveOK;
+    });
+  }).catch(function(e){bkSay(e.message==='password-required'?'أدخل كلمة مرور النسخ المشفّرة أولًا.':'تعذّر تجهيز النسخة؛ لم يُرفع شيء.');return false}).finally(function(){gdBusy=false;try{render()}catch(e){}});
 }
 function gdOnOpen(){
-  if(document.hidden||!S.onboarded||!gdHasRt()||gdBusy)return;
-  if(!gdEmail()&&!gdEmailLoading&&gdNative()){gdEmailLoading=true;gdNativeToken(false).then(function(t){return gdReq('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)').then(function(r){return r.json()}).then(function(o){if(o.user&&o.user.emailAddress)localStorage.setItem('alsaer_gdrive_email',o.user.emailAddress)})},function(){}).catch(function(){}).finally(function(){gdEmailLoading=false;render();gdAutoOnOpen()});return}
+  if(document.hidden||!S.onboarded||gdBusy||gdPicker||gdRestoreRaw||gdDocPending)return;
+  if(gdHasRt()&&!gdEmail()&&!gdEmailLoading&&gdNative()){gdEmailLoading=true;gdNativeToken(false).then(function(t){return gdReq('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)').then(function(r){return r.json()}).then(function(o){if(o.user&&o.user.emailAddress)localStorage.setItem('alsaer_gdrive_email',o.user.emailAddress)})},function(){}).catch(function(){}).finally(function(){gdEmailLoading=false;render();gdAutoOnOpen()});return}
   gdAutoOnOpen();
 }
 function gdAutoOnOpen(){
-  if(document.hidden||!S.onboarded||!gdHasRt()||gdBusy)return;
-  var now=Date.now(),p=gdPrefs();if(!p.auto||now-(S.gdAt||0)<7*864e5||now-gdAutoTried<3600000)return;
+  if(document.hidden||!S.onboarded||gdBusy||gdPicker||gdRestoreRaw||gdDocPending)return;
+  var now=Date.now(),p=gdPrefs();if(!p.auto||now-gdAutoTried<3600000)return;
+  var localDue=!p.phoneAt||now-p.phoneAt>=7*864e5||p.phoneRetry,driveDue=gdHasRt()&&now-(gdStatus().driveAt||0)>=7*864e5;
+  if(!localDue&&!driveDue)return;
+  if(gdPicker||gdRestoreRaw||gdDocPending)return;
   gdAutoTried=now;gdRunBackup(true);
 }
 document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(gdOnOpen,1000)});
 setTimeout(gdOnOpen,3500);
+/* Versioned backup metadata is device-local and cannot be rolled back by restore. */
+var GD_META='alsaer_backup_status_v2',gdPicker=null,gdSelected=[],gdChosen=null,gdVerified='',gdDocPending=false;
+function gdStatus(){try{var p=JSON.parse(localStorage.getItem(GD_META)||'null');if(p)return p;p={driveAt:S.gdAt||0};localStorage.setItem(GD_META,JSON.stringify(p));return p}catch(e){return {}}}
+function gdStatusSet(k,t){var p=gdStatus();p[k]=t;localStorage.setItem(GD_META,JSON.stringify(p))}
+function gdDate(t){if(!t)return 'لا يوجد بعد';var d=new Date(Number(t)||t);return isNaN(d.getTime())?'تاريخ غير معروف':d.toLocaleString('ar-EG')}
+function gdBytes(n){return ar(Math.ceil((Number(n)||0)/1024))+' كيلوبايت'}
+function gdListFiles(){
+  var all=[],seen={};
+  function page(token){
+    var q="trashed=false and (appProperties has { key='alsaerBackup' and value='v2' } or name='alsaer-backup.json')";
+    return gdReq('https://www.googleapis.com/drive/v3/files?spaces=drive&corpora=user&q='+encodeURIComponent(q)+'&orderBy=modifiedTime%20desc&pageSize=100&fields='+encodeURIComponent('nextPageToken,incompleteSearch,files(id,name,size,modifiedTime,appProperties,capabilities(canDelete),ownedByMe,mimeType)')+(token?'&pageToken='+encodeURIComponent(token):''))
+      .then(function(r){return r.json()}).then(function(o){
+        if(o.incompleteSearch)throw Error('incomplete-list');
+        (o.files||[]).forEach(function(f){if(f.id&&!seen[f.id]&&f.mimeType!=='application/vnd.google-apps.folder'&&((f.appProperties||{}).alsaerBackup==='v2'||f.name===GD_FILE)){seen[f.id]=true;all.push(f)}});
+        if(o.nextPageToken){if(seen['page:'+o.nextPageToken])throw Error('incomplete-list');seen['page:'+o.nextPageToken]=true;return page(o.nextPageToken)}
+        return all;
+      });
+  }return page('');
+}
+function gdFailure(e){var m=String(e&&e.message);return m==='auth'||m==='no-auth'?'انتهت صلاحية الربط. أعد ربط حساب Google.':m==='forbidden'?'لا يوجد إذن كافٍ لهذه العملية. لم نؤكد نجاحها.':m==='incomplete-list'?'قائمة Drive غير مكتملة؛ أُوقفت العملية بأمان.':'تعذّر الاتصال أو التحقق من النتيجة. حاول مجددًا؛ لا نعدّ العملية ناجحة.'}
+function gdLoadPicker(mode){
+  if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending)return Promise.resolve(false);
+  if(!gdHasRt()){bkSay('اربط حساب Google أولًا.');return Promise.resolve(false)}
+  gdBusy=true;bkSay('جارٍ قراءة نسخ Drive…');
+  return gdListFiles().then(function(files){gdPicker={mode:mode,files:files,confirm:false};gdSelected=[];bkSay(files.length?'اختر الملف المطلوب.':'لا توجد نسخ متاحة لهذا التطبيق في Drive.');render();return true},function(e){bkSay(gdFailure(e));return false}).finally(function(){gdBusy=false;render()});
+}
+function gdPickerPanel(){
+  if(!gdPicker)return '';
+  var del=gdPicker.mode==='delete',h='<section class="gd-dialog" role="dialog" aria-modal="true"><div class="gd-box"><h3>'+(del?'اختر نسخ Drive للحذف':'اختر النسخة للاستعادة')+'</h3><p class="note">Google Drive · '+ar(gdPicker.files.length)+' ملفات · الأوقات بتوقيت هذا الجهاز</p>';
+  if(gdPicker.confirm){
+    h+='<p class="note">ستُحذف نهائيًا الملفات المحددة فقط:</p>';
+    gdPicker.files.filter(function(f){return gdSelected.indexOf(f.id)>=0}).forEach(function(f){h+='<p class="gd-file-name keepar" dir="ltr">'+esc(f.name)+'<small>'+esc(f.id)+'</small></p>'});
+    h+='<p class="note gd-warning">الحذف نهائي دون سلة المهملات. احفظ نسخة مستقلة أولًا. لن تُحذف بيانات التطبيق أو ملفاتك الأخرى.</p><p class="note">النسخ التلقائي '+(gdPrefs().auto?'مفعّل، وقد ينشئ نسخة جديدة عند فتح التطبيق لاحقًا.':'متوقف.')+'</p><label class="note"><input id="gd-delete-ack" type="checkbox"> أفهم الحذف النهائي للملفات المحددة</label><button class="btn bad block" data-a="gddeletego" disabled>حذف الملفات المحددة نهائيًا</button><button class="btn ghost block" data-a="gddeleteback">رجوع</button>';
+  }else{
+    gdPicker.files.forEach(function(f){var legacy=(f.appProperties||{}).alsaerBackup!=='v2',disabled=del&&(!f.ownedByMe||!(f.capabilities||{}).canDelete);h+='<label class="gd-option"><input type="'+(del?'checkbox':'radio')+'" name="gd-version" data-gd-select="'+esc(f.id)+'" '+(gdSelected.indexOf(f.id)>=0?'checked ':'')+(disabled?'disabled':'')+'><span><b>'+esc(gdDate((f.appProperties||{}).backupAt||f.modifiedTime))+'</b><small><bdi class="keepar" dir="ltr">'+esc(f.name)+'</bdi> · '+gdBytes(f.size)+(legacy?' · ملف قديم، تاريخ تعديل Drive':' · تاريخ إنشاء مسجّل'+((f.appProperties||{}).encrypted==='true'?' · مشفّرة':''))+(disabled?' · غير قابل للحذف':'')+'</small></span></label>'});
+    h+='<p class="note">لا نحذف تلقائيًا أي نسخة. تواريخ القائمة تُراجع داخل الملف بعد اختياره. الملفات القديمة تُحدد صراحةً ولا نؤكد مصدرها من الاسم وحده.</p><button class="btn block" data-a="gdpickgo" '+(!gdSelected.length?'disabled':'')+'>'+(del?'مراجعة الملفات المحددة للحذف':'متابعة والتحقق من النسخة')+'</button>';
+    if(!del)h+='<button class="btn ghost block" data-a="gdfilein">اختيار ملف مستقل من ملفات Android</button>';
+  }
+  return h+'<p class="note gd-dialog-msg" role="status">'+esc(bkMsg)+'</p><button class="btn ghost block" data-a="gdpickcancel">إلغاء</button></div></section>';
+}
+function gdStage(raw,source,file){gdRestoreRaw=String(raw||'');gdRestoreSource=source;gdChosen=file||{};gdVerified='';gdPicker=null;gdSelected=[];bkSay('اختر كلمة المرور إن لزم ثم تحقق من الملف قبل الاستعادة.');render()}
+function gdValidateRestore(raw){var o=JSON.parse(raw);if(!(o&&o.app==='alsaer'&&o.S&&typeof o.S==='object'&&!Array.isArray(o.S))&&!validBackup(o))throw Error('invalid-backup');fixShape(Object.assign(def(),o.S||o));return o}
+function gdVerifyRestore(){
+  if(gdBusy||!gdRestoreRaw)return Promise.resolve(false);var pw=(document.getElementById('gd-restore-pw')||{}).value||'';
+  gdBusy=true;
+  return Promise.resolve().then(function(){return gdRestoreRaw.trim().indexOf('ALSAER-ENC1:')===0?bkDecrypt(gdRestoreRaw.trim(),pw):gdRestoreRaw}).then(function(raw){var o=gdValidateRestore(raw);gdChosen=gdChosen||{};gdChosen.at=o.at||0;gdVerified=raw;bkSay('تم التحقق. راجع النسخة قبل تأكيد استبدال البيانات.');return true}).catch(function(){bkSay('كلمة المرور غير صحيحة أو الملف غير صالح؛ لم تتغير بياناتك.');return false}).finally(function(){gdBusy=false;render()});
+}
+function gdDeleteSelected(){
+  if(gdBusy||!gdPicker||!gdPicker.confirm||!(document.getElementById('gd-delete-ack')||{}).checked)return Promise.resolve(false);
+  var targets=gdPicker.files.filter(function(f){return gdSelected.indexOf(f.id)>=0&&f.ownedByMe&&(f.capabilities||{}).canDelete}),deleted=0,uncertain=0;
+  if(!targets.length)return Promise.resolve(false);gdBusy=true;
+  return targets.reduce(function(chain,f){return chain.then(function(){return gdReq('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id),{method:'DELETE'}).then(function(){deleted++},function(){uncertain++})})},Promise.resolve()).then(function(){
+    /* Listing reconciles uncertainty, but absence alone cannot prove deletion after a permission change. */
+    return gdListFiles().then(function(files){var remain=targets.filter(function(t){return files.some(function(f){return f.id===t.id})}).length;bkSay('حذف مؤكد: '+ar(deleted)+' من '+ar(targets.length)+' · ما زال ظاهرًا: '+ar(remain)+(uncertain?' · نتائج غير مؤكدة: '+ar(uncertain)+'. راجع Drive قبل إعادة المحاولة.':'.'));gdPicker={mode:'delete',files:files,confirm:false};gdSelected=[]},function(e){bkSay('حذف مؤكد: '+ar(deleted)+' من '+ar(targets.length)+'. تعذّر تحديث القائمة. '+gdFailure(e));gdPicker=null});
+  }).finally(function(){gdBusy=false;render()});
+}
+function gdExportFile(){
+  if(gdBusy||gdDocPending||gdPicker||gdRestoreRaw)return Promise.resolve(false);
+  if(!(window.AlsaerNative&&AlsaerNative.backupExport)){bkSay('حفظ الملف المستقل متاح في تطبيق Android عبر منتقي الملفات.');return Promise.resolve(false)}
+  gdBusy=true;return Promise.resolve().then(gdPrepareBackup).then(function(content){gdDocPending=true;AlsaerNative.backupExport(content,'alsaer-backup-'+new Date().toISOString().replace(/[:.]/g,'-')+'.txt');bkSay('اختر مكان الملف ثم أكّد الحفظ من Android.');return true}).catch(function(){gdDocPending=false;bkSay('تعذّر تجهيز الملف.');return false}).finally(function(){gdBusy=false;render()});
+}
+function gdImportFile(){
+  if(gdBusy||gdDocPending||gdRestoreRaw)return;
+  if(!(window.AlsaerNative&&AlsaerNative.backupImport)){bkSay('اختيار الملفات متاح في تطبيق Android.');return}
+  gdPicker=null;gdDocPending=true;AlsaerNative.backupImport();render();
+}
+window.gdriveOnDocument=function(status,raw,name,size){
+  gdDocPending=false;
+  if(status==='saved'){try{gdStatusSet('fileAt',Date.now())}catch(e){bkSay('حُفظ الملف لكن تعذّر تسجيل وقت الحفظ.');render();return}bkSay('حُفظ الملف المستقل. احتفظ بنسخة على جهاز أو خدمة أخرى.')}
+  else if(status==='opened'){gdStage(raw,'file',{name:name,size:size});return}
+  else bkSay(status==='cancelled'?'أُلغي اختيار الملف؛ لم تتغير البيانات.':'تعذّر حفظ/قراءة الملف. قد يكون ملف الحفظ جزئيًا؛ لا تعتمد عليه قبل إعادة الحفظ بنجاح.');render();
+};
+document.addEventListener('change',function(e){var t=e.target;if(!t)return;if(t.hasAttribute('data-gd-select')&&gdPicker&&!gdBusy){var id=t.getAttribute('data-gd-select');if(gdPicker.mode==='delete'){var i=gdSelected.indexOf(id);if(t.checked&&i<0)gdSelected.push(id);if(!t.checked&&i>=0)gdSelected.splice(i,1)}else gdSelected=[id];render()}if(t.id==='gd-delete-ack'){var b=document.querySelector('[data-a=gddeletego]');if(b)b.disabled=!t.checked}});
+
+function gdMountDialog(){
+ var old=document.getElementById('gd-dialog-host');if(old)old.remove();
+ var dialog=app.querySelector('.gd-dialog');if(!dialog)return;
+ var host=document.createElement('div');host.id='gd-dialog-host';host.appendChild(dialog);document.body.appendChild(host);
+}
