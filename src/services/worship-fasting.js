@@ -37,7 +37,7 @@ function fastingReasons(d){
     if(p.shawwal&&h.month===10&&h.day>=2&&h.day<=7)out.push('ست من شوال');
   }
   if(p.dawud&&S.fasting.dawudAnchor){
-    var diff=Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate())-parse(S.fasting.dawudAnchor))/86400000);
+    var diff=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-parse(S.fasting.dawudAnchor))/86400000);
     if(diff>=0&&diff%2===0)out.push('صيام يوم وإفطار يوم');
   }
   if((S.fasting.customDates||[]).indexOf(dk(d))>=0)out.push('يوم صيام مخصص');
