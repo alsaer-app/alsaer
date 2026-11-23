@@ -40,7 +40,9 @@ final class DriveAuthorization {
         if (!result.getGrantedScopes().contains("https://www.googleapis.com/auth/drive.file") || token == null || token.isEmpty()) {
             deliver("", "scope-not-granted"); return;
         }
-        deliver(token, "");
+        String email = "";
+        try { if (result.toGoogleSignInAccount() != null && result.toGoogleSignInAccount().getEmail() != null) email = result.toGoogleSignInAccount().getEmail(); } catch (Exception ignored) {}
+        deliver(token, "", email);
     }
     boolean onResult(int request, int result, Intent data) {
         if (request != REQUEST) return false;
@@ -49,9 +51,10 @@ final class DriveAuthorization {
         catch (Exception e) { deliver("", "authorization-failed"); }
         return true;
     }
-    private void deliver(String token, String error) {
+    private void deliver(String token, String error) { deliver(token, error, ""); }
+    private void deliver(String token, String error, String email) {
         busy = false;
         WebView view = activity.getBridge() == null ? null : activity.getBridge().getWebView();
-        if (view != null) view.post(() -> view.evaluateJavascript("window.gdriveOnNativeToken&&window.gdriveOnNativeToken(" + JSONObject.quote(token) + "," + JSONObject.quote(error) + ")", null));
+        if (view != null) view.post(() -> view.evaluateJavascript("window.gdriveOnNativeToken&&window.gdriveOnNativeToken(" + JSONObject.quote(token) + "," + JSONObject.quote(error) + "," + JSONObject.quote(email) + ")", null));
     }
 }
