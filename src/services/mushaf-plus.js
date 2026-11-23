@@ -35,6 +35,7 @@ function mpDrawerHtml(p){
   var last=q.last?'<button class="lrow" data-a="qjgo" data-v="l">'+ic('book')+'<span class="t">تابع من حيث توقفت<small class="muted">صفحة '+ar(q.last)+' · سورة '+esc(pageSura(q.last))+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
   return '<div class="rd-menb" data-a="qjump" aria-hidden="true"></div><aside class="rd-menu" role="dialog" aria-modal="true" aria-label="قائمة المصحف">'
     +'<div class="rd-mh"><b>المصحف</b><button class="rd-mx" data-a="qjump" aria-label="إغلاق">'+ic('x')+'</button></div>'
+    +'<button class="lrow" data-a="qwird">'+ic('flag')+'<span class="t">الورد والرواية<small class="muted">وردك اليومي، الرواية، وتقدّم الختمة</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'
     +'<div class="rd-mq"><input id="mq-q" class="qd-i" type="search" enterkeyhint="search" autocomplete="off" placeholder="كلمة من آية، أو ٢:٢٥٥، أو اسم سورة" value="'+esc(rd.mq||'')+'"><button class="btn" data-a="qms">بحث</button></div>'
     +res+tabs+'<div class="rd-mtb">'+ctl+'</div>'
     +ward+grid+mpMarksHtml()+last
@@ -76,10 +77,10 @@ function mpWrap(main,ctl,p,m){
   if(!mpHint&&!S.quran.hint1){mpHint=true;S.quran.hint1=1;save();setTimeout(function(){toast('اضغط مطوّلًا على آية لخياراتها (تفسير · نسخ · علامة)، واضغط مرة لإظهار الأدوات')},500)}
   var CH=ic('chev'),CHL=CH.replace('class="i"','class="i" style="transform:scaleX(-1)"');
   main=main.replace(/<div class="mp-f"><span class="pn">([^<]*)<\/span><\/div>/,function(_,n){return '<div class="mp-f"><button class="mp-fa" data-a="qpage" data-v="-1" aria-label="الصفحة السابقة"'+(p<=1?' disabled':'')+'>'+CHL+'</button><span class="pn">'+n+'</span><button class="mp-fa" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+CH+'</button></div>'})
-   .replace('<div class="mp-h">','<div class="mp-h"><button class="mp-x" data-a="goback" data-v="quran" aria-label="خروج من المصحف">✕</button>');
+   .replace('<div class="mp-h">','<div class="mp-h"><button class="mp-x" data-a="goback" data-v="home" aria-label="خروج من المصحف">✕</button>');
   var D=QD(),mu=isW()?[(WD().p[p-1]||[])[4]||1,0,(WD().p[p-1]||[1])[0]]:window.MUSHAF.m[p-1],inR=(p>=rd.from&&p<=rd.to),bm=bmHas(p),n=p-rd.from+1;
   var mid=inR?'<span class="rd-pn"><b>'+ar(n)+' / '+ar(rd.to-rd.from+1)+'</b><small>من وردك</small></span>':'<span class="rd-pn"><b>ص '+ar(p)+'</b><small>تصفّح حر</small></span>';
-  return main+'<div class="rd-ov'+(rd.ui?' on':'')+'" id="rd-ov"><div class="rd-t"><button class="ib" data-a="goback" data-v="quran" aria-label="رجوع">'+ic('chev')+'</button>'
+  return main+'<div class="rd-ov'+(rd.ui?' on':'')+'" id="rd-ov"><div class="rd-t"><button class="ib" data-a="goback" data-v="home" aria-label="رجوع">'+ic('chev')+'</button>'
    +'<div class="rd-ti"><b>سورة '+esc(D.n[mu[2]-1])+'</b><small>الجزء '+ar(mu[0])+' · الحزب '+ar(mu[1])+' · صفحة '+ar(p)+'</small></div>'
    +'<span class="rd-ta"><button class="ib" data-a="qsrch" aria-label="بحث عن آية">'+MP_SV+'<small>بحث</small></button><button class="ib" data-a="qidx" aria-label="فهرس السور">'+ic('doc')+'<small>الفهرس</small></button><button class="ib" data-a="qjump" aria-label="قائمة المصحف">'+ic('menu')+'<small>القائمة</small></button><button class="ib" data-a="mpset" aria-label="خيارات المصحف">'+ic('gear')+'<small>الخيارات</small></button></span></div>'
    +'<div class="rd-b"><div class="rd-sl"><small>١</small><input type="range" id="rd-rg" min="1" max="604" value="'+p+'" aria-label="الانتقال بين الصفحات"><small>٦٠٤</small></div>'
@@ -237,8 +238,8 @@ function mpAyahCard(k,cb){
 }
 
 /* ---------- استماع للآية: المنشاوي المرتل (islamic.network 128k، واحتياطي everyayah) ---------- */
-var mpAu={k:'',el:null};
-function mpAuStop(){if(mpAu.el){try{mpAu.el.pause()}catch(e){}try{mpAu.el.removeAttribute('src')}catch(e2){}}mpAu={k:'',el:null}}
+var mpAu={k:'',el:null,sw:0};
+function mpAuStop(){if(mpAu.sw){try{clearInterval(mpAu.sw)}catch(e){}}if(mpAu.el){try{mpAu.el.pause()}catch(e){}try{mpAu.el.removeAttribute('src')}catch(e2){}}mpAu={k:'',el:null,sw:0}}
 function mpGAya(c,v){var A=(window.QDATA&&QDATA.s)?QDATA.s:QD().s,n=0;for(var i=0;i<c-1&&i<A.length;i++)n+=A[i].length;return n+v}
 function mpListen(k){
   if(mpAu.k===k){mpAuStop();mpApplySel();return}
@@ -248,18 +249,31 @@ function mpListen(k){
   var urls=['https://cdn.islamic.network/quran/audio/128/ar.minshawi/'+g+'.mp3',
             'https://everyayah.com/data/Minshawy_Murattal_128kbps/'+p3(c)+p3(v)+'.mp3'];
   var a=new Audio();a.preload='auto';
-  var i=0,tok=0,to=0;
-  mpAu={k:k,el:a};
+  var i=0,tok=0,to=0,retried=false;
+  mpAu={k:k,el:a,sw:0};
   function attempt(j){
     if(j>=urls.length){if(mpAu.k===k){mpAuStop();toast('تعذّر تشغيل التلاوة — تحتاج إنترنتًا');mpApplySel()}return}
     i=j;var my=++tok,done=false;
+    if(mpAu.sw){clearInterval(mpAu.sw);mpAu.sw=0}
     /* مهلة لكل محاولة + حارس تكرار: خطأ قديم أو رفض play لا يتخطّى مصدرًا سليمًا */
     var fail=function(){if(done||mpAu.k!==k||my!==tok)return;done=true;clearTimeout(to);attempt(i+1)};
     clearTimeout(to);to=setTimeout(fail,12000);
     a.src=urls[j];
     try{var pr=a.play();if(pr&&pr.catch)pr.catch(fail)}catch(e){fail()}
     a.onerror=fail;
-    a.oncanplay=function(){if(my===tok)clearTimeout(to)};
+    a.oncanplay=function(){if(my!==tok)return;clearTimeout(to);
+      /* حارس التجمّد أثناء التشغيل: انقطاع الشبكة وسط الآية لا يُطلق error ولا ended فيبدو كأن التلاوة «انقطعت».
+         إن توقف الزمن ٧ ثوانٍ والمشغّل يعمل: أعد المحاولة من المصدر نفسه أولًا ثم انتقل للاحتياطي. */
+      var lastT=-1,still=0;
+      if(mpAu.sw)clearInterval(mpAu.sw);
+      mpAu.sw=setInterval(function(){
+        if(mpAu.k!==k||mpAu.el!==a){clearInterval(mpAu.sw);return}
+        if(a.paused||a.ended)return;
+        var ct=a.currentTime;
+        if(ct===lastT){if(++still>=7){clearInterval(mpAu.sw);mpAu.sw=0;
+          if(!retried){retried=true;attempt(i)}else attempt(i+1)}}
+        else{still=0;lastT=ct}
+      },1000)};
   }
   a.onended=function(){if(mpAu.k===k){mpAuStop();mpApplySel()}};
   attempt(0);
@@ -392,3 +406,35 @@ function mpCloseOverlays(){
   if(rd&&(rd.jump||rd.srch)&&tab==='reader'){rd.jump=false;rd.srch=false;c=true;render()}
   return c;
 }
+
+/* ---------- ورقة «الورد والرواية»: فتح «القرآن» يدخل المصحف مباشرة، وما كان في الشاشة الوسيطة يعيش هنا ---------- */
+function qwSheetHtml(){
+  var k=dk(),pg=qPages(k),goal=S.quran.goal,pos=Math.max(1,S.quran.pos||1),to=Math.min(604,pos+goal-1),last=Math.max(pos,S.quran.last||pos);
+  var done=pg>=goal,pct=Math.min(100,Math.round(pg/goal*100));
+  var total=0;Object.keys(S.quran.log).forEach(function(d){total+=S.quran.log[d]||0});
+  var prog=Math.round((total%QURAN_PAGES)/QURAN_PAGES*100),w=isW();
+  var seg=function(on,v,label){return '<button class="'+(on?'on':'')+'" data-a="qriw" data-v="'+v+'">'+label+'</button>'};
+  return '<div class="ups-back" data-a="qwclose"></div><div class="ups-card qws"><div class="ups-grab"></div>'
+  +'<h3 class="qws-t">الورد والرواية</h3>'
+  +'<p class="qws-sub">كل ما كان في شاشة القرآن الوسيطة صار هنا داخل المصحف</p>'
+  +'<div class="sg-card">'
+  +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>الرواية</b><small>التبديل يعيد تحميل المصحف بروايتك</small></div><div class="sg-ctl"><div class="sg-seg">'+seg(!w,'hafs','حفص')+seg(w,'warsh','ورش')+'</div></div></div>'
+  +'<div class="sg-row qws-col"><div class="qws-head"><span class="sg-ic">'+ic('check')+'</span><div class="sg-tx"><b>وردك اليومي</b><small>'+(done?'أتممت وردك اليوم، بارك الله فيك':'قرأت اليوم '+ar(pg)+' من '+ar(goal)+' '+(goal<11?'صفحات':'صفحة'))+' · '+(pos===to?'صفحة '+ar(pos):'من ص '+ar(pos)+' إلى '+ar(to))+' · '+esc(pageSura(pos))+'</small></div></div><div class="upd-bar qws-bar"><div style="width:'+pct+'%"></div></div><div class="step qws-step"><button class="ib" data-a="qgoal" data-v="-1" aria-label="إنقاص الورد">'+ic('minus')+'</button><b>'+ar(goal)+'</b><button class="ib" data-a="qgoal" data-v="1" aria-label="زيادة الورد">'+ic('plus')+'</button></div></div>'
+  +'<button class="sg-row" data-a="qopen" data-v="'+last+'"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>تابع من حيث توقفت</b></div><div class="sg-ctl"><span class="sg-val">صفحة '+ar(last)+' · '+esc(pageSura(last))+'</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
+  +'<button class="sg-row" data-a="tab" data-v="khatma"><span class="sg-ic">'+ic('flag')+'</span><div class="sg-tx"><b>تقدّم الختمة</b></div><div class="sg-ctl"><span class="sg-val">'+ar(prog)+'٪ · '+ar(total)+' صفحة</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
+  +'<div class="sg-row qws-col"><div class="qws-head"><span class="sg-ic">'+ic('pen')+'</span><div class="sg-tx"><b>قرأت من مصحف ورقي؟</b><small>سجّل ما قرأته ورقيًا ليُحسب في وردك اليوم</small></div></div><div class="step qws-step"><button class="ib" data-a="qsub" aria-label="إنقاص">'+ic('minus')+'</button><b>'+ar(pg)+'</b><button class="ib" data-a="qadd" aria-label="إضافة صفحة">'+ic('plus')+'</button></div></div>'
+  +'</div>'
+  +'<button class="btn block" data-a="qstart" style="margin-top:12px">'+ic('book')+' '+(done?'اقرأ المزيد':'ابدأ الورد من صفحة '+ar(pos))+'</button>'
+  +'<button class="btn ghost block" data-a="qwclose">إغلاق</button></div>';
+}
+function qwSheetOpen(){if(document.getElementById('qwirdsheet'))return;if(typeof rd!=='undefined'&&rd&&rd.jump){rd.jump=false;render()}var d=document.createElement('div');d.id='qwirdsheet';d.className='upsheet';d.innerHTML=qwSheetHtml();document.body.appendChild(d)}
+function qwSheetClose(){var d=document.getElementById('qwirdsheet');if(d)d.remove()}
+function qwSheetPaint(){var d=document.getElementById('qwirdsheet');if(d)d.innerHTML=qwSheetHtml()}
+/* بانر متوهج بعد تبديل الرواية يؤكد للمستخدم أين هو */
+function qwBanner(riw){
+  var old=document.getElementById('riwbanner');if(old)old.remove();
+  var d=document.createElement('div');d.id='riwbanner';d.className='riw-banner';
+  d.innerHTML=ic('sparkles')+' أنت الآن على رواية '+(riw==='warsh'?'ورش':'حفص');
+  document.body.appendChild(d);
+  setTimeout(function(){d.classList.add('out');setTimeout(function(){if(d.parentNode)d.remove()},420)},1600);
+  }
