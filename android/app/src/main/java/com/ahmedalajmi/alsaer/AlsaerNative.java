@@ -38,6 +38,11 @@ public class AlsaerNative {
     }
 
     @JavascriptInterface public String appBuildInfo() { return BuildConfig.VERSION_NAME + "|" + BuildConfig.VERSION_CODE; }
+
+    /* ALSAER: تسحب الصفحة رمز عودة Google Drive المعلّق (إقلاع بارد أثناء الموافقة). مرة واحدة: أول سحب يستهلكه. */
+    @JavascriptInterface public String consumeGdriveRedirect() {
+        return (act instanceof MainActivity) ? ((MainActivity) act).consumeGdriveRedirect() : null;
+    }
     @JavascriptInterface public void shareText(String title, String body) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("text/plain");
