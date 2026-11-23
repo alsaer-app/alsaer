@@ -1,4 +1,4 @@
-name: Redesign A update fixes 112 (temporary)
+name: Redesign A widget packaging 112 (temporary)
 on:
   push:
     branches: [exp/redesign-a-notif]
@@ -21,6 +21,7 @@ jobs:
       - name: Native bridge contract, build web, sync, mapping regression gate
         run: |
           python3 tests/native_bridge_contract.py
+          python3 tests/widget_packaging_contract.py
           python3 tools/build_web.py
           npm ci && npx @capacitor/cli@5 sync android
           python3 tests/mushaf_wordmap_regression.py
@@ -45,6 +46,12 @@ jobs:
           grep -q "versionCode='112'" /tmp/meta.txt && grep -q "versionName='1.1.2'" /tmp/meta.txt
           "$BT/aapt" dump permissions "$APK" | tee /tmp/perm.txt
           ! grep -qE 'RECORD_AUDIO|MODIFY_AUDIO' /tmp/perm.txt
+          "$BT/aapt" dump xmltree "$APK" AndroidManifest.xml > /tmp/manifest.txt
+          grep -q 'AlsaerWidget' /tmp/manifest.txt
+          grep -q 'android.appwidget.action.APPWIDGET_UPDATE' /tmp/manifest.txt
+          "$BT/aapt" list "$APK" > /tmp/apkfiles.txt
+          grep -q 'res/layout/alsaer_widget.xml' /tmp/apkfiles.txt
+          grep -q 'res/xml/alsaer_widget_info.xml' /tmp/apkfiles.txt
           stat -c '%s bytes' "$APK" && sha256sum "$APK" && git rev-parse HEAD
       - uses: actions/upload-artifact@v4
         with: {name: alsaer-redesign-a-notif-112-signed-test, path: android/app/build/outputs/apk/release/app-release.apk, retention-days: 3, if-no-files-found: error}
