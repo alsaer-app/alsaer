@@ -39,6 +39,7 @@ function riwSwitch(){
 
 function vWarshReader(){
   var p=rd.page,W=WD(),r=W.p[p-1],n=p-rd.from+1,tj=S.quran.tj!==false,mu=[r[4],0,r[0]];S.quran.last=p;
+  var lg=tj?'<div class="tjl">'+TJL.map(function(x){return '<span><i class="t'+x[1]+'"></i>'+x[0]+'</span>'}).join('')+'</div>':'';
   var useImg=mpiOnFor(p);
   var mainH=useImg?mpiMain(p,mu):'<div class="mp wr'+(tj?'':' notj')+'" id="mp"><div class="mp-in">'
   +'<div class="mp-h"><span>الجزء '+ar(r[4])+'</span><span class="sb">'+esc(QD().n[r[0]-1])+'</span></div>'
@@ -48,6 +49,7 @@ function vWarshReader(){
   +'<div class="rmid"><b>'+ar(n)+' / '+ar(rd.to-rd.from+1)+'</b><small>من وردك</small></div>'
   +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button>'
   +'<button class="ib" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+ic('chev')+'</button></div>'
+  +(useImg?'':lg)
   +'<div class="fsz"><button class="ib" data-a="mpset">'+ic('gear')+'المصحف</button><button class="ib" data-a="qtj" aria-pressed="'+tj+'">التجويد</button><button class="ib" data-a="qwird">'+ic('flag')+'الورد والرواية</button></div>';
   return mpWrap(mainH,ctlH,p,mu);
 }
@@ -58,4 +60,4 @@ function khatmaEta(total){
   var goal=Math.max(1,S.quran.goal),left=QURAN_PAGES-(total%QURAN_PAGES),days=Math.ceil(left/goal),d=new Date();d.setDate(d.getDate()+days);
   var ds=d.toLocaleDateString('ar-EG',{day:'numeric',month:'long',year:'numeric'});
   return '<section class="card flat khe" style="font-variant-numeric:tabular-nums"><div class="rm-ic">'+ic('flag')+'</div><div class="rm-tx"><b>تنتهي ختمتك بإذن الله في '+esc(ds)+'</b><small style="letter-spacing:.4px">متبقٍ '+ar(left)+' صفحة · نحو '+ar(days)+' يومًا بوردك الحالي ('+ar(goal)+' '+(goal<11?'صفحات':'صفحة')+' يوميًا)</small></div></section>';
-    }
+}
