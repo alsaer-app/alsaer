@@ -164,12 +164,11 @@ function mpApplySel(){
   var vm=mpVm(),W=document.querySelectorAll('#mp .mw[data-v]');
   for(var i=0;i<W.length;i++)W[i].classList.toggle('vmk',!!vm[W[i].getAttribute('data-v')]);
   mpHl(mpSel);
-  if(mpAu.k&&mpAu.k!==mpSel)mpAuStop();
   if(mpImg.k&&mpImg.k!==mpSel)mpImgClear();
   if(!mpSel){if(bar)mpDismissBar(bar);return}
   if(!bar){bar=document.createElement('div');bar.id='mp-vb';bar.className='mp-vb';document.body.appendChild(bar)}else if(bar._closing){bar._closing=0;bar.classList.remove('mp-closing')}
   var mk=!!vm[mpSel];
-  bar.innerHTML='<i class="mp-grip" aria-hidden="true"></i><div class="mp-vbh"><b>'+esc(mpVName(mpSel))+'</b><button data-mp2="x" class="mp-vx" aria-label="إغلاق">✕</button></div>'+((mpTf.k===mpSel&&mpTf.t)?'<div class="mp-tf" dir="rtl">'+esc(mpTf.t)+'</div>':'')+((mpMk.k===mpSel&&mpMk.t)?'<div class="mp-tf" dir="rtl">'+esc(mpMk.t)+'</div><div class="mp-src"><span>المختصر في التفسير · مركز تفسير للدراسات القرآنية</span><button data-mp2="mkre">تحديث</button></div>':'')+((mpImg.k===mpSel&&mpImg.loading)?'<div class="mp-tf">جارٍ تجهيز الصورة…</div>':'')+((mpImg.k===mpSel&&mpImg.url)?'<img class="mp-shi" src="'+mpImg.url+'" alt="بطاقة الآية"><span class="mp-shb"><button data-mp2="imgsh">مشاركة الصورة</button><button data-mp2="imgdl">حفظ</button></span>':'')+'<div class="mp-vbb"><div class="mp-br"><button data-mp2="tf" class="'+(mpTf.k===mpSel?'on':'')+'">تفسير</button><button data-mp2="mk" class="'+(mpMk.k===mpSel?'on':'')+'">مختصر</button><button data-mp2="listen" class="'+(mpAu.k===mpSel?'on':'')+'">'+(mpAu.k===mpSel?'إيقاف':'استماع')+'</button><button data-mp2="img" class="'+(mpImg.k===mpSel?'on':'')+'">صورة</button></div><div class="mp-br"><button data-mp2="copy">نسخ</button><button data-mp2="mark" class="'+(mk?'on':'')+'">'+(mk?'★ علامة':'☆ علامة حفظ')+'</button><button data-mp2="share">مشاركة</button></div></div>';
+  bar.innerHTML='<i class="mp-grip" aria-hidden="true"></i><div class="mp-vbh"><b>'+esc(mpVName(mpSel))+'</b><button data-mp2="x" class="mp-vx" aria-label="إغلاق">✕</button></div>'+((mpTf.k===mpSel&&mpTf.t)?'<div class="mp-tf" dir="rtl">'+esc(mpTf.t)+'</div>':'')+((mpMk.k===mpSel&&mpMk.t)?'<div class="mp-tf" dir="rtl">'+esc(mpMk.t)+'</div><div class="mp-src"><span>المختصر في التفسير · مركز تفسير للدراسات القرآنية</span><button data-mp2="mkre">تحديث</button></div>':'')+((mpImg.k===mpSel&&mpImg.loading)?'<div class="mp-tf">جارٍ تجهيز الصورة…</div>':'')+((mpImg.k===mpSel&&mpImg.url)?'<img class="mp-shi" src="'+mpImg.url+'" alt="بطاقة الآية"><span class="mp-shb"><button data-mp2="imgsh">مشاركة الصورة</button><button data-mp2="imgdl">حفظ</button></span>':'')+'<div class="mp-vbb"><div class="mp-br"><button data-mp2="tf" class="'+(mpTf.k===mpSel?'on':'')+'">تفسير</button><button data-mp2="mk" class="'+(mpMk.k===mpSel?'on':'')+'">مختصر</button><button data-mp2="img" class="'+(mpImg.k===mpSel?'on':'')+'">صورة</button></div><div class="mp-br"><button data-mp2="copy">نسخ</button><button data-mp2="mark" class="'+(mk?'on':'')+'">'+(mk?'★ علامة':'☆ علامة حفظ')+'</button><button data-mp2="share">مشاركة</button></div></div>';
   mpPlaceBar(bar);
   var im=bar.querySelector('img.mp-shi');if(im)im.addEventListener('load',function(){mpPlaceBar(bar)},{once:true});
 }
@@ -237,49 +236,6 @@ function mpAyahCard(k,cb){
   }else draw(ff);
 }
 
-/* ---------- استماع للآية: المنشاوي المرتل (islamic.network 128k، واحتياطي everyayah) ---------- */
-var mpAu={k:'',el:null,sw:0};
-function mpAuStop(){if(mpAu.sw){try{clearInterval(mpAu.sw)}catch(e){}}if(mpAu.el){try{mpAu.el.pause()}catch(e){}try{mpAu.el.removeAttribute('src')}catch(e2){}}mpAu={k:'',el:null,sw:0}}
-function mpGAya(c,v){var A=(window.QDATA&&QDATA.s)?QDATA.s:QD().s,n=0;for(var i=0;i<c-1&&i<A.length;i++)n+=A[i].length;return n+v}
-function mpListen(k){
-  if(mpAu.k===k){mpAuStop();mpApplySel();return}
-  mpAuStop();
-  var q=k.split(':'),c=+q[0],v=+q[1],g=mpGAya(c,v);
-  var p3=function(n){return ('00'+n).slice(-3)};
-  var urls=['https://cdn.islamic.network/quran/audio/128/ar.minshawi/'+g+'.mp3',
-            'https://everyayah.com/data/Minshawy_Murattal_128kbps/'+p3(c)+p3(v)+'.mp3'];
-  var a=new Audio();a.preload='auto';
-  var i=0,tok=0,to=0,retried=false;
-  mpAu={k:k,el:a,sw:0};
-  function attempt(j){
-    if(j>=urls.length){if(mpAu.k===k){mpAuStop();toast('تعذّر تشغيل التلاوة — تحتاج إنترنتًا');mpApplySel()}return}
-    i=j;var my=++tok,done=false;
-    if(mpAu.sw){clearInterval(mpAu.sw);mpAu.sw=0}
-    /* مهلة لكل محاولة + حارس تكرار: خطأ قديم أو رفض play لا يتخطّى مصدرًا سليمًا */
-    var fail=function(){if(done||mpAu.k!==k||my!==tok)return;done=true;clearTimeout(to);attempt(i+1)};
-    clearTimeout(to);to=setTimeout(fail,12000);
-    a.src=urls[j];
-    try{var pr=a.play();if(pr&&pr.catch)pr.catch(fail)}catch(e){fail()}
-    a.onerror=fail;
-    a.oncanplay=function(){if(my!==tok)return;clearTimeout(to);
-      /* حارس التجمّد أثناء التشغيل: انقطاع الشبكة وسط الآية لا يُطلق error ولا ended فيبدو كأن التلاوة «انقطعت».
-         إن توقف الزمن ٧ ثوانٍ والمشغّل يعمل: أعد المحاولة من المصدر نفسه أولًا ثم انتقل للاحتياطي. */
-      var lastT=-1,still=0;
-      if(mpAu.sw)clearInterval(mpAu.sw);
-      mpAu.sw=setInterval(function(){
-        if(mpAu.k!==k||mpAu.el!==a){clearInterval(mpAu.sw);return}
-        if(a.paused||a.ended)return;
-        var ct=a.currentTime;
-        if(ct===lastT){if(++still>=7){clearInterval(mpAu.sw);mpAu.sw=0;
-          if(!retried){retried=true;attempt(i)}else attempt(i+1)}}
-        else{still=0;lastT=ct}
-      },1000)};
-  }
-  a.onended=function(){if(mpAu.k===k){mpAuStop();mpApplySel()}};
-  attempt(0);
-  mpApplySel();
-}
-
 /* كاش التفسير بسقف: ٣٠٠ آية كحد أقصى، الأقدم يُمسح أولًا، حتى لا تمتلئ مساحة التخزين بصمت */
 var TF_CAP=300,TF_IDX='alsaer_tf_idx',tfMig=false;
 function tfIdx(){try{var a=JSON.parse(localStorage.getItem(TF_IDX)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
@@ -301,7 +257,6 @@ document.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('[data-mp2]');if(!b)return;e.stopPropagation();
   var k=b.getAttribute('data-mp2');
   if(k==='x'){mpSel='';mpApplySel();return}
-  if(k==='listen'){mpListen(mpSel);return}
   if(k==='img'){
     var kk3=mpSel;if(mpImg.k===kk3){mpImgClear();mpApplySel();return}
     mpImgClear();mpImg={k:kk3,loading:1};mpApplySel(); /* رد فوري: «جارٍ التجهيز» حتى تكتمل الصورة */
@@ -402,7 +357,7 @@ function mpCloseOverlays(){
   var c=false,e;
   if((e=document.getElementById('mps-wrap'))){e.remove();c=true}
   if((e=document.getElementById('mpi-ask'))){e.remove();c=true}
-  if((e=document.getElementById('mp-vb'))){mpDismissBar(e);mpSel='';try{mpHl('')}catch(x){}try{mpAuStop()}catch(x2){}try{mpImgClear()}catch(x5){}c=true}
+  if((e=document.getElementById('mp-vb'))){mpDismissBar(e);mpSel='';try{mpHl('')}catch(x){}try{mpImgClear()}catch(x5){}c=true}
   if(rd&&(rd.jump||rd.srch)&&tab==='reader'){rd.jump=false;rd.srch=false;c=true;render()}
   return c;
 }
@@ -437,4 +392,4 @@ function qwBanner(riw){
   d.innerHTML=ic('sparkles')+' أنت الآن على رواية '+(riw==='warsh'?'ورش':'حفص');
   document.body.appendChild(d);
   setTimeout(function(){d.classList.add('out');setTimeout(function(){if(d.parentNode)d.remove()},420)},1600);
-  }
+                                   }
