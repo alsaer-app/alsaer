@@ -12,7 +12,17 @@ function ptCompute(date,lat,lng,method,asrF){
   function mid(t){return ptFix(12-ptSun(J+t).eqt,24)}
   function ang(a,t,ccw){var dc=ptSun(J+t).decl,x=(-Math.sin(ptRad(a))-Math.sin(ptRad(dc))*Math.sin(ptRad(lat)))/(Math.cos(ptRad(dc))*Math.cos(ptRad(lat)));if(x>1||x<-1)return NaN;var v=ptDeg(Math.acos(x))/15;return mid(t)+(ccw?-v:v)}
   function asr(f,t){var dc=ptSun(J+t).decl,a=-ptDeg(Math.atan(1/(f+Math.tan(ptRad(Math.abs(lat-dc))))));return ang(a,t,false)}
-  var fajr=ang(M[1],5/24,true),sunrise=ang(0.833,6/24,true),dhuhr=mid(12/24)+1/60,as=asr(asrF||1,13/24),maghrib=ang(0.833,18/24,false),isha=M[3]?maghrib+M[3]/60:ang(M[2],18/24,false);
+  var fajr=ang(M[1],5/24,true),sunrise=ang(0.833,6/24,true),dhuhr=mid(12/24)+1/60,as=asr(asrF||1,13/24),maghrib=ang(0.833,18/24,false);
+  /* أم القرى: العشاء بعد المغرب بـ ٩٠ دقيقة، وتُمدَّد إلى ١٢٠ دقيقة في رمضان */
+  var ishaMin=M[3];
+  if(ishaMin){try{if(typeof hijriNumeric==='function'){var hj=hijriNumeric(date);if(hj&&hj.month===9)ishaMin=120}}catch(e){}}
+  var isha=ishaMin?maghrib+ishaMin/60:ang(M[2],18/24,false);
+  /* خطوط العرض العالية: متى تعذّرت زاوية الفجر/العشاء (لا شفق) نقدّرهما بمنتصف الليل بين المغرب والشروق */
+  if(!isNaN(sunrise)&&!isNaN(maghrib)){
+    var night=ptFix(sunrise-maghrib+24,24);
+    if(isNaN(fajr))fajr=ptFix(maghrib+night/2,24);
+    if(isNaN(isha))isha=ptFix(maghrib+night/2,24);
+  }
   var off=tz-lng/15,out={fajr:fajr,sunrise:sunrise,dhuhr:dhuhr,asr:as,maghrib:maghrib,isha:isha};
   Object.keys(out).forEach(function(k){var v=out[k];if(isNaN(v)){out[k]=null;return}v=ptFix(v+off+0.5/60,24);var h=Math.floor(v),m=Math.floor((v-h)*60);out[k]=(h<10?'0':'')+h+':'+(m<10?'0':'')+m});
   return out;
