@@ -14,9 +14,11 @@ function updSemverNewer(remote,local){
 }
 function updInfo(){var s=updState();return (s.info&&typeof APP_BUILD!=='undefined'&&s.info.versionCode>APP_BUILD&&updSemverNewer(s.info.versionName,(typeof APP_VERSION!=='undefined')?APP_VERSION:''))?s.info:null}
 function updDismissed(){var s=updState(),i=updInfo();return !!(i&&s.dismissed===i.versionCode)}
+function updCheckFailed(){var st=updState();st.at=Date.now();st.checkFailed=true;updSave(st);return false}
+function updCurrentLabel(){var s=updState();return s.checkFailed?'تعذّر التحقق من التحديثات':s.checkedAt?'أنت على أحدث إصدار':'لم يتم التحقق من التحديثات بعد'}
 function updCheck(force){
-  if(typeof fetch!=='function')return Promise.resolve(false);
-  if(typeof navigator!=='undefined'&&navigator.onLine===false)return Promise.resolve(false);
+  if(typeof fetch!=='function')return Promise.resolve(updCheckFailed());
+  if(typeof navigator!=='undefined'&&navigator.onLine===false)return Promise.resolve(updCheckFailed());
   var s=updState();
   if(!force&&s.at&&Date.now()-s.at<12*3600*1000)return Promise.resolve(false);
   var ctl=(typeof AbortController==='function')?new AbortController():null,to=ctl?setTimeout(function(){try{ctl&&ctl.abort()}catch(e){}},8000):null;
@@ -24,6 +26,8 @@ function updCheck(force){
    .then(function(r){if(to)clearTimeout(to);if(!r.ok)throw new Error('http');return r.json()})
    .then(function(j){
     var st=updState();st.at=Date.now();
+    if(!(j&&j.appId==='com.ahmedalajmi.alsaer'&&Number.isInteger(j.versionCode)&&j.versionCode>0))return updCheckFailed();
+    st.checkedAt=st.at;st.checkFailed=false;
     if(j&&j.appId==='com.ahmedalajmi.alsaer'&&Number.isInteger(j.versionCode)&&j.versionCode>0){
       st.info={versionCode:j.versionCode,versionName:String(j.versionName||''),apkUrl:/^https:\/\//.test(j.apkUrl||'')?j.apkUrl:'https://github.com/alsaer-app/alsaer/releases/latest'};
       if(Number.isInteger(j.sizeBytes)&&j.sizeBytes>0)st.info.sizeBytes=j.sizeBytes;
@@ -43,7 +47,7 @@ function updCheck(force){
     }
     return true;
    })
-   .catch(function(){if(to)clearTimeout(to);var st=updState();st.at=Date.now();updSave(st);return false});
+   .catch(function(){if(to)clearTimeout(to);return updCheckFailed()});
 }
 /* ورقة «تحديث جديد» السفلية: تفتح تلقائيًا مرة واحدة لكل إصدار، وتبقى متاحة من الإعدادات ← التحديثات.
    التحميل الداخلي يتطلب الجسر الأصيل ورابط apk مباشرًا وبصمة sha256 في update.json؛ وإلا يُعرض رابط صفحة الإصدارات فقط.
@@ -57,14 +61,14 @@ function updRowSub(){
   if(UPD_DL&&UPD_DL.st==='downloading')return 'جارٍ تحميل التحديث…';
   if(UPD_DL&&UPD_DL.st==='done')return 'التحديث جاهز للتثبيت';
   if(i)return 'الإصدار '+cur+' · يتوفر '+esc(i.versionName||String(i.versionCode));
-  return 'الإصدار '+cur+' · أحدث إصدار';
+  return 'الإصدار '+cur+' · '+updCurrentLabel();
 }
 function updSheetHtml(){
   var cur=ar(String((typeof APP_VERSION!=='undefined')?APP_VERSION:''));
   var i=updInfo();
   var h='<div class="ups-back" data-a="updclose"></div><div class="ups-card"><div class="ups-grab"></div>';
   if(!i){
-    return h+'<div class="upd-top"><span class="upd-ic ok">'+ic('check')+'</span><div><h3>أنت على أحدث إصدار</h3><small>الإصدار '+cur+'</small></div></div>'
+    return h+'<div class="upd-top"><span class="upd-ic'+(updState().checkedAt&&!updState().checkFailed?' ok':'')+'">'+ic(updState().checkedAt&&!updState().checkFailed?'check':'refresh')+'</span><div><h3>'+updCurrentLabel()+'</h3><small>الإصدار '+cur+'</small></div></div>'
       +'<button class="btn block" data-a="updchecknow">'+ic('refresh')+' التحقق من جديد</button>'
       +'<button class="btn ghost block" data-a="updclose">إغلاق</button></div>';
   }
@@ -152,5 +156,5 @@ function updInstall(){
   else if(r==='nofile')toast('لا يوجد ملف محمَّل بعد');
   else if(r!=='ok')toast('تعذّر فتح المثبّت — حمّل من صفحة الإصدار');
 }
-function updCheckNow(){toast('جارٍ التحقق من التحديثات…');updCheck(true).then(function(ok){if(ok&&!updInfo())toast('لا يوجد تحديث جديد');updSheetPaint();if(tab==='settings')render()})}
+function updCheckNow(){toast('جارٍ التحقق من التحديثات…');updCheck(true).then(function(ok){if(!ok)toast('تعذّر التحقق من التحديثات. تحقق من الاتصال وحاول مجددًا');else if(!updInfo())toast('لا يوجد تحديث جديد');updSheetPaint();if(tab==='settings')render()})}
 setTimeout(function(){updPollNative()},8000);
