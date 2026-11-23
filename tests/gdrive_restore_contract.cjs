@@ -3,7 +3,7 @@ const vm=require('node:vm'),fs=require('node:fs'),assert=require('node:assert/st
 const ctx={console,Promise,Date,setTimeout:(fn,ms)=>{if(ms!==400)return setTimeout(fn,ms)},clearTimeout,window:{},document:{addEventListener(){},getElementById(){return null}},navigator:{},S:{days:{},counters:{},profile:{name:'current'},pin:'keep'},KEY:'state',saveOff:false,saveTm:0,def:()=>({days:{},counters:{}}),fixShape:x=>x,validBackup:x=>!!(x&&x.days&&x.counters),render(){},bkSay(){},gdBusy:false,location:{reload(){}},Map};
 const store=new Map();ctx.localStorage={getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)};
 vm.createContext(ctx);vm.runInContext(fs.readFileSync('src/services/extras.js','utf8'),ctx);vm.runInContext(fs.readFileSync('src/services/gdrive-backup.js','utf8'),ctx);
-ctx.bkSay=m=>ctx.message=m;ctx.bkDecrypt=async(raw,pw)=>{if(pw!=='correct')throw Error('bad');return JSON.stringify({app:'alsaer',S:{profile:{name:'encrypted'}}})};
+ctx.gdHasRt=()=>true;ctx.bkSay=m=>ctx.message=m;ctx.bkDecrypt=async(raw,pw)=>{if(pw!=='correct')throw Error('bad');return JSON.stringify({app:'alsaer',S:{profile:{name:'encrypted'}}})};
 const flush=()=>new Promise(r=>setImmediate(r));
 (async()=>{
   const remote=JSON.stringify({app:'alsaer',S:{profile:{name:'remote'}},rem:{enabled:true}});
