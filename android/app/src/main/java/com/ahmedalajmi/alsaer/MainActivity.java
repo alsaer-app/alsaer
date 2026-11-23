@@ -10,6 +10,15 @@ import com.getcapacitor.BridgeActivity;
  * MainActivity مدموج: إضافة بصمة (BiometricPlugin) + الإشعارات المحلية (AlsaerNative).
  */
 public class MainActivity extends BridgeActivity {
+    private DriveAuthorization driveAuthorization;
+    void authorizeDrive(boolean interactive) {
+        if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
+        driveAuthorization.authorize(interactive);
+    }
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (driveAuthorization != null && driveAuthorization.onResult(requestCode, resultCode, data)) return;
+        super.onActivityResult(requestCode, resultCode, data);
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(BiometricPlugin.class);
@@ -99,4 +108,4 @@ public class MainActivity extends BridgeActivity {
             intent.removeExtra("alsaer_route");
         }
     }
-}
+    }
