@@ -22,7 +22,8 @@ function gdNativeToken(interactive){
     try{AlsaerNative.gdriveAuthorize(!!interactive)}catch(e){clearTimeout(timer);gdNativePending=null;reject(e)}
   });
 }
-window.gdriveOnNativeToken=function(token,error){
+window.gdriveOnNativeToken=function(token,error,email){
+  if(!error){try{if(email)localStorage.setItem('alsaer_gdrive_email',String(email));else localStorage.removeItem('alsaer_gdrive_email')}catch(e){}}
   var p=gdNativePending;if(!p)return;gdNativePending=null;clearTimeout(p.timer);
   if(error||!token){p.reject(new Error(error||'no-auth'));return}
   gdTok={t:token,exp:Date.now()+50*60000};
@@ -39,7 +40,7 @@ function gdSha256(txt){
 
 /* --- بدء الربط: يفتح متصفح الجهاز على صفحة موافقة Google --- */
 function gdStartAuth(){
-  if(gdNative()){bkSay('اختر حساب Google واسمح بالوصول إلى ملف النسخة…');gdNativeToken(true).then(function(){bkSay('تم ربط Google Drive ✓');render()},function(e){bkSay(e.message==='cancelled'?'أُلغي الربط.':'تعذّر الربط. تحقق من خدمات Google Play وإعداد عميل Android وحاول مجددًا.')});return}
+  if(gdNative()){bkSay('اختر حساب Google واسمح بالوصول إلى ملف النسخة…');gdNativeToken(true).then(function(){bkSay('تم ربط Google Drive ✓');render();setTimeout(gdOnOpen,300)},function(e){bkSay(e.message==='cancelled'?'أُلغي الربط.':'تعذّر الربط. تحقق من خدمات Google Play وإعداد عميل Android وحاول مجددًا.')});return}
   if(!gdConfigured()){bkSay('ربط Google Drive غير مهيأ في هذه النسخة من التطبيق.');return}
   var rnd=new Uint8Array(32);crypto.getRandomValues(rnd);
   var ver=gdB64url(rnd);
@@ -136,8 +137,8 @@ function gdFindFile(){
 }
 
 /* --- رفع النسخة (إنشاء أو استبدال الملف نفسه) --- */
-function gdUpload(){
-  var content=bkBuild();
+function gdUpload(provided){
+  var content=provided||bkBuild();
   return gdFindFile().then(function(f){
     if(f){
       return gdReq('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(f.id)+'?uploadType=media',
@@ -166,11 +167,10 @@ function gdSafetyExists(){try{return !!localStorage.getItem(GD_SAFETY_KEY)}catch
 function gdRestorePanel(){
   var h='';
   if(gdRestoreRaw){
-    h+='<div class="panel" id="gd-restore"><p class="note">'+(gdRestoreSource==='safety'?'استرجاع النسخة المحلية قبل آخر استعادة.':'نُزّلت آخر نسخة من Google Drive.')+' ستُستبدل بياناتك الحالية بعد التأكيد. تُحفظ نسخة أمان محلية تلقائيًا أولًا، ويمكن استرجاعها من هذه الشاشة.</p>';
+    h+='<div class="panel" id="gd-restore"><p class="note">'+(gdRestoreSource==='safety'?'استرجاع النسخة المحلية قبل آخر استعادة.':'نُزّلت آخر نسخة من Google Drive.')+' ستُستبدل بياناتك الحالية بعد التأكيد. تُحفظ نسخة أمان محلية تلقائيًا أولًا، للحماية عند حدوث خطأ.</p>';
     if(gdRestoreRaw.trim().indexOf('ALSAER-ENC1:')===0)h+='<input type="password" id="gd-restore-pw" autocomplete="off" aria-label="كلمة مرور النسخة" placeholder="كلمة مرور النسخة المشفّرة">';
     h+='<div class="acts"><button class="btn bad" data-a="gdrestore">تأكيد الاستعادة واستبدال البيانات</button><button class="btn ghost" data-a="gdcancel">إلغاء</button></div></div>';
   }
-  if(gdSafetyExists())h+='<div class="panel"><button class="btn ghost block" data-a="gdsafety">استرجاع نسخة الأمان المحلية</button><p class="note">تُحفظ على هذا الجهاز فقط حتى الاستعادة التالية أو مسح بيانات التطبيق.</p></div>';
   return h;
 }
 function gdRestoreApply(raw){
@@ -183,8 +183,8 @@ function gdRestoreApply(raw){
 }
 
 function gdDisconnect(){
-  if(gdNative())return gdToken().then(function(t){return gdFetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(t),{method:'POST'},15000)}).then(function(r){if(!r.ok)throw new Error('revoke');gdTok={t:'',exp:0};try{localStorage.removeItem('alsaer_gdrive_native');localStorage.removeItem(GD_RT_KEY)}catch(e){}});
-  var rt='';try{rt=localStorage.getItem(GD_RT_KEY)||''}catch(e){}
+  if(gdNative())return gdToken().then(function(t){return gdFetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(t),{method:'POST'},15000)}).then(function(r){if(!r.ok)throw new Error('revoke');gdTok={t:'',exp:0};gdForgetLocalAuth();try{localStorage.removeItem('alsaer_gdrive_native');localStorage.removeItem(GD_RT_KEY)}catch(e){}});
+  gdForgetLocalAuth();var rt='';try{rt=localStorage.getItem(GD_RT_KEY)||''}catch(e){}
   gdTok={t:'',exp:0};try{localStorage.removeItem(GD_RT_KEY)}catch(e){}
   if(rt)fetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(rt)).catch(function(){});
 }
@@ -205,7 +205,15 @@ function vGdCard(){
   return h+'</section>';
 }
 
-function gdAct(a){
+function gdAct(a,v){
+  if(a==='gdauto'){var p=gdPrefs();p.auto=!p.auto;gdSetPrefs(p);render();return true}
+  if(a==='gdstore'){if(gdBusy)return true;var p=gdPrefs();p.storage=v==='drive'?'drive':'both';gdSetPrefs(p);render();return true}
+  if(a==='gdpwsave'){
+    var pw=(document.getElementById('gd-backup-pw')||{}).value||'';
+    if(pw.length<6){bkSay('استخدم كلمة مرور من ٦ أحرف فأكثر واحفظها؛ لا يمكن استعادة النسخة بدونها.');return true}
+    try{if(!gdSealPassword(pw))throw Error('seal');var p=gdPrefs();p.encrypt=true;gdSetPrefs(p);gdPwOpen=false;bkSay('فُعّل التشفير الاختياري.');render()}catch(e){bkSay('تعذّر حفظ كلمة المرور بأمان على هذا الجهاز؛ لم يُفعّل التشفير.')}
+    return true;
+  }
   if(a==='gdcancel'){if(gdBusy)return true;gdRestoreRaw='';bkSay('أُلغيت الاستعادة؛ لم تتغير بياناتك.');render();return true}
   if(a==='gdsafety'){
     if(gdBusy)return true;
@@ -223,18 +231,10 @@ function gdAct(a){
     }).finally(function(){gdBusy=false});return true;
   }
   if(a==='gdconnect'){gdStartAuth();return true}
-  if(a==='gddisc'){Promise.resolve(gdDisconnect()).then(function(){bkSay('فُصل حساب Google Drive. ملف النسخة يبقى في درايف حتى تحذفه بنفسك.');render()},function(){bkSay('تعذّر إلغاء الوصول. تحقق من الإنترنت، أو ألغِ إذن السائر من حساب Google ثم أعد المحاولة.')});return true}
-  if(a==='gdup'){
-    if(gdBusy)return true;gdBusy=true;bkSay('جارٍ الرفع إلى Google Drive…');
-    gdUpload().then(function(){
-      gdBusy=false;S.gdAt=Date.now();save();bkSay('رُفعت النسخة إلى درايف ✓ («'+GD_FILE+'»)');try{render()}catch(e){}
-    },function(e){
-      gdBusy=false;var m1=String(e&&e.message);
-      bkSay(m1==='no-auth'||m1==='auth'?'انتهت صلاحية الربط — افصل الحساب وأعد ربطه.':'تعذّر الرفع. تحقق من الإنترنت وحاول مجددًا.');
-      try{render()}catch(x){} /* أعد عرض البطاقة بعد أي فشل حتى يزول تعطيل الأزرار بصريًا */
-    });
-    return true}
+  if(a==='gddisc'){if(gdBusy)return true;Promise.resolve(gdDisconnect()).then(function(){bkSay('فُصل حساب Google Drive. ملف النسخة يبقى في درايف حتى تحذفه بنفسك.');render()},function(){bkSay('تعذّر إلغاء الوصول. تحقق من الإنترنت، أو ألغِ إذن السائر من حساب Google ثم أعد المحاولة.')});return true}
+  if(a==='gdup'){gdRunBackup(false);return true}
   if(a==='gddown'){
+    if(!gdHasRt()){bkSay('اربط حساب Google أولًا.');return true}
     if(gdBusy)return true;gdBusy=true;bkSay('جارٍ استعادة آخر نسخة من درايف…');
     gdDownload().then(function(txt){
       gdBusy=false;gdRestoreRaw=String(txt||'');gdRestoreSource='drive';bkConfirm=false;
@@ -247,3 +247,39 @@ function gdAct(a){
     return true}
   return false;
 }
+
+/* Device-only preferences and credentials are intentionally outside S/bkBuild. */
+var gdPwOpen=false,gdAutoTried=0,gdEmailLoading=false;
+function gdPrefs(){try{return Object.assign({auto:true,encrypt:false,storage:'both',phoneAt:0},JSON.parse(localStorage.getItem('alsaer_drive_prefs')||'{}'))}catch(e){return {auto:true,encrypt:false,storage:'both',phoneAt:0}}}
+function gdSetPrefs(p){localStorage.setItem('alsaer_drive_prefs',JSON.stringify(p))}
+function gdEmail(){try{return localStorage.getItem('alsaer_gdrive_email')||''}catch(e){return ''}}
+function gdForgetLocalAuth(){try{localStorage.removeItem('alsaer_gdrive_email');localStorage.removeItem('alsaer_drive_sealed_pw');var p=gdPrefs();p.encrypt=false;gdSetPrefs(p)}catch(e){}}
+function gdSealPassword(pw){if(!window.AlsaerNative||!AlsaerNative.gdriveSeal)return false;var sealed=AlsaerNative.gdriveSeal(pw);if(!sealed)return false;localStorage.setItem('alsaer_drive_sealed_pw',sealed);return true}
+function gdOpenPassword(){try{var sealed=localStorage.getItem('alsaer_drive_sealed_pw');return sealed&&window.AlsaerNative&&AlsaerNative.gdriveOpen?AlsaerNative.gdriveOpen(sealed):''}catch(e){return ''}}
+function gdPasswordPanel(){return gdPwOpen?'<div class="panel"><p class="note">اختر كلمة مرور للنسخ المشفّرة. تُحفظ على هذا الجهاز بحماية Android لتشغيل النسخ التلقائي. احفظها لديك للاستعادة على جهاز آخر.</p><input id="gd-backup-pw" type="password" autocomplete="new-password" placeholder="كلمة مرور (٦ أحرف فأكثر)"><button class="btn block" data-a="gdpwsave">حفظ كلمة المرور وتفعيل التشفير</button></div>':''}
+document.addEventListener('change',function(e){if(e.target&&e.target.hasAttribute('data-gd-encrypt')){var p=gdPrefs();if(e.target.checked){gdPwOpen=true}else{gdPwOpen=false;p.encrypt=false;gdSetPrefs(p);try{localStorage.removeItem('alsaer_drive_sealed_pw')}catch(x){}}render()}});
+function gdSavePhone(content){
+  if(window.AlsaerNative&&AlsaerNative.gdriveSaveBackup){if(!AlsaerNative.gdriveSaveBackup(content))throw Error('phone-save');}
+  else{localStorage.setItem('alsaer_phone_backup_v1',content);if(localStorage.getItem('alsaer_phone_backup_v1')!==content)throw Error('phone-save');}
+  var p=gdPrefs();p.phoneAt=Date.now();gdSetPrefs(p);
+}
+function gdRunBackup(automatic){
+  if(gdBusy||!gdHasRt()){if(!automatic)bkSay('اربط حساب Google أولًا.');return Promise.resolve(false)}
+  var pref=gdPrefs(),password=pref.encrypt?gdOpenPassword():'';
+  if(pref.encrypt&&!password){if(!automatic){gdPwOpen=true;bkSay('أدخل كلمة مرور النسخ المشفّرة لتفعيلها على هذا الجهاز.');render()}return Promise.resolve(false)}
+  gdBusy=true;bkSay('جارٍ تجهيز النسخة ورفعها إلى Google Drive…');
+  var raw=bkBuild(),prepare=pref.encrypt?bkEncrypt(raw,password):Promise.resolve(raw);
+  return prepare.then(function(content){return gdUpload(content).then(function(){S.gdAt=Date.now();save();if(pref.storage==='both')gdSavePhone(content);return true})}).then(function(){bkSay(pref.storage==='both'?'تم النسخ إلى Drive والهاتف داخل مجلد ملفات التطبيق.':'تم النسخ إلى Google Drive.');return true},function(e){bkSay(e.message==='phone-save'?'تم الرفع إلى Drive، لكن تعذّر حفظ نسخة الهاتف.':'تعذّر النسخ. تحقق من الاتصال وصلاحية الربط وحاول مجددًا.');return false}).finally(function(){gdBusy=false;try{render()}catch(e){}});
+}
+function gdOnOpen(){
+  if(document.hidden||!S.onboarded||!gdHasRt()||gdBusy)return;
+  if(!gdEmail()&&!gdEmailLoading&&gdNative()){gdEmailLoading=true;gdNativeToken(false).then(function(t){return gdReq('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)').then(function(r){return r.json()}).then(function(o){if(o.user&&o.user.emailAddress)localStorage.setItem('alsaer_gdrive_email',o.user.emailAddress)})},function(){}).catch(function(){}).finally(function(){gdEmailLoading=false;render();gdAutoOnOpen()});return}
+  gdAutoOnOpen();
+}
+function gdAutoOnOpen(){
+  if(document.hidden||!S.onboarded||!gdHasRt()||gdBusy)return;
+  var now=Date.now(),p=gdPrefs();if(!p.auto||now-(S.gdAt||0)<7*864e5||now-gdAutoTried<3600000)return;
+  gdAutoTried=now;gdRunBackup(true);
+}
+document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(gdOnOpen,1000)});
+setTimeout(gdOnOpen,3500);
