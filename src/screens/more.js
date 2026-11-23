@@ -70,3 +70,4 @@ function vDeveloper(){
   +'</div>';
 }
 function srow(key,icon,title,val){return '<button class="lrow" data-a="sopen" data-v="'+key+'" aria-expanded="'+(setOpen===key)+'">'+ic(icon)+'<span class="t">'+title+'</span>'+(val?'<span class="val">'+val+'</span>':'')+ic('chev').replace('class="i"','class="i chev"')+'</button>'}
+
