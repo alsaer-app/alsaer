@@ -99,7 +99,7 @@ public final class FloatFeed {
         Calendar base = Calendar.getInstance();
         base.setTimeInMillis(after);
         base.set(Calendar.HOUR_OF_DAY, 0); base.set(Calendar.MINUTE, 0); base.set(Calendar.SECOND, 0); base.set(Calendar.MILLISECOND, 0);
-        for (int d = 0; d < 9; d++) {
+        for (int d = -1; d < 9; d++) {
             Calendar day = (Calendar) base.clone();
             day.add(Calendar.DAY_OF_YEAR, d);
             if (!AlarmScheduler.dayAllowed(days, day.get(Calendar.DAY_OF_WEEK) - 1)) continue;
