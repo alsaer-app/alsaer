@@ -6,7 +6,7 @@ function run(nativeEnabled,focused=true,consent=true,malik=false){
  class Clock extends Date {constructor(){super('2026-11-24T12:00:00')} }
  function Notification(title,opts){sent.push({title,opts})}Notification.permission='granted';
  const native=nativeEnabled===null?null:{notificationsEnabled:()=>nativeEnabled};
- const ctx={window:{Notification,AlsaerNative:native},AlsaerNative:native,Notification,Date:Clock,Audio:function(){},localStorage:{getItem:k=>store[k]||null,setItem:(k,v)=>store[k]=v},document:{addEventListener(){},hasFocus:()=>focused},setInterval:f=>ticks.push(f),console};
+ const ctx={window:{Notification,AlsaerNative:native},AlsaerNative:native,Notification,Date:Clock,Audio:function(){},localStorage:{getItem:k=>store[k]||null,setItem:(k,v)=>store[k]=v},document:{addEventListener(){},hasFocus:()=>focused},setInterval:f=>ticks.push(f),console,dk:()=>"2026-11-24"};
  vm.runInNewContext(source,ctx);ticks[0]();ticks[0]();return {sent,store,tick:ticks[0]};
 }
 assert.equal(run(null,true,true,true).sent.length,2,'nightly Malik also delivers on Tuesday, not only Sunday');
