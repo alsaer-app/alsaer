@@ -50,8 +50,16 @@ jobs:
           else
             V="${GITHUB_REF_NAME#v}"
           fi
-          # versionCode must always stay above the current installed base (10145)
-          CODE=$((10145 + ${{ github.run_number }}))
+          # versionCode is derived from the version name itself: M*100 + m*10 + p
+          # (1.1.2 -> 112). It rises with the version, so a release can never carry
+          # a code below an installed one. minor/patch must stay <= 9; the check
+          # fails the build loudly rather than shipping a colliding code.
+          echo "$V" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "Version must be x.y.z (got: $V)"; exit 1; }
+          IFS=. read -r MA MI PA <<< "$V"
+          if [ "$MI" -gt 9 ] || [ "$PA" -gt 9 ]; then
+            echo "minor/patch > 9: re-floor the versionCode scheme before releasing $V"; exit 1
+          fi
+          CODE=$((MA*100 + MI*10 + PA))
           echo "VERSION_NAME=$V" >> "$GITHUB_ENV"
           echo "VERSION_CODE=$CODE" >> "$GITHUB_ENV"
           echo "Building v$V (versionCode $CODE)"
