@@ -1,4 +1,4 @@
-name: Drive native auth 112 (temporary)
+name: Drive native auth 112 (reentry fix)
 on:
   push:
     branches: [exp/gdrive-native-auth]
