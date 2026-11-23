@@ -10,7 +10,24 @@ var GD_RT_KEY='alsaer_gdrive_rt',GD_VER_KEY='alsaer_gd_verifier';
 var gdTok={t:'',exp:0},gdBusy=false;
 
 function gdConfigured(){return /^[0-9a-z-]+\.apps\.googleusercontent\.com$/i.test(GD_CLIENT_ID)}
-function gdHasRt(){try{return !!localStorage.getItem(GD_RT_KEY)}catch(e){return false}}
+function gdNative(){return !!(window.AlsaerNative&&typeof AlsaerNative.gdriveAuthorize==='function')}
+function gdHasRt(){try{return gdNative()?localStorage.getItem('alsaer_gdrive_native')==='1':!!localStorage.getItem(GD_RT_KEY)}catch(e){return false}}
+var gdNativePending=null;
+function gdNativeToken(interactive){
+  if(gdNativePending)return Promise.reject(new Error('busy'));
+  return new Promise(function(resolve,reject){
+    var timer=setTimeout(function(){gdNativePending=null;reject(new Error('timeout'))},120000);
+    gdNativePending={resolve:resolve,reject:reject,timer:timer};
+    try{AlsaerNative.gdriveAuthorize(!!interactive)}catch(e){clearTimeout(timer);gdNativePending=null;reject(e)}
+  });
+}
+window.gdriveOnNativeToken=function(token,error){
+  var p=gdNativePending;if(!p)return;gdNativePending=null;clearTimeout(p.timer);
+  if(error||!token){p.reject(new Error(error||'no-auth'));return}
+  gdTok={t:token,exp:Date.now()+50*60000};
+  try{localStorage.setItem('alsaer_gdrive_native','1');localStorage.removeItem(GD_RT_KEY)}catch(e){}
+  p.resolve(token);
+};
 
 /* --- PKCE: مولّد رمز التحقق وتحدّيه (S256) --- */
 function gdB64url(bytes){var s='';for(var i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
@@ -21,6 +38,7 @@ function gdSha256(txt){
 
 /* --- بدء الربط: يفتح متصفح الجهاز على صفحة موافقة Google --- */
 function gdStartAuth(){
+  if(gdNative()){bkSay('اختر حساب Google واسمح بالوصول إلى ملف النسخة…');gdNativeToken(true).then(function(){bkSay('تم ربط Google Drive ✓');render()},function(e){bkSay(e.message==='cancelled'?'أُلغي الربط.':'تعذّر الربط. تحقق من خدمات Google Play وإعداد عميل Android وحاول مجددًا.')});return}
   if(!gdConfigured()){bkSay('ربط Google Drive غير مهيأ في هذه النسخة من التطبيق.');return}
   var rnd=new Uint8Array(32);crypto.getRandomValues(rnd);
   var ver=gdB64url(rnd);
@@ -88,6 +106,7 @@ setTimeout(function(){try{window.gdrivePullRedirect()}catch(e){}},1500);
 /* --- رمز وصول صالح (من الذاكرة أو عبر رمز التحديث) --- */
 function gdToken(){
   if(gdTok.t&&Date.now()<gdTok.exp)return Promise.resolve(gdTok.t);
+  if(gdNative()){if(!gdHasRt())return Promise.reject(new Error('no-auth'));return gdNativeToken(false)}
   var rt='';try{rt=localStorage.getItem(GD_RT_KEY)||''}catch(e){}
   if(!rt)return Promise.reject(new Error('no-auth'));
   return gdPost('https://oauth2.googleapis.com/token',{client_id:GD_CLIENT_ID,refresh_token:rt,grant_type:'refresh_token'})
@@ -142,6 +161,7 @@ function gdDownload(){
 }
 
 function gdDisconnect(){
+  if(gdNative())return gdToken().then(function(t){return gdFetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(t),{method:'POST'},15000)}).then(function(r){if(!r.ok)throw new Error('revoke');gdTok={t:'',exp:0};try{localStorage.removeItem('alsaer_gdrive_native');localStorage.removeItem(GD_RT_KEY)}catch(e){}});
   var rt='';try{rt=localStorage.getItem(GD_RT_KEY)||''}catch(e){}
   gdTok={t:'',exp:0};try{localStorage.removeItem(GD_RT_KEY)}catch(e){}
   if(rt)fetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(rt)).catch(function(){});
@@ -165,7 +185,7 @@ function vGdCard(){
 
 function gdAct(a){
   if(a==='gdconnect'){gdStartAuth();return true}
-  if(a==='gddisc'){gdDisconnect();bkSay('فُصل حساب Google Drive. ملف النسخة يبقى في درايف حتى تحذفه بنفسك.');try{render()}catch(e){}return true}
+  if(a==='gddisc'){Promise.resolve(gdDisconnect()).then(function(){bkSay('فُصل حساب Google Drive. ملف النسخة يبقى في درايف حتى تحذفه بنفسك.');render()},function(){bkSay('تعذّر إلغاء الوصول. تحقق من الإنترنت، أو ألغِ إذن السائر من حساب Google ثم أعد المحاولة.')});return true}
   if(a==='gdup'){
     if(gdBusy)return true;gdBusy=true;bkSay('جارٍ الرفع إلى Google Drive…');
     gdUpload().then(function(){
@@ -189,4 +209,4 @@ function gdAct(a){
     });
     return true}
   return false;
-}
+     }
