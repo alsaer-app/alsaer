@@ -36,7 +36,7 @@ function bkApply(raw){
     if(o&&typeof validBackup==='function'&&validBackup(o)){
       var n0;try{n0=fixShape(Object.assign(def(),o))}catch(e){return 'تعذّرت قراءة البيانات.'}
       if(n0.pin!==null&&typeof n0.pin!=='string'&&(!n0.pin||n0.pin.type!=='pbkdf2-sha256'||typeof n0.pin.salt!=='string'||typeof n0.pin.hash!=='string'))return 'النسخة غير صالحة أو ناقصة؛ لم تتغير بياناتك';
-      n0.onboarded=true;
+      n0.onboarded=true;n0.updatedAt=Date.now();
       saveOff=true;if(saveTm){clearTimeout(saveTm);saveTm=0}
       try{localStorage.setItem(KEY,JSON.stringify(n0))}catch(e){saveOff=false;return 'تعذّر الحفظ: قد تكون مساحة التخزين ممتلئة.'}
       try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,JSON.stringify(n0))}catch(e){}
@@ -45,13 +45,15 @@ function bkApply(raw){
     }
     return 'هذا ليس ملف نسخة احتياطية من «السائر إلى الله».';
   }
+  if(!validBackup(o.S))return 'النسخة غير صالحة أو ناقصة؛ لم تتغير بياناتك';
   var keep={};BK_KEEP.forEach(function(k){if(S[k]!==undefined)keep[k]=S[k]});
   var n;try{n=fixShape(Object.assign(def(),o.S))}catch(e){return 'تعذّرت قراءة البيانات.'}
-  BK_KEEP.forEach(function(k){delete n[k]});Object.assign(n,keep);n.onboarded=true;
+  BK_KEEP.forEach(function(k){delete n[k]});Object.assign(n,keep);n.onboarded=true;n.updatedAt=Date.now();
   saveOff=true;if(saveTm){clearTimeout(saveTm);saveTm=0}
-  try{localStorage.setItem(KEY,JSON.stringify(n))}catch(e){saveOff=false;return 'تعذّر الحفظ: قد تكون مساحة التخزين ممتلئة.'}
+  var previousRem;try{previousRem=localStorage.getItem('alsaer_daily_reminders_v1')}catch(e){saveOff=false;return 'تعذّر قراءة الإعدادات الحالية؛ أُوقفت الاستعادة.'}
+  try{if(o.rem&&typeof o.rem==='object'&&!Array.isArray(o.rem))localStorage.setItem('alsaer_daily_reminders_v1',JSON.stringify(o.rem));localStorage.setItem(KEY,JSON.stringify(n))}catch(e){try{if(previousRem===null)localStorage.removeItem('alsaer_daily_reminders_v1');else localStorage.setItem('alsaer_daily_reminders_v1',previousRem)}catch(rollback){}saveOff=false;return 'تعذّر الحفظ: قد تكون مساحة التخزين ممتلئة.'}
   try{if(window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY,JSON.stringify(n))}catch(e){} /* حدّث النسخة الاحتياطية المحلية فور الاسترجاع */
-  if(o.rem&&typeof o.rem==='object'&&!Array.isArray(o.rem)){try{localStorage.setItem('alsaer_daily_reminders_v1',JSON.stringify(o.rem))}catch(e){}}
+
   S=n;mem=n;setTimeout(function(){location.reload()},400);
   return '';
 }
