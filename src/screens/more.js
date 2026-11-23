@@ -56,7 +56,13 @@ document.addEventListener('input',function(e){var t=e.target;if(!t||t.id!=='mr-q
     g.style.display=vis?'':'none';if(vis)any=true});
   var n=document.getElementById('mr-none');if(n)n.hidden=any});
 function vDeveloper(){
-  return sgDeveloperCard()+'<div class="lrows">'
+  var wa='https://wa.me/201020372842';
+  return '<section class="card devc"><div class="avatar" style="box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 55%,transparent),0 0 26px color-mix(in srgb,var(--gold) 40%,transparent)">Æ</div><h2 style="margin:0">أحمد العجمي</h2><p style="margin:2px 0 0;direction:ltr;font-weight:800;color:var(--muted)">Dr. Ahmed Elagamy</p><p class="muted" style="margin:4px 0 10px">مطوّر تطبيق السائر إلى الله · Developer of Al-Sa\'ir ila Allah</p><span class="chipv">'+ic('shield').replace('class="i"','class="i" style="width:16px;height:16px"')+'الإصدار '+APP_VERSION+' · '+APP_BUILD+'</span><p class="note" style="font-weight:800;color:var(--gold)">تطبيق السائر إلى الله مجاني بالكامل</p><p class="note">تجربة رقمية تساعد على تحسين العادات والمحافظة على العبادة بخطوات متدرجة.</p></section>'
+  +'<div class="lrows">'
+  +'<a class="lrow" href="'+wa+'" target="_blank" rel="noopener">'+ic('mail')+'<span class="t">التواصل الرسمي<small class="muted">واتساب</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</a>'
+  +'<a class="lrow" href="https://www.facebook.com/share/1E4Mr4L2Yd/" target="_blank" rel="noopener">'+ic('user')+'<span class="t">صفحة المطوّر على فيسبوك</span>'+ic('chev').replace('class="i"','class="i chev"')+'</a>'
+  +'<a class="lrow" href="'+wa+'?text='+encodeURIComponent('اقتراح لتطوير تطبيق السائر إلى الله:')+'" target="_blank" rel="noopener">'+ic('pen')+'<span class="t">اقتراح تطوير</span>'+ic('chev').replace('class="i"','class="i chev"')+'</a>'
+  +'<a class="lrow" href="'+wa+'?text='+encodeURIComponent('أريد الإبلاغ عن مشكلة في تطبيق السائر إلى الله:')+'" target="_blank" rel="noopener">'+ic('help')+'<span class="t">الإبلاغ عن مشكلة</span>'+ic('chev').replace('class="i"','class="i chev"')+'</a>'
   +'<button class="lrow" data-a="showlog">'+ic('doc')+'<span class="t">سجل الإصدارات</span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'
   +(showLog?relLogHtml():'')
   +'<button class="lrow" data-a="showprivacy">'+ic('shield')+'<span class="t">الخصوصية</span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'
