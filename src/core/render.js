@@ -3,6 +3,7 @@ function vRenderFail(e,t){
    +'<div class="acts"><button class="btn" data-a="tab" data-v="home">الرئيسية</button></div></section>';
 }
 function render(){
+  var backupDialog=document.getElementById('gd-dialog-host');if(backupDialog)backupDialog.remove();
   var popping=backPopHandling;backPopHandling=false;
   applyUI();
   if(splash||!unlocked||!S.onboarded||covered){var qf=document.getElementById('qfab');if(qf)qf.hidden=true}
@@ -22,6 +23,7 @@ function render(){
   if(tab==='reminders'&&lastTab!=='reminders'&&typeof window.alsaerRemindersEnter==='function')window.alsaerRemindersEnter();
   var vh;try{if(typeof v!=='function')throw new Error('شاشة غير معروفة: '+tab);vh=v()}catch(ex){vh=vRenderFail(ex,tab)}
   app.innerHTML=vh;
+  if(typeof gdMountDialog==='function')gdMountDialog();
   if(tab!==lastTab){
     if(lastTab!==null&&!popping){
       if(navTrail[navTrail.length-1]!==tab)navTrail.push(tab);
