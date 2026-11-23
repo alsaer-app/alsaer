@@ -13,8 +13,14 @@ public class AlarmReceiver extends BroadcastReceiver {
             if ("float".equals(i.getStringExtra("kind"))) { FloatFeed.fire(c); return; }
             JSONObject it = new JSONObject(i.getStringExtra("item"));
             boolean snooze = i.getBooleanExtra("snooze", false);
+            long once=it.optLong("at",0);
+            String onceKey="fired-once:"+it.optString("id");
+            if(once>0&&!snooze){
+                if(AlarmScheduler.prefs(c).getLong(onceKey,0)==once)return;
+                if(!AlarmScheduler.prefs(c).edit().putLong(onceKey,once).commit())return;
+            }
             AlarmScheduler.show(c, it);
-            if (!snooze) { // جدولة الموعد التالي للتنبيه المتكرر
+            if (!snooze && it.optLong("at", 0) <= 0) { // جدولة الموعد التالي للتنبيه المتكرر
                 long at = AlarmScheduler.nextTrigger(it, System.currentTimeMillis() + 1000L);
                 if (at > 0) AlarmScheduler.scheduleAt(c, it, at, false);
             }
