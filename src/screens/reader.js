@@ -28,7 +28,7 @@ function vReader(){
   var MU=window.MUSHAF;
   if(rd&&isW())return vWarshReader();
   if(rd&&!MU){try{loadHeavy()}catch(e){}return '<section class="card"><p class="note">جارٍ تجهيز المصحف…</p></section>'}
-  if(!rd||!MU)return '<section class="card"><p class="note">لا توجد جلسة قراءة.</p><button class="btn block" data-a="goback" data-v="quran">رجوع</button></section>';
+  if(!rd||!MU)return '<section class="card"><p class="note">لا توجد جلسة قراءة.</p><button class="btn block" data-a="goback" data-v="home">رجوع</button></section>';
   var p=rd.page,pg=MU.p[p-1],m=MU.m[p-1],atEnd=p>=rd.to,n=p-rd.from+1,tj=S.quran.tj!==false;
   var dir=rd.dir;rd.dir=0;S.quran.last=p;
   var inR=(p>=rd.from&&p<=rd.to),lg=tj?'<div class="tjl">'+TJL.map(function(x){return '<span><i class="t'+x[1]+'"></i>'+x[0]+'</span>'}).join('')+'</div>':'';
@@ -42,6 +42,6 @@ function vReader(){
   +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button>'
   +'<button class="ib" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+ic('chev')+'</button></div>'
   +(useImg?'':lg)
-  +'<div class="fsz"><button class="ib" data-a="mpset">'+ic('gear')+'إعدادات المصحف</button><button class="ib" data-a="qjump" aria-pressed="'+!!rd.jump+'">'+ic('search')+'انتقال سريع</button><button class="ib" data-a="qtj" aria-pressed="'+tj+'">ألوان التجويد: '+(tj?'تشغيل':'إيقاف')+'</button>'+'</div>'+(rd.jump?mpJump(p):'');
+  +'<div class="fsz"><button class="ib" data-a="mpset">'+ic('gear')+'المصحف</button><button class="ib" data-a="qjump" aria-pressed="'+!!rd.jump+'">'+ic('search')+'انتقال</button><button class="ib" data-a="qtj" aria-pressed="'+tj+'">التجويد</button><button class="ib" data-a="qwird">'+ic('flag')+'الورد والرواية</button>'+'</div>'+(rd.jump?mpJump(p):'');
   return mpWrap(mainH,ctlH,p,m);
 }
