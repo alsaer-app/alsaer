@@ -1,4 +1,4 @@
-name: Alsaer 2.0.0 active icons glow preparation
+name: Alsaer 2.0.0 approved menu settings preparation
 on:
   push:
     branches: [exp/release-2.0.0-prep]
