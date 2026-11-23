@@ -28,7 +28,7 @@ document.addEventListener('click',function(e){if(mpSwAt&&Date.now()-mpSwAt<700){
 var MP_SV='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>',mpHint=false,mpIdx=null;
 function mpImm(){return S.quran.imm!==false&&!!window.MUSHAF}
 function mpWrap(main,ctl,p,m){
-  if(!mpImm()){var ex=(window.MUSHAF)?'<div class="fsz"><button class="ib" data-a="qsrch">'+MP_SV+'بحث عن آية</button><button class="ib" data-a="qimm">⛶ ملء الشاشة</button></div>':'';return main+ctl+ex+mpSearchPanel()}
+  if(!mpImm()){var ex=(window.MUSHAF)?'<div class="fsz"><button class="ib" data-a="qsrch">'+MP_SV+'بحث عن آية</button><button class="ib" data-a="qidx">'+ic('doc')+'فهرس السور</button><button class="ib" data-a="qimm">⛶ ملء الشاشة</button></div>':'';return main+ctl+ex+mpSearchPanel()+mpIndexPanel()}
   if(!mpHint&&!S.quran.hint1){mpHint=true;S.quran.hint1=1;save();setTimeout(function(){toast('اضغط مطوّلًا على آية لخياراتها (تفسير · نسخ · علامة)، واضغط مرة لإظهار الأدوات')},500)}
   var CH=ic('chev'),CHL=CH.replace('class="i"','class="i" style="transform:scaleX(-1)"');
   main=main.replace(/<div class="mp-f"><span class="pn">([^<]*)<\/span><\/div>/,function(_,n){return '<div class="mp-f"><button class="mp-fa" data-a="qpage" data-v="-1" aria-label="الصفحة السابقة"'+(p<=1?' disabled':'')+'>'+CHL+'</button><span class="pn">'+n+'</span><button class="mp-fa" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+CH+'</button></div>'})
@@ -37,11 +37,11 @@ function mpWrap(main,ctl,p,m){
   var mid=inR?'<span class="rd-pn"><b>'+ar(n)+' / '+ar(rd.to-rd.from+1)+'</b><small>من وردك</small></span>':'<span class="rd-pn"><b>ص '+ar(p)+'</b><small>تصفّح حر</small></span>';
   return main+'<div class="rd-ov'+(rd.ui?' on':'')+'" id="rd-ov"><div class="rd-t"><button class="ib" data-a="goback" data-v="quran" aria-label="رجوع">'+ic('chev')+'</button>'
    +'<div class="rd-ti"><b>سورة '+esc(D.n[mu[2]-1])+'</b><small>الجزء '+ar(mu[0])+' · الحزب '+ar(mu[1])+' · صفحة '+ar(p)+'</small></div>'
-   +'<span class="rd-ta"><button class="ib" data-a="qsrch" aria-label="بحث عن آية">'+MP_SV+'</button><button class="ib" data-a="qjump" aria-label="انتقال سريع">☰</button><button class="ib" data-a="mpset" aria-label="خيارات المصحف">'+ic('gear')+'</button></span></div>'
+   +'<span class="rd-ta"><button class="ib" data-a="qsrch" aria-label="بحث عن آية">'+MP_SV+'</button><button class="ib" data-a="qidx" aria-label="فهرس السور">'+ic('doc')+'</button><button class="ib" data-a="qjump" aria-label="انتقال سريع">☰</button><button class="ib" data-a="mpset" aria-label="خيارات المصحف">'+ic('gear')+'</button></span></div>'
    +'<div class="rd-b"><div class="rd-sl"><small>١</small><input type="range" id="rd-rg" min="1" max="604" value="'+p+'" aria-label="الانتقال بين الصفحات"><small>٦٠٤</small></div>'
    +'<div class="rd-r"><button class="ib bm" data-a="bmtog" aria-pressed="'+bm+'" aria-label="علامة">'+(bm?'★':'☆')+'</button><button class="ib" data-a="qpage" data-v="-1" aria-label="الصفحة السابقة"'+(p<=1?' disabled':'')+'>'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'</button>'+mid
    +'<button class="ib" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+ic('chev')+'</button><button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button></div></div></div>'
-   +(rd.jump?'<div class="rd-js"><button class="rd-jx" data-a="qjump" aria-label="إغلاق">✕</button>'+mpJump(p)+'</div>':'')+mpSearchPanel();
+   +(rd.jump?'<div class="rd-js"><button class="rd-jx" data-a="qjump" aria-label="إغلاق">✕</button>'+mpJump(p)+'</div>':'')+mpSearchPanel()+mpIndexPanel();
 }
 function mpNorm(t){return String(t||'').replace(/[ً-ٰٟۖ-ۭـ-]/g,'').replace(/[آأإٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[ک]/g,'ك').replace(/[ی]/g,'ي').replace(/\s+/g,' ').trim()}
 function mpVerPage(c,v){var P=curP();for(var i=0;i<P.length;i++){var r=P[i];if((c>r[0]||(c===r[0]&&v>=r[1]))&&(c<r[2]||(c===r[2]&&v<=r[3])))return i+1}return 1}
