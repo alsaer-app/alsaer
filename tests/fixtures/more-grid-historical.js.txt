@@ -1,0 +1,17 @@
+function mtile(tabId,icon,title,sub){return '<button class="mtile" data-a="tab" data-v="'+tabId+'" style="--i:'+(MI++)+'" title="'+esc(sub||'')+'"><span class="mt-i">'+ic(icon)+'</span><b>'+title+'</b><em hidden>'+esc(sub||'')+'</em></button>'}
+var MI=0;
+function vMore(){
+  MI=0;
+  var G=[
+   ['العبادة اليومية',[mtile('asma','star','أسماء الله الحسنى','٩٩ اسمًا: حفظ ومسبحة واختبار'),mtile('hisn','shield','الأذكار · حصن المسلم','الصباح والمساء وبعد الصلاة وقبل النوم بعدّاد تكرار'),mtile('msb','beads','المسبحة','عدّاد تسبيح بأذكار مخصّصة وصوت نقر'),mtile('ahadith','book','الأحاديث النبوية','تسعة كتب: بحث ومفضلة وحديث اليوم'),mtile('sacred','clock','الأوقات المستحبة والمنهي عنها','الثلث الأخير والضحى وأوقات النهي'),mtile('khushu','leaf','الخشوع والتركيز','مؤقت ورد وذكر، ووضع هادئ للمصلين'),mtile('fasting','sun','الصيام والتذكير','الاثنين والخميس والأيام البيض والمناسبات'),mtile('qada','check','قضاء ما فاتك','عدّاد لصلوات وأيام صيام فاتتك')]],
+   ['القرآن والعلم',[mtile('month','chart','ملخص الشهر','صلواتك وورد القرآن وكتبك وتحدّياتك في شهر'),mtile('chal','target','تحدّي ٣٠ يومًا','التزم بعادة طيبة وتابع سلسلتك يومًا بيوم'),mtile('muh','user','محاسبة النفس','محاسبة يومية قبل النوم وشكر لله'),mtile('books','doc','كتابي','أضف كتبك وحدّد وقت قراءتك وتابع ما قرأت وما بقي'),mtile('khatma','flag','ختمة القرآن','وردك اليومي حسب مدة تختارها'),mtile('hifz','refresh','متابعة الحفظ','مراجعة متباعدة لما حفظته'),mtile('notes','pen','ملاحظاتي ومفضلتي','أدعيتك وفوائدك وأذكارك المفضلة وعلامات المصحف')]],
+   ['المناسبات والمال',[mtile('ramadan','moon','وضع رمضان','عدّ تنازلي وجدول عبادات الشهر'),mtile('occasions','cal','المناسبات الهجرية','عدّ تنازلي لعرفة وعاشوراء والأيام البيض'),mtile('zakat','coins','حاسبة الزكاة','تقدير النصاب والزكاة وموعد الحول')]],
+   ['المتابعة والتحفيز',[mtile('habits','up','العادات الحسنة والسيئة','متابعة العادات والعدادات اليومية'),mtile('weekly','report','إحصاءاتي','أسبوعك وأهدافك وأيام الراحة'),mtile('ach','trophy','لوحة الإنجازات','أوسمتك وسلاسل الأيام'),mtile('boost','heart','محفزات ولحظة الرغبة','مؤقت وخطوات عملية وأسبابي'),mtile('cards','sparkles','بطاقات المشاركة','حوّل إنجازك أو ذكرك إلى صورة')]],
+   ['التطبيق',[mtile('settings','gear','الإعدادات','المظهر والقفل والتذكيرات والنوافذ العائمة والودجت والنسخ الاحتياطي')]]
+  ];
+  return '<div class="mr-search"><input id="mr-q" type="search" placeholder="ابحث في المزيد…" autocomplete="off" aria-label="بحث"></div><div id="mr-list">'
+   +G.map(function(g){return '<section class="mr-g"><h4 class="mr-h">'+g[0]+'</h4><div class="mt-grid">'+g[1].join('')+'</div></section>'}).join('')+'<p class="note mr-none" id="mr-none" hidden>لا نتائج</p></div>'+devBtn();
+}
+document.addEventListener('input',function(e){var t=e.target;if(!t||t.id!=='mr-q')return;var q=t.value.trim(),any=false;
+  document.querySelectorAll('#mr-list .mr-g').forEach(function(g){var vis=0;g.querySelectorAll('.mtile').forEach(function(r){var ok=!q||r.textContent.indexOf(q)>=0;r.style.display=ok?'':'none';if(ok)vis++});g.style.display=vis?'':'none';if(vis)any=true});
+  var n=document.getElementById('mr-none');if(n)n.hidden=any});
