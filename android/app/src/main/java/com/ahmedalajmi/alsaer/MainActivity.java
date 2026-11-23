@@ -66,16 +66,28 @@ public class MainActivity extends BridgeActivity {
     }
 
     // ALSAER: عودة المتصفح برمز موافقة Google Drive (com.ahmedalajmi.alsaer://gdrive?code=...)
+    // يُحفظ الرابط أولًا ثم تسحبه الصفحة عند جاهزيتها: في الإقلاع البارد يصل الـintent قبل تحميل
+    // الصفحة، فأي حقن مباشر هنا كان يضيع الرمز بصمت. الاستهلاك مرة واحدة (consume) يمنع التكرار.
+    private String pendingGdriveRedirect = null;
+
+    synchronized String consumeGdriveRedirect() {
+        String u = pendingGdriveRedirect;
+        pendingGdriveRedirect = null;
+        return u;
+    }
+
     private void handleGdriveRedirect(Intent intent) {
         if (intent == null) return;
         android.net.Uri d = intent.getData();
         if (d == null || !"com.ahmedalajmi.alsaer".equals(d.getScheme()) || !"gdrive".equals(d.getHost())) return;
+        pendingGdriveRedirect = d.toString();
+        intent.setData(null);
         final WebView wv = getBridge() != null ? getBridge().getWebView() : null;
         if (wv != null) {
-            final String u = d.toString();
-            wv.post(() -> wv.evaluateJavascript("window.gdriveOnRedirect&&window.gdriveOnRedirect(" + org.json.JSONObject.quote(u) + ")", null));
+            // التشغيل الدافئ: الصفحة محمّلة فتسحب الرمز فورًا. في الإقلاع البارد يضيع هذا النداء
+            // بأمان وتلتقطه الصفحة عند إقلاعها لأن pendingGdriveRedirect ما يزال محفوظًا.
+            wv.post(() -> wv.evaluateJavascript("window.gdrivePullRedirect&&window.gdrivePullRedirect()", null));
         }
-        intent.setData(null);
     }
 
     // ALSAER
