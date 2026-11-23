@@ -78,9 +78,11 @@ document.addEventListener('click',async function(e){
   var a=b.dataset.a,v=b.dataset.v,d=b.dataset;
   if(/^(pray|hab|worship|tap|qadd|badinc|fastrecord)$/.test(a)){hapGo([45])}
   if(a==='goback'){if(innerBack())return;if(navTrail.length>1){history.back();return}tab=v||'home';confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
-  else if(a==='tab'){if(v==='quran'||v==='reader')loadHeavy();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
+  else if(a==='tab'){if(v==='quran'){loadHeavy();var qp=Math.max(1,S.quran.pos||1),ql=Math.max(qp,Math.min(604,S.quran.last||0));rd={from:qp,to:Math.min(604,qp+S.quran.goal-1),page:Math.max(qp,ql||qp)};v='reader'}else if(v==='reader')loadHeavy();if(typeof qwSheetClose==='function')qwSheetClose();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='updlater'){var us=updState(),ui=updInfo();if(ui){us.dismissed=ui.versionCode;updSave(us)}updSheetClose()}
   else if(a==='updopen'){updSheetOpen()}
+  else if(a==='qwird'){if(typeof qwSheetOpen==='function')qwSheetOpen()}
+  else if(a==='qwclose'){if(typeof qwSheetClose==='function')qwSheetClose()}
   else if(a==='updclose'){updSheetClose()}
   else if(a==='updnow'){updStartDl()}
   else if(a==='updinst'){updInstall()}
@@ -178,10 +180,10 @@ document.addEventListener('click',async function(e){
       var prate=Math.round(pc/35*100),prl=document.querySelector('.rateline');
       if(prl){var pbt=prl.querySelector('b');if(pbt)pbt.textContent=prate+'%';var pbar=prl.parentElement.querySelector('.bar>div');if(pbar)pbar.style.width=prate+'%'}
       return}}
-  else if(a==='qstart'){loadHeavy();var st0=S.quran.pos;rd={from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0};tab='reader';window.scrollTo(0,0)}
+  else if(a==='qstart'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st0=S.quran.pos;rd={from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0};tab='reader';window.scrollTo(0,0)}
   else if(a==='qsura'){loadHeavy(function(){var c=parseInt(v,10)||1,st=suraPage(c),en=c<114?Math.max(st,suraPage(c+1)-1):604;rd={from:st,to:en,page:st,free:true,sura:c};tab='reader';window.scrollTo(0,0);render()})}
   else if(a==='adkopen'){group=v;hsnOpen(v);window.scrollTo(0,0)}
-  else if(a==='qopen'){loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));rd={from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1};tab='reader';window.scrollTo(0,0)}
+  else if(a==='qopen'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));rd={from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1};tab='reader';window.scrollTo(0,0)}
   else if(a==='qpage'){if(rd){try{mpSel='';mpHap()}catch(e){}rd.dir=v==='1'?1:-1;rd.page=Math.max(1,Math.min(604,rd.page+(v==='1'?1:-1)))}}
   else if(a==='qjump'||a==='qjgo'||a==='qmt'){if(mpAct(a,v))return}
   else if(a==='qidx'||a==='qixgo'){if(mpIdxAct(a,v))return}
@@ -190,12 +192,12 @@ document.addEventListener('click',async function(e){
   else if(/^hsn[a-z]+$/.test(a)){if(typeof hsnAct==='function'&&hsnAct(a,v)===false)return}
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}
   else if(/^msb[a-z]+$/.test(a)){if(typeof msbAct==='function'&&msbAct(a,v)===false)return}
-  else if(a==='qriw'){loadHeavy(function(){S.quran.riwaya=(v==='warsh'&&window.WDATA)?'warsh':'hafs';save();window.scrollTo(0,0);render()})}
+  else if(a==='qriw'){var nriw=(v==='warsh'&&window.WDATA)?'warsh':'hafs';if(S.quran.riwaya===nriw){render()}else{if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy(function(){S.quran.riwaya=nriw;save();window.scrollTo(0,0);render();if(typeof qwBanner==='function')qwBanner(nriw)})}}
   else if(a==='qtj'){S.quran.tj=S.quran.tj===false;save()}
-  else if(a==='qdone'){if(rd&&rd.free){if(rd.sura)markSuraDone(rd.sura);rd=null;tab='home';window.scrollTo(0,0);toast('تقبّل الله منك')}else if(rd){if(!(qPages(dk())>0))lockSet('q:'+dk());var nn=Math.max(1,rd.page-rd.from+1),kq=dk(),before=qPages(kq);S.quran.log[kq]=before+nn;var wrap=rd.page>=604;S.quran.pos=wrap?1:rd.page+1;rd=null;tab='quran';save();window.scrollTo(0,0);toast(wrap?'ما شاء الله، أتممت ختمة المصحف':(S.quran.log[kq]>=S.quran.goal?'تقبّل الله منك، أتممت وردك اليوم':'تم تسجيل '+ar(nn)+' صفحة'));checkNew()}}
-  else if(a==='qadd'){var qk=dk();if(!(S.quran.log[qk]>0))lockSet('q:'+qk);S.quran.log[qk]=Math.min(604,(S.quran.log[qk]||0)+1);save()}
-  else if(a==='qsub'){var qk2=dk();if(lockLeft('q:'+qk2)>0){lockBlock(lockLeft('q:'+qk2));return}S.quran.log[qk2]=Math.max(0,(S.quran.log[qk2]||0)-1);if(!S.quran.log[qk2])delete S.quran.log[qk2];save()}
-  else if(a==='qgoal'){S.quran.goal=Math.max(1,Math.min(30,S.quran.goal+(v==='1'?1:-1)));save()}
+  else if(a==='qdone'){if(rd&&rd.free){if(rd.sura)markSuraDone(rd.sura);rd=null;tab='home';window.scrollTo(0,0);toast('تقبّل الله منك')}else if(rd){if(!(qPages(dk())>0))lockSet('q:'+dk());var nn=Math.max(1,rd.page-rd.from+1),kq=dk(),before=qPages(kq);S.quran.log[kq]=before+nn;var wrap=rd.page>=604;S.quran.pos=wrap?1:rd.page+1;rd=null;tab='home';save();window.scrollTo(0,0);toast(wrap?'ما شاء الله، أتممت ختمة المصحف':(S.quran.log[kq]>=S.quran.goal?'تقبّل الله منك، أتممت وردك اليوم':'تم تسجيل '+ar(nn)+' صفحة'));checkNew()}}
+  else if(a==='qadd'){var qk=dk();if(!(S.quran.log[qk]>0))lockSet('q:'+qk);S.quran.log[qk]=Math.min(604,(S.quran.log[qk]||0)+1);save();if(typeof qwSheetPaint==='function')qwSheetPaint()}
+  else if(a==='qsub'){var qk2=dk();if(lockLeft('q:'+qk2)>0){lockBlock(lockLeft('q:'+qk2));return}S.quran.log[qk2]=Math.max(0,(S.quran.log[qk2]||0)-1);if(!S.quran.log[qk2])delete S.quran.log[qk2];save();if(typeof qwSheetPaint==='function')qwSheetPaint()}
+  else if(a==='qgoal'){S.quran.goal=Math.max(1,Math.min(30,S.quran.goal+(v==='1'?1:-1)));save();if(typeof qwSheetPaint==='function')qwSheetPaint()}
   else if(a==='addextra'){addingHabit=true;addingHabitType='good'}
   else if(a==='newhtype'){addingHabitType=v==='bad'?'bad':'good'}
   else if(a==='cancelextra'){addingHabit=false}
