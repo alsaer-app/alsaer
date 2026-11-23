@@ -152,8 +152,17 @@ function fitWarsh(mp){
     }
   });
 }
+/* Shell space only. Keep all Mushaf rows, pagination and fitting algorithms intact. */
+function readerShellInsets(){
+  if(!document.body.classList.contains('rdi'))return;
+  var head=document.querySelector('#rd-ov .rd-t'),foot=document.querySelector('#rd-ov .rd-b');
+  if(!head||!foot)return;
+  app.style.setProperty('padding-top',Math.ceil(head.getBoundingClientRect().height)+'px','important');
+  document.body.style.setProperty('padding-bottom',(Math.ceil(foot.getBoundingClientRect().height)+6)+'px','important');
+}
 function fitReader(force){
   var mp=document.getElementById('mp');if(!mp)return;
+  readerShellInsets();
   if(mp.classList.contains('mpi')){try{sizeMpi(mp);mpiAfter(mp)}catch(e){}return}
   try{sizeMp(mp);if(isW())fitWarsh(mp);else fitHafs(mp)}
   finally{var L=mp.querySelector('.mp-l');if(L&&(force||fontReady()))L.style.visibility='visible';try{mpApplySel()}catch(e){}}
