@@ -29,8 +29,8 @@ function mpDrawerHtml(p){
     +'<button type="button" data-a="qidx">'+ic('doc')+'<small>فهرس السور</small></button>'
     +'<button type="button" data-a="mpset">'+ic('gear')+'<small>خيارات المصحف</small></button>'
     +'<button type="button" data-a="qriw" data-v="'+(isW()?'hafs':'warsh')+'">'+ic('book')+'<small>الرواية: '+(isW()?'ورش':'حفص')+'</small></button>'
-    +'<button type="button" data-a="qtj" aria-pressed="'+(q.tj!==false)+'">'+ic('sparkles')+'<small>التجويد: '+(q.tj!==false?'تشغيل':'إيقاف')+'</small></button>'
-    +'<button type="button" data-a="bmtog" aria-pressed="'+bmHas(p)+'">'+(bmHas(p)?'★':'☆')+'<small>علامة الصفحة</small></button></div>';
+    +'<button type="button" data-a="qtj">'+ic('sparkles')+'<small>التجويد: '+(q.tj!==false?'تشغيل':'إيقاف')+'</small></button>'
+    +'<button type="button" data-a="bmtog">'+(bmHas(p)?'★':'☆')+'<small>علامة الصفحة</small></button></div>';
   var last=q.last?'<button class="lrow" data-a="qjgo" data-v="l">'+ic('book')+'<span class="t">تابع من حيث توقفت<small class="muted">صفحة '+ar(q.last)+' · سورة '+esc(pageSura(q.last))+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
   return '<div class="rd-menb" data-a="qjump" aria-hidden="true"></div><aside class="rd-menu" role="dialog" aria-modal="true" aria-label="قائمة المصحف">'
     +'<div class="rd-mh"><b>المصحف</b><button class="rd-mx" data-a="qjump" aria-label="إغلاق">'+ic('x')+'</button></div>'
