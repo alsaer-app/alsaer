@@ -7,6 +7,7 @@ var GD_REDIRECT='com.ahmedalajmi.alsaer://gdrive';
 var GD_SCOPE='https://www.googleapis.com/auth/drive.file';
 var GD_FILE='alsaer-backup.json';
 var GD_RT_KEY='alsaer_gdrive_rt',GD_VER_KEY='alsaer_gd_verifier';
+var GD_SAFETY_KEY='alsaer_drive_restore_safety_v1',gdRestoreRaw='',gdRestoreSource='drive';
 var gdTok={t:'',exp:0},gdBusy=false;
 
 function gdConfigured(){return /^[0-9a-z-]+\.apps\.googleusercontent\.com$/i.test(GD_CLIENT_ID)}
@@ -130,7 +131,7 @@ function gdReq(url,opt){
 }
 
 function gdFindFile(){
-  return gdReq('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent("name='"+GD_FILE+"' and trashed=false")+'&fields=files(id,modifiedTime)&pageSize=1')
+  return gdReq('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent("name='"+GD_FILE+"' and trashed=false")+'&orderBy=modifiedTime%20desc&fields=files(id,modifiedTime)&pageSize=1')
     .then(function(r){return r.json()}).then(function(o){return o.files&&o.files.length?o.files[0]:null});
 }
 
@@ -151,13 +152,34 @@ function gdUpload(){
   });
 }
 
-/* --- تنزيل آخر نسخة إلى صندوق الاستيراد (دون تطبيقها؛ التأكيد يبقى بيد المستخدم) --- */
+/* --- استعادة آخر نسخة إلى صندوق الاستيراد (دون تطبيقها؛ التأكيد يبقى بيد المستخدم) --- */
 function gdDownload(){
   return gdFindFile().then(function(f){
     if(!f)throw new Error('no-file');
     return gdReq('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media')
       .then(function(r){return r.text()});
   });
+}
+
+/* Restore stays pending until the explicit replacement button is pressed. */
+function gdSafetyExists(){try{return !!localStorage.getItem(GD_SAFETY_KEY)}catch(e){return false}}
+function gdRestorePanel(){
+  var h='';
+  if(gdRestoreRaw){
+    h+='<div class="panel" id="gd-restore"><p class="note">'+(gdRestoreSource==='safety'?'استرجاع النسخة المحلية قبل آخر استعادة.':'نُزّلت آخر نسخة من Google Drive.')+' ستُستبدل بياناتك الحالية بعد التأكيد. تُحفظ نسخة أمان محلية تلقائيًا أولًا، ويمكن استرجاعها من هذه الشاشة.</p>';
+    if(gdRestoreRaw.trim().indexOf('ALSAER-ENC1:')===0)h+='<input type="password" id="gd-restore-pw" autocomplete="off" aria-label="كلمة مرور النسخة" placeholder="كلمة مرور النسخة المشفّرة">';
+    h+='<div class="acts"><button class="btn bad" data-a="gdrestore">تأكيد الاستعادة واستبدال البيانات</button><button class="btn ghost" data-a="gdcancel">إلغاء</button></div></div>';
+  }
+  if(gdSafetyExists())h+='<div class="panel"><button class="btn ghost block" data-a="gdsafety">استرجاع نسخة الأمان المحلية</button><p class="note">تُحفظ على هذا الجهاز فقط حتى الاستعادة التالية أو مسح بيانات التطبيق.</p></div>';
+  return h;
+}
+function gdRestoreApply(raw){
+  /* Parse before creating the safety copy. Invalid downloads must not replace it. */
+  var o;try{o=JSON.parse(raw);if(!(o&&o.app==='alsaer'&&o.S&&typeof o.S==='object'&&!Array.isArray(o.S))&&!validBackup(o))throw new Error('invalid');fixShape(Object.assign(def(),o.S||o))}catch(e){throw new Error('invalid-backup')}
+  var safety=bkBuild();
+  try{localStorage.setItem(GD_SAFETY_KEY,safety);if(localStorage.getItem(GD_SAFETY_KEY)!==safety)throw new Error('storage')}catch(e){throw new Error('safety-failed')}
+  var er=bkApply(raw);if(er)throw new Error(er);
+  gdRestoreRaw='';bkSay('تمت الاستعادة وحُفظت نسخة الأمان المحلية. جارٍ إعادة التشغيل…');
 }
 
 function gdDisconnect(){
@@ -177,13 +199,29 @@ function vGdCard(){
   }else{
     h+='<p class="note">الحساب مربوط ✓'+(S.gdAt?' — آخر رفع: <b>'+bkAgo(S.gdAt)+'</b>':' — لم ترفع نسخة بعد')+'</p>'
       +'<div class="acts"><button class="btn'+(gdBusy?' dis':'')+'" data-a="gdup">رفع نسخة الآن</button>'
-      +'<button class="btn ghost'+(gdBusy?' dis':'')+'" data-a="gddown">تنزيل آخر نسخة</button>'
+      +'<button class="btn ghost'+(gdBusy?' dis':'')+'" data-a="gddown">استعادة آخر نسخة</button>'
       +'<button class="btn ghost" data-a="gddisc">فصل الحساب</button></div>';
   }
   return h+'</section>';
 }
 
 function gdAct(a){
+  if(a==='gdcancel'){if(gdBusy)return true;gdRestoreRaw='';bkSay('أُلغيت الاستعادة؛ لم تتغير بياناتك.');render();return true}
+  if(a==='gdsafety'){
+    if(gdBusy)return true;
+    try{gdRestoreRaw=localStorage.getItem(GD_SAFETY_KEY)||''}catch(e){gdRestoreRaw=''}
+    gdRestoreSource='safety';bkSay(gdRestoreRaw?'راجع تأكيد استرجاع نسخة الأمان.':'لا توجد نسخة أمان محلية.');render();return true;
+  }
+  if(a==='gdrestore'){
+    if(gdBusy||!gdRestoreRaw)return true;
+    var raw=gdRestoreRaw,pw=(document.getElementById('gd-restore-pw')||{}).value||'';
+    if(raw.trim().indexOf('ALSAER-ENC1:')===0&&!pw){bkSay('أدخل كلمة مرور النسخة المشفّرة أولًا.');return true}
+    gdBusy=true;bkSay('جارٍ التحقق من النسخة وحفظ نسخة الأمان…');
+    var dec=raw.trim().indexOf('ALSAER-ENC1:')===0?bkDecrypt(raw.trim(),pw).catch(function(){throw new Error('decrypt-failed')}):Promise.resolve(raw);
+    dec.then(gdRestoreApply).catch(function(e){
+      bkSay(e.message==='decrypt-failed'?'كلمة المرور غير صحيحة أو النسخة تالفة؛ لم تتغير بياناتك.':e.message==='safety-failed'?'تعذّر حفظ نسخة الأمان المحلية. أُوقفت الاستعادة ولم تتغير بياناتك.':e.message==='invalid-backup'?'ملف النسخة غير صالح؛ لم تتغير بياناتك.':e.message);
+    }).finally(function(){gdBusy=false});return true;
+  }
   if(a==='gdconnect'){gdStartAuth();return true}
   if(a==='gddisc'){Promise.resolve(gdDisconnect()).then(function(){bkSay('فُصل حساب Google Drive. ملف النسخة يبقى في درايف حتى تحذفه بنفسك.');render()},function(){bkSay('تعذّر إلغاء الوصول. تحقق من الإنترنت، أو ألغِ إذن السائر من حساب Google ثم أعد المحاولة.')});return true}
   if(a==='gdup'){
@@ -197,11 +235,10 @@ function gdAct(a){
     });
     return true}
   if(a==='gddown'){
-    if(gdBusy)return true;gdBusy=true;bkSay('جارٍ تنزيل آخر نسخة من درايف…');
+    if(gdBusy)return true;gdBusy=true;bkSay('جارٍ استعادة آخر نسخة من درايف…');
     gdDownload().then(function(txt){
-      gdBusy=false;bkIn=String(txt||'');bkConfirm=false;
-      var ta=document.getElementById('bk-in');if(ta)ta.value=bkIn;
-      bkSay('نُزّلت النسخة في صندوق الاستيراد. راجعها ثم اضغط «استيراد» و«تأكيد» إن أردت استبدال بياناتك.');
+      gdBusy=false;gdRestoreRaw=String(txt||'');gdRestoreSource='drive';bkConfirm=false;
+      bkSay(gdRestoreRaw.trim()?'نُزّلت النسخة. أكّد الاستعادة أدناه لاستبدال بياناتك.':'ملف النسخة فارغ؛ لم تتغير بياناتك.');render();
     },function(e){
       gdBusy=false;var m2=String(e&&e.message);
       bkSay(m2==='no-file'?'لا توجد نسخة في درايف بعد — ارفع نسخة أولًا.':(m2==='no-auth'||m2==='auth')?'انتهت صلاحية الربط — افصل الحساب وأعد ربطه.':'تعذّر التنزيل. تحقق من الإنترنت وحاول مجددًا.');
@@ -209,4 +246,4 @@ function gdAct(a){
     });
     return true}
   return false;
-     }
+}
