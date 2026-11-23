@@ -2,7 +2,7 @@
    يعمل فقط بعد أن يضع مطوّر التطبيق معرّف عميل OAuth خاصه في GD_CLIENT_ID (انظر docs/GDRIVE-SETUP-AR.md).
    أقل صلاحية ممكنة: drive.file — الوصول للملفات التي ينشئها التطبيق فقط (ملف alsaer-backup.json).
    لا يُخزَّن أي سر في المستودع؛ رمز التحديث يبقى على الجهاز مثل بقية البيانات (غير مشفّر سكونًا). */
-var GD_CLIENT_ID=''; /* ← يملؤه المطوّر قبل البناء: xxxx.apps.googleusercontent.com */
+var GD_CLIENT_ID='794360516005-hrt6lc8vtrgd5k9ok9476f9gdkh98rt8.apps.googleusercontent.com'; /* عميل OAuth نوع Android — عام وليس سرًا */
 var GD_REDIRECT='com.ahmedalajmi.alsaer://gdrive';
 var GD_SCOPE='https://www.googleapis.com/auth/drive.file';
 var GD_FILE='alsaer-backup.json';
