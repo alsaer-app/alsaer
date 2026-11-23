@@ -111,7 +111,7 @@ document.addEventListener('click',async function(e){
   else if(a==='lockdelay'){S.lockDelay=parseInt(v,10);save();toast('تم حفظ مهلة القفل')}
   else if(/^(bmtog|bmdel|frz|cdsrc|cdmake|cdshare|cddl|hfadd|hfrev|hfdel|ktdur|ktstart|ktstop)$/.test(a)){if(f7Act(a,v,d))return}
   else if(/^(ramtog|khset|khgoal|khreset|ntkind|ntadd|ntdel|adkfav|adkall|adkcopy|adkshare|zkbase|zkhawl)$/.test(a)){if(featAct(a,v,d))return}
-  else if(/^(qdchg|bkmode|bkexenc|bkcopy|bkimport|gdconnect|gdup|gddown|gddisc|gdrestore|gdcancel|gdsafety|gdauto|gdstore|gdpwsave)$/.test(a)){if(extraAct(a,v))return}
+  else if(/^(qdchg|bkmode|bkexenc|bkcopy|bkimport|gdconnect|gdup|gddown|gddisc|gdrestore|gdcancel|gdsafety|gdauto|gdstore|gdpwsave|gdfileout|gdfilein|gddelete|gdverify|gdpickcancel|gddeleteback|gddeletego|gdpickgo)$/.test(a)){if(extraAct(a,v))return}
   else if(/^(nsf|nsw|nsfreset|nswreset|nsfen|nsftest|nsfpause)$/.test(a)){if(nsAct(a,v))return}
   else if(/^(ffset|fftype|ffday|ffsave|ffadd|ffdel|ffct|ffctdel|ffrefresh)$/.test(a)){if(ffAct(a,v))return}
   else if(/^(boman|boadd|bodel|bolog|boundo|boedit|bopre|boico|boclr|bocancel|bocol|boset|bodayf|boopt|bopos|bopause|borate)$/.test(a)){if(boAct(a,v))return}
