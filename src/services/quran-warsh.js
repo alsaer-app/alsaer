@@ -52,7 +52,7 @@ function vWarshReader(){
   return mpWrap(mainH,ctlH,p,mu);
 }
 function QD(){return window.QDATA||{n:[],s:[],p:[]}}
-function ar(n){return String(n).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]})}
+function ar(n){if(typeof lang==='function'&&lang()!=='ar')return String(n);return String(n).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]})}
 function pageSura(p){var r=curP()[p-1];return r?QD().n[r[0]-1]:''}
 function khatmaEta(total){
   var goal=Math.max(1,S.quran.goal),left=QURAN_PAGES-(total%QURAN_PAGES),days=Math.ceil(left/goal),d=new Date();d.setDate(d.getDate()+days);
