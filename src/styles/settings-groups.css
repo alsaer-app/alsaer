@@ -72,3 +72,6 @@ html[data-trans="none"] .sc-page-sub,html[data-trans="none"] .sc-page-index{anim
 .sg-nav-tile b,.sg-choice b{-webkit-line-clamp:unset;overflow:visible}
 .sg-main>a{text-decoration:none}
 .sg-choices>.mtile.on{background:linear-gradient(160deg,var(--surface-2),var(--surface));color:var(--fg);border-radius:20px}
+
+/* Same-view updates must not blink all choices back to opacity zero. */
+.sg-stable .mtile{animation:none}
