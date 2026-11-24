@@ -24,11 +24,11 @@ function fixShape(o){
   if(!isO(o.locks))o.locks={};Object.keys(o.locks).slice(0,3000).forEach(function(k){var t=+o.locks[k];if(!(t>0)||Date.now()-t>864e5*2)delete o.locks[k];else o.locks[k]=t});
   if(!isO(o.goals))o.goals={};Object.keys(o.goals).forEach(function(id){var n=parseInt(o.goals[id],10);if(!(n>=1&&n<=999))delete o.goals[id];else o.goals[id]=n});
   o.target=typeof o.target==='string'&&o.target?o.target.slice(0,40):'main';o.mainName=typeof o.mainName==='string'?o.mainName.slice(0,40):'';
-  if(!o.fasting||typeof o.fasting!=='object')o.fasting=def().fasting;
-  var fd=def().fasting;o.fasting.prefs=Object.assign({},fd.prefs,o.fasting.prefs||{});
-  o.fasting.records=o.fasting.records&&typeof o.fasting.records==='object'?o.fasting.records:{};
+  if(!isO(o.fasting))o.fasting=def().fasting;
+  var fd=def().fasting;o.fasting.prefs=Object.assign({},fd.prefs,isO(o.fasting.prefs)?o.fasting.prefs:{});
+  o.fasting.records=isO(o.fasting.records)?o.fasting.records:{};
   o.fasting.customDates=Array.isArray(o.fasting.customDates)?o.fasting.customDates.filter(function(x){return /^\d{4}-\d{2}-\d{2}$/.test(x)}).slice(0,100):[];
-  o.fasting.reminders=Object.assign({},fd.reminders,o.fasting.reminders||{});
+  o.fasting.reminders=Object.assign({},fd.reminders,isO(o.fasting.reminders)?o.fasting.reminders:{});
   if(!/^\d{4}-\d{2}-\d{2}$/.test(o.fasting.dawudAnchor||''))o.fasting.dawudAnchor=dk();
   return o;
 }
@@ -69,7 +69,7 @@ function validBackup(o){
   if(o.habitCounts!==undefined&&!obj(o.habitCounts))return false;
   if(o.evlog!==undefined&&!obj(o.evlog))return false;
   if(o.worship!==undefined&&!obj(o.worship))return false;
-  if(o.fasting!==undefined&&!obj(o.fasting))return false;
+  if(o.fasting!==undefined){if(!obj(o.fasting))return false;for(var fk of ['prefs','records','reminders'])if(o.fasting[fk]!==undefined&&!obj(o.fasting[fk]))return false;}
   if(o.startDate&&!/^\d{4}-\d{2}-\d{2}$/.test(o.startDate))return false;
   if(Object.keys(o.days).length>5000||Object.keys(o.counters).length>5000||(o.reasons||[]).length>500||(o.urges||[]).length>50000)return false;
   for(var k of Object.keys(o.days)){var d=o.days[k];if(!/^\d{4}-\d{2}-\d{2}$/.test(k)||!obj(d)||!(d.status===undefined||['success','relapse'].includes(d.status))||typeof (d.note||'')!=='string'||(d.note||'').length>4000||!Array.isArray(d.trig||[]))return false;}
