@@ -19,10 +19,11 @@ async def main():
     await p.evaluate("document.querySelector('[data-a=gdconnect]').click()");await p.wait_for_timeout(100);assert await p.evaluate('__authCalls')==[True]
     await p.evaluate("gdriveOnNativeToken('new-token','','selected@example.com')");await p.wait_for_timeout(100);await draw()
     assert await p.locator('[data-a=gdconnect]').count()==1;assert await p.locator('[data-a=gddisc]').count()==1;assert await p.locator('.dm-email').inner_text()=='selected@example.com'
-    await p.evaluate("document.querySelector('[data-a=gdconnect]').click()");await p.evaluate("gdriveOnNativeToken('','cancelled','')");await p.wait_for_timeout(100);await draw();assert await p.locator('.dm-email').inner_text()=='selected@example.com'
+    await p.evaluate("document.querySelector('[data-a=gdconnect]').click()");await p.evaluate("gdriveOnNativeToken('changed-token','','changed@example.com')");await p.wait_for_timeout(100);await draw();assert await p.locator('.dm-email').inner_text()=='changed@example.com'
+    await p.evaluate("document.querySelector('[data-a=gdconnect]').click()");await p.evaluate("gdriveOnNativeToken('','cancelled','')");await p.wait_for_timeout(100);await draw();assert await p.locator('.dm-email').inner_text()=='changed@example.com'
     await p.evaluate("document.querySelector('[data-a=gdconnect]').click()");await p.evaluate("gdriveOnNativeToken('','consent-required','')");await p.wait_for_timeout(100);await draw();assert await p.locator('[data-a=gdconnect]').count()==1;assert await p.locator('[data-a=gddisc]').count()==0
     assert await p.evaluate('document.documentElement.scrollWidth<=320')
-    await p.locator('[data-a=gdconnect]').scroll_into_view_if_needed();await p.screenshot(path='/downloads/drive-account-'+lang+'-320.png',full_page=True)
+    await p.locator('[data-a=gdconnect]').scroll_into_view_if_needed();await p.add_style_tag(content='.tabbar{visibility:hidden!important}');await p.screenshot(path='/downloads/drive-account-'+lang+'-320.png',full_page=True)
     print('PASS',lang,'unlinked/link/change/cancel/stale-consent/retry320px, native transport simulated');await p.close()
    await b.close()
 asyncio.run(main())
