@@ -1,4 +1,4 @@
-name: Alsaer 2.0.0 restored old Settings QA test
+name: Alsaer 2.0.0 approved four-tab Settings QA test
 on:
   push:
     branches: [exp/deferred-qa-backup]
