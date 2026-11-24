@@ -18,7 +18,6 @@ async def main():
   await p.evaluate("__I18N.go('settings','account','account-prof','prof')");await p.wait_for_timeout(100)
   assert await p.locator('#profile-preview-name').inner_text()=='الملف الشخصي'
   await p.evaluate("__I18N.go('notes','','',null)")
-  before=await p.evaluate('localStorage.tawba_v1')
   await p.evaluate("__I18N.setLang('fr')");await p.wait_for_timeout(120)
   assert await p.locator('.nt-i p.keepar').inner_text()=='الملف الشخصي'
   assert 'Mes notes' in await p.locator('#app').inner_text()
