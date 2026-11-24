@@ -1,7 +1,7 @@
 """Runtime i18n check: render every tab and every settings page in en and fr; fail if any rendered UI text node
 still contains Arabic (outside Quran/hadith/adhkar/user-content containers) or the page has LTR/RTL, overflow or font problems.
 Also asserts Arabic mode is unchanged (dir=rtl) and en/fr set dir=ltr with Latin digits."""
-import json,sys,threading
+import json,sys,threading,os
 from pathlib import Path
 from functools import partial
 from http.server import ThreadingHTTPServer,SimpleHTTPRequestHandler
@@ -22,8 +22,8 @@ def main():
     with sync_playwright() as p:
         b=p.chromium.launch(channel='chrome',args=['--no-sandbox'])
         for lang in ('ar','en','fr'):
-            pg=b.new_page(viewport={'width':360,'height':800});errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
-            pg.add_init_script('localStorage.tawba_v1='+json.dumps(json.dumps({'onboarded':True,'tour':{'done':1},'ui':{'mode':'light','accent':'maleem','lang':lang},'loc':{'city':'القاهرة','lat':30,'lng':31,'auto':True,'method':'egypt','asr':1}})))
+            pg=b.new_page(viewport={'width':int(os.environ.get('I18N_WIDTH','360')),'height':800});errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
+            pg.add_init_script('localStorage.tawba_v1='+json.dumps(json.dumps({'onboarded':True,'tour':{'done':1},'ui':{'mode':os.environ.get('I18N_MODE','light'),'accent':'maleem','lang':lang},'loc':{'city':'القاهرة','lat':30,'lng':31,'auto':True,'method':'egypt','asr':1}})))
             pg.goto(f'http://127.0.0.1:{srv.server_port}/index.html?alsaertest');pg.wait_for_timeout(1500)
             for sel in ['[data-a=update109Done]','text=تخطي','text=Skip','text=Passer']:
                 try:pg.click(sel,timeout=200)
