@@ -150,30 +150,20 @@ function vSettings(){
    +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>الإصدار '+esc(APP_VERSION)+' · التحقق من وجود تحديث</small></div>'+sgCtlV('')+'</button>'
    +'<a class="sg-row sg-btn" href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer"><span class="sg-ic">'+ic('mail')+'</span><div class="sg-tx"><b>اقتراحات وملاحظات</b><small>شارك فكرة أو أبلغ عن مشكلة</small></div>'+sgCtlV('')+'</a></div>'+sgDeveloperCard();
 
-  var cats={
-   look:['الشكل والعرض',isDark()?'moon':'sun',LOOK],
-   notif:['التنبيهات','bell',NOTIF],
-   loc:['الموقع والمواقيت','mosque',LOC],
-   sec:['الأمان والبيانات','shield',SEC],
-   prof:['ملفي الشخصي','user',PROF],
-   about:['المساعدة والمعلومات','info',ABOUT]
-  };
+  var tabsHtml='<div class="sg-tabs" role="tablist" aria-label="أقسام الإعدادات">'+[['look','العرض'],['notif','التنبيهات'],['loc','الموقع'],['account','حسابي']].map(function(x){return '<button type="button" role="tab" aria-selected="'+((setCat||'look')===x[0])+'" class="'+((setCat||'look')===x[0]?'on':'')+'" data-a="scat" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
+  var ACCOUNT='<div class="sg-card">'+sgNavSub('account-prof','user','الملف الشخصي','الاسم والصورة وطريقة المخاطبة',(S.profile&&S.profile.name)||'')+sgNavSub('account-sec','shield','الأمان والبيانات','القفل والبصمة والنسخ الاحتياطي','')+sgNavSub('account-about','info','المساعدة والمعلومات','حالة النظام والجولة وعن التطبيق','')+'</div>'+APPBOTTOM;
+  var views={look:LOOK,notif:NOTIF,loc:LOC,account:ACCOUNT};
   var subs={
-   'look-adv':['look','خيارات متقدمة','gear',ADV],
-   'notif-float':['notif','النوافذ العائمة','bell',FLOAT]
+   'look-adv':['look','خيارات متقدمة',ADV],
+   'notif-float':['notif','النوافذ العائمة',FLOAT],
+   'account-prof':['account','الملف الشخصي',PROF],
+   'account-sec':['account','الأمان والبيانات',SEC],
+   'account-about':['account','المساعدة والمعلومات',ABOUT]
   };
-  var catSub={look:'المظهر · النمط · اللون · الأرقام والساعة',notif:'تنبيهات · عائمة · صوت · صلاحيات',loc:esc((S.loc&&S.loc.city)||'تحديد المدينة'),sec:secLevelLabel()+' · نسخ احتياطي',prof:esc((S.profile&&S.profile.name)||'الاسم والصورة'),about:'الحالة · التحديثات · الجولة · عن التطبيق'};
-  if(setSub&&subs[setSub]){
-    var s2=subs[setSub],pc=cats[s2[0]],cl2=scAnim?' class="sc-page sc-page-sub"':'';scAnim=0;
-    return '<div'+cl2+'><div class="sc-head"><button type="button" class="sc-back" data-a="ssub" data-v="">'+ic('chev')+' '+pc[0]+'</button><h2>'+ic(s2[2])+s2[1]+'</h2></div>'+s2[3]+'</div>'+COPY;
-  }
-  if(setCat&&cats[setCat]){
-    var c=cats[setCat],cl=scAnim?' class="sc-page sc-page-sub"':'';scAnim=0;
-    return '<div'+cl+'><div class="sc-head"><button type="button" class="sc-back" data-a="scat" data-v="">'+ic('chev')+' الإعدادات</button><h2>'+ic(c[1])+c[0]+'</h2></div><div class="lrows">'+c[2]+'</div></div>'+COPY;
-  }
   scAnim=0;
-  var nm=(S.profile&&S.profile.name)||'السائر إلى الله';
-  return '<button type="button" class="sc-me" data-a="scat" data-v="prof"><span class="sc-av">'+profileAvatar(52)+'</span><span class="sc-mt"><b>'+esc(nm)+'</b><small>الملف الشخصي</small></span>'+ic('chev')+'</button>'
-   +'<div class="sc-grid">'+Object.keys(cats).filter(function(k){return k!=='prof'}).map(function(k){return sgLit('<button type="button" class="sc-tile sc-'+k+'" data-a="scat" data-v="'+k+'"><span class="sc-ic">'+ic(cats[k][1])+'</span><b>'+cats[k][0]+'</b><small>'+catSub[k]+'</small></button>',(k==='notif'&&(nOn||fOn||wOn)))}).join('')+'</div>'
-   +APPBOTTOM+COPY;
+  if(setSub&&subs[setSub]){
+    var sub=subs[setSub];
+    return '<section class="sg-tab-page">'+tabsHtml+'<div class="sc-head"><button type="button" class="sc-back" data-a="ssub" data-v="">'+ic('chev')+' رجوع</button><h2>'+sub[1]+'</h2></div>'+sub[2]+'</section>'+COPY;
+  }
+  return '<section class="sg-tab-page">'+tabsHtml+'<div class="sg-tab-body" role="tabpanel">'+(views[setCat||'look']||LOOK)+'</div></section>'+COPY;
 }
