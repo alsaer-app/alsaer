@@ -1,4 +1,4 @@
-name: Alsaer10199 journal snooze Drive feedback glow verified source test
+name: Alsaer10199 journal snooze Drive feedback glow verified source test (pins fixed)
 on:
   push:
     branches: [exp/drive-account-recovery]
