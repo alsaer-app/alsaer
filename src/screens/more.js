@@ -59,7 +59,7 @@ function vDeveloper(){
   +'<button class="lrow" data-a="showlog">'+ic('doc')+'<span class="t">سجل الإصدارات</span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'
   +(showLog?relLogHtml():'')
   +'<button class="lrow" data-a="showprivacy">'+ic('shield')+'<span class="t">الخصوصية</span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'
-  +(showPrivacy?'<section class="card flat"><p class="note" style="margin:0">كل بياناتك تُحفظ على جهازك فقط، بياناتك الشخصية والعبادات محفوظة على جهازك. الأحاديث اليومية محفوظة داخل التطبيق، ولا تُرسل سجلاتك أو ملفك الشخصي إلى أي خادم.</p></section>':'')
+  +(showPrivacy?'<section class="card flat"><p class="note" style="margin:0">يحفظ التطبيق سجلات العبادات والعادات والتقدم والملاحظات والملف الشخصي والإعدادات في تخزين التطبيق المحلي. عند استخدامه يحفظ التطبيق محليًا إحداثيات آخر موقع ودقته ووقت تحديثه واسمًا تقريبيًا للمكان. ربط Google Drive اختياري، ويطلب تفويض حساب Google بصلاحية drive.file. بعد الربط يمكن رفع نسخ مؤرخة واستعراض النسخ المتاحة واستعادتها. التشفير بكلمة مرور اختياري، وليس مفعّلًا افتراضيًا. لا يرسل المصدر سجلات عباداتك أو ملاحظاتك ضمن طلبات جلب هذا المحتوى. فك الربط لا يحذف ملفات النسخ من Drive.</p></section>':'')
   +'</div>';
 }
 function srow(key,icon,title,val){return '<button class="lrow" data-a="sopen" data-v="'+key+'" aria-expanded="'+(setOpen===key)+'">'+ic(icon)+'<span class="t">'+title+'</span>'+(val?'<span class="val">'+val+'</span>':'')+ic('chev').replace('class="i"','class="i chev"')+'</button>'}
