@@ -24,7 +24,7 @@ async def main():
     for sel in ['[data-a=update109Done]','text=تخطي']:
      try:await p.click(sel,timeout=300)
      except:pass
-    await act('tab','settings');await p.locator('.settings-dev').scroll_into_view_if_needed();await p.wait_for_timeout(400)
+    await act('tab','settings');await act('scat','account');await p.locator('.settings-dev').scroll_into_view_if_needed();await p.wait_for_timeout(400)
     assert await p.locator('.settings-dev-name b').inner_text()=='Ahmed Elagamy'
     assert await p.locator('.settings-dev a').count()==3
     feedback=p.locator('.settings-app a')
@@ -36,7 +36,7 @@ async def main():
     assert await p.locator('.settings-dev a').all_text_contents()==['','','']
     assert await p.evaluate('document.documentElement.scrollWidth<=360')
     await p.screenshot(path=f'/tmp/settings-bottom-{mode}-{accent}-360.png')
-    await act('scat','about');assert await p.locator('[data-a=tourreplay]').count()==1
+    await act('ssub','account-about');assert await p.locator('[data-a=tourreplay]').count()==1
     await act('sopen','sys');assert await p.locator('.sg-kv').count()>0
     await act('tab','developer');assert await p.locator('.devc').count()==0
     assert await p.locator('[data-a=showlog]').count()==1
