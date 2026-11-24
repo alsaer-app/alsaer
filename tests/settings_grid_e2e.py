@@ -1,10 +1,10 @@
-"""Old Settings look regression, retained filename for existing CI wiring."""
+"""Approved four-tab Settings regression, retained filename for existing CI wiring."""
 import asyncio,json,tempfile,threading,hashlib
 from pathlib import Path
 from functools import partial
 from http.server import ThreadingHTTPServer,SimpleHTTPRequestHandler
 from playwright.async_api import async_playwright
-R=Path(__file__).resolve().parents[1];OUT=Path('/tmp/settings-old-review');OUT.mkdir(exist_ok=True)
+R=Path(__file__).resolve().parents[1];OUT=Path('/tmp/settings-tabs-review');OUT.mkdir(exist_ok=True)
 async def main():
  unchanged=json.loads((R/'tests/fixtures/settings-preserved-sha256.json').read_text())
  for f,h in unchanged.items():assert hashlib.sha256((R/f).read_bytes()).hexdigest()==h,f
@@ -26,18 +26,28 @@ async def main():
       except:pass
      async def show(c='',s='',o=''):
       await p.evaluate('([c,s,o])=>__oldSettings.show(c,s,o)',[c,s,o]);await p.wait_for_timeout(350)
-     await show();assert await p.locator('.sc-grid .sc-tile').count()==5;assert await p.locator('.sc-me').count()==1;assert await p.locator('.settings-app').count()==1;assert await p.locator('.sg-main').count()==0
-     await p.screenshot(path=str(OUT/f'settings-{mode}-{width}.png'))
-     for cat in ['look','notif','loc','sec','prof','about']:
-      await show(cat);assert await p.locator('.sg-card,.profile-edit,.lrow').count()>0;assert await p.locator('.sg-choice,.sg-nav-tile').count()==0
+     async def frame():
+      assert await p.locator('.sg-tabs button').evaluate_all('(a)=>a.every(e=>{while(e){let c=getComputedStyle(e);if(c.opacity!=="1"||c.animationName!=="none")return false;e=e.parentElement}return true})')
+     await show();assert await p.locator('.sg-tabs [role=tab]').count()==4
+     for cat in ['look','notif','loc','account']:
+      await p.locator('[data-a=scat][data-v='+cat+']').click();await frame()
+      assert await p.locator('[role=tab][aria-selected=true]').get_attribute('data-v')==cat
       assert await p.evaluate('document.documentElement.scrollWidth<=innerWidth'),(mode,width,cat)
-     await show('look');assert await p.locator('.sg-seg [data-a=umode]').count()==3
-     await p.locator('[data-a=sopen][data-v=acc]').click();assert await p.locator('.panel .acc').count()>0
-     await p.screenshot(path=str(OUT/f'appearance-{mode}-{width}.png'))
-     await show('sec');assert await p.locator('[data-a=tab][data-v=backup]').count()==1
-     await p.locator('[data-a=tab][data-v=backup]').click();assert await p.locator('.bk').count()>0
+      await p.screenshot(path=str(OUT/f'{cat}-{mode}-{width}.png'))
+     for sub in ['account-prof','account-sec','account-about']:
+      await show('account');await p.locator('[data-a=ssub][data-v='+sub+']').click();await frame()
+      if sub=='account-sec':
+       await p.locator('[data-a=tab][data-v=backup]').click();assert await p.locator('.bk').count()>0
+     await show('look')
+     for row in ['sty','acc','dgclk','homecfg']:
+      await p.locator('[data-a=sopen][data-v='+row+']').click();await frame()
+      assert await p.locator('.panel').count()==1
+     await show('look','look-adv','trans')
+     for trans in ['fade','zoom','flow','none','slide']:
+      await p.locator('[data-a=utrans][data-v='+trans+']').click();await frame()
+      assert await p.locator('[data-a=utrans]').evaluate_all('(a)=>a.every(e=>{while(e){let c=getComputedStyle(e);if(c.opacity!=="1"||c.animationName!=="none")return false;e=e.parentElement}return true})')
      assert not errors,errors
-     print('PASS old Settings',mode,width,'profile/category cards, inline choices, backup route, preserved sources, no grid redesign')
+     print('PASS Settings tabs',mode,width,'all four tabs, account subpages, inline rows, backup route, all-ancestor immediate opacity, five transitions')
      await p.close()
    await b.close()
   srv.shutdown();srv.server_close()
