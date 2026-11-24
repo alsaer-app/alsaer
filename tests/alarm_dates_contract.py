@@ -12,6 +12,7 @@ with tempfile.TemporaryDirectory() as td:
 import java.util.*;import org.json.*;
 class TestNext {public static void main(String[] a)throws Exception{
  TimeZone.setDefault(TimeZone.getTimeZone("Africa/Cairo"));Calendar c=Calendar.getInstance();c.set(2026,10,24,0,0,0);c.set(Calendar.MILLISECOND,0);long now=c.getTimeInMillis();
+ JSONObject once=new JSONObject().put("at",now-60000);if(AlarmNext.nextTrigger(once,now)!=now+10000)throw new AssertionError("within grace");once.put("at",now-2700001);if(AlarmNext.nextTrigger(once,now)!=0)throw new AssertionError("expired grace");once.put("at",now+60000);if(AlarmNext.nextTrigger(once,now)!=now+60000)throw new AssertionError("future once");
  JSONObject daily=new JSONObject("{h:5,m:0,skipDate:'2026-11-24'}");long n=AlarmNext.nextTrigger(daily,now);Calendar out=Calendar.getInstance();out.setTimeInMillis(n);if(out.get(Calendar.DAY_OF_MONTH)!=25)throw new AssertionError("skip today only");
  JSONObject cfg=new JSONObject("{lat:30.0444,lng:31.2357,method:'egypt',asr:1,key:'fajr'}");daily.remove("skipDate");daily.put("prayer",cfg);int first=PrayerClock.minutes(c,cfg);c.add(Calendar.DAY_OF_YEAR,30);int later=PrayerClock.minutes(c,cfg);if(first==later)throw new AssertionError("stale prayer time");
  String[] names={"fajr","dhuhr","asr","maghrib","isha"},methods={"egypt","mwl","karachi","makkah"};JSONArray values=new JSONArray();
