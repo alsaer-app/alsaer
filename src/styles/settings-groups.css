@@ -48,33 +48,3 @@ html[data-trans="none"] .sc-page-sub,html[data-trans="none"] .sc-page-index{anim
 .okcard .oki svg{width:22px;height:22px}
 .okcard b{display:block;font-size:15px;font-weight:800}
 .okcard small{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
-
-/* Settings uses More's existing mtile/mtpop rules; detail controls retain their native layout. */
-.sg-main{margin:12px 0 24px}
-.sg-editor{min-width:0}
-.sg-editor>.sg-row{border:1px solid var(--line);border-radius:20px}
-.sg-choices{background:transparent!important;padding:0!important;border:0!important;border-radius:0!important;gap:10px!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
-.sg-choices>.mtile{width:100%;min-width:0;white-space:normal;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px 8px}
-.sg-choices>.mtile b{white-space:normal;overflow-wrap:anywhere}
-.sg-choice.on{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
-.sg-danger-grid .mt-i{color:var(--bad,#e0645c)}
-.sg-danger-grid .mtile{border-color:var(--bad,#e0645c)}
-.sg-editor .hc-btns{margin:12px 0}
-.sg-editor .sg-kv{flex-wrap:wrap}
-
-.sg-dest-grid{margin:12px 0}
-.sg-dest-detail[hidden],.sg-dest-grid[hidden]{display:none!important}
-.sg-span{grid-column:1/-1}
-.sg-rem-nav{margin:14px 0}
-.sg-rem-nav .on{border-color:var(--gold)}
-.sg-dest-detail>.sc-back{margin-bottom:12px}
-
-.sg-nav-tile b,.sg-choice b{-webkit-line-clamp:unset;overflow:visible}
-.sg-main>a{text-decoration:none}
-.sg-choices>.mtile.on{background:linear-gradient(160deg,var(--surface-2),var(--surface));color:var(--fg);border-radius:20px}
-
-/* Same-view updates must not blink all choices back to opacity zero. */
-.sg-stable .mtile{animation:none}
-
-/* Transition selection can also restart the app-level entry animation. */
-#app.sg-stable.vin{animation:none!important}
