@@ -11,3 +11,5 @@ html[lang="en"] .profile-photo-pencil,html[lang="fr"] .profile-photo-pencil{flex
 html[lang="en"] .lrow .val,html[lang="fr"] .lrow .val{min-width:0;overflow-wrap:anywhere}
 html[lang="en"] .lrow .t,html[lang="fr"] .lrow .t{min-width:0;overflow-wrap:anywhere}
 html[lang="en"] .lrow svg,html[lang="fr"] .lrow svg{flex-shrink:0}
+html[lang="en"] .lrow .t,html[lang="fr"] .lrow .t{flex:1 1 40%;overflow-wrap:normal}
+html[lang="en"] .lrow .val,html[lang="fr"] .lrow .val{flex:1 1 45%;max-width:45%;white-space:normal}
