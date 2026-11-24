@@ -5,7 +5,7 @@ const ctx={Promise,Date,console,setTimeout(f){timer=f;return 1},clearTimeout(){}
 (async()=>{
  data.set('alsaer_gdrive_native','1');data.set('alsaer_gdrive_email','old@example.com');data.set('alsaer_drive_sealed_pw','sealed');data.set('alsaer_backup_status_v2','{"driveAt":123}');data.set('tawba_v1','personal');
  let p=ctx.gdNativeToken(false);ctx.window.gdriveOnNativeToken('','consent-required','');await assert.rejects(p);assert.equal(ctx.gdHasRt(),false);assert.equal(data.has('alsaer_gdrive_email'),false);assert.equal(data.get('alsaer_drive_sealed_pw'),'sealed');assert.equal(data.get('tawba_v1'),'personal');assert.equal(JSON.parse(data.get('alsaer_backup_status_v2')).driveAt,123);
- p=ctx.gdNativeToken(true);ctx.window.gdriveOnNativeToken('fresh','','new@example.com');await p;assert.equal(ctx.gdHasRt(),true);assert.equal(ctx.gdEmail(),'new@example.com');
+ p=ctx.gdNativeToken(true);ctx.window.gdriveOnNativeToken('fresh','','new@example.com');await p;assert.equal(ctx.gdHasRt(),true);assert.equal(ctx.gdEmail(),'new@example.com');assert.equal(ctx.gdStatus().driveAt,0);
  p=ctx.gdNativeToken(true);ctx.window.gdriveOnNativeToken('','cancelled','');await assert.rejects(p);assert.equal(ctx.gdHasRt(),true);assert.equal(ctx.gdEmail(),'new@example.com');
  ctx.gdFetch=async()=>({status:401,ok:false});await assert.rejects(ctx.gdReq('stub'));assert.equal(ctx.gdHasRt(),false);assert.equal(ctx.gdTok.t,'');
  p=ctx.gdNativeToken(true);await assert.rejects(ctx.gdNativeToken(true));timer();await assert.rejects(p);assert.equal(ctx.gdNativePending,null);
