@@ -41,7 +41,7 @@ async def main():
     await act('tab','developer');assert await p.locator('.devc').count()==0
     assert await p.locator('[data-a=showlog]').count()==1
     assert await p.locator('[data-a=showprivacy]').count()==1
-    await act('showprivacy');assert 'كل بياناتك' in await p.locator('#app').inner_text()
+    await act('showprivacy');assert 'Google Drive' in await p.locator('#app').inner_text();assert 'كل بياناتك تُحفظ على جهازك فقط' not in await p.locator('#app').inner_text()
     assert not errors,errors
     print('PASS settings',mode,accent,labels)
     await p.close()
