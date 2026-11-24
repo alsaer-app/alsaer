@@ -95,8 +95,6 @@ body.rdi #mp{touch-action:pan-y}
 #mp .mw.vhl{background:color-mix(in srgb,#C9A24B 24%,transparent);box-shadow:3px 0 0 0 color-mix(in srgb,#C9A24B 24%,transparent),-3px 0 0 0 color-mix(in srgb,#C9A24B 24%,transparent),0 2px 0 0 color-mix(in srgb,#C9A24B 24%,transparent),0 -2px 0 0 color-mix(in srgb,#C9A24B 24%,transparent),inset 0 -2px 0 color-mix(in srgb,#C9A24B 70%,transparent)}
 #mp .mw.vhl.vhl-ls{border-start-start-radius:9px;border-end-start-radius:9px}
 #mp .mw.vhl.vhl-le{border-start-end-radius:9px;border-end-end-radius:9px}
-}
-}
 .mp-in{will-change:auto}
 /* أسهم تقليب ثابتة */
 .rd-ar{position:fixed;bottom:max(14px,env(safe-area-inset-bottom));z-index:42;width:46px;height:46px;border-radius:50%;border:1px solid color-mix(in srgb,var(--gold) 55%,transparent);background:color-mix(in srgb,var(--bg) 82%,transparent);color:var(--gold);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.35);padding:0;transition:transform .12s,opacity .15s}

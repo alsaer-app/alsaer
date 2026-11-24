@@ -15,12 +15,14 @@ final class DriveAuthorization {
     static final int REQUEST = 7402;
     private final MainActivity activity;
     private boolean busy;
+    private long busySince;
     private boolean interactive;
     DriveAuthorization(MainActivity activity) { this.activity = activity; }
     void authorize(boolean allowUi) {
         activity.runOnUiThread(() -> {
-            if (busy) { deliver("", "busy"); return; }
-            busy = true; interactive = allowUi;
+            // A wedged latch (result never delivered) must not block relinking forever; the JS side times out at 300s.
+            if (busy && System.currentTimeMillis() - busySince <= 300000) { deliver("", "busy"); return; }
+            busy = true; busySince = System.currentTimeMillis(); interactive = allowUi;
             AuthorizationRequest.Builder builder = AuthorizationRequest.builder()
                 .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive.file")));
             // Only an explicit Link/change-account action asks for an account picker.

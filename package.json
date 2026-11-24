@@ -6,7 +6,7 @@
   "scripts": {
     "build:web": "python3 tools/build_web.py",
     "check:web": "python3 tools/build_web.py --check",
-    "test": "python3 tests/e2e_features.py && python3 tests/e2e_reminders.py"
+    "test": "node tests/mushaf_img_default_contract.cjs && node tests/optional_fasting_shape_contract.cjs && node tests/data_integrity_contract.cjs"
   },
   "dependencies": {
     "@capacitor/android": "^5.7.0"

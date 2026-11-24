@@ -102,6 +102,9 @@ public class AlsaerNative {
     private java.io.File updApk() { return new java.io.File(act.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "alsaer-update.apk"); }
 
     @JavascriptInterface public String updateStart(final String url, final long size, final String sha) {
+        /* فرض أصلي: لا تنزيل إلا عبر https وبصمة SHA-256 كاملة، حتى لو تجاوز شيء طبقة JS */
+        if (url == null || !url.startsWith("https://")) return "bad-url";
+        if (sha == null || sha.length() != 64) return "bad-sha";
         if (updRunning) return "busy";
         android.content.SharedPreferences p = updPrefs();
         long done = 0;
@@ -129,6 +132,8 @@ public class AlsaerNative {
                 if (done > 0) c.setRequestProperty("Range", "bytes=" + done + "-");
                 c.connect();
                 int code = c.getResponseCode();
+                /* 416 = الجزء المحفوظ مكتمل فعلًا (أو أطول من المورد): ننتقل للتحقق بالبصمة بدل الفشل الدائم */
+                if (code == 416 && done > 0) { c.disconnect(); break; }
                 if (code == 200 && done > 0) { done = 0; if (part.exists()) part.delete(); }
                 else if (code != 200 && code != 206) throw new java.io.IOException("http " + code);
                 String cl = c.getHeaderField("Content-Length");

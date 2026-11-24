@@ -21,6 +21,7 @@ function mpSheetHtml(){
    +'<h4>سماكة الخط</h4><div class="mps-fw">'+MP_FW.map(function(x){return '<button class="mps-o'+(fw===x[0]?' on':'')+'" data-mp="fw" data-v="'+x[0]+'"><span class="ar fwp fw'+x[0]+'">'+x[2]+'</span><b>'+x[1]+'</b></button>'}).join('')+'</div>'
    +'<h4>سطوع الصفحة</h4><div class="rd-sl"><small>أخفّ</small><input type="range" id="mps-br" data-mp="br" min="45" max="100" step="5" value="'+br+'"><small>أسطع</small></div>'
    +'<h4>عناصر الصفحة</h4>'+mpTog('tj','التجويد الملوّن','تلوين أحكام التجويد',tj)+mpTog('hd','رأس الصفحة','الجزء واسم السورة أعلى الصفحة',hd)+mpTog('fr','الإطار الذهبي','حدّ الصفحة وزخرفتها',fr)
+   +'<h4>التنزيل للقراءة بلا إنترنت</h4><div id="mpi-dl">'+mpiDlHtml()+'</div>'
    +'<button class="btn block" data-mp="close" style="margin-top:12px">تم</button></section>';
 }
 function mpRe(){var w=document.getElementById('mps-wrap');if(!w)return;var o=w.querySelector('.mps'),t=o?o.scrollTop:0;w.innerHTML=mpSheetHtml();var n=w.querySelector('.mps');if(n)n.scrollTop=t}

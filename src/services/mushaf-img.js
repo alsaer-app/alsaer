@@ -14,8 +14,9 @@ var MPI_PG={'hafs-wasat':{1:{L:195,R:655,P:53,TOP:416,BOT:735,NS:416},2:{L:195,R
  'warsh-a':{1:{L:208,R:609,P:46,TOP:469,BOT:746,NS:469},2:{L:195,R:614,P:43,TOP:516,BOT:729,NS:516}}};
 function mpiC(p){var b=MPI_CF[mpiSet()],o=p&&MPI_PG[mpiSet()][p];if(!o)return b;var r={},k;for(k in b)r[k]=b[k];for(k in o)r[k]=o[k];return r}
 function mpiA(){return mpiSet()==='warsh-a'?AYAW:AYAPOS}
-/* وضع الصور مُعطَّل: المصحف التفاعلي (النص) هو الأساس */
-function mpiOnFor(p){return false}
+/* وضع الصور هو الأساس (معتمد من أحمد ٢٤ نوفمبر ٢٠٢٦ («ويكون الرجوع تحديث مني»)): بلا مفتاح رجوع داخل التطبيق؛ الرجوع يكون بتحديث يطلبه.
+   عند تعذّر تحميل صفحة (بلا إنترنت أول مرة) يُعرض النص تلقائيًا لتلك الصفحة فقط. */
+function mpiOnFor(p){return mpiVerses()&&!(p&&mpiBad[mpiKey(p)])}
 function mpiVerses(){return typeof AYAPOS!=='undefined'&&typeof AYAW!=='undefined'}
 function mpiCacheName(){return 'alsaer-pages-1'}
 function mpiFetchNet(k){

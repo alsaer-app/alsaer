@@ -78,10 +78,30 @@ function vGdRows(){
   }
   return h+gdRestorePanel()+'</div>';
 }
+function gdDriveCard(st,disabled){
+  var linked=gdHasRt(),em=gdEmail();
+  var h='<section class="sg-card gd-dest"><div class="gd-head"><b>Google Drive</b><span class="sg-pill">'+(linked?'مربوط':'غير مربوط')+'</span></div>';
+  if(!linked){
+    return h+'<div class="gd-hero"><span class="gd-hero-ic">'+ic('cloud')+'</span><b>احمِ نسختك في Google Drive</b></div>'
+      +'<p class="note gd-c">نسخ مؤرخة ترجع على هذا الهاتف أو أي هاتف آخر، حتى بعد إعادة التثبيت. لا يرى التطبيق إلا الملفات التي ينشئها.</p>'
+      +'<button class="btn block" data-a="gdconnect"'+disabled+'>'+ic('cloud')+' ربط Google Drive</button></section>';
+  }
+  var ini=(em||'؟').trim().charAt(0);
+  return h+'<div class="gd-hero"><span class="gd-hero-ic">'+ic('clup')+'</span><b>نسختك محفوظة في Google Drive</b></div>'
+    +'<div class="gd-acct"><span class="gd-ava">'+esc(ini)+'</span><div class="gd-acct-tx"><b>حساب Google</b><span class="dm-email" dir="ltr">'+esc(em)+'</span></div><span class="gd-dot">● متصل</span></div>'
+    +'<div class="gd-stats"><div class="gd-stat">'+ic('clup')+'<span>آخر رفع ناجح</span><b>'+esc(gdDate(st.driveAt))+'</b></div>'
+    +'<div class="gd-stat">'+ic('dl')+'<span>آخر استعادة ناجحة</span><b>'+esc(gdDate(st.driveRestoreAt))+'</b></div></div>'
+    +'<div class="gd-col">'+gdBtn('up','نسخ الآن',false,disabled)+gdBtn('down','استعادة من Drive',true,disabled)+gdProgBar()+'</div>'
+    +'<div class="gd-pair"><button class="btn ghost" data-a="gdconnect"'+disabled+'>'+ic('refresh')+' ربط حساب جديد</button>'
+    +'<button class="btn ghost bad" data-a="gddisc"'+disabled+'>'+ic('x')+' '+(gdDiscArm?'تأكيد فك الارتباط':'فك الارتباط')+'</button></div>'
+    +'<button class="btn ghost bad block gd-delete" data-a="gddelete"'+disabled+'>حذف نسخ السائر من Drive</button>'
+    +'<p class="note">فك الارتباط يطلب تأكيدًا ولا يحذف ملفات النسخ من Drive. تُحفظ كل النسخ المؤرخة دون حذف تلقائي. يصل التطبيق إلى الملفات التي أنشأها أو أُتيحت له فقط.</p></section>';
+}
 function vBackup(){
+ if(typeof gdPendingNotice==='function')gdPendingNotice();
  var p=gdPrefs(),st=gdStatus(),disabled=gdBusy||gdDocPending||gdPicker||gdRestoreRaw||gdNativePending?' disabled':'';
  var h='<div class="bk drive-mock"><section class="sg-card"><div class="panel dm-intro"><span class="sg-ic">'+ic('cloud')+'</span><b>نسختك في أكثر من مكان</b><p class="note">نسخ مؤرخة على Google Drive، وملف مستقل تختار مكانه. احتفظ بالملف على جهاز أو خدمة أخرى للحماية عند فقد الهاتف.</p></div><div class="sg-row"><span class="sg-ic">'+ic('lock')+'</span><div class="sg-tx"><b>تشفير النسخة بكلمة مرور</b><small>اختياري، احفظ كلمة المرور خارج الهاتف</small></div><div class="sg-ctl"><label class="rm-sw"><input type="checkbox" data-gd-encrypt '+((p.encrypt||gdPwOpen)?'checked':'')+disabled+'><i></i></label></div></div><div class="sg-row"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>نسخ تلقائي إلى Drive</b><small>عند فتح التطبيق بعد مرور المدة، وليس أثناء إغلاقه</small></div><div class="sg-ctl"><button class="dm-period" data-a="gdauto"'+disabled+'>'+(p.auto?'كل ٧ أيام':'متوقف')+'</button></div></div>'+gdPasswordPanel()+'</section>';
- h+='<section class="sg-card gd-dest"><div class="gd-head"><b>Google Drive</b><span class="sg-pill">'+(gdHasRt()?'مربوط':'غير مربوط')+'</span></div><p class="note">'+(gdEmail()?'<span class="dm-email" dir="ltr">'+esc(gdEmail())+'</span>':'حساب Google')+' <button class="dm-unlink" data-a="gdconnect"'+disabled+'>'+(gdHasRt()?'تغيير حساب Google':'اختيار حساب وإعادة الربط')+'</button>'+(gdHasRt()?' <button class="dm-unlink" data-a="gddisc"'+disabled+'>فك الربط</button>':'')+'</p><div class="gd-status"><b>آخر رفع ناجح</b><span>'+esc(gdDate(st.driveAt))+'</span><b>آخر استعادة ناجحة من Drive</b><span>'+esc(gdDate(st.driveRestoreAt))+'</span></div><div class="dm-actions">'+gdBtn('up','نسخ الآن',false,disabled)+gdBtn('down','استعادة من Drive',true,disabled)+gdProgBar()+'</div><button class="btn ghost bad block gd-delete" data-a="gddelete"'+disabled+'>حذف نسخ السائر من Drive</button><p class="note">تُحفظ كل النسخ المؤرخة دون حذف تلقائي. يصل التطبيق إلى الملفات التي أنشأها أو أُتيحت له فقط.</p></section>';
+ h+=gdDriveCard(st,disabled);
  h+='<section class="sg-card gd-dest"><div class="gd-head"><b>ملف مستقل خارج التطبيق</b><span class="sg-pill">'+(st.fileAt?'حُفظ ملف':'لم يُحفظ بعد')+'</span></div><p class="note">اختر مكان الحفظ من ملفات Android. يمكن حفظ الملف دون إنترنت أو حساب Google.</p><div class="gd-status"><b>آخر حفظ ناجح</b><span>'+esc(gdDate(st.fileAt))+'</span><b>آخر استعادة ناجحة من ملف</b><span>'+esc(gdDate(st.fileRestoreAt))+'</span></div><div class="dm-actions"><button class="btn" data-a="gdfileout"'+disabled+'>حفظ ملف نسخة</button><button class="btn ghost" data-a="gdfilein"'+disabled+'>استعادة من ملف</button></div><p class="note">الحفظ على الهاتف وحده لا يحمي من فقده. انقل نسخة إلى جهاز أو خدمة أخرى. منتقي الملفات يعرض المواقع التي تتيحها خدمات ملفاتك، لا نفحصها تلقائيًا.</p></section>';
  h+='<section class="sg-card gd-dest"><b>نسخة الأمان داخل التطبيق</b><p class="note">تساعد عند خطأ الاستعادة، لكنها تُحذف مع التطبيق. لا نعدّها بديلًا للملف المستقل.</p></section><p class="note bk-msg" id="bk-msg"'+(bkMsg?'':' hidden')+'>'+esc(bkMsg)+'</p>'+gdPickerPanel()+gdRestorePanel()+'</div>';return h;
 }

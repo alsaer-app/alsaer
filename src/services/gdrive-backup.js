@@ -7,7 +7,7 @@ var GD_REDIRECT='com.ahmedalajmi.alsaer://gdrive';
 var GD_SCOPE='https://www.googleapis.com/auth/drive.file';
 var GD_FILE='alsaer-backup.json';
 var GD_RT_KEY='alsaer_gdrive_rt',GD_VER_KEY='alsaer_gd_verifier';
-var GD_SAFETY_KEY='alsaer_drive_restore_safety_v1',gdRestoreRaw='',gdRestoreSource='drive';
+var GD_SAFETY_KEY='alsaer_drive_restore_safety_v1',gdRestoreRaw='',gdRestoreSource='drive',gdDiscArm=false;
 var gdTok={t:'',exp:0},gdBusy=false;
 
 function gdConfigured(){return /^[0-9a-z-]+\.apps\.googleusercontent\.com$/i.test(GD_CLIENT_ID)}
@@ -22,16 +22,39 @@ function gdResetAuthState(){
 function gdAuthError(error){
   return ['consent-required','scope-not-granted','auth','no-auth','invalid_grant'].indexOf(String(error))>=0;
 }
+var GD_PENDING_KEY='alsaer_gdrive_pending_auth';
 function gdNativeToken(interactive){
   if(gdNativePending)return Promise.reject(new Error('busy'));
   return new Promise(function(resolve,reject){
-    var timer=setTimeout(function(){gdNativePending=null;reject(new Error('timeout'));try{render()}catch(e){}},120000);
+    /* 5 دقائق: شاشة اختيار الحساب قد تطول. عند انتهاء المهلة يبقى علم المحاولة التفاعلية حتى تصل النتيجة المتأخرة فتُستكمل بدل تجاهلها */
+    var timer=setTimeout(function(){var wasInteractive=gdNativePending&&gdNativePending.interactive;gdNativePending=null;if(!wasInteractive){try{localStorage.removeItem(GD_PENDING_KEY)}catch(e){}}reject(new Error('timeout'));try{render()}catch(e){}},300000);
     gdNativePending={resolve:resolve,reject:reject,timer:timer,interactive:!!interactive};
-    try{AlsaerNative.gdriveAuthorize(!!interactive)}catch(e){clearTimeout(timer);gdNativePending=null;reject(e)}
+    try{if(interactive)localStorage.setItem(GD_PENDING_KEY,'1')}catch(e){}
+    try{AlsaerNative.gdriveAuthorize(!!interactive)}catch(e){clearTimeout(timer);gdNativePending=null;try{localStorage.removeItem(GD_PENDING_KEY)}catch(x){}reject(e)}
   });
 }
+/* إن قتل أندرويد التطبيق أثناء اختيار الحساب ضاعت النتيجة بصمت؛ نوضح ذلك عند العودة لشاشة النسخ */
+function gdPendingNotice(){
+  try{
+    if(localStorage.getItem(GD_PENDING_KEY)&&!gdNativePending){localStorage.removeItem(GD_PENDING_KEY);bkSay('محاولة الربط السابقة لم تكتمل. أعد المحاولة.');return true}
+    if(!gdNativePending)localStorage.removeItem(GD_PENDING_KEY);
+  }catch(e){}
+  return false;
+}
 window.gdriveOnNativeToken=function(token,error,email){
-  var p=gdNativePending;if(!p)return;gdNativePending=null;clearTimeout(p.timer);
+  var p=gdNativePending;
+  if(!p){
+    /* نتيجة متأخرة بعد انتهاء مهلة JS: إن كانت محاولة تفاعلية معلّقة (علمها محفوظ) أكملها، وإلا فهي شاردة فتُتجاهل */
+    var late=false;try{late=localStorage.getItem(GD_PENDING_KEY)==='1'}catch(e){}
+    if(!late)return;
+    try{localStorage.removeItem(GD_PENDING_KEY)}catch(e){}
+    if(error||!token){if(gdAuthError(error||'no-auth'))gdResetAuthState();bkSay(gdAuthFailMsg(error||'no-auth'));try{render()}catch(e){}return}
+    gdTok={t:token,exp:Date.now()+50*60000};
+    try{localStorage.setItem('alsaer_gdrive_native','1');localStorage.removeItem(GD_RT_KEY);if(email)localStorage.setItem('alsaer_gdrive_email',String(email));else localStorage.removeItem('alsaer_gdrive_email')}catch(e){}
+    bkSay('تم ربط Google Drive ✓');try{render()}catch(e){}return;
+  }
+  gdNativePending=null;clearTimeout(p.timer);
+  try{localStorage.removeItem(GD_PENDING_KEY)}catch(e){}
   var priorEmail=gdEmail();
   if(!error&&token){try{if(email)localStorage.setItem('alsaer_gdrive_email',String(email));else localStorage.removeItem('alsaer_gdrive_email')}catch(e){}}
   if(error||!token){if(gdAuthError(error||'no-auth'))gdResetAuthState();p.reject(new Error(error||'no-auth'));try{render()}catch(e){}return}
@@ -49,8 +72,15 @@ function gdSha256(txt){
 }
 
 /* --- بدء الربط: يفتح متصفح الجهاز على صفحة موافقة Google --- */
+function gdAuthFailMsg(m){
+  if(m==='cancelled')return 'أُلغي اختيار الحساب؛ لم نغيّر ملفاتك.';
+  if(m==='timeout')return 'انتهت مهلة الربط دون رد من Google. أعد المحاولة.';
+  if(m==='busy')return 'محاولة ربط أخرى جارية. انتظر لحظة ثم أعد المحاولة.';
+  if(m==='authorization-failed'||m==='consent-required'||m==='resolution-failed'||m==='scope-not-granted')return 'رفضت Google الربط. إن كان الحساب مربوطًا سابقًا فافتح myaccount.google.com/permissions وألغِ إذن «السائر» ثم أعد المحاولة.';
+  return 'تعذّر الربط. اضغط ربط حساب جديد للمحاولة مجددًا.';
+}
 function gdStartAuth(){
-  if(gdNative()){bkSay('اختر حساب Google واسمح بالوصول إلى ملف النسخة…');gdNativeToken(true).then(function(){bkSay('تم ربط Google Drive ✓');render();setTimeout(gdOnOpen,300)},function(e){bkSay(e.message==='cancelled'?'أُلغي اختيار الحساب؛ لم نغيّر ملفاتك.':'تعذّر الربط. اضغط اختيار حساب وإعادة الربط للمحاولة مجددًا.');render()});render();return}
+  if(gdNative()){bkSay('اختر حساب Google واسمح بالوصول إلى ملف النسخة…');gdNativeToken(true).then(function(){bkSay('تم ربط Google Drive ✓');render();setTimeout(gdOnOpen,300)},function(e){bkSay(gdAuthFailMsg(e&&e.message));render()});render();return}
   if(!gdConfigured()){bkSay('ربط Google Drive غير مهيأ في هذه النسخة من التطبيق.');return}
   var rnd=new Uint8Array(32);crypto.getRandomValues(rnd);
   var ver=gdB64url(rnd);
@@ -252,7 +282,9 @@ function gdAct(a,v){
     gdBusy=true;try{gdRestoreApply(gdVerified);gdFlashDone('down')}catch(e){bkSay(e.message==='safety-failed'?'تعذّر حفظ نسخة الأمان؛ أُوقفت الاستعادة.':e.message)}finally{gdBusy=false;render()}return true;
   }
   if(a==='gdconnect'){if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return true;gdStartAuth();return true}
-  if(a==='gddisc'){if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return true;gdBusy=true;render();Promise.resolve().then(gdDisconnect).then(function(){bkSay('فُصل حساب Google Drive. ملف النسخة يبقى في درايف حتى تحذفه بنفسك.');render()},function(){bkSay('تعذّر إلغاء الوصول. تحقق من الإنترنت، أو ألغِ إذن السائر من حساب Google ثم أعد المحاولة.')}).finally(function(){gdBusy=false;render()});return true}
+  if(a==='gddisc'){if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return true;
+    if(!gdDiscArm){gdDiscArm=true;render();setTimeout(function(){gdDiscArm=false;try{render()}catch(e){}},4000);return true}
+    gdDiscArm=false;gdBusy=true;render();Promise.resolve().then(gdDisconnect).then(function(){bkSay('فُصل حساب Google Drive. ملف النسخة يبقى في درايف حتى تحذفه بنفسك.');render()},function(){bkSay('تعذّر إلغاء الوصول. تحقق من الإنترنت، أو ألغِ إذن السائر من حساب Google ثم أعد المحاولة.')}).finally(function(){gdBusy=false;render()});return true}
   if(a==='gdup'){gdRunBackup(false);return true}
   if(a==='gddown'){gdLoadPicker('restore');return true}
   return false;
