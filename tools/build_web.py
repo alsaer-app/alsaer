@@ -4,6 +4,7 @@ import os,sys,json
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 man=json.load(open(os.path.join(ROOT,'src','manifest.json'),encoding='utf-8'))
 out=''.join(e['lit'] if 'lit' in e else open(os.path.join(ROOT,'src',e['file']),encoding='utf-8',newline='').read() for e in man)
+out=out.rstrip('\n')+'\n'
 dst=os.path.join(ROOT,'www','index.html')
 if '--check' in sys.argv:
     cur=open(dst,encoding='utf-8',newline='').read();print('IDENTICAL' if cur==out else 'DIFFERENT');sys.exit(0 if cur==out else 1)
