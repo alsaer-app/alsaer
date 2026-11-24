@@ -62,8 +62,9 @@ async def main():
        await p.evaluate('__sgTest.back()');assert await p.locator('.sg-editor').count()==0
      # Immediate click-frame regression: same-view updates must never restart opacity-zero tile entry.
      await show('look','look-adv','trans');await p.wait_for_timeout(500)
-     await p.locator('[data-a=utrans][data-v=slide]').click()
-     assert await p.locator('.sg-choice').evaluate_all('(a)=>a.every(e=>getComputedStyle(e).opacity==="1"&&getComputedStyle(e).animationName==="none")'),'Settings click-frame flicker'
+     for transition in ['fade','zoom','flow','none','slide']:
+      await p.locator('[data-a=utrans][data-v='+transition+']').click()
+      assert await p.locator('.sg-choice').evaluate_all('(a)=>a.every(e=>{while(e){let c=getComputedStyle(e);if(c.opacity!=="1"||c.animationName!=="none")return false;e=e.parentElement}return true})'),('Settings click-frame ancestor flicker',transition)
      await p.screenshot(path=str(OUT/f'click-frame-{mode}-{width}.png'))
      # Selection persistence and independent motion controls.
      await show('look','','mode');await p.locator('[data-a=umode][data-v='+mode+']').click();assert await p.locator('[data-a=umode][aria-pressed=true]').count()==1
