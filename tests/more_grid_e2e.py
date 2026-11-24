@@ -40,7 +40,7 @@ async def main():
       await p.fill('#mr-q','عدّاد تسبيح');assert await p.locator('.mtile:visible').count()==1
       await p.fill('#mr-q','zzzz');assert await p.locator('#mr-none').is_visible()
       await p.fill('#mr-q','');assert await p.locator('.mtile:visible').count()==24
-      await p.locator('.mtile[data-v=settings]').click();await p.wait_for_timeout(300);await act('scat','sec');assert await p.locator('[data-v=backup]').count()==1
+      await p.locator('.mtile[data-v=settings]').click();await p.wait_for_timeout(300);await act('scat','account');await act('ssub','account-sec');assert await p.locator('[data-v=backup]').count()==1
       await p.locator('[data-v=backup]').click();await p.wait_for_timeout(300);assert await p.locator('.bk').count()==1
       for width in [320,412]:
        await p.set_viewport_size({'width':width,'height':780});await act('tab','more');assert await p.evaluate('document.documentElement.scrollWidth<=innerWidth')
