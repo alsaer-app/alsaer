@@ -102,6 +102,7 @@ function vSettings(){
   }
   var NOTIF='<div class="sg-card">'
    +sgSwitch('bell','تفعيل التنبيهات',rr.enabled?'تصلك التنبيهات حتى مع إغلاق التطبيق':'متوقفة','data-rem-master',rr.enabled)
+   +sgSegRow('bell','الصلاة على النبي ﷺ','تكرار التذكير · المواعيد من تذكيراتي ← ذكي','<select class="rm-sel" data-rem-time="salatEvery" aria-label="تكرار الصلاة على النبي">'+[[15,'١٥ دقيقة'],[30,'نصف ساعة'],[60,'ساعة'],[120,'ساعتان'],[0,'مرة يوميًا']].map(function(x){var ev=rr.salatEvery==null?(Object.keys(rr).length?'120':'15'):String(rr.salatEvery);return '<option value="'+x[0]+'"'+(String(x[0])===ev?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select>')
    +sgLit(sgNavTab('reminders','bell','تذكيراتي','الملك والكهف والصلاة على النبي وغيرها',ar(onN)+' مفعّلة'),nOn)
    +sgLit(sgNavSub('notif-float','bell','النوافذ العائمة','تظهر فوق التطبيقات في أوقاتها','الجدولة والشكل'),fOn)
    +sgNav('snd','bell','صوت الإشعار','النغمة أو بلا صوت أو صوت النظام',sndN)
