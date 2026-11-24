@@ -13,8 +13,8 @@
   <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AE%D8%B5%D9%88%D8%B5%D9%8A%D8%A9-%D8%AF%D9%88%D9%86%20%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA-0F6F63" alt="دون إنترنت">
 </p>
 
-<p align="center"><b>تطبيق أندرويد إيماني شخصي، يعمل دون إنترنت بالكامل.</b><br>
-كل بياناتك محفوظة على جهازك فقط، ولا تُرسل إلى أي خادم.</p>
+<p align="center"><b>تطبيق أندرويد إيماني شخصي، يعمل أساسًا ببيانات محلية مع خدمات إنترنت اختيارية.</b><br>
+تُحفظ بياناتك محليًا، ويمكنك اختيار نسخها إلى Google Drive أو ملف مستقل. راجع [مسودة سياسة الخصوصية](PRIVACY.md).</p>
 
 ---
 
@@ -23,7 +23,6 @@
 ### العبادة اليومية
 
 - **المصحف الكامل**: صفحات المصحف (١٥ سطرًا) بخط عثماني، بروايتي حفص وورش، مع إبراز أحكام التجويد بالألوان؛ نص ٦٢٣٦ آية من مشروع تنزيل.
-- **التلاوة والتسميع**: متابعة صوتية لحظية مع تصحيح فوري، عبر محرك قرآني محلي بالكامل (نماذج whisper المخصصة للقرآن تعمل على الجهاز دون إنترنت عبر sherpa-onnx)، مع خيار محرك التعرف المدمج في الهاتف.
 - **مواقيت الصلاة والتنبيهات**: إشعارات محلية مجدولة بنغمة مخصصة، تعمل بعد إعادة تشغيل الهاتف.
 - **الأذكار والأدعية**: محتوى من الكتاب والسنة مع عدّادات.
 - **جدول الصيام**: الاثنين والخميس، الأيام البيض، عاشوراء وعرفة، ستة شوال، صيام داود، وأيام مخصصة، مع تذكيرات السحور والإفطار.
@@ -37,8 +36,8 @@
 ### الخصوصية والحماية
 
 - **قفل التطبيق**: برمز PIN أو كلمة مرور أو نمط، مع فتح بالبصمة وإيقاف مؤقت بعد المحاولات الخاطئة.
-- **نسخ احتياطي مشفر**: تصدير واستعادة بكلمة مرور (AES-256-GCM مع PBKDF2-SHA256).
-- **دون إنترنت**: لا حسابات، لا خوادم، لا تتبع.
+- **نسخ احتياطي بتشفير اختياري**: ملف مستقل أو نسخ مؤرخة إلى Google Drive بعد التفويض، مع AES-GCM وPBKDF2-SHA256 عند تفعيل كلمة المرور.
+- **استخدام أساسي محلي**: لا يتطلب حسابًا لدى المطور. المحتوى والتحديثات تستخدم خدمات خارجية، وGoogle Drive يحتاج تفويضًا اختياريًا. انظر [مسودة سياسة الخصوصية](PRIVACY.md).
 - **واجهة عربية RTL** بثيمات فاتحة وداكنة، وتاريخ هجري (أم القرى) وميلادي.
 
 ## لقطات الشاشة
@@ -64,8 +63,7 @@
 - **Capacitor** (WebView) مع جسر Kotlin/Java أصلي (`com.ahmedalajmi.alsaer`).
 - الواجهة صفحة واحدة بلا مكتبات خارجية: المصدر مقسّم في `src/` ويُجمَّع إلى `www/index.html` عبر `python3 tools/build_web.py`.
 - بيانات المستخدم في `localStorage` تحت المفتاح `tawba_v1` (لا تغيّره أبدًا للحفاظ على بيانات المستخدمين).
-- مكونات أصلية: إشعارات ومجدول تنبيهات، خدمة التذكير العائم، الودجت، البصمة، التعرف على الكلام.
-- محرك التسميع المحلي: [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) مع نماذج whisper المخصصة للقرآن الكريم (tiny/base)، وتنزيل النماذج داخل التطبيق مع تحقق SHA-256.
+- مكونات أصلية: إشعارات ومجدول تنبيهات، خدمة التذكير العائم، الودجت، البصمة.
 - البناء والإصدار عبر GitHub Actions (انظر `.github/workflows/`).
 
 ## البناء من المصدر
@@ -96,7 +94,6 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 - ودجت محسّن: مواقيت الصلاة ومتابعة ورد اليوم.
 - خطة ختمة ذكية بأهداف قابلة للتعديل التلقائي.
 - فاحص تحديثات داخل التطبيق: قراءة update.json ومقارنة رقم الإصدار والتنزيل مع تحقق sha256.
-- تحسينات مستمرة لمحرك التسميع المحلي (سرعة ودقة).
 - لوحة إنجازات وإحصاءات أعمق.
 
 ## الحقوق والمصادر
@@ -116,13 +113,13 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 
 # Alsaer (السائر إلى الله) — English
 
-A private, **offline-first** Android companion for worship and self-improvement. All data stays on the device; nothing is sent to any server.
+A private, **offline-first** Android companion for worship and self-improvement. Data is stored locally, with optional Google Drive authorization and dated backup uploads. Content and update checks use external services. See the privacy policy draft in PRIVACY.md.
 
-**Features:** full mushaf reader (15-line pages, Uthmanic font, Hafs & Warsh riwayas, color-coded tajweed), recitation with an on-device Quran ASR engine (Quran-tuned whisper models via sherpa-onnx, fully offline) plus the phone speech recognizer, prayer times and local reminders, a floating reminder overlay, a home-screen widget, habit and repentance tracking (streaks, relapses, triggers, urges), fasting schedule (Mondays/Thursdays, white days, Ashura, Arafah, Shawwal, Dawud, custom), adhkar with counters, weekly/monthly self-review, PIN/password/pattern lock with biometrics, encrypted password-protected backups (AES-256-GCM + PBKDF2), Arabic RTL UI with light/dark themes, Hijri (Umm al-Qura) and Gregorian dates.
+**Features:** full mushaf reader (15-line pages, Uthmanic font, Hafs & Warsh riwayas, color-coded tajweed), prayer times and local reminders, a floating reminder overlay, a home-screen widget, habit and repentance tracking (streaks, relapses, triggers, urges), fasting schedule (Mondays/Thursdays, white days, Ashura, Arafah, Shawwal, Dawud, custom), adhkar with counters, weekly/monthly self-review, PIN/password/pattern lock with biometrics, backups with optional password encryption (AES-GCM + PBKDF2), Arabic RTL UI with light/dark themes, Hijri (Umm al-Qura) and Gregorian dates.
 
 **Install:** download the latest APK from [Releases](https://github.com/alsaer-app/alsaer/releases/latest) and install it over any previous officially-signed build; your data is preserved.
 
-**Tech:** Capacitor (WebView) with a native Kotlin/Java bridge (`com.ahmedalajmi.alsaer`); single-page vanilla HTML/JS app split under `src/` and bundled by `python3 tools/build_web.py` into `www/index.html`; user data in `localStorage` (`tawba_v1`); native alarm scheduler, floating reminder service, widget, biometric and speech plugins; local recitation via sherpa-onnx with in-app model downloads verified by SHA-256; builds via GitHub Actions.
+**Tech:** Capacitor (WebView) with a native Kotlin/Java bridge (`com.ahmedalajmi.alsaer`); single-page vanilla HTML/JS app split under `src/` and bundled by `python3 tools/build_web.py` into `www/index.html`; user data in `localStorage` (`tawba_v1`); native alarm scheduler, floating reminder service, widget, biometric plugins; builds via GitHub Actions.
 
 **Build:** `npm install && python3 tools/build_web.py && npx cap sync android && cd android && ./gradlew assembleDebug`
 
