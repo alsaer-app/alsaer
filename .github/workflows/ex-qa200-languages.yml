@@ -1,0 +1,113 @@
+name: Alsaer 2.0.0 baseline200 languages audit approved Settings and salawat interval QA test
+on:
+  push:
+    branches: [exp/qa200-languages]
+    paths: [.github/workflows/ex-qa200-languages.yml]
+permissions:
+  contents: read
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: exp/qa200-languages, fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - uses: actions/setup-node@v4
+        with: {node-version: 20}
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17', cache: gradle}
+      - name: Guard unchanged current Mushaf data and fonts
+        run: |
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/mushaf.js
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/quran.js
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/warsh.js
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/tajweed_warsh.js
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/almarai-arabic-700-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/alexandria-arabic-wght-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/almarai-arabic-800-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/ibm-plex-sans-arabic-arabic-600-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/warsh.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/tajawal-arabic-400-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/tajawal-arabic-700-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/almarai-arabic-400-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/uthmanic.ttf
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/tajawal-arabic-800-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/cairo-arabic-wght-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/tajawal-arabic-500-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/ibm-plex-sans-arabic-arabic-500-normal.woff2
+          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/readex-pro-arabic-wght-normal.woff2
+      - name: Native bridge contract, build web, sync, mapping regression gate
+        run: |
+          python3 tests/native_bridge_contract.py
+          python3 tests/widget_packaging_contract.py
+          python3 tests/alarm_request_ids_contract.py
+          node tests/data_integrity_contract.cjs
+          node tests/reminder_fallback_contract.cjs
+          node tests/backup_versions_contract.cjs
+          node tests/backup_destinations_contract.cjs
+          node tests/gdrive_backup_contract.cjs
+          node tests/gdrive_restore_contract.cjs
+          python3 tools/build_web.py
+          npm ci && npx @capacitor/cli@5 sync android
+          python3 tests/mushaf_wordmap_regression.py
+      - name: Native date and prayer formula regression gate
+        run: |
+          curl --fail --location -o /tmp/alsaer-json.jar https://repo.maven.apache.org/maven2/org/json/json/20240303/json-20240303.jar
+          curl --fail --location -o /tmp/alsaer-android-all.jar https://repo.maven.apache.org/maven2/org/robolectric/android-all/14-robolectric-10818077/android-all-14-robolectric-10818077.jar
+          python3 -c 'from zipfile import ZipFile,ZIP_DEFLATED; z=ZipFile("/tmp/alsaer-android-all.jar"); o=ZipFile("/tmp/alsaer-android-api.jar","w",ZIP_DEFLATED); [o.writestr(i,z.read(i)) for i in z.infolist() if not i.filename.startswith(("java/","javax/","sun/","com/sun/","jdk/","org/json/"))]; o.close(); z.close()'
+          ANDROID_API_JAR=/tmp/alsaer-android-api.jar JSON_JAR=/tmp/alsaer-json.jar python3 tests/alarm_dates_contract.py
+      - name: Real browser regression gates (transports stubbed, no live Drive data)
+        run: |
+          python3 -m pip install playwright
+          python3 -m playwright install --with-deps chrome
+          bash tests/i18n_coverage_test.sh
+          python3 tests/i18n_personal_content_e2e.py
+          python3 tests/gdrive_backup_e2e.py
+          python3 tests/gdrive_restore_e2e.py
+          python3 tests/backup_versions_e2e.py
+          python3 tests/webview_compat_e2e.py
+          python3 tests/reader_shell_e2e.py
+          python3 tests/mushaf_toolbar_e2e.py
+          python3 tests/more_grid_e2e.py
+          python3 tests/settings_grid_e2e.py
+          python3 tests/salawat_interval_e2e.py
+          python3 tests/settings_bottom_e2e.py
+          python3 tests/reminders_reentry_e2e.py
+      - name: Decode signing key inside GitHub only
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: umask 077 && printf '%s' "$KEYSTORE_BASE64" | base64 -d > android/app/alsaer-release-key.p12 && test -s android/app/alsaer-release-key.p12
+      - name: Build signed personal test
+        working-directory: android
+        env:
+          ALSAER_KEYSTORE_FILE: alsaer-release-key.p12
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: chmod +x gradlew && ./gradlew --no-daemon assembleRelease
+      - name: Verify signed APK and metadata
+        run: |
+          set -x
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | tail -1); APK=android/app/build/outputs/apk/release/app-release.apk
+          "$BT/apksigner" verify --print-certs "$APK" | tee /tmp/cert.txt
+          grep -q '647b477f5e19a79ec542b70d12476a166f3bf262ae7b5c2b1602bcc58a1c85e0' /tmp/cert.txt
+          "$BT/aapt" dump badging "$APK" | head -1 | tee /tmp/meta.txt
+          grep -q "versionCode='10197'" /tmp/meta.txt && grep -q "versionName='2.0.0'" /tmp/meta.txt
+          "$BT/aapt" dump permissions "$APK" | tee /tmp/perm.txt
+          ! grep -qE 'RECORD_AUDIO|MODIFY_AUDIO' /tmp/perm.txt
+          "$BT/aapt" dump xmltree "$APK" AndroidManifest.xml | tee /tmp/manifest.txt
+          grep -q 'AlsaerWidget' /tmp/manifest.txt
+          grep -q 'android.appwidget.action.APPWIDGET_UPDATE' /tmp/manifest.txt
+          "$BT/aapt" dump resources "$APK" | tee /tmp/apkfiles.txt
+          grep -q 'layout/alsaer_widget:' /tmp/apkfiles.txt
+          grep -q 'xml/alsaer_widget_info:' /tmp/apkfiles.txt
+          stat -c '%s bytes' "$APK" && sha256sum "$APK" && git rev-parse HEAD
+      - uses: actions/upload-artifact@v4
+        with: {name: alsaer-2.0.0-10197-qa200-languages-test, path: android/app/build/outputs/apk/release/app-release.apk, retention-days: 3, if-no-files-found: error}
+      - if: always()
+        name: Remove temporary signing material
+        run: rm -f android/app/alsaer-release-key.p12
