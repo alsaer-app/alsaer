@@ -16,6 +16,7 @@ const flush=()=>new Promise(r=>setImmediate(r));
   ctx.document.getElementById=()=>({value:'correct'});await ctx.gdVerifyRestore();ctx.gdAct('gdrestore');await flush();assert.equal(JSON.parse(store.get('state')).profile.name,'encrypted');
   const before=store.get('state');ctx.gdStage(remote,'drive',{});await ctx.gdVerifyRestore();const set=ctx.localStorage.setItem;ctx.localStorage.setItem=(k,v)=>{if(k===ctx.GD_SAFETY_KEY)throw Error('quota');set(k,v)};ctx.gdAct('gdrestore');await flush();assert.equal(store.get('state'),before);assert.match(ctx.message,/أُوقفت/);ctx.localStorage.setItem=set;
   ctx.gdAct('gdsafety');assert.equal(ctx.gdRestoreSource,'safety');assert.ok(ctx.gdRestoreRaw);assert.match(ctx.gdRestorePanel(),/نسخة أمان داخل التطبيق/);
+  const driveBefore=ctx.gdStatus().driveRestoreAt;await ctx.gdVerifyRestore();ctx.gdAct('gdrestore');await flush();assert.equal(ctx.gdStatus().driveRestoreAt,driveBefore);assert.ok(ctx.gdStatus().safetyRestoreAt>0);
   let requested='';ctx.gdReq=async url=>{requested=url;return {json:async()=>({files:[]})}};await ctx.gdFindFile();assert.match(requested,/orderBy=modifiedTime%20desc/);
   console.log('PASS: download opens explicit confirmation; cancel; plaintext/encrypted restore; PIN preserved; reminders; safety recovery; invalid/wrong-password/quota fail closed; latest ordering');
 })().catch(e=>{console.error(e);process.exitCode=1});
