@@ -461,8 +461,9 @@ body.rd .rbar.rdim{opacity:.15;transform:translateY(10px);pointer-events:none}
 @keyframes spUp{to{opacity:1;transform:none}}
 @keyframes spWrite{to{clip-path:inset(0 0 0 0)}}
 .splash{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0}
-.splash .sp-tile{width:96px;height:96px;border-radius:27px;position:relative;overflow:hidden;background:linear-gradient(135deg,#12E3D2 0%,#02A5A4 50%,#00535F 100%);box-shadow:0 14px 30px -12px rgba(0,83,95,.55);opacity:0;transform:translateY(46px) scale(.88);animation:spUp .46s cubic-bezier(.2,.9,.25,1.15) forwards;display:grid;place-items:center}
+.splash .sp-tile{width:96px;height:96px;border-radius:27px;position:relative;overflow:hidden;background:transparent;box-shadow:0 14px 30px -12px rgba(0,0,0,.6);opacity:0;transform:translateY(46px) scale(.88);animation:spUp .46s cubic-bezier(.2,.9,.25,1.15) forwards;display:grid;place-items:center}
 .splash .sp-tile svg{width:64px;height:64px}
+.splash .sp-tile img{width:100%;height:100%;object-fit:cover;display:block}
 .splash .t{font-family:var(--font-ui);font-weight:700;font-size:2rem;line-height:1.2;color:var(--fg);white-space:nowrap;clip-path:inset(0 0 0 100%);animation:spWrite .42s .28s cubic-bezier(.45,0,.2,1) forwards;background:none;-webkit-background-clip:border-box;filter:none}
 .splash .s{color:var(--muted);font-size:.95rem;font-weight:500;text-align:center;opacity:0;animation:spUp .4s .6s ease forwards;transform:translateY(6px)}
 .splash .ld{height:5px;background:var(--surface-2);width:min(200px,56%);border-radius:999px;overflow:hidden}
@@ -3168,7 +3169,7 @@ function devBtn(){
 
 /* ---------- views ---------- */
 function vSplash(){
-  return '<div class="splash"><div class="sp-tile"><svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M40 10a22 22 0 1 0 14 38A18 18 0 0 1 40 10z" fill="#fff" opacity=".95"/><path d="M6 54c14-9 28-9 52 0" stroke="#fff" stroke-width="3.2" stroke-linecap="round" opacity=".7"/><circle cx="44" cy="22" r="2.4" fill="#fff"/></svg></div><div class="t">السائر إلى الله</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div></div>';
+  return '<div class="splash"><div class="sp-tile"><img src="icon.png" alt=""></div><div class="t">السائر إلى الله</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div></div>';
 }
 function vOb(){
   var p=S.profile||{},gender=obGender||S.gender||'male';
