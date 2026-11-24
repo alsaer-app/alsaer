@@ -40,33 +40,9 @@ function sgLit(html,on){return on?html.replace('class="lrow','class="lrow lit').
 
 /* --- صفوف الاتجاه أ: تنقّل/لوحات داخل بطاقات مجمّعة --- */
 function sgCtlV(val){return '<div class="sg-ctl">'+(val?'<span class="sg-val">'+val+'</span>':'')+ic('chev').replace('class="i"','class="i chev"')+'</div>'}
-/* Settings navigation reuses the historical More tile and its animation unchanged. */
-var sgTileIndex=0,sgEditorTitle='';
-function sgTile(act,val,icon,title,info,attr){
-  return '<button type="button" class="mtile sg-nav-tile" data-a="'+act+'" data-v="'+esc(val||'')+'" style="--i:'+(sgTileIndex++)+'"'+(info?' title="'+esc(String(info).replace(/<[^>]*>/g,''))+'"':'')+(attr||'')+'><span class="mt-i">'+ic(icon)+'</span><b>'+title+'</b></button>';
-}
-function sgNav(key,icon,title,desc,val){if(setOpen===key)sgEditorTitle=title;return sgTile('sopen',key,icon,title,(desc||'')+(val?' · '+val:''),' aria-expanded="'+(setOpen===key)+'"')}
-function sgNavTab(tabId,icon,title,desc,val){return sgTile('tab',tabId,icon,title,(desc||'')+(val?' · '+val:''))}
-function sgNavSub(sub,icon,title,desc,val){return sgTile('ssub',sub,icon,title,(desc||'')+(val?' · '+val:''))}
-/* Convert only safe named choices/navigation. Inputs, previews, status and destructive buttons stay real controls. */
-function sgGridChoices(html){
-  var root=document.createElement('div');root.innerHTML=html;
-  var selectors='.sg-seg,.seg,.opt-list,.hc-btns,.sec2-grid,.row.sg-gender,.ns-g>.chips,.sec2>.chips';
-  Array.prototype.forEach.call(root.querySelectorAll(selectors),function(group){
-    var buttons=group.querySelectorAll('button');if(!buttons.length)return;
-    group.className='mt-grid sg-choices';
-    Array.prototype.forEach.call(buttons,function(btn){
-      var name=btn.querySelector('b'),label=name?name.textContent:btn.textContent;
-      var selected=btn.classList.contains('on')||btn.getAttribute('aria-pressed')==='true',info=btn.textContent;
-      if(btn.getAttribute('data-a')==='gender')selected=(S.gender||'male')===btn.getAttribute('data-v');
-      btn.className='mtile sg-choice'+(selected?' on':'');btn.style.setProperty('--i',sgTileIndex++);
-      btn.setAttribute('title',info.trim());btn.setAttribute('aria-label',info.trim());
-      btn.setAttribute('aria-pressed',String(selected));
-      btn.innerHTML='<span class="mt-i">'+ic(selected?'check':'gear')+'</span><b>'+esc(label.trim())+'</b>';
-    });
-  });
-  return root.innerHTML;
-}
+function sgNav(key,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="sopen" data-v="'+key+'" aria-expanded="'+(setOpen===key)+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div>'+sgCtlV(val)+'</button>'}
+function sgNavTab(tabId,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="tab" data-v="'+tabId+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div>'+sgCtlV(val)+'</button>'}
+function sgNavSub(sub,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="ssub" data-v="'+sub+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div>'+sgCtlV(val)+'</button>'}
 function sgSwitch(icon,title,desc,attr,on){return '<div class="sg-row'+(on?' lit':'')+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div><div class="sg-ctl"><label class="rm-sw"><input type="checkbox" '+attr+' '+(on?'checked':'')+'><i></i></label></div></div>'}
 function sgSegRow(icon,title,desc,segHtml){return '<div class="sg-row segrow"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div><div class="sg-ctl">'+segHtml+'</div></div>'}
 var IC_BELLOFF='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 9.5-4.9M18 11c0 4 1.5 5.5 2 6H6"/><path d="M10 20a2 2 0 0 0 4 0M3 3l18 18"/></svg>';
@@ -76,8 +52,7 @@ function sgDeveloperCard(){return '<section class="sg-card settings-dev"><div cl
 
 function vSettings(){
   var M='<p class="msg">'+esc(msg)+'</p>';
-  sgTileIndex=0;sgEditorTitle='';var editorHtml='';
-  var P=function(k,html){if(setOpen===k)editorHtml=html;return ''};
+  var P=function(k,html){return setOpen===k?'<div class="panel">'+html+'</div>':''};
   var nat=window.AlsaerNative,rr={};try{rr=JSON.parse(localStorage.getItem('alsaer_daily_reminders_v1')||'{}')}catch(e){}
   var dg=U().digits==='west'?'west':'east',auto=!!(S.loc&&S.loc.auto),pk=false,ek=false;
   try{pk=!!(nat&&nat.notificationsEnabled&&nat.notificationsEnabled())}catch(e){}try{ek=!!(nat&&nat.canExactAlarms&&nat.canExactAlarms())}catch(e){}
@@ -93,9 +68,8 @@ function vSettings(){
   var tr=pick(TRANSES,u.trans,'rise'),trN=(TRANSES.filter(function(x){return x[0]===tr})[0]||[])[1]||'';
   var ac=apAcc();
   var hidN=HOME_SECS.filter(function(x){return !(S.homeHide&&S.homeHide[x[0]])}).length;
-  var LOOK='<div class="mt-grid">'
-   +sgNav('mode',isDark()?'moon':'sun','الوضع','تلقائي يتبع نظام هاتفك',md)
-   +P('mode','<p class="note">تلقائي يتبع نظام هاتفك</p>'+sgSeg([['system','تلقائي'],['light','فاتح'],['dark','داكن']],md,'umode'))
+  var LOOK='<div class="sg-card">'
+   +sgSegRow(isDark()?'moon':'sun','الوضع','تلقائي يتبع نظام هاتفك',sgSeg([['system','تلقائي'],['light','فاتح'],['dark','داكن']],md,'umode'))
    +sgNav('sty','sparkles','النمط','الثيم وشكل الواجهة في اختيار واحد',STY[sid].n+' · '+lkE[1])
    +P('sty','<div style="padding:4px 2px 8px"><p class="sg-pl">الثيم</p><div class="sty-grid">'+Object.keys(STY).map(function(k){var s=STY[k];return oBtn('ustyle',k,sid,'<span class="pv" style="background:'+s.pv[0]+'"><i style="background:'+s.pv[1]+'"></i><b style="background:'+s.pv[2]+'"></b></span><small>'+s.n+'</small>','uo sty')}).join('')+'</div><p class="sg-pl" style="margin-top:12px">شكل الواجهة</p><div class="look-row">'+LOOKS.map(function(x){return oBtn('ulook',x[0],lk,'<span class="lk-pv '+x[0]+'"><i></i><i></i></span><b>'+x[1]+'</b>','uo lo')}).join('')+'</div><p class="note">'+lkE[2]+'</p></div>')
    +sgNav('acc','target','لون التطبيق','','<span class="sg-dot" style="background:'+ac.col+'"></span>'+(ac.name?' '+ac.name:''))
@@ -106,11 +80,11 @@ function vSettings(){
    +P('homecfg','<section class="card"><h3 style="margin:0 0 8px">بطاقات الصفحة الرئيسية</h3>'+HOME_SECS.map(function(x){var on=!(S.homeHide&&S.homeHide[x[0]]);return '<div class="rm-row'+(on?' on':'')+'" style="margin:6px 0"><div class="rm-tx"><b>'+x[1]+'</b></div><label class="rm-sw"><input type="checkbox" data-hide="'+x[0]+'" '+(on?'checked':'')+'><i></i></label></div>'}).join('')+'<h3 style="margin:14px 0 8px">تخصيص الرئيسية</h3><div class="hc-btns"><button class="btn ghost" data-a="wkedit" data-v="quran">اختصارات القرآن</button><button class="btn ghost" data-a="wkedit" data-v="adhkar">اختصارات الأذكار</button><button class="btn ghost" data-a="wkedit" data-v="ibadat">اختصارات العبادات</button><button class="btn ghost" data-a="wkper">أوقات «ذكر هذا الوقت»</button></div></section>')
    +sgNavSub('look-adv','gear','خيارات متقدمة','','الاهتزاز · الخط · الحركات')
    +'</div>';
-  var ADV='<div class="mt-grid">'
-   +sgNav('haptic','phone','الاهتزاز','','')+P('haptic',sgSeg(HAPS,(u.hap)||'mid','uhap'))
+  var ADV='<div class="sg-card">'
+   +sgSegRow('phone','الاهتزاز','',sgSeg(HAPS,(u.hap)||'mid','uhap'))
    +sgNav('font','pen','الخط','',fnN+' · '+(u.fontW==='bold'?'عريض':'عادي'))
    +P('font','<div style="padding:4px 2px 8px"><div class="font-grid">'+FONTS.map(function(x){return oBtn('ufont',x[0],fn,'<span class="fo-s fo-'+x[0]+'">أبجد</span><small>'+x[1]+'</small>','uo fo')}).join('')+'</div><div class="seg" style="margin-top:10px"><button class="'+(u.fontW!=='bold'?'on':'')+'" data-a="ufw" data-v="normal">عادي</button><button class="'+(u.fontW==='bold'?'on':'')+'" data-a="ufw" data-v="bold" style="font-weight:800">عريض</button></div></div>')
-   +sgNav('motion','sparkles','الحركات','حركة الضغط والانتقالات في مفتاح واحد','')+P('motion',sgSeg([['full','كاملة'],['reduced','مخففة'],['none','بلا']],apMotionCur(),'umotion'))
+   +sgSegRow('sparkles','الحركات','حركة الضغط والانتقالات في مفتاح واحد',sgSeg([['full','كاملة'],['reduced','مخففة'],['none','بلا']],apMotionCur(),'umotion'))
    +sgNav('press','star','حركة الضغط','',prN)
    +P('press','<div style="padding:4px 2px 8px"><div class="opt-list">'+PRESSES.map(function(x){return oBtn('upress',x[0],pr,'<b>'+x[1]+'</b><small>'+x[2]+'</small>','uo ol')}).join('')+'</div></div>')
    +sgNav('trans','up','حركة الانتقال','',trN)
@@ -126,50 +100,55 @@ function vSettings(){
     var on=snd===val;
     return '<label class="snd-opt'+(on?' on':'')+'"><span class="snd-ic">'+icon+'</span><b>'+label+'</b><small>'+sub+'</small><span class="snd-chk">'+ic('check')+'</span><input type="radio" name="alsaer-snd" data-rem-sound="'+val+'" '+(on?'checked':'')+'></label>';
   }
-  var NOTIF='<div class="mt-grid">'
-   +sgNav('master','bell','تفعيل التنبيهات','','')+P('master',sgSwitch('bell','تفعيل التنبيهات',rr.enabled?'تصلك التنبيهات حتى مع إغلاق التطبيق':'متوقفة','data-rem-master',rr.enabled))
+  var NOTIF='<div class="sg-card">'
+   +sgSwitch('bell','تفعيل التنبيهات',rr.enabled?'تصلك التنبيهات حتى مع إغلاق التطبيق':'متوقفة','data-rem-master',rr.enabled)
    +sgLit(sgNavTab('reminders','bell','تذكيراتي','الملك والكهف والصلاة على النبي وغيرها',ar(onN)+' مفعّلة'),nOn)
    +sgLit(sgNavSub('notif-float','bell','النوافذ العائمة','تظهر فوق التطبيقات في أوقاتها','الجدولة والشكل'),fOn)
    +sgNav('snd','bell','صوت الإشعار','النغمة أو بلا صوت أو صوت النظام',sndN)
    +P('snd','<div style="padding:4px 2px 8px"><div class="snd-grid">'+sndOpt('chime',ic('bell'),'نغمة هادئة','نغمة السائر')+sndOpt('silent',IC_BELLOFF,'بلا صوت','إشعار صامت')+sndOpt('system',ic('phone'),'صوت النظام','نغمة هاتفك')+'</div><div class="rm-row'+(rr.respectSilent?' on':'')+'" style="margin:10px 0 0"><div class="rm-tx"><b>احترام وقت الصامت</b><small>عند صمت الهاتف تصل الإشعارات بلا صوت. يستخدم قناة النظام التي تلتزم بوضع الصامت بدل النغمة الخاصة</small></div><label class="rm-sw"><input type="checkbox" data-rem-toggle="respectSilent" '+(rr.respectSilent?'checked':'')+'><i></i></label></div></div>')
-   +sgNav('perm','shield','الصلاحيات','الإشعارات · المنبّهات · البطارية',nat?(ar(permN)+'/٣'):'')
+   +sgNav('perm','shield','الصلاحيات للعمل في الخلفية','الإشعارات · المنبّهات · البطارية',nat?(ar(permN)+'/٣'):'')
    +P('perm',sgPerms())
+   +'</div>'
+   +'<div class="sg-t">'+ic('gear')+' خيارات متقدمة</div><div class="sg-card">'
    +sgLit(sgNavTab('widgetset','sparkles','الودجت','','ألوانه وحجمه وما يعرضه'),wOn)
    +'</div>';
-  var FLOAT='<div class="mt-grid">'
+  var FLOAT='<div class="sg-card">'
    +sgLit(sgNavTab('floatfeed','bell','جدولة النوافذ العائمة','أوقاتها ومحتواها الإسلامي، ٢٤ ساعة أو فترة أو أوقات محددة',''),fOn)
    +sgLit(sgNavTab('floatset','sparkles','شكل النوافذ العائمة','التصميم والحركة والألوان ومدة الظهور',''),fOn)
    +'</div><p class="note" style="margin:10px 6px 0">تظهر النوافذ فوق التطبيقات الأخرى في أوقاتها، وتحتاج إذن «العرض فوق التطبيقات» من هاتفك.</p>';
 
   /* ===== الموقع والمواقيت (كما هو) ===== */
-  var LOC='<div class="mt-grid">'+sgNav('loc','mosque','الموقع والمواقيت','',esc((S.loc&&S.loc.city)||'تحديد المدينة'))
-  +P('loc','<section class="card"><b>مصدر الوقت</b><p class="note">تلقائي حسب موقعك، أو يدوي.</p>'+sgSeg([['1','تلقائي'],['0','يدوي']],auto?'1':'0','ptauto')+'</section>'+locCard())+'</div>';
+  var LOC=''+srow('loc','mosque','الموقع والمواقيت',esc((S.loc&&S.loc.city)||'تحديد المدينة'))
+  +P('loc','<section class="card"><b>مصدر الوقت</b><p class="note">تلقائي حسب موقعك، أو يدوي.</p>'+sgSeg([['1','تلقائي'],['0','يدوي']],auto?'1':'0','ptauto')+'</section>'+locCard());
 
   /* ===== الأمان والبيانات ===== */
-  var SEC='<div class="mt-grid">'
+  var SEC='<div class="sg-card">'
    +sgNav('acct','shield','مركز الأمان','القفل والبصمة وستر المحتوى',secLevelLabel())
    +P('acct',secPanel(M))
    +sgNavTab('backup','cloud','النسخ الاحتياطي','نسخ واسترجاع وتشفير',(typeof gdConfigured==='function'&&gdConfigured())?'محلي + درايف':'على هذا الجهاز')
    +'</div>'
-   +'<div class="sg-t dng">'+ic('shield')+' منطقة خطرة</div><div class="mt-grid sg-danger-grid">'
+   +'<div class="sg-t dng">'+ic('shield')+' منطقة خطرة</div><div class="sg-card dng">'
    +sgNav('rst','trash','مسح كل البيانات','حذف نهائي لكل ما سجّلته على هذا الجهاز','')
    +P('rst','<section class="card"><p class="note">سيُحذف كل ما سجّلته على هذا الجهاز نهائياً.</p><button class="btn bad" data-a="reset">'+(confirmReset?'تأكيد المسح النهائي؟ اضغط مرة أخرى':'مسح')+'</button>'+M+'</section>')
    +'</div>';
 
   /* ===== ملفي الشخصي (كما هو) ===== */
-  var PROF='<div class="mt-grid">'+sgNav('prof','user','الملف الشخصي','',(S.profile&&S.profile.name)||'إضافة الاسم والصورة')
-  +P('prof','<section class="card profile-edit"><div class="profile-preview" id="profile-preview"><div class="profile-photo-line"><div class="profile-edit-head"><button type="button" class="profile-photo-open" data-a="viewprofilephoto" aria-label="عرض الصورة بالحجم الكامل">'+profileAvatar(76)+'</button><div><h3 id="profile-preview-name">'+esc((S.profile&&S.profile.name)||'ملفك الشخصي')+'</h3><p class="note" id="profile-preview-age">'+((S.profile&&S.profile.age)?'العمر · '+esc(S.profile.age)+' سنة':'بياناتك الخاصة تظهر هنا بشكل أنيق')+'</p></div></div><button type="button" class="profile-photo-pencil" data-a="editprofilephoto" aria-label="تعديل الصورة">'+ic('pencil')+'</button></div></div><input id="profile-photo" type="file" accept="image/*" class="profile-file" style="display:none"><label class="profile-label" for="profile-name">الاسم</label><input id="profile-name" type="text" maxlength="40" value="'+esc(S.profile&&S.profile.name||'')+'" placeholder="اكتب اسمك"><label class="profile-label" for="profile-age">السن</label><input id="profile-age" type="number" inputmode="numeric" min="1" max="120" value="'+esc(S.profile&&S.profile.age||'')+'" placeholder="عمرك بالسنوات"><p class="note">يمكنك ترك السن أو الصورة دون إضافة.</p><p class="note">طريقة المخاطبة</p><div class="row sg-gender"><button class="btn ghost" data-a="gender" data-v="male">ذكر</button><button class="btn ghost" data-a="gender" data-v="female">أنثى</button></div><button class="btn block" data-a="saveprofile" style="margin-top:10px">حفظ الملف الشخصي</button></section>')+'</div>';
+  var PROF=''+srow('prof','user','الملف الشخصي',(S.profile&&S.profile.name)||'إضافة الاسم والصورة')
+  +P('prof','<section class="card profile-edit"><div class="profile-preview" id="profile-preview"><div class="profile-photo-line"><div class="profile-edit-head"><button type="button" class="profile-photo-open" data-a="viewprofilephoto" aria-label="عرض الصورة بالحجم الكامل">'+profileAvatar(76)+'</button><div><h3 id="profile-preview-name">'+esc((S.profile&&S.profile.name)||'ملفك الشخصي')+'</h3><p class="note" id="profile-preview-age">'+((S.profile&&S.profile.age)?'العمر · '+esc(S.profile.age)+' سنة':'بياناتك الخاصة تظهر هنا بشكل أنيق')+'</p></div></div><button type="button" class="profile-photo-pencil" data-a="editprofilephoto" aria-label="تعديل الصورة">'+ic('pencil')+'</button></div></div><input id="profile-photo" type="file" accept="image/*" class="profile-file" style="display:none"><label class="profile-label" for="profile-name">الاسم</label><input id="profile-name" type="text" maxlength="40" value="'+esc(S.profile&&S.profile.name||'')+'" placeholder="اكتب اسمك"><label class="profile-label" for="profile-age">السن</label><input id="profile-age" type="number" inputmode="numeric" min="1" max="120" value="'+esc(S.profile&&S.profile.age||'')+'" placeholder="عمرك بالسنوات"><p class="note">يمكنك ترك السن أو الصورة دون إضافة.</p><p class="note">طريقة المخاطبة</p><div class="row"><button class="btn ghost" data-a="gender" data-v="male">ذكر</button><button class="btn ghost" data-a="gender" data-v="female">أنثى</button></div><button class="btn block" data-a="saveprofile" style="margin-top:10px">حفظ الملف الشخصي</button></section>');
 
   /* ===== المساعدة والمعلومات ===== */
   var upd=(typeof updInfo==='function')?updInfo():null;
-  var ABOUT='<div class="mt-grid">'
+  var ABOUT='<div class="sg-card">'
    +sgNav('sys','info','حالة النظام','الجهاز والإصدار وحالة التذكيرات','')
    +P('sys',sgStatus())
-   +sgTile('updopen','','refresh','التحديثات',upd?('يتوفر '+esc(upd.versionName||String(upd.versionCode))):updCurrentLabel())
-   +sgTile('tourreplay','','sparkles','إعادة الجولة التعريفية','جولة سريعة على أهم الشاشات')
+   +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>التحقق والتنزيل داخل التطبيق</small></div><div class="sg-ctl"><span class="sg-val">'+(upd?('يتوفر '+esc(upd.versionName||String(upd.versionCode))):updCurrentLabel())+'</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
+   +'<button type="button" class="sg-row sg-btn" data-a="tourreplay"><span class="sg-ic">'+ic('sparkles')+'</span><div class="sg-tx"><b>إعادة الجولة التعريفية</b><small>جولة سريعة على أهم الشاشات</small></div>'+sgCtlV('')+'</button>'
    +sgNavTab('developer','info','عن التطبيق','سجل الإصدارات · الخصوصية','')
    +'</div>';
 
+  var APPBOTTOM='<div class="sg-t">التطبيق</div><div class="sg-card settings-app">'
+   +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>الإصدار '+esc(APP_VERSION)+' · التحقق من وجود تحديث</small></div>'+sgCtlV('')+'</button>'
+   +'<a class="sg-row sg-btn" href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer"><span class="sg-ic">'+ic('mail')+'</span><div class="sg-tx"><b>اقتراحات وملاحظات</b><small>شارك فكرة أو أبلغ عن مشكلة</small></div>'+sgCtlV('')+'</a></div>'+sgDeveloperCard();
 
   var cats={
    look:['الشكل والعرض',isDark()?'moon':'sun',LOOK],
@@ -184,10 +163,6 @@ function vSettings(){
    'notif-float':['notif','النوافذ العائمة','bell',FLOAT]
   };
   var catSub={look:'المظهر · النمط · اللون · الأرقام والساعة',notif:'تنبيهات · عائمة · صوت · صلاحيات',loc:esc((S.loc&&S.loc.city)||'تحديد المدينة'),sec:secLevelLabel()+' · نسخ احتياطي',prof:esc((S.profile&&S.profile.name)||'الاسم والصورة'),about:'الحالة · التحديثات · الجولة · عن التطبيق'};
-  if(editorHtml&&(setCat||setSub)){
-    var parentTitle=setSub&&subs[setSub]?subs[setSub][1]:(cats[setCat]||['الإعدادات'])[0];
-    return '<div class="sg-editor"><div class="sc-head"><button type="button" class="sc-back" data-a="sopen" data-v="'+esc(setOpen)+'">'+ic('chev')+' '+parentTitle+'</button><h2>'+sgEditorTitle+'</h2></div>'+sgGridChoices(editorHtml)+'</div>'+COPY;
-  }
   if(setSub&&subs[setSub]){
     var s2=subs[setSub],pc=cats[s2[0]],cl2=scAnim?' class="sc-page sc-page-sub"':'';scAnim=0;
     return '<div'+cl2+'><div class="sc-head"><button type="button" class="sc-back" data-a="ssub" data-v="">'+ic('chev')+' '+pc[0]+'</button><h2>'+ic(s2[2])+s2[1]+'</h2></div>'+s2[3]+'</div>'+COPY;
@@ -196,30 +171,9 @@ function vSettings(){
     var c=cats[setCat],cl=scAnim?' class="sc-page sc-page-sub"':'';scAnim=0;
     return '<div'+cl+'><div class="sc-head"><button type="button" class="sc-back" data-a="scat" data-v="">'+ic('chev')+' الإعدادات</button><h2>'+ic(c[1])+c[0]+'</h2></div><div class="lrows">'+c[2]+'</div></div>'+COPY;
   }
-  scAnim=0;sgTileIndex=0;
-  return '<div class="mt-grid sg-main">'+['prof','look','notif','loc','sec','about'].map(function(k){return sgTile('scat',k,cats[k][1],cats[k][0],catSub[k])}).join('')
-   +sgTile('updopen','','refresh','التحديثات','الإصدار '+APP_VERSION)
-   +'<a class="mtile" style="--i:'+(sgTileIndex++)+'" href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer"><span class="mt-i">'+ic('mail')+'</span><b>اقتراحات وملاحظات</b></a></div>'
-   +sgDeveloperCard()+COPY;
+  scAnim=0;
+  var nm=(S.profile&&S.profile.name)||'السائر إلى الله';
+  return '<button type="button" class="sc-me" data-a="scat" data-v="prof"><span class="sc-av">'+profileAvatar(52)+'</span><span class="sc-mt"><b>'+esc(nm)+'</b><small>الملف الشخصي</small></span>'+ic('chev')+'</button>'
+   +'<div class="sc-grid">'+Object.keys(cats).filter(function(k){return k!=='prof'}).map(function(k){return sgLit('<button type="button" class="sc-tile sc-'+k+'" data-a="scat" data-v="'+k+'"><span class="sc-ic">'+ic(cats[k][1])+'</span><b>'+cats[k][0]+'</b><small>'+catSub[k]+'</small></button>',(k==='notif'&&(nOn||fOn||wOn)))}).join('')+'</div>'
+   +APPBOTTOM+COPY;
 }
-
-/* Separate Settings destinations: navigation becomes a grid; forms/previews are disclosed below it. */
-var sgDetail={};
-function sgDestination(tabId,html){
-  if(['floatset','widgetset','floatfeed','developer','reminders'].indexOf(tabId)<0)return html;
-  var root=document.createElement('div');root.innerHTML=html;sgTileIndex=0;
-  if(tabId==='developer'){
-    var rows=root.querySelector('.lrows');if(rows){rows.classList.add('mt-grid');Array.prototype.forEach.call(rows.querySelectorAll('.lrow'),function(btn){var label=btn.querySelector('.t').textContent,icon=btn.querySelector('svg');btn.className='mtile';btn.style.setProperty('--i',sgTileIndex++);btn.innerHTML='<span class="mt-i">'+(icon?icon.outerHTML:ic('info'))+'</span><b>'+esc(label)+'</b>'});Array.prototype.forEach.call(rows.querySelectorAll('section'),function(el){el.classList.add('sg-span')})}
-    return root.innerHTML;
-  }
-  if(tabId==='reminders'){
-    var nav=root.querySelector('.rm-seg');if(nav){nav.className='mt-grid sg-rem-nav';Array.prototype.forEach.call(nav.querySelectorAll('button'),function(btn){var label=btn.textContent,on=btn.classList.contains('on');btn.className='mtile'+(on?' on':'');btn.setAttribute('aria-pressed',String(on));btn.style.setProperty('--i',sgTileIndex++);btn.innerHTML='<span class="mt-i">'+ic(on?'check':'bell')+'</span><b>'+esc(label)+'</b>'})}
-    return root.innerHTML;
-  }
-  var sections=root.querySelectorAll('.ns>section'),chosen=sgDetail[tabId],grid=document.createElement('div');grid.className='mt-grid sg-dest-grid';
-  Array.prototype.forEach.call(sections,function(section,i){var h=section.querySelector('h3'),title=h?h.textContent:'الإعدادات';grid.insertAdjacentHTML('beforeend',sgTile('sgdetail',String(i),'gear',esc(title),'') );section.setAttribute('data-sg-section',i);section.hidden=String(chosen)!==String(i);section.classList.add('sg-dest-detail')});
-  var ns=root.querySelector('.ns');if(ns){ns.insertBefore(grid,ns.firstChild);if(chosen!==undefined){grid.hidden=true;var active=ns.querySelector('[data-sg-section="'+chosen+'"]');if(active)active.insertAdjacentHTML('afterbegin','<button type="button" class="sc-back" data-a="sgdetail" data-v="">'+ic('chev')+' رجوع</button>');else delete sgDetail[tabId]}}
-  return sgGridChoices(root.innerHTML);
-}
-
-function sgStagger(html){var i=0;return html.replace(/--i:\d+/g,function(){return '--i:'+(i++)})}
