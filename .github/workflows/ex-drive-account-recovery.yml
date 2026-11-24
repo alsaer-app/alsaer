@@ -1,4 +1,4 @@
-name: Alsaer10198 Drive recovery verified source test
+name: Alsaer10199 journal snooze Drive feedback glow verified source test
 on:
   push:
     branches: [exp/drive-account-recovery]
@@ -24,8 +24,8 @@ jobs:
           python3 tools/build_web.py
           python3 - <<'PYVERIFY'
           import json,hashlib,pathlib,base64
-          for p,b in json.loads(pathlib.Path('docs/source-10198-exact-docs.json').read_text()).items(): pathlib.Path(p).write_bytes(base64.b64decode(b))
-          expected=json.loads(pathlib.Path('docs/source-10198-sha256.json').read_text())
+          for p,b in json.loads(pathlib.Path('docs/source-10199-exact-docs.json').read_text()).items(): pathlib.Path(p).write_bytes(base64.b64decode(b))
+          expected=json.loads(pathlib.Path('docs/source-10199-sha256.json').read_text())
           bad=[p for p,h in expected.items() if not pathlib.Path(p).is_file() or hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()!=h]
           assert not bad, 'Source differs from reviewed ZIP: '+str(bad)
           print('PASS all reviewed source files match ZIP, including generated outputs')
@@ -64,6 +64,9 @@ jobs:
           node tests/gdrive_backup_contract.cjs
           node tests/gdrive_restore_contract.cjs
           node tests/gdrive_account_recovery_contract.cjs
+          node tests/journal_contract.cjs
+          python3 tests/snooze_auto_contract.py
+          python3 tests/gdrive_feedback_contract.py
           node tests/optional_fasting_shape_contract.cjs
           python3 tools/build_web.py
           npm ci && npx @capacitor/cli@5 sync android
@@ -117,7 +120,7 @@ jobs:
           "$BT/apksigner" verify --print-certs "$APK" | tee /tmp/cert.txt
           grep -q '647b477f5e19a79ec542b70d12476a166f3bf262ae7b5c2b1602bcc58a1c85e0' /tmp/cert.txt
           "$BT/aapt" dump badging "$APK" | head -1 | tee /tmp/meta.txt
-          grep -q "versionCode='10198'" /tmp/meta.txt && grep -q "versionName='2.0.0'" /tmp/meta.txt
+          grep -q "versionCode='10199'" /tmp/meta.txt && grep -q "versionName='2.0.0'" /tmp/meta.txt
           "$BT/aapt" dump permissions "$APK" | tee /tmp/perm.txt
           ! grep -qE 'RECORD_AUDIO|MODIFY_AUDIO' /tmp/perm.txt
           "$BT/aapt" dump xmltree "$APK" AndroidManifest.xml | tee /tmp/manifest.txt
@@ -128,7 +131,7 @@ jobs:
           grep -q 'xml/alsaer_widget_info:' /tmp/apkfiles.txt
           stat -c '%s bytes' "$APK" && sha256sum "$APK" && git rev-parse HEAD
       - uses: actions/upload-artifact@v4
-        with: {name: alsaer-2.0.0-10198-drive-account-recovery-test, path: android/app/build/outputs/apk/release/app-release.apk, retention-days: 3, if-no-files-found: error}
+        with: {name: alsaer-2.0.0-10199-journal-snooze-drive-feedback-test, path: android/app/build/outputs/apk/release/app-release.apk, retention-days: 3, if-no-files-found: error}
       - if: always()
         name: Remove temporary signing material
         run: rm -f android/app/alsaer-release-key.p12

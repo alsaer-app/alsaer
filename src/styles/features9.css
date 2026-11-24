@@ -221,4 +221,36 @@ body.orn .mp-fa{background:#f9f5ee;border-color:#b98a2e;color:#8a5a36}body.orn .
 .rd-mg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
 .rd-mg button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:64px;padding:8px 4px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:inherit;font:inherit;font-size:11px;cursor:pointer}
 .rd-mg .i{width:20px;height:20px}
+/* توهج ثابت للاختيارات المفعلة في درج المصحف والشريط السفلي */
+.rd-mg button.on{border-color:color-mix(in srgb,var(--gold) 70%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 40%,transparent),0 0 16px 2px color-mix(in srgb,var(--gold) 35%,transparent);color:var(--gold)}
+.rd-mg button.on .i{color:var(--gold);filter:drop-shadow(0 0 4px color-mix(in srgb,var(--gold) 80%,transparent))}
+.rd-b .ib.bm[aria-pressed="true"],.rd-mtb .ib[aria-pressed="true"],.fsz .ib[aria-pressed="true"]{border-color:color-mix(in srgb,var(--gold) 70%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 40%,transparent),0 0 16px 2px color-mix(in srgb,var(--gold) 35%,transparent);color:var(--gold)}
 body.orn .rd-menu{background:#f9f5ee;color:#4a2f18}body.orn .rd-menu .qd-i{background:#fff;color:#4a2f18;border-color:#d8c4a4}body.orn .rd-mt button{background:#fff;color:#4a2f18}body.orn .rd-mg button{background:#fff;color:#4a2f18}
+
+/* ===== سجل النشاط اليومي ===== */
+.jn-fchips{display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 12px}
+.jn-fchips .chip.on{color:var(--gold);border-color:color-mix(in srgb,var(--gold) 55%,var(--line));background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.day-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
+.day-h b{font-size:16px}
+.jrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px dashed color-mix(in srgb,var(--line) 70%,transparent)}
+.jrow:first-of-type{border-top:none;padding-top:0}
+.jrow .ji{width:36px;height:36px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;color:var(--gold);flex:none}
+.jrow .jt{flex:1;min-width:0}
+.jrow .jt b{display:block;font-size:14.5px}
+.jrow .jt small{display:block}
+.pchips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.pchips .chip{padding:5px 10px;font-size:13px;cursor:default}
+.pchips .chip.ok{color:var(--good);border-color:color-mix(in srgb,var(--good) 45%,var(--line));background:color-mix(in srgb,var(--good) 10%,transparent)}
+.prog{height:6px;border-radius:99px;background:color-mix(in srgb,var(--line) 60%,transparent);overflow:hidden;margin-top:7px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--btn1),var(--btn2));border-radius:99px}
+.jn-t{color:var(--muted);font-size:11.5px;font-weight:400;margin-inline-start:3px}
+.jn-note{text-align:center;font-size:12.5px;margin-top:4px;line-height:1.9}
+
+/* ===== أزرار Drive: حالة الرفع/الاستعادة (تصميم معتمد) ===== */
+.gd-spin{width:16px;height:16px;flex:none;display:inline-block;vertical-align:-3px;border-radius:50%;border:2.5px solid currentColor;border-top-color:transparent;animation:spin .7s linear infinite}
+.gd-prog{grid-column:1/-1;width:100%;height:4px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.gd-prog i{display:block;height:100%;width:38%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--good));animation:gdProg 1.1s ease-in-out infinite}
+@keyframes gdProg{0%{transform:translateX(120%)}100%{transform:translateX(-320%)}}
+.btn.done{background:var(--good);border-color:transparent;color:#fff;opacity:1!important;animation:gdDone .45s ease}
+.btn.done svg.i{width:17px;height:17px}
+@keyframes gdDone{0%{transform:scale(.96)}55%{transform:scale(1.02)}100%{transform:scale(1)}}

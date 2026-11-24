@@ -8,7 +8,7 @@ android {
         applicationId "com.ahmedalajmi.alsaer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10198
+        versionCode 10199
         versionName "2.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {

@@ -51,7 +51,12 @@ ENP=ENP.concat([
 [/^حان وقت صلاة (.+)$/,function(m,p){var P={'الفجر':'Fajr','الظهر':'Dhuhr','العصر':'Asr','المغرب':'Maghrib','العشاء':'Isha'};return 'Time for '+(P[p]||p)+' prayer'}],
 [/^≈ (\d+) إشعارًا في اليوم$/,'≈ $1 notifications per day'],[/^من (\d+)$/,'of $1'],
 [/^الإصدار (?:الحالي )?([\d.]+) · (?:بناء )?(\d+)$/,'Version $1 · build $2'],
-[/^✦ الصيام ✦$/,'✦ Fasting ✦'],[/^تذكير بصيام التطوع$/,'Voluntary fasting reminder'],[/^الضحى والظهر$/,'Duha and Dhuhr']
+[/^✦ الصيام ✦$/,'✦ Fasting ✦'],[/^تذكير بصيام التطوع$/,'Voluntary fasting reminder'],[/^الضحى والظهر$/,'Duha and Dhuhr'],
+[/^الصلاة · (\d+) من ٥( ✓)?$/,'Prayer · $1 of 5$2'],[/^العادات · (\d+) من (\d+)( ✓)?$/,'Habits · $1 of $2$3'],
+[/^القرآن · (.+)$/,function(m,x){return 'Quran · '+(EN[x]||x)}],
+[/^(\d+) صفحات? من (\d+)$/,'$1 of $2 pages'],
+[/^(اليوم|أمس) · (.+)$/,function(m,d,w){return (EN[d]||d)+' · '+(EN[w]||w)}],
+[/^(\d+) (?:تذكير مؤجّل|تذكيرات مؤجّلة)$/,function(m,n){return n+(n==='1'?' snoozed reminder':' snoozed reminders')}]
 ]);
 
 

@@ -19,7 +19,15 @@ public class AlarmReceiver extends BroadcastReceiver {
                 if(AlarmScheduler.prefs(c).getLong(onceKey,0)==once)return;
                 if(!AlarmScheduler.prefs(c).edit().putLong(onceKey,once).commit())return;
             }
+            if (!snooze) AlarmScheduler.snoozeChainSet(c, it.optString("id"), 0); // إطلاق جديد: نهاية سلسلة التأجيل السابقة
             AlarmScheduler.show(c, it);
+            if (snooze && AlarmScheduler.snoozeAuto(c)) {
+                int n = AlarmScheduler.snoozeChain(c, it.optString("id"));
+                if (n > 0 && n < AlarmScheduler.SNOOZE_MAX) {
+                    AlarmScheduler.snoozeChainSet(c, it.optString("id"), n + 1);
+                    AlarmScheduler.scheduleAt(c, it, System.currentTimeMillis() + AlarmScheduler.SNOOZE_MS, true);
+                } else AlarmScheduler.snoozeChainSet(c, it.optString("id"), 0);
+            }
             if (!snooze && it.optLong("at", 0) <= 0) { // جدولة الموعد التالي للتنبيه المتكرر
                 long at = AlarmScheduler.nextTrigger(it, System.currentTimeMillis() + 1000L);
                 if (at > 0) AlarmScheduler.scheduleAt(c, it, at, false);

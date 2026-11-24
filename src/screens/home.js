@@ -18,7 +18,8 @@ function vHome(){
    worship:function(){return worshipHomeCard()},
    progress:function(){return '<section class="card flat dprog"><div class="row between"><span>تقدم اليوم</span><b>'+dn+' من '+T+'</b></div><div class="bar"><div style="width:'+Math.round(dn/T*100)+'%"></div></div></section>'},
    nav:function(){return '<div class="tiles">'+tile('prayers','mosque','الصلوات',pdone+' من 5')+tile('fasting','moon','الصيام','جدول الصيام')+tile('quran','book','القرآن',Math.min(qPages(k),99)+' / '+S.quran.goal+' صفحة')+tile('adhkar','beads','الأذكار','الصباح والمساء')+'</div>'
-     +'<div class="tiles">'+tile('reminders','bell','التذكيرات','مركز التنبيهات')+tile('habits','target','العادات',hdone+' من '+allHabits().length)+'</div>'},
+     +'<div class="tiles">'+tile('reminders','bell','التذكيرات','مركز التنبيهات')+tile('habits','target','العادات',hdone+' من '+allHabits().length)+'</div>'
+     +'<div class="lrows" style="margin-top:10px">'+lrow('journal','clock','سجل النشاط اليومي','صلواتك وقراءتك وصيامك وعاداتك باليوم والساعة')+'</div>'},
    journey:function(){return '<div class="sect">'+ic('flag')+'رحلة الثبات</div>'
      +'<section class="card hero"><div class="ring"><svg viewBox="0 0 176 176"><circle class="tr" cx="88" cy="88" r="76" fill="none" stroke-width="12"/><circle class="pg" cx="88" cy="88" r="76" fill="none" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg><div class="mid"><div class="count">'+s.cur+'</div><small>يوم متتالٍ</small></div></div><div class="next">الهدف القادم: '+nxt+' '+(nxt<11?'أيام':'يوماً')+' · '+rankName(s.best)+'</div><div class="week">'+wk+'</div></section>'
      +'<section class="grid3"><div class="stat o"><b>'+s.best+'</b><small>أطول سلسلة</small></div><div class="stat g"><b>'+s.ok+'</b><small>أيام النجاح</small></div><div class="stat"><b>'+s.rate+'%</b><small>نسبة النجاح</small></div></section>'},

@@ -192,6 +192,17 @@ function gdDisconnect(){
   if(rt)fetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(rt)).catch(function(){});
 }
 
+/* حالة أزرار الرفع/الاستعادة: مشغول (مؤشر دوّار + شريط تقدم) ثم نجاح مؤقت */
+var gdPhase='',gdDoneKind='',gdDoneAt=0;
+function gdBtnDone(k){return gdDoneKind===k&&Date.now()-gdDoneAt<2600}
+function gdBtn(kind,label,ghost,extraDis){
+  if(gdPhase===kind)return '<button class="btn'+(ghost?' ghost':'')+'" disabled><span class="gd-spin"></span> '+(kind==='up'?'جارٍ الرفع…':'جارٍ الاستعادة…')+'</button>';
+  if(gdBtnDone(kind))return '<button class="btn done" disabled>'+ic('check')+' '+(kind==='up'?'تم الرفع':'تمت الاستعادة')+'</button>';
+  return '<button class="btn'+(ghost?' ghost':'')+'" data-a="'+(kind==='up'?'gdup':'gddown')+'"'+((gdBusy||extraDis)?' disabled':'')+'>'+label+'</button>';
+}
+function gdProgBar(){return gdPhase?'<div class="gd-prog" aria-hidden="true"><i></i></div>':''}
+function gdFlashDone(kind){gdDoneKind=kind;gdDoneAt=Date.now();setTimeout(function(){if(gdDoneKind===kind){gdDoneKind='';try{render()}catch(e){}}},2600)}
+
 /* --- بطاقة Google Drive داخل شاشة النسخ الاحتياطي --- */
 function vGdCard(){
   if(!gdConfigured())return '';
@@ -201,8 +212,7 @@ function vGdCard(){
       +'<div class="acts"><button class="btn" data-a="gdconnect">'+ic('cloud')+' ربط Google Drive</button></div>';
   }else{
     h+='<p class="note">الحساب مربوط ✓'+(S.gdAt?' — آخر رفع: <b>'+bkAgo(S.gdAt)+'</b>':' — لم ترفع نسخة بعد')+'</p>'
-      +'<div class="acts"><button class="btn'+(gdBusy?' dis':'')+'" data-a="gdup">رفع نسخة الآن</button>'
-      +'<button class="btn ghost'+(gdBusy?' dis':'')+'" data-a="gddown">استعادة آخر نسخة</button>'
+      +'<div class="acts">'+gdBtn('up','رفع نسخة الآن')+gdBtn('down','استعادة آخر نسخة',true)+gdProgBar()
       +'<button class="btn ghost" data-a="gddisc">فصل الحساب</button></div>';
   }
   return h+'</section>';
@@ -239,7 +249,7 @@ function gdAct(a,v){
   }
   if(a==='gdrestore'){
     if(gdBusy||!gdVerified)return true;
-    gdBusy=true;try{gdRestoreApply(gdVerified)}catch(e){bkSay(e.message==='safety-failed'?'تعذّر حفظ نسخة الأمان؛ أُوقفت الاستعادة.':e.message)}finally{gdBusy=false;render()}return true;
+    gdBusy=true;try{gdRestoreApply(gdVerified);gdFlashDone('down')}catch(e){bkSay(e.message==='safety-failed'?'تعذّر حفظ نسخة الأمان؛ أُوقفت الاستعادة.':e.message)}finally{gdBusy=false;render()}return true;
   }
   if(a==='gdconnect'){if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return true;gdStartAuth();return true}
   if(a==='gddisc'){if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return true;gdBusy=true;render();Promise.resolve().then(gdDisconnect).then(function(){bkSay('فُصل حساب Google Drive. ملف النسخة يبقى في درايف حتى تحذفه بنفسك.');render()},function(){bkSay('تعذّر إلغاء الوصول. تحقق من الإنترنت، أو ألغِ إذن السائر من حساب Google ثم أعد المحاولة.')}).finally(function(){gdBusy=false;render()});return true}
@@ -273,15 +283,17 @@ function gdRunBackup(automatic){
   var pref=gdPrefs(),now=Date.now(),localDue=!automatic||!pref.phoneAt||now-pref.phoneAt>=7*864e5||pref.phoneRetry;
   var driveDue=gdHasRt()&&(!automatic||!gdStatus().driveAt||now-gdStatus().driveAt>=7*864e5);
   gdBusy=true;bkSay('جارٍ تجهيز النسخة…');
+  if(!automatic){gdPhase='up';try{render()}catch(e){}}
   return Promise.resolve().then(gdPrepareBackup).then(function(content){
     var localOK=!localDue,driveOK=!driveDue;
     /* A network error must never prevent the independent app-private safety copy. */
     if(localDue)try{gdSavePhone(content);localOK=true}catch(e){var retry=gdPrefs();retry.phoneRetry=true;try{gdSetPrefs(retry)}catch(x){}}
     return (driveDue?gdUpload(content).then(function(){S.gdAt=Date.now();gdStatusSet('driveAt',S.gdAt);save();driveOK=true},function(){}):Promise.resolve()).then(function(){
+      if(!automatic&&driveDue&&driveOK)gdFlashDone('up');
       bkSay((localDue?(localOK?'حُفظت نسخة الأمان داخل التطبيق. ':'تعذّر حفظ نسخة الأمان داخل التطبيق. '):'')+(driveDue?(driveOK?'تم الرفع إلى Drive.':'تعذّر الرفع إلى Drive؛ تحقق من الاتصال وصلاحية الربط.'):(gdHasRt()?'نسخة Drive حديثة ولم تُرفع مجددًا.':'لم يُرفع شيء إلى Drive؛ الحساب غير مربوط.')));
       return localOK&&driveOK;
     });
-  }).catch(function(e){bkSay(e.message==='password-required'?'أدخل كلمة مرور النسخ المشفّرة أولًا.':'تعذّر تجهيز النسخة؛ لم يُرفع شيء.');return false}).finally(function(){gdBusy=false;try{render()}catch(e){}});
+  }).catch(function(e){bkSay(e.message==='password-required'?'أدخل كلمة مرور النسخ المشفّرة أولًا.':'تعذّر تجهيز النسخة؛ لم يُرفع شيء.');return false}).finally(function(){gdBusy=false;gdPhase='';try{render()}catch(e){}});
 }
 function gdOnOpen(){
   if(document.hidden||!S.onboarded||gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return;
@@ -322,7 +334,8 @@ function gdLoadPicker(mode){
   if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return Promise.resolve(false);
   if(!gdHasRt()){bkSay('اربط حساب Google أولًا.');return Promise.resolve(false)}
   gdBusy=true;bkSay('جارٍ قراءة نسخ Drive…');
-  return gdListFiles().then(function(files){gdPicker={mode:mode,files:files,confirm:false};gdSelected=[];bkSay(files.length?'اختر الملف المطلوب.':'لا توجد نسخ متاحة لهذا التطبيق في Drive.');render();return true},function(e){bkSay(gdFailure(e));return false}).finally(function(){gdBusy=false;render()});
+  if(mode==='restore'){gdPhase='down';try{render()}catch(e){}}
+  return gdListFiles().then(function(files){gdPicker={mode:mode,files:files,confirm:false};gdSelected=[];bkSay(files.length?'اختر الملف المطلوب.':'لا توجد نسخ متاحة لهذا التطبيق في Drive.');render();return true},function(e){bkSay(gdFailure(e));return false}).finally(function(){gdBusy=false;gdPhase='';render()});
 }
 function gdPickerPanel(){
   if(!gdPicker)return '';

@@ -257,6 +257,15 @@ public class AlsaerNative {
     public void setSchedule(String json) { AlarmScheduler.saveAndSchedule(act, json); }
 
     @JavascriptInterface
+    public void setSnoozeAuto(boolean on) { AlarmScheduler.setSnoozeAuto(act, on); }
+
+    @JavascriptInterface
+    public void snoozeStopAll() { AlarmScheduler.snoozeStopAll(act); }
+
+    @JavascriptInterface
+    public int snoozeActiveCount() { return AlarmScheduler.snoozeActiveCount(act); }
+
+    @JavascriptInterface
     public boolean notificationsEnabled() { return NotificationManagerCompat.from(act).areNotificationsEnabled(); }
 
     @JavascriptInterface

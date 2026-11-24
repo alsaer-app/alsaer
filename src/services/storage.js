@@ -30,8 +30,16 @@ function fixShape(o){
   o.fasting.customDates=Array.isArray(o.fasting.customDates)?o.fasting.customDates.filter(function(x){return /^\d{4}-\d{2}-\d{2}$/.test(x)}).slice(0,100):[];
   o.fasting.reminders=Object.assign({},fd.reminders,isO(o.fasting.reminders)?o.fasting.reminders:{});
   if(!/^\d{4}-\d{2}-\d{2}$/.test(o.fasting.dawudAnchor||''))o.fasting.dawudAnchor=dk();
+  /* أوقات التعليم (سجل النشاط): مفاتيح الأيام فقط، وقيم طوابع زمنية رقمية؛ تُحفظ آخر 400 يوم */
+  if(!isO(o.mtimes))o.mtimes={};
+  var mtk=Object.keys(o.mtimes);if(mtk.length>400){mtk.sort();mtk.slice(0,mtk.length-400).forEach(function(k){delete o.mtimes[k]})}
+  Object.keys(o.mtimes).forEach(function(k){var L=o.mtimes[k];if(!/^\d{4}-\d{2}-\d{2}$/.test(k)||!isO(L)){delete o.mtimes[k];return}Object.keys(L).forEach(function(id){var t=+L[id];if((!/^([pqfh]:|q$|fast$)/.test(id))||!(t>0)){delete L[id];return}L[id]=t});if(!Object.keys(L).length)delete o.mtimes[k]});
   return o;
 }
+/* يسجّل وقت تعليم عنصر لسجل النشاط (مفتاح إضافي لا يغيّر أي مفتاح قائم، ويتدفق مع النسخة الاحتياطية كما هي) */
+function mtSet(id,k){try{S.mtimes=S.mtimes||{};k=k||dk();var L=S.mtimes[k]=S.mtimes[k]||{};L[id]=Date.now()}catch(e){}}
+function mtDel(id){try{var k=dk(),L=S.mtimes&&S.mtimes[k];if(L){delete L[id];if(!Object.keys(L).length)delete S.mtimes[k]}}catch(e){}}
+function mtOf(k,id){try{return (S.mtimes&&S.mtimes[k]&&S.mtimes[k][id])||0}catch(e){return 0}}
 function load(){
   var local=null,mirror=null,raw=null,mraw=null;
   try{raw=localStorage.getItem(KEY);if(raw){var lo=JSON.parse(raw);if(lo&&typeof lo==='object'&&!Array.isArray(lo))local=fixShape(Object.assign(def(),lo))}}catch(e){}
@@ -68,6 +76,7 @@ function validBackup(o){
   if(o.extraHabits!==undefined&&(!Array.isArray(o.extraHabits)||o.extraHabits.length>40))return false;
   if(o.habitCounts!==undefined&&!obj(o.habitCounts))return false;
   if(o.evlog!==undefined&&!obj(o.evlog))return false;
+  if(o.mtimes!==undefined&&!obj(o.mtimes))return false;
   if(o.worship!==undefined&&!obj(o.worship))return false;
   if(o.fasting!==undefined){if(!obj(o.fasting))return false;for(var fk of ['prefs','records','reminders'])if(o.fasting[fk]!==undefined&&!obj(o.fasting[fk]))return false;}
   if(o.startDate&&!/^\d{4}-\d{2}-\d{2}$/.test(o.startDate))return false;

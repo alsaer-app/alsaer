@@ -172,8 +172,8 @@ document.addEventListener('click',async function(e){
   else if(a==='cancelworship'){addingWorship=false}
   else if(a==='saveworship'){var wi=document.getElementById('new-worship-name'),wt=wi?wi.value.trim().slice(0,60):'';if(wt&&(S.customWorship||[]).length<30){S.customWorship=S.customWorship||[];S.customWorship.push({id:'cw'+Date.now().toString(36),t:wt});save();addingWorship=false;toast('تمت إضافة العبادة الخاصة بك')}else if(!wt)toast('اكتب اسم العبادة أولًا من فضلك')}
   else if(a==='delworship'){S.customWorship=(S.customWorship||[]).filter(function(x){return x.id!==v});Object.keys(S.worship||{}).forEach(function(k){if(S.worship[k])delete S.worship[k][v]});save();toast('تم حذف العبادة')}
-  else if(a==='hab'){S.habits=S.habits||{};var hk=dk();S.habits[hk]=S.habits[hk]||{};var hl='h:'+hk+':'+v;if(S.habits[hk][v]){if(lockLeft(hl)>0){lockBlock(lockLeft(hl));return}if(S.locks)delete S.locks[hl]}else lockSet(hl);S.habits[hk][v]=!S.habits[hk][v];save();checkNew()}
-  else if(a==='pray'){var pk=dk();S.prayers[pk]=S.prayers[pk]||{};if(PR.some(function(p){return p[0]===v})){var pl='p:'+pk+':'+v;if(S.prayers[pk][v]){if(lockLeft(pl)>0){lockBlock(lockLeft(pl));return}if(S.locks)delete S.locks[pl]}else lockSet(pl);S.prayers[pk][v]=!S.prayers[pk][v]}save();checkNew();
+  else if(a==='hab'){S.habits=S.habits||{};var hk=dk();S.habits[hk]=S.habits[hk]||{};var hl='h:'+hk+':'+v;if(S.habits[hk][v]){if(lockLeft(hl)>0){lockBlock(lockLeft(hl));return}if(S.locks)delete S.locks[hl]}else lockSet(hl);S.habits[hk][v]=!S.habits[hk][v];if(S.habits[hk][v])mtSet('h:'+v);else mtDel('h:'+v);save();checkNew()}
+  else if(a==='pray'){var pk=dk();S.prayers[pk]=S.prayers[pk]||{};if(PR.some(function(p){return p[0]===v})){var pl='p:'+pk+':'+v;if(S.prayers[pk][v]){if(lockLeft(pl)>0){lockBlock(lockLeft(pl));return}if(S.locks)delete S.locks[pl]}else lockSet(pl);S.prayers[pk][v]=!S.prayers[pk][v];if(S.prayers[pk][v])mtSet('p:'+v);else mtDel('p:'+v)}save();checkNew();
     /* شاشة الصلوات: حدّث صف الصلاة وبطاقة المعدل في مكانهما بدل إعادة بناء الشاشة كلها (سبب الوميض عند التسجيل) */
     var prow=b.closest&&b.closest('.cli');
     if(prow&&tab==='prayers'){var pon=!!S.prayers[pk][v];prow.classList.toggle('on',pon);b.setAttribute('aria-pressed',String(pon));
@@ -195,9 +195,9 @@ document.addEventListener('click',async function(e){
   else if(/^msb[a-z]+$/.test(a)){if(typeof msbAct==='function'&&msbAct(a,v)===false)return}
   else if(a==='qriw'){var nriw=(v==='warsh'&&window.WDATA)?'warsh':'hafs';if(S.quran.riwaya===nriw){render()}else{if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy(function(){S.quran.riwaya=nriw;save();window.scrollTo(0,0);render();if(typeof qwBanner==='function')qwBanner(nriw)})}}
   else if(a==='qtj'){S.quran.tj=S.quran.tj===false;save()}
-  else if(a==='qdone'){if(rd&&rd.free){if(rd.sura)markSuraDone(rd.sura);rd=null;tab='home';window.scrollTo(0,0);toast('تقبّل الله منك')}else if(rd){if(!(qPages(dk())>0))lockSet('q:'+dk());var nn=Math.max(1,rd.page-rd.from+1),kq=dk(),before=qPages(kq);S.quran.log[kq]=before+nn;var wrap=rd.page>=604;S.quran.pos=wrap?1:rd.page+1;rd=null;tab='home';save();window.scrollTo(0,0);toast(wrap?'ما شاء الله، أتممت ختمة المصحف':(S.quran.log[kq]>=S.quran.goal?'تقبّل الله منك، أتممت وردك اليوم':'تم تسجيل '+ar(nn)+' صفحة'));checkNew()}}
-  else if(a==='qadd'){var qk=dk();if(!(S.quran.log[qk]>0))lockSet('q:'+qk);S.quran.log[qk]=Math.min(604,(S.quran.log[qk]||0)+1);save();if(typeof qwSheetPaint==='function')qwSheetPaint()}
-  else if(a==='qsub'){var qk2=dk();if(lockLeft('q:'+qk2)>0){lockBlock(lockLeft('q:'+qk2));return}S.quran.log[qk2]=Math.max(0,(S.quran.log[qk2]||0)-1);if(!S.quran.log[qk2])delete S.quran.log[qk2];save();if(typeof qwSheetPaint==='function')qwSheetPaint()}
+  else if(a==='qdone'){if(rd&&rd.free){if(rd.sura)markSuraDone(rd.sura);rd=null;tab='home';window.scrollTo(0,0);toast('تقبّل الله منك')}else if(rd){if(!(qPages(dk())>0))lockSet('q:'+dk());var nn=Math.max(1,rd.page-rd.from+1),kq=dk(),before=qPages(kq);S.quran.log[kq]=before+nn;mtSet('q');var wrap=rd.page>=604;S.quran.pos=wrap?1:rd.page+1;rd=null;tab='home';save();window.scrollTo(0,0);toast(wrap?'ما شاء الله، أتممت ختمة المصحف':(S.quran.log[kq]>=S.quran.goal?'تقبّل الله منك، أتممت وردك اليوم':'تم تسجيل '+ar(nn)+' صفحة'));checkNew()}}
+  else if(a==='qadd'){var qk=dk();if(!(S.quran.log[qk]>0))lockSet('q:'+qk);S.quran.log[qk]=Math.min(604,(S.quran.log[qk]||0)+1);mtSet('q');save();if(typeof qwSheetPaint==='function')qwSheetPaint()}
+  else if(a==='qsub'){var qk2=dk();if(lockLeft('q:'+qk2)>0){lockBlock(lockLeft('q:'+qk2));return}S.quran.log[qk2]=Math.max(0,(S.quran.log[qk2]||0)-1);if(!S.quran.log[qk2]){delete S.quran.log[qk2];mtDel('q')}save();if(typeof qwSheetPaint==='function')qwSheetPaint()}
   else if(a==='qgoal'){S.quran.goal=Math.max(1,Math.min(30,S.quran.goal+(v==='1'?1:-1)));save();if(typeof qwSheetPaint==='function')qwSheetPaint()}
   else if(a==='addextra'){addingHabit=true;addingHabitType='good'}
   else if(a==='newhtype'){addingHabitType=v==='bad'?'bad':'good'}
@@ -215,11 +215,13 @@ document.addEventListener('click',async function(e){
   else if(a==='repr'){repRange=v==='month'?'month':'week'}
   else if(a==='fastpref'){S.fasting.prefs[v]=!S.fasting.prefs[v];save()}
   else if(a==='fastremind'){S.fasting.reminders[v]=!S.fasting.reminders[v];save()}
-  else if(a==='fastrecord'){var fk=dk(),fl='f:'+fk,fcur=S.fasting.records[fk],fnew=v==='done'?'done':'missed';if(fcur&&fcur!==fnew&&lockLeft(fl)>0){lockBlock(lockLeft(fl));return}if(!fcur||inGrace(fl))lockSet(fl);S.fasting.records[fk]=fnew;save();toast(v==='done'?'تم تسجيل صيام اليوم':'تم تسجيل عدم الصيام')}
+  else if(a==='fastrecord'){var fk=dk(),fl='f:'+fk,fcur=S.fasting.records[fk],fnew=v==='done'?'done':'missed';if(fcur&&fcur!==fnew&&lockLeft(fl)>0){lockBlock(lockLeft(fl));return}if(!fcur||inGrace(fl))lockSet(fl);S.fasting.records[fk]=fnew;mtSet('fast');save();toast(v==='done'?'تم تسجيل صيام اليوم':'تم تسجيل عدم الصيام')}
   else if(a==='fastcustom'){var fc=document.getElementById('fast-custom-date'),fd=fc&&fc.value;if(!fd)toast('اختر التاريخ أولًا');else if(S.fasting.customDates.indexOf(fd)<0){S.fasting.customDates.push(fd);save();toast('تمت إضافة يوم الصيام')}else toast('هذا اليوم مضاف مسبقًا')}
   else if(a==='fastcustomdel'){S.fasting.customDates=(S.fasting.customDates||[]).filter(function(x){return x!==v});save();toast('تم حذف اليوم')}
   else if(a==='fasttimes'){var su=document.getElementById('suhoor-time'),it=document.getElementById('iftar-time');if(su&&/^\d{2}:\d{2}$/.test(su.value))S.fasting.reminders.suhoorTime=su.value;if(it&&/^\d{2}:\d{2}$/.test(it.value))S.fasting.reminders.iftarTime=it.value;save();toast('تم حفظ أوقات التذكير')}
   else if(a==='fastdismiss'){toast('يمكنك العودة إلى جدول الصيام من المزيد')}
+  else if(a==='jnfilter'){JN_F=v||'all';render()}
+  else if(a==='snzstop'){try{if(window.AlsaerNative&&AlsaerNative.snoozeStopAll)AlsaerNative.snoozeStopAll()}catch(e){}toast('توقف التأجيل الحالي');render()}
   else if(a==='per'){per=v==='month'?'month':'week'}
   else if(a==='showlog'){showLog=!showLog}
   else if(a==='update109Done'){try{localStorage.setItem(updateSeenKey(),'1')}catch(e){}var up=document.getElementById('update109-notice');if(up)up.remove();tourAuto()}

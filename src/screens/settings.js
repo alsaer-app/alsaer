@@ -102,8 +102,11 @@ function vSettings(){
     var on=snd===val;
     return '<label class="snd-opt'+(on?' on':'')+'"><span class="snd-ic">'+icon+'</span><b>'+label+'</b><small>'+sub+'</small><span class="snd-chk">'+ic('check')+'</span><input type="radio" name="alsaer-snd" data-rem-sound="'+val+'" '+(on?'checked':'')+'></label>';
   }
+  var snzN=0;try{if(window.AlsaerNative&&AlsaerNative.snoozeActiveCount)snzN=AlsaerNative.snoozeActiveCount()||0}catch(e){}
   var NOTIF='<div class="sg-card">'
    +sgSwitch('bell','تفعيل التنبيهات',rr.enabled?'تصلك التنبيهات حتى مع إغلاق التطبيق':'متوقفة','data-rem-master',rr.enabled)
+   +sgSwitch('clock','التأجيل التلقائي','«ذكّرني» تعيد الرنين كل ١٠ دقائق حتى ٣ مرات ثم تتوقف','data-rem-toggle="snoozeAuto"',rr.snoozeAuto!==false)
+   +(snzN?'<button class="sg-row sg-btn" data-a="snzstop"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>إيقاف التأجيل الحالي</b><small>'+ar(snzN)+' '+(snzN===1?'تذكير مؤجّل':'تذكيرات مؤجّلة')+'</small></div><div class="sg-ctl">'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>':'')
    +sgSegRow('bell','الصلاة على النبي ﷺ','تكرار التذكير · المواعيد من تذكيراتي ← ذكي','<select class="rm-sel" data-rem-time="salatEvery" aria-label="تكرار الصلاة على النبي">'+[[15,'١٥ دقيقة'],[30,'نصف ساعة'],[60,'ساعة'],[120,'ساعتان'],[0,'مرة يوميًا']].map(function(x){var ev=rr.salatEvery==null?(Object.keys(rr).length?'120':'15'):String(rr.salatEvery);return '<option value="'+x[0]+'"'+(String(x[0])===ev?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select>')
    +sgLit(sgNavTab('reminders','bell','تذكيراتي','الملك والكهف والصلاة على النبي وغيرها',ar(onN)+' مفعّلة'),nOn)
    +sgLit(sgNavSub('notif-float','bell','النوافذ العائمة','تظهر فوق التطبيقات في أوقاتها','الجدولة والشكل'),fOn)

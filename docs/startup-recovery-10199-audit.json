@@ -1,0 +1,37 @@
+{
+  "environment": "Chrome headless local HTTP, 360x780, fresh contexts, seven samples, external HTTPS blocked, no phone claim",
+  "samples_ms": [
+    {
+      "dom": 324.5999999999767,
+      "home": 1418.3999999999069
+    },
+    {
+      "dom": 281.0999999999767,
+      "home": 1294.8999999999069
+    },
+    {
+      "dom": 288.69999999995343,
+      "home": 1305.4000000000233
+    },
+    {
+      "dom": 298.20000000006985,
+      "home": 1314.3000000000466
+    },
+    {
+      "dom": 275.29999999993015,
+      "home": 1283.3999999999069
+    },
+    {
+      "dom": 270.9000000000233,
+      "home": 1281.9000000000233
+    },
+    {
+      "dom": 294,
+      "home": 1329.6999999999534
+    }
+  ],
+  "median_home_ms": 1305.4,
+  "min_home_ms": 1281.9,
+  "max_home_ms": 1418.4,
+  "recovery": "PASS disposable full browser storage cleared; independent exported JSON restores marker after reload; no working phone touched"
+}

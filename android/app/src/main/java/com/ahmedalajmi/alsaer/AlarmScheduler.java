@@ -31,7 +31,32 @@ public final class AlarmScheduler {
     static final String ACTION_ALARM = "com.ahmedalajmi.alsaer.ALARM";
     static final String ACTION_DONE = "com.ahmedalajmi.alsaer.DONE";
     static final String ACTION_SNOOZE = "com.ahmedalajmi.alsaer.SNOOZE";
+    static final String ACTION_SNOOZE_STOP = "com.ahmedalajmi.alsaer.SNOOZE_STOP";
     static final long SNOOZE_MS = 10L * 60L * 1000L;
+    /* التأجيل التلقائي: إعادة الرنين كل ١٠ دقائق حتى ٣ مرات لكل إطلاق ثم يتوقف */
+    static final int SNOOZE_MAX = 3;
+    static boolean snoozeAuto(Context c){ return prefs(c).getBoolean("snz-auto", true); }
+    static void setSnoozeAuto(Context c, boolean on){ prefs(c).edit().putBoolean("snz-auto", on).apply(); }
+    static int snoozeChain(Context c, String id){ return prefs(c).getInt("snz-chain:"+id, 0); }
+    static void snoozeChainSet(Context c, String id, int n){ prefs(c).edit().putInt("snz-chain:"+id, n).apply(); }
+    static int snoozeActiveCount(Context c){
+        int n=0;
+        for(java.util.Map.Entry<String,?> e: prefs(c).getAll().entrySet()){
+            if(e.getKey().startsWith("snz-chain:")&&e.getValue() instanceof Integer&&(Integer)e.getValue()>0)n++;
+        }
+        return n;
+    }
+    static void cancelSnooze(Context c, String id){
+        AlarmManager am=(AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
+        Intent in=new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM).setData(alarmIdentity(id,true));
+        cancelIntent(c,am,code(c,id,"snooze"),in);
+        snoozeChainSet(c,id,0);
+    }
+    static void snoozeStopAll(Context c){
+        for(String k: new java.util.ArrayList<>(prefs(c).getAll().keySet())){
+            if(k.startsWith("snz-chain:"))cancelSnooze(c,k.substring("snz-chain:".length()));
+        }
+    }
     /* مهلة لحاق للتنبيهات المفردة الفائتة (إغلاق/إعادة تشغيل): تُطلق خلال ١٠ ثوانٍ بدل أن تضيع */
     static final long GRACE_MS = 45L * 60L * 1000L;
 
@@ -319,6 +344,11 @@ public final class AlarmScheduler {
         snz.putExtra("nid", nid);
         PendingIntent spi = PendingIntent.getBroadcast(c, code(c,id,"snooze-action"), snz, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
         b.addAction(0, "ذكّرني بعد ١٠ دقائق", spi);
+        Intent stp = new Intent(c, ActionReceiver.class).setAction(ACTION_SNOOZE_STOP);
+        stp.putExtra("id", id);
+        stp.putExtra("nid", nid);
+        PendingIntent stpi = PendingIntent.getBroadcast(c, code(c,id,"snooze-stop"), stp, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
+        b.addAction(0, "إيقاف", stpi);
 
         try { NotificationManagerCompat.from(c).notify(nid, b.build()); } catch (SecurityException ignored) {}
         if (FloatFeed.linked(c)) FloatingReminderService.showIfEnabled(c, title, body, it.optString("route", ""), it, nid);

@@ -2,7 +2,7 @@
   var REM_KEY='alsaer_daily_reminders_v1',lastSig='',timer=null;
   function nat(){return window.AlsaerNative||null}
   function cfg(){
-    var d={weekly:true,weeklyTime:'20:00',backup:true,backupTime:'19:00',salatEvery:'15',salatFrom:'08:00',salatTo:'22:00',wirdSmart:true,smart:false,respectSilent:false,praySkip:true,prayPre:'0',cuDone:{},consent:false,enabled:false,malik:true,malikTime:'21:30',kahf:true,kahfTime:'17:00',salat:true,salatTime:'12:00',dua:true,duaTime:'16:00',prayers:true,fasting:true,wird:true,wirdTime:'20:00',custom:[],soundMode:'chime'},x;
+    var d={weekly:true,weeklyTime:'20:00',backup:true,backupTime:'19:00',salatEvery:'15',salatFrom:'08:00',salatTo:'22:00',wirdSmart:true,smart:false,respectSilent:false,praySkip:true,prayPre:'0',cuDone:{},consent:false,enabled:false,snoozeAuto:true,malik:true,malikTime:'21:30',kahf:true,kahfTime:'17:00',salat:true,salatTime:'12:00',dua:true,duaTime:'16:00',prayers:true,fasting:true,wird:true,wirdTime:'20:00',custom:[],soundMode:'chime'},x;
     try{x=JSON.parse(localStorage.getItem(REM_KEY)||'null')}catch(e){}
     if(x&&typeof x==='object'&&!Object.prototype.hasOwnProperty.call(x,'salatEvery'))d.salatEvery='120';
     return Object.assign(d,x||{});
@@ -130,6 +130,8 @@
     var n=nat();if(!n||typeof S==='undefined')return;wsync();
     var items=build();if(typeof isFem==='function'&&isFem())items.forEach(function(x){if(String(x.id).indexOf('cu_')!==0){x.title=femStr(x.title);x.body=femStr(x.body)}});
     var sig=JSON.stringify(items);
+    var r0=typeof remLoad==='function'?remLoad():cfg();
+    try{if(typeof n.setSnoozeAuto==='function')n.setSnoozeAuto(r0.snoozeAuto!==false)}catch(e){}
     if(!force&&sig===lastSig)return;
     lastSig=sig;try{n.setSchedule(sig)}catch(e){}
   }
@@ -169,11 +171,11 @@
     try{list=JSON.parse(n.takePending()||'[]')}catch(e){}
     list.forEach(function(x){
       var k=dk(new Date(x.t||Date.now())),a=String(x.a||'').split(':');
-      if(a[0]==='pray'&&PR.some(function(q){return q[0]===a[1]})){S.prayers[k]=S.prayers[k]||{};S.prayers[k][a[1]]=true;changed=true}
+      if(a[0]==='pray'&&PR.some(function(q){return q[0]===a[1]})){S.prayers[k]=S.prayers[k]||{};S.prayers[k][a[1]]=true;if(typeof mtSet==='function')mtSet('p:'+a[1],k);changed=true}
       else if(a[0]==='salat'){S.salawat=S.salawat||{};S.salawat[k]=(S.salawat[k]||0)+1;changed=true}
       else if(a[0]==='cu'&&a[1]){var rc=remLoad();rc.cuDone=rc.cuDone||{};rc.cuDone[a[1]]=k;remSave(rc)}
       else if(a[0]==='book'&&a[1]){if(typeof boFromNotif==='function'&&boFromNotif(a[1],k))changed=true}
-      else if(a[0]==='fast'&&a[1]==='done'){S.fasting.records=S.fasting.records||{};S.fasting.records[k]='done';changed=true}
+      else if(a[0]==='fast'&&a[1]==='done'){S.fasting.records=S.fasting.records||{};S.fasting.records[k]='done';if(typeof mtSet==='function')mtSet('fast',k);changed=true}
     });
     if(changed){save();if(typeof checkNew==='function')checkNew();if(typeof toast==='function')toast('تم تسجيل إجابتك من الإشعار')}
     var route='';try{route=n.takeRoute()||''}catch(e){}
