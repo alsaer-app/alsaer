@@ -21,8 +21,11 @@ final class DriveAuthorization {
         activity.runOnUiThread(() -> {
             if (busy) { deliver("", "busy"); return; }
             busy = true; interactive = allowUi;
-            AuthorizationRequest request = AuthorizationRequest.builder()
-                .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive.file"))).build();
+            AuthorizationRequest.Builder builder = AuthorizationRequest.builder()
+                .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive.file")));
+            // Only an explicit Link/change-account action asks for an account picker.
+            if (allowUi) builder.setPrompt(AuthorizationRequest.Prompt.SELECT_ACCOUNT);
+            AuthorizationRequest request = builder.build();
             Identity.getAuthorizationClient(activity).authorize(request)
                 .addOnSuccessListener(this::accept)
                 .addOnFailureListener(e -> deliver("", "authorization-failed"));
