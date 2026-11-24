@@ -75,3 +75,6 @@ html[data-trans="none"] .sc-page-sub,html[data-trans="none"] .sc-page-index{anim
 
 /* Same-view updates must not blink all choices back to opacity zero. */
 .sg-stable .mtile{animation:none}
+
+/* Transition selection can also restart the app-level entry animation. */
+#app.sg-stable.vin{animation:none!important}
