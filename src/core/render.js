@@ -2,6 +2,7 @@ function vRenderFail(e,t){
   return '<section class="card dg-fail"><h3>⚠ تعذّر عرض هذه الشاشة</h3><p class="note">حدث خطأ غير متوقع. بقية التطبيق يعمل.</p>'
    +'<div class="acts"><button class="btn" data-a="tab" data-v="home">الرئيسية</button></div></section>';
 }
+var sgLastViewKey=null;
 function render(){
   var oldReaderOverlay=document.getElementById('rd-ov');if(oldReaderOverlay)oldReaderOverlay.remove();
   app.style.removeProperty('padding-top');
@@ -27,6 +28,10 @@ function render(){
   var vh;try{if(typeof v!=='function')throw new Error('شاشة غير معروفة: '+tab);vh=v()}catch(ex){vh=vRenderFail(ex,tab)}
   if(typeof sgDestination==='function')vh=sgDestination(tab,vh);
   if(tab==='settings'||['floatset','widgetset','floatfeed','developer','reminders'].indexOf(tab)>=0)vh=sgStagger(vh);
+  /* Animate Settings tiles on view entry only, never when a value or timer rerenders the same view. */
+  var sgActive=tab==='settings'||['floatset','widgetset','floatfeed','developer','reminders'].indexOf(tab)>=0;
+  var sgViewKey=sgActive?[tab,tab==='settings'?setCat:'',tab==='settings'?setSub:'',tab==='settings'?setOpen:'',typeof sgDetail!=='undefined'?sgDetail[tab]:''].join('|'):null;
+  app.classList.toggle('sg-stable',sgActive&&sgViewKey===sgLastViewKey);sgLastViewKey=sgViewKey;
   app.innerHTML=vh;
   if(typeof gdMountDialog==='function')gdMountDialog();
   if(tab!==lastTab){
