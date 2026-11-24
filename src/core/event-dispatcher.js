@@ -123,7 +123,7 @@ document.addEventListener('click',async function(e){
   else if(a==='qibla'){if(compassOn)compassStop();else{var DOE=window.DeviceOrientationEvent;if(DOE&&typeof DOE.requestPermission==='function'){try{DOE.requestPermission().then(function(r){if(r==='granted'){compassStart(parseFloat(v));render()}})}catch(x){}}else compassStart(parseFloat(v))}}
   else if(a==='scat'){setCat=v||'';setSub='';setOpen=null;scAnim=1;msg='';window.scrollTo(0,0)}
   else if(a==='ssub'){setSub=v||'';setOpen=null;scAnim=1;msg='';window.scrollTo(0,0)}
-  else if(a==='sopen'){setOpen=(setOpen===v)?null:v;msg='';secOk=''}
+  else if(a==='sopen'){setOpen=(setOpen===v)?null:v;confirmReset=false;msg='';secOk=''}
   else if(a==='secchoose'){
     secOk='';
     if(v==='bio'){bioToggle();return}
@@ -262,8 +262,9 @@ bioProbePoll();
 function innerBack(){
   if(document.getElementById('qwirdsheet')){qwSheetClose();return true}
   if(typeof mpCloseOverlays==='function'&&mpCloseOverlays())return true;
+  if(tab==='settings'&&setOpen){setOpen=null;confirmReset=false;msg='';render();return true}
   if(tab==='settings'&&setSub){setSub='';setOpen=null;msg='';scAnim=1;window.scrollTo(0,0);render();return true}
-  if(tab==='settings'&&setCat){setCat='';setOpen=null;msg='';scAnim=1;window.scrollTo(0,0);render();return true}
+
   return false;
 }
 var ignorePop=false;
