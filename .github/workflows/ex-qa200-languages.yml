@@ -65,6 +65,7 @@ jobs:
           python3 -m pip install playwright
           python3 -m playwright install --with-deps chrome
           bash tests/i18n_coverage_test.sh
+          I18N_WIDTH=320 I18N_MODE=dark python3 tests/i18n_runtime_e2e.py
           python3 tests/i18n_personal_content_e2e.py
           python3 tests/gdrive_backup_e2e.py
           python3 tests/gdrive_restore_e2e.py
