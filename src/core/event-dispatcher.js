@@ -94,6 +94,7 @@ document.addEventListener('click',async function(e){
   else if(a==='wkper'){wkOpen('per')}
   else if(a==='umode'){setUI('mode',v)}
   else if(a==='clkset'){setClockMode(v)}
+  else if(a==='ulang'){U().lang=(v==='en'||v==='fr')?v:'ar';saveNow();try{_lcKey=null;applyUI()}catch(x){}render()}
   else if(a==='udigits'){U().digits=v==='west'?'west':'east';saveNow();try{digitsApply(true)}catch(x){}}
   else if(a==='ptauto'){S.loc=S.loc||{};S.loc.auto=(v==='1');if(S.loc.auto){if(locOk())autoPtimes();else msg='اختر مدينتك أو حدّد موقعك أولًا ليعمل الوضع التلقائي'}save()}
   else if(a==='ustyle'){setUI('style',v)}
