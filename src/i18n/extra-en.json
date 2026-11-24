@@ -1149,4 +1149,9 @@
 "✓ تمّ الورد": "✓ Portion complete",
 "🏆 أتممت التحدّي — بارك الله فيك": "🏆 You completed the challenge. May Allah bless you",
 "📖 وردي من القرآن يوميًا": "📖 My daily Quran portion"
+,
+"تغيير حساب Google": "Change Google account",
+"اختيار حساب وإعادة الربط": "Choose account / reconnect",
+"أُلغي اختيار الحساب؛ لم نغيّر ملفاتك.": "Account selection cancelled. Your files were not changed.",
+"تعذّر الربط. اضغط اختيار حساب وإعادة الربط للمحاولة مجددًا.": "Could not connect. Choose an account and reconnect to try again."
 }
