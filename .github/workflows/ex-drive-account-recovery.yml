@@ -76,6 +76,7 @@ jobs:
           ANDROID_API_JAR=/tmp/alsaer-android-api.jar JSON_JAR=/tmp/alsaer-json.jar python3 tests/alarm_dates_contract.py
       - name: Real browser regression gates (transports stubbed, no live Drive data)
         run: |
+          sudo mkdir -p /downloads && sudo chmod 777 /downloads
           python3 -m pip install playwright
           python3 -m playwright install --with-deps chrome
           python3 tools/i18n_audit.py --write
