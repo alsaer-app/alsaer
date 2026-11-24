@@ -55,3 +55,5 @@ html[data-trans="none"] .sc-page-sub,html[data-trans="none"] .sc-page-index{anim
 .sg-tabs button.on{background:var(--gold);color:var(--on-gold,#fff)}
 .sg-tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #app.sg-tabs-active,#app.sg-tabs-active.vin,#app.sg-tabs-active .sc-page-sub,#app.sg-tabs-active .sc-page-index,#app.sg-tabs-active .sg-tabs,#app.sg-tabs-active .sg-row,#app.sg-tabs-active .mtile{animation:none!important}
+
+.sg-row:has([data-rem-time="salatEvery"]){flex-wrap:wrap}.sg-row:has([data-rem-time="salatEvery"]) .sg-ctl{flex:1 0 100%;max-width:100%;order:3}.sg-row [data-rem-time="salatEvery"]{width:100%;min-height:44px}
