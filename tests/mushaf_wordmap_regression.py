@@ -14,6 +14,9 @@ def load_js_var(path, name):
     return json.loads(s[i:].rstrip().rstrip(';'))
 
 Q = load_js_var('www/quran.js', 'window.QDATA')
+import os,sys
+if not os.path.exists('www/mushaf.js'):
+    print('SKIP: www/mushaf.js was removed in 2.0.0 (Warsh now uses the flow reader); restore it from the commit named in docs/RESTORE-mushaf-assets.md to run this check'); sys.exit(0)
 M = load_js_var('www/mushaf.js', 'window.MUSHAF')
 
 DIAC = re.compile('[ؐ-ًؚ-ٰٟۖ-ۭـ]')

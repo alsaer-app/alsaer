@@ -9,7 +9,7 @@ class Quiet(SimpleHTTPRequestHandler):
 async def main():
  with tempfile.TemporaryDirectory() as t:
   d=Path(t);(d/'index.html').write_text((ROOT/'www/index.html').read_text())
-  for f in ['fonts','quran.js','mushaf.js','warsh.js','tajweed_warsh.js']:
+  for f in ['fonts','quran.js','warsh.js']:
    if (ROOT/'www'/f).exists():os.symlink(ROOT/'www'/f,d/f)
   server=ThreadingHTTPServer(('127.0.0.1',0),partial(Quiet,directory=t));th=threading.Thread(target=server.serve_forever,daemon=True);th.start()
   async with async_playwright() as pw:

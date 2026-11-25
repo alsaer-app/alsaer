@@ -12,7 +12,7 @@ async def main():
   hook='window.__shell={page:function(n){rd.page=n;render()},home:function(){tab="home";render()}};'
   html=html.replace('})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */',hook+'})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */')
   (out/'index.html').write_text(html)
-  for f in ['fonts','quran.js','mushaf.js','warsh.js','tajweed_warsh.js']:(out/f).symlink_to(ROOT/'www'/f)
+  for f in ['fonts','quran.js','warsh.js']:(out/f).symlink_to(ROOT/'www'/f)
   class Quiet(SimpleHTTPRequestHandler):
    def log_message(self,*args):pass
   srv=ThreadingHTTPServer(('127.0.0.1',0),partial(Quiet,directory=tmp));threading.Thread(target=srv.serve_forever,daemon=True).start()

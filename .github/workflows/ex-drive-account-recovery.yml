@@ -32,10 +32,8 @@ jobs:
           PYVERIFY
       - name: Guard unchanged current Mushaf data and fonts
         run: |
-          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/mushaf.js
           git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/quran.js
           git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/warsh.js
-          git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/tajweed_warsh.js
           git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/ibm-plex-sans-arabic-arabic-700-normal.woff2
           git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/almarai-arabic-700-normal.woff2
           git diff --exit-code 23a648b2ea6af63b7026bdead517d61df1e2fd08 HEAD -- www/fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2

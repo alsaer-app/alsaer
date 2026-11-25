@@ -8,7 +8,7 @@ R=Path(__file__).resolve().parents[1]
 async def main():
  with tempfile.TemporaryDirectory() as t:
   d=Path(t);h=(R/'www/index.html').read_text().replace('})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */','window.__intervalShow=function(){tab="settings";setCat="notif";render()};})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */');(d/'index.html').write_text(h)
-  for f in ['fonts','quran.js','mushaf.js','warsh.js','tajweed_warsh.js']:(d/f).symlink_to(R/'www'/f)
+  for f in ['fonts','quran.js','warsh.js']:(d/f).symlink_to(R/'www'/f)
   class Quiet(SimpleHTTPRequestHandler):
    def log_message(self,*a):pass
   srv=ThreadingHTTPServer(('127.0.0.1',0),partial(Quiet,directory=t));threading.Thread(target=srv.serve_forever,daemon=True).start()

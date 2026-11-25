@@ -5,8 +5,6 @@
  "src/services/gdrive-backup.js": "04995e400fc560148bfed7de55046eefd3c863d9ba346ecbde2572c6e7ccc0a1",
  "src/services/reader-layout.js": "7b1ca788eb93c587b24d74aba516dfe0a444591c884516ee036ac0f87df76697",
  "src/styles/inputs.css": "f88bf78a7df10bfed7d4f3aa351fa58504cc94177c1eabe24f82ed05631e55c7",
- "www/mushaf.js": "b7afa2888fa9f8e3be3c710df7c67f6d8f32b03b78e43091660bf0d9c3312a30",
  "www/quran.js": "f1b5529cc349ca38115c39af2745717853f2166731d282dea4b91b0445d4de4a",
- "www/tajweed_warsh.js": "a31ad1fe9f2c5a176a805df0c14237e1433a11491fcff98d1faed3a2a81515a4",
  "www/warsh.js": "96978b093d9dafa672d45c23ce56a651dc6d08ad2a6b2ac21a01bdcf7f7cf014"
 }

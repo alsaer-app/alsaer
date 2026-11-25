@@ -10,7 +10,7 @@ async def main():
   out=Path(tmp);html=(ROOT/'www/index.html').read_text()
   hook='window.__toolbarTest={hide:function(){rd.ui=false;render()},legacy:function(){return mpAct2("qimm")}};'
   html=html.replace('})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */',hook+'})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */');(out/'index.html').write_text(html)
-  for f in ['quran.js','mushaf.js','warsh.js','tajweed_warsh.js','fonts']:
+  for f in ['quran.js','warsh.js','fonts']:
    if (ROOT/'www'/f).is_dir():shutil.copytree(ROOT/'www'/f,out/f)
    elif (ROOT/'www'/f).exists():shutil.copy(ROOT/'www'/f,out/f)
   class Quiet(SimpleHTTPRequestHandler):

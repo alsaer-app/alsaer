@@ -10,7 +10,7 @@ async def main():
  for f,h in unchanged.items():assert hashlib.sha256((R/f).read_bytes()).hexdigest()==h,f
  with tempfile.TemporaryDirectory() as t:
   d=Path(t);html=(R/'www/index.html').read_text();html=html.replace('})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */','window.__oldSettings={show:function(c,s,o){tab="settings";setCat=c||"";setSub=s||"";setOpen=o||null;render()}};})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */');(d/'index.html').write_text(html)
-  for f in ['fonts','quran.js','mushaf.js','warsh.js','tajweed_warsh.js']:(d/f).symlink_to(R/'www'/f)
+  for f in ['fonts','quran.js','warsh.js']:(d/f).symlink_to(R/'www'/f)
   class Quiet(SimpleHTTPRequestHandler):
    def log_message(self,*a):pass
   srv=ThreadingHTTPServer(('127.0.0.1',0),partial(Quiet,directory=t));threading.Thread(target=srv.serve_forever,daemon=True).start()
