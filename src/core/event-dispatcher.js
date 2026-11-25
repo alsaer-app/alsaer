@@ -100,6 +100,7 @@ document.addEventListener('click',async function(e){
   else if(a==='updchecknow'){updCheckNow()}
   else if(a==='notifFix'){if(window.alsaerNotifFix)window.alsaerNotifFix();tab='reminders';window.scrollTo(0,0)}
   else if(/^he[a-z]+$/.test(a)){if(heAct(a,v)===false)return}
+  else if(a==='wiretry'){render();return}
   else if(a==='qpg'){pgGo(parseInt(v,10)||0);return}
   else if(a==='qpgm'){S.quran.pgm=(S.quran.pgm===false);save();if(rd)rd.jump=false}
   else if(a==='qsurnav'){if(rd&&rd.flow){var nd=parseInt(v,10)||0,nc=rd.sura+nd;if(nc>=1&&nc<=114){rd.sura=nc;rd.cv=nc+':1';rd.dir=nd>0?1:-1}}}

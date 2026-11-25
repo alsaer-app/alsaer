@@ -83,7 +83,7 @@ function vPageMode(){
     +'<span class="mq-pos" id="mq-pos">ص '+ar(pg)+' / '+ar(604)+'</span>'
     +'<button class="mq-cb" data-a="qpg" data-v="1" aria-label="الصفحة التالية"'+(pg>=604?' disabled':'')+'>'+ic('chev')+'</button>'
     +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button></div>';
-  return '<div class="mq-ov pg-ov" id="mq-ov">'+top+'<div class="mq-sc pg-sc" id="mq-sc"><div class="pg-fr" id="pg-fr"><div class="mq-t pg-t" id="pg-t" lang="ar" dir="rtl" data-fs="'+fs+'" style="font-size:'+fs+'px">'+body+'</div></div></div>'+bot+'</div>'
+  return '<div class="mq-ov pg-ov" id="mq-ov">'+top+'<div class="mq-sc pg-sc" id="mq-sc">'+(wiOn()?wiBody(pg):'<div class="pg-fr" id="pg-fr"><div class="mq-t pg-t" id="pg-t" lang="ar" dir="rtl" data-fs="'+fs+'" style="font-size:'+fs+'px">'+body+'</div></div>')+'</div>'+bot+'</div>'
     +(rd.jump?mpDrawerHtml(rd.page):'')+mpSearchPanel()+mpIndexPanel()+mqTafsirHtml();
 }
 function pgFit(){

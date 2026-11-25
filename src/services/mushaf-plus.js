@@ -113,7 +113,7 @@ function mpSearchPanel(){
 function mpAct2(a,v){
   if(!rd)return true;
   if(a==='qms'){rd.mq=((document.getElementById('mq-q')||{}).value||'').trim();rd.mr=rd.mq?mpFind(rd.mq):[];return false}
-  if(a==='qsrch'){rd.srch=true;rd.jump=false;rd.idx=false;return false}
+  if(a==='qsrch'){if(wiOn()){toast(WI_NOTXT);return true}rd.srch=true;rd.jump=false;rd.idx=false;return false}
   if(a==='qsgov'){var q=String(v).split(':'),sc=+q[0],sv=+q[1];if(sc>=1&&sc<=114&&sv>=1){mpSel='';rd.sura=sc;rd.cv=sc+':'+sv;rd._scrollCv=rd.cv;rd.dir=1;rd.srch=false;rd.jump=false;rd.ui=false}return false}
   if(a==='qsclose'){rd.srch=false;return false}
   if(a==='qsdo'){rd.sq=((document.getElementById('mps-q')||{}).value||'').trim();rd.sr=rd.sq?mpFind(rd.sq):[];return false}
@@ -277,7 +277,7 @@ document.addEventListener('click',function(e){
   if(k==='mk'||k==='mkre'){return}
   if(k==='tf'){if(rd&&rd.flow)mqOpenTf(mpSel);return}
   if(k==='bmrk'){var q3=mpSel.split(':');mqBmSet(+q3[0],+q3[1]);save();toast('تم حفظ العلامة المرجعية');mpApplySel();return}
-  if(k==='copy'){try{navigator.clipboard.writeText(mpVerseText(mpSel));toast('تم نسخ الآية')}catch(x){toast('تعذّر النسخ')}return}
+  if(k==='copy'){if(wiOn()){toast(WI_NOTXT);return}try{navigator.clipboard.writeText(mpVerseText(mpSel));toast('تم نسخ الآية')}catch(x){toast('تعذّر النسخ')}return}
   if(k==='share'){var t=mpVerseText(mpSel);if(navigator.share){navigator.share({text:t}).catch(function(){})}else{try{navigator.clipboard.writeText(t);toast('نُسخت الآية للمشاركة')}catch(x){}}return}
   if(k==='mark'){var vm=mpVm();if(vm[mpSel]){delete vm[mpSel];toast('أُزيلت العلامة')}else{vm[mpSel]=Date.now();toast('وُضعت علامة حفظ')}S.quran.vm=vm;save();mpApplySel()}
 },true);
@@ -301,8 +301,8 @@ document.addEventListener('click',function(e){
 });
 function mqSetCur(vv,hap){
   if(!rd||!rd.flow)return;rd.cv=vv;
-  var old=document.querySelector('.mq-v.cur');if(old)old.classList.remove('cur');
-  var el=document.querySelector('.mq-v[data-v="'+vv+'"]');if(el)el.classList.add('cur');
+  document.querySelectorAll('.mq-v.cur').forEach(function(o){o.classList.remove('cur')});
+  document.querySelectorAll('.mq-v[data-v="'+vv+'"]').forEach(function(e){e.classList.add('cur')});
   var pos=document.getElementById('mq-pos');if(pos){var q=vv.split(':');pos.textContent='آية '+ar(+q[1])}
   if(hap)mpHap();
 }
@@ -406,9 +406,10 @@ function mqMenuOpen(vv,x,y){
     var k=b.getAttribute('data-mqm');mqMenuClose();
     if(k==='bmrk'){mqBmSet(c,v);save();toast('تم حفظ العلامة المرجعية');render()}
     else if(k==='tf'){mqOpenTf(vv)}
-    else if(k==='copy'){try{navigator.clipboard.writeText(mpVerseText(vv));toast('تم نسخ الآية')}catch(x2){toast('تعذّر النسخ')}}
+    else if(k==='copy'){if(wiOn())toast(WI_NOTXT);else try{navigator.clipboard.writeText(mpVerseText(vv));toast('تم نسخ الآية')}catch(x2){toast('تعذّر النسخ')}}
     else if(k==='aud'){mqSetCur(vv,false);mqAuPlay(vv)}
-    else if(k==='img'){mqImgSheet(vv)}
+    else if(k==='img'){if(wiOn())wiShare(vv);else mqImgSheet(vv)}
+    else if(k==='share'&&wiOn()){wiShare(vv)}
     else if(k==='share'){var t=mpVerseText(vv);if(navigator.share){navigator.share({text:t}).catch(function(){})}else{try{navigator.clipboard.writeText(t);toast('نُسخت الآية للمشاركة')}catch(x3){}}}
   });
   document.body.appendChild(bd);
