@@ -2649,11 +2649,19 @@ function mtSet(id,k){try{S.mtimes=S.mtimes||{};k=k||dk();var L=S.mtimes[k]=S.mti
 function mtDel(id){try{var k=dk(),L=S.mtimes&&S.mtimes[k];if(L){delete L[id];if(!Object.keys(L).length)delete S.mtimes[k]}}catch(e){}}
 function mtOf(k,id){try{return (S.mtimes&&S.mtimes[k]&&S.mtimes[k][id])||0}catch(e){return 0}}
 function load(){
-  var local=null,mirror=null,raw=null,mraw=null;
-  try{raw=localStorage.getItem(KEY);if(raw){var lo=JSON.parse(raw);if(lo&&typeof lo==='object'&&!Array.isArray(lo))local=fixShape(Object.assign(def(),lo))}}catch(e){}
-  try{if(window.AlsaerNative&&AlsaerNative.mirrorGet){mraw=AlsaerNative.mirrorGet(KEY);if(mraw){var mo=JSON.parse(mraw);if(mo&&typeof mo==='object'&&!Array.isArray(mo))mirror=fixShape(Object.assign(def(),mo))}}}catch(e){}
+  var local=null,mirror=null,raw=null,mraw=null,corrupt=false;
+  try{raw=localStorage.getItem(KEY);if(raw){var lo=JSON.parse(raw);if(lo&&typeof lo==='object'&&!Array.isArray(lo))local=fixShape(Object.assign(def(),lo));else corrupt=true}}catch(e){corrupt=true}
+  try{if(window.AlsaerNative&&AlsaerNative.mirrorGet){mraw=AlsaerNative.mirrorGet(KEY);if(mraw){var mo=JSON.parse(mraw);if(mo&&typeof mo==='object'&&!Array.isArray(mo))mirror=fixShape(Object.assign(def(),mo));else corrupt=true}}}catch(e){corrupt=true}
   if(mirror&&(!local||Number(mirror.updatedAt)>Number(local.updatedAt))){try{localStorage.setItem(KEY,mraw)}catch(e){}return mirror}
-  return local||mirror||mem||def();
+  var ok=local||mirror||mem;if(ok)return ok;
+  /* بند 65: توجد بيانات لكنها غير مقروءة في المخزنين — نحجرها ولا نكتب فوقها بصمت، ونعلم المستخدم بمسار الاستعادة */
+  if(corrupt){
+    try{if(raw)localStorage.setItem(KEY+'_corrupt',raw)}catch(e){}
+    try{if(mraw&&window.AlsaerNative&&AlsaerNative.mirrorSet)AlsaerNative.mirrorSet(KEY+'_corrupt',mraw)}catch(e){}
+    window.__alsaerCorrupt=true;
+    setTimeout(function(){try{toast('تعذّر قراءة بياناتك المحفوظة؛ حُفظت كنسخة تالفة ولم نكتب فوقها. يمكنك الاستعادة من «الأمان والبيانات».')}catch(e){}},2500);
+  }
+  return def();
 }
 var saveTm=0,saveOff=false;
 function saveNow(){if(saveTm){clearTimeout(saveTm);saveTm=0}if(saveOff)return;S.updatedAt=Date.now();mem=S;var js;try{js=JSON.stringify(S)}catch(e){toast('تعذّر تجهيز بيانات الحفظ');return}var localOK=false,mirrorOK=false;try{localStorage.setItem(KEY,js);localOK=true}catch(e){}try{if(window.AlsaerNative&&AlsaerNative.mirrorSet){AlsaerNative.mirrorSet(KEY,js);mirrorOK=true}}catch(e){}if(!localOK)toast(mirrorOK?'تعذّر الحفظ في تخزين الواجهة؛ حُفظت نسخة الهاتف':'لم نتمكن من الحفظ، فقد تكون مساحة التخزين ممتلئة')}

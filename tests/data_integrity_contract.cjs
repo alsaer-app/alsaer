@@ -30,3 +30,10 @@ console.log('PASS overnight Monday interval retains Tuesday 01:00 tail');
 // Granting OS permission must not undo a saved master-off choice during migration.
 let nativePoll=sctx.window.alsaerPoll;sctx.S.onboarded=true;sctx.window.AlsaerNative.notificationsEnabled=()=>true;sctx.localStorage={getItem:()=>JSON.stringify({enabled:false,consent:false}),setItem(k,v){sctx.lastConfig=JSON.parse(v)}};nativePoll(true);assert.equal(sctx.lastConfig.enabled,false);assert.equal(sctx.lastConfig.autoOn,true);
 console.log('PASS explicit reminder master-off preserved during auto-enable migration');
+
+// Corrupt state in BOTH stores must be quarantined, never silently overwritten (item 65).
+let cc={console,Date,Math,JSON,KEY:'tawba_v1',mem:null,window:{addEventListener(){},AlsaerNative:{mirrorGet(){return '{broken'},mirrorSet(k,v){cc.mset=(cc.mset||{});cc.mset[k]=v}}},AlsaerNative:{mirrorGet(){return '{broken'},mirrorSet(k,v){cc.mset=(cc.mset||{});cc.mset[k]=v}},document:{addEventListener(){}},localStorage:{getItem(k){return k==='tawba_v1'?'{also broken':null},setItem(k,v){cc.lset=(cc.lset||{});cc.lset[k]=v}},setTimeout(fn){cc.toastLater=fn},clearTimeout(){},toast(m){cc.toasted=m}};vm.createContext(cc);vm.runInContext(read('src/services/storage.js'),cc);
+let recovered=cc.load();assert.equal(typeof recovered.profile,'object');assert.equal(recovered.profile.name,'');
+assert.equal(cc.window.__alsaerCorrupt,true);assert.equal(cc.lset['tawba_v1_corrupt'],'{also broken');assert.equal(cc.mset['tawba_v1_corrupt'],'{broken');
+cc.toastLater();assert.ok(cc.toasted&&cc.toasted.length>10);
+console.log('PASS corrupt state quarantined, boot read-only flag and recovery notice');
