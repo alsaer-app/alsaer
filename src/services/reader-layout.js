@@ -46,7 +46,7 @@ function sizeMp(mp){
   var maxW=Math.min(app.clientWidth||window.innerWidth,640);
   var w=imm?Math.max(240,maxW):Math.max(240,Math.min(maxW,Math.floor(avail*.80)));
   var h=Math.max(300,Math.min(avail,Math.floor(w*(imm?2.1:1.75))));
-  mp.style.width=w+'px';mp.style.height=isW()?h+'px':'auto';
+  mp.style.width=w+'px';mp.style.height=h+'px';
 }
 /* نص متدفق بحجم خط يختاره المستخدم: تُقاس الكلمات وتُلفّ على عرض الصفحة لفًّا طبيعيًّا */
 function mpTokPlain(t){var o='';for(var i=0;i<t.length;i++){var c=t.charCodeAt(i);if(c>=0xE000&&c<=0xE005)continue;if(c===0xE0FF||c===0xE0F0)continue;o+=t.charAt(i)}return o}
@@ -54,9 +54,10 @@ function fitHafs(mp){try{window.__fitErr='';_fitHafs(mp)}catch(e){window.__fitEr
 function _fitHafs(mp){
   var L=mp.querySelector('.mp-l');if(!L||!rd)return;
   var MU=window.MUSHAF,pg=MU&&MU.p[rd.page-1];if(!pg)return;
-  var fs=(S.quran&&S.quran.fs)||26;
+  var fs0=(S.quran&&S.quran.fs)||26;
   var W=L.clientWidth;if(!W)return;
-  L.style.fontSize=fs+'px';L.style.display='';L.style.flexDirection='';L.style.justifyContent='';
+  var availH=L.clientHeight||0;
+  L.style.display='';L.style.flexDirection='';L.style.justifyContent='';
   var items=[],words=[];
   function flush(){if(words.length){items.push(words);words=[]}}
   mpInit(rd.page);
@@ -66,24 +67,40 @@ function _fitHafs(mp){
     else l[1].split(' ').forEach(function(t){words.push(t)});
   });
   flush();
-  var GAP=.14,html='';
-  items.forEach(function(it){
-    if(it.h!==undefined){html+='<div class="ml hd"><span>سورة '+esc(QD().n[it.h-1])+'</span></div>';return}
-    if(it.b){html+='<div class="ml bs"><span>'+esc(QD().s[0][0])+'</span></div>';return}
-    var toks=it.map(function(t){var mk=t.charCodeAt(0)===0xE0F0;return {t:t,w:wMeasure(mpTokPlain(t))*fs/100+(mk?.36*fs:0)}});
-    var lines=[],cur=[],curW=0,gapW=GAP*fs,lim=W*.985;
-    toks.forEach(function(tk){
-      var add=(cur.length?gapW:0)+tk.w;
-      if(cur.length&&curW+add>lim){lines.push(cur);cur=[];curW=0;add=tk.w}
-      cur.push(tk);curW+=add;
+  var GAP=.14;
+  function pack(fs){
+    var html='';
+    items.forEach(function(it){
+      if(it.h!==undefined){html+='<div class="ml hd"><span>سورة '+esc(QD().n[it.h-1])+'</span></div>';return}
+      if(it.b){html+='<div class="ml bs"><span>'+esc(QD().s[0][0])+'</span></div>';return}
+      var toks=it.map(function(t){var mk=t.charCodeAt(0)===0xE0F0;return {t:t,w:wMeasure(mpTokPlain(t))*fs/100+(mk?.36*fs:0)}});
+      var lines=[],cur=[],curW=0,gapW=GAP*fs,lim=W*.985;
+      toks.forEach(function(tk){
+        var add=(cur.length?gapW:0)+tk.w;
+        if(cur.length&&curW+add>lim){lines.push(cur);cur=[];curW=0;add=tk.w}
+        cur.push(tk);curW+=add;
+      });
+      if(cur.length)lines.push(cur);
+      lines.forEach(function(ln,idx){
+        var last=idx===lines.length-1;
+        html+='<div class="ml"><div class="mi '+(last?'fl':'fj')+'">'+ln.map(function(tk){var a=mpVAttr(tk.t),mk=tk.t.charCodeAt(0)===0xE0F0;return '<span class="mw'+(mk?' aym':'')+'"'+a+'>'+mTok(tk.t)+'</span>'}).join('')+'</div></div>';
+      });
     });
-    if(cur.length)lines.push(cur);
-    lines.forEach(function(ln,idx){
-      var last=idx===lines.length-1;
-      html+='<div class="ml"><div class="mi '+(last?'fl':'fj')+'">'+ln.map(function(tk){var a=mpVAttr(tk.t),mk=tk.t.charCodeAt(0)===0xE0F0;return '<span class="mw'+(mk?' aym':'')+'"'+a+'>'+mTok(tk.t)+'</span>'}).join('')+'</div></div>';
-    });
-  });
-  L.innerHTML=html;
+    return html;
+  }
+  /* ارتفاع الصفحة لا يتجاوز الشاشة أبدًا: نبدأ بحجم الخط المختار ثم ننزل تدريجيًا إن لزم */
+  var fs=fs0,html=pack(fs);
+  L.style.fontSize=fs+'px';L.innerHTML=html;
+  if(availH>120){
+    var guard=0;
+    while(L.scrollHeight>availH+1&&fs>13&&guard++<9){
+      fs=Math.max(13,fs-2);L.style.fontSize=fs+'px';L.innerHTML=pack(fs);
+    }
+    if(L.scrollHeight>availH+1){ /* حدّ أدنى للخط وصلناه: ضغط تباعد الأسطر كملاذ أخير */
+      var lh=2.25;
+      while(L.scrollHeight>availH+1&&lh>1.7&&guard++<14){lh-=.08;L.style.lineHeight=lh.toFixed(2)}
+    }
+  }
 }
 /* الرسم الشرقي: خط الحفص المشرقي لا يملك شكل الياء المغربية (U+06D2)، فتُكتب ياءً عادية */
 function warshFix(t){

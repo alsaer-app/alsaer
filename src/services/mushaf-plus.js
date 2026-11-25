@@ -316,7 +316,7 @@ function mpHap(){try{if(typeof hapGo==='function')hapGo([14]);else if(navigator.
 (function(){
   var st=null;
   function inCtl(t){return t.closest&&t.closest('.rd-b,.rd-t,.rd-sp,.rd-js,.rd-menu,.rd-menb,.mp-vb,.mps-wrap')}
-  function nextSign(dx){return ((S.quran&&S.quran.dr)==='ltr')?(dx<0?1:-1):(dx>0?1:-1)}
+  function nextSign(dx){return dx<0?1:-1} /* السحب يسارًا = التالية، يمينًا = السابقة (كالمصحف الورقي العربي) */
   function wordAt(x,y){var el=document.elementFromPoint(x,y),w=el&&el.closest?el.closest('.mw[data-v]'):null;return (w&&w.closest('#mp'))?w:null}
   function back(el){if(!el)return;el.style.transition='transform .26s cubic-bezier(.2,.9,.3,1.25),opacity .2s';el.style.transform='translateX(0)';el.style.opacity='1';setTimeout(function(){el.style.transition='';el.style.transform='';el.style.opacity=''},300)}
   document.addEventListener('touchstart',function(e){
@@ -332,7 +332,7 @@ function mpHap(){try{if(typeof hapGo==='function')hapGo([14]);else if(navigator.
   document.addEventListener('touchmove',function(e){
     if(!st||!e.touches[0])return;var x=e.touches[0].clientX,y=e.touches[0].clientY,dx=x-st.x,dy=y-st.y,now=Date.now();
     if(now>st.lt){st.v=.6*st.v+.4*((x-st.lx)/(now-st.lt));st.lx=x;st.lt=now}
-    var canSwipe=!!(S.quran&&S.quran.sw===true);
+    var canSwipe=true; /* قلب الصفحات بالسحب مفعّل دائمًا في المصحف النصي */
     if(!st.lock&&!st.fired){
       if(canSwipe&&Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.15){st.lock='h'}
       else if(Math.abs(dy)>12)st.lock='v';
