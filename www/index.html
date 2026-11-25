@@ -1002,7 +1002,7 @@ body.rd #mp{padding:0}
 .mq-t{max-width:640px;margin-inline:auto;padding:18px 36px 8px;font-family:"KFGQPC",var(--font-text);line-height:2.05;text-align:justify}
 .mq-bs{text-align:center;color:var(--mp-gold);font-size:.98em;line-height:2;padding:10px 0 4px}
 .mq-v{border-radius:8px;transition:background .2s ease;user-select:none;-webkit-user-select:none}
-.mq-v.cur{background:color-mix(in srgb,#43d9a0 14%,transparent);box-shadow:inset 0 0 0 2px color-mix(in srgb,#43d9a0 25%,transparent),0 2px 10px rgba(0,0,0,.18)}
+.mq-v.cur{background:color-mix(in srgb,#43d9a0 20%,transparent);box-shadow:none;border-radius:3px;padding-block:.32em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .mq-m.aym{color:var(--mp-gold);font-size:.82em;margin-inline:.22em}
 .mq-m .ayo{position:relative;display:inline-block}
 .mq-m .ayo b{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font-size:.512em;font-weight:400}
@@ -1113,10 +1113,10 @@ html[data-riw="w"] .mq-t,html[data-riw="w"] .mq-tca,html[data-riw="w"] .fwp,html
 @media(max-width:400px){.mq-ta{gap:3px}.mq-cb{width:30px;height:30px;min-width:30px}.mq-stp{gap:2px}.mq-stp .mq-fsz{min-width:22px}}
 .mq-ov~.rd-sp{top:0;left:0;width:100vw;height:100dvh;inset:auto;top:0;left:0}.mq-ov~.rd-sp>:not(.rd-sh){overflow-y:auto}
 /* قائمة الآية أفقية: أزرار بجانب بعضها، تمرير أفقي عند الضيق */
-.mq-mn.hz{width:auto;max-width:calc(100vw - 16px);display:flex;flex-direction:row;align-items:stretch;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;transform-origin:center bottom;padding:4px;gap:2px}
+.mq-mn.hz{width:min(300px,calc(100vw - 16px));max-width:calc(100vw - 16px);display:grid;grid-template-columns:repeat(3,1fr);align-items:stretch;overflow:visible;transform-origin:center bottom;padding:4px;gap:2px}
 .mq-mn.hz::-webkit-scrollbar{display:none}
-.mq-mn.hz .mq-mnh{flex:none;flex-direction:column;justify-content:center;gap:2px;padding:4px 10px;border-bottom:0;border-inline-end:1px solid var(--line)}
-.mq-mn.hz [data-mqm]{flex:none;flex-direction:column;justify-content:center;gap:4px;width:auto;min-width:62px;padding:8px 8px;font-size:11px;text-align:center;white-space:nowrap}
+.mq-mn.hz .mq-mnh{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;padding:4px 10px;border-bottom:1px solid var(--line)}
+.mq-mn.hz [data-mqm]{flex:none;flex-direction:column;justify-content:center;gap:4px;width:auto;min-width:0;padding:8px 8px;font-size:11px;text-align:center;white-space:nowrap}
 .mq-mn.hz [data-mqm] .i{width:19px;height:19px}
 
 /* ===== عرض الصفحات ===== */
@@ -6417,7 +6417,8 @@ function mqSetCur(vv,hap){
 }
 function mqOpenTf(vv){mqSetCur(vv,false);tfOpen(vv)}
 /* قائمة الآية العائمة (نموذج التقوى): ضغطة مطوّلة ٥٠٠ms، تلغى بحركة >١٠px، لوحة عند نقطة الضغط */
-function mqMenuClose(){var d=document.getElementById('mq-mbd');if(d)d.remove()}
+function mqHl(){}
+function mqMenuClose(){var d=document.getElementById('mq-mbd');if(d)d.remove();mqHl()}
 /* استماع لحفص: بث مباشر فقط من Quran Foundation (المنشاوي مرتل، recitation id 9)، ملف لكل آية بترقيم حفص. لا تنزيل ولا تخزين ولا إعادة استضافة */
 var mqAu={a:null,k:'',pa:false},mqAuT=null;
 /* مصدر التلاوة لكل رواية: حفص = المنشاوي مرتل (Quran Foundation)؛ ورش = لا مصدر موثّق بعد (null) فيُخفى الاستماع بدل تلاوة حفص على نص ورش */
@@ -6437,6 +6438,7 @@ function mqAuOn(){return !!mqAuS()}
 function mqAuName(){var s=mqAuS();return s?s.n:''}
 function mqAuUrl(c,v){var s=mqAuS();return s?s.u(c,v):''}
 function mqAuBar(){
+  mqHl();
   var d=document.getElementById('mq-au');
   if(!mqAu.a||(tab!=='reader'&&!(mqAu.ext&&tab==='cards'))){if(d)d.remove();try{mqAuSync()}catch(e){}return}
   if(!d){d=document.createElement('div');d.id='mq-au';d.className='mq-au';document.body.appendChild(d);
@@ -6538,7 +6540,7 @@ function mqMenuOpen(vv,x,y){
     else if(k==='share'&&wiOn()){wiShare(vv)}
     else if(k==='share'){var t=mpVerseText(vv);if(navigator.share){navigator.share({text:t}).catch(function(){})}else{try{navigator.clipboard.writeText(t);toast('نُسخت الآية للمشاركة')}catch(x3){}}}
   });
-  document.body.appendChild(bd);
+  document.body.appendChild(bd);mqHl();
   var pn=bd.firstChild;
   var vw=window.innerWidth,ph=pn.offsetHeight||64,pw=pn.offsetWidth||vw-16;
   pn.style.left=Math.max(8,Math.min(x-pw/2,vw-pw-8))+'px';
@@ -6875,7 +6877,7 @@ function tfAct(a,v){
     S.quran.tfPos={c:c,v:vv||1,w:isW()?1:0};save();rd.tf=o;setTimeout(tfPost,80);return false}
   if(a==='qtfx'){
     var card=document.querySelector('.mq-tc[data-tv="'+v+'"]');if(!card)return true;
-    var open=!card.classList.contains('open');card.classList.toggle('open',open);
+    var open=!card.classList.contains('open');card.classList.toggle('open',open);if(open){[].forEach.call(document.querySelectorAll('.mq-tc.open'),function(o){if(o!==card){o.classList.remove('open');var h2=o.querySelector('.mq-tch');if(h2)h2.setAttribute('aria-expanded','false');delete t.x[o.getAttribute('data-tv')]}})}
     var q=String(v).split(':');if(open){t.x[v]=true;S.quran.tfPos={c:+q[0],v:+q[1],w:isW()?1:0};save();tfLoad(v)}else delete t.x[v];
     var hb=card.querySelector('.mq-tch');if(hb)hb.setAttribute('aria-expanded',open?'true':'false');
     return true}

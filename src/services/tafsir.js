@@ -55,7 +55,7 @@ function tfAct(a,v){
     S.quran.tfPos={c:c,v:vv||1,w:isW()?1:0};save();rd.tf=o;setTimeout(tfPost,80);return false}
   if(a==='qtfx'){
     var card=document.querySelector('.mq-tc[data-tv="'+v+'"]');if(!card)return true;
-    var open=!card.classList.contains('open');card.classList.toggle('open',open);
+    var open=!card.classList.contains('open');card.classList.toggle('open',open);if(open){[].forEach.call(document.querySelectorAll('.mq-tc.open'),function(o){if(o!==card){o.classList.remove('open');var h2=o.querySelector('.mq-tch');if(h2)h2.setAttribute('aria-expanded','false');delete t.x[o.getAttribute('data-tv')]}})}
     var q=String(v).split(':');if(open){t.x[v]=true;S.quran.tfPos={c:+q[0],v:+q[1],w:isW()?1:0};save();tfLoad(v)}else delete t.x[v];
     var hb=card.querySelector('.mq-tch');if(hb)hb.setAttribute('aria-expanded',open?'true':'false');
     return true}

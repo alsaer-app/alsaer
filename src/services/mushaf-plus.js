@@ -308,7 +308,8 @@ function mqSetCur(vv,hap){
 }
 function mqOpenTf(vv){mqSetCur(vv,false);tfOpen(vv)}
 /* قائمة الآية العائمة (نموذج التقوى): ضغطة مطوّلة ٥٠٠ms، تلغى بحركة >١٠px، لوحة عند نقطة الضغط */
-function mqMenuClose(){var d=document.getElementById('mq-mbd');if(d)d.remove()}
+function mqHl(){}
+function mqMenuClose(){var d=document.getElementById('mq-mbd');if(d)d.remove();mqHl()}
 /* استماع لحفص: بث مباشر فقط من Quran Foundation (المنشاوي مرتل، recitation id 9)، ملف لكل آية بترقيم حفص. لا تنزيل ولا تخزين ولا إعادة استضافة */
 var mqAu={a:null,k:'',pa:false},mqAuT=null;
 /* مصدر التلاوة لكل رواية: حفص = المنشاوي مرتل (Quran Foundation)؛ ورش = لا مصدر موثّق بعد (null) فيُخفى الاستماع بدل تلاوة حفص على نص ورش */
@@ -328,6 +329,7 @@ function mqAuOn(){return !!mqAuS()}
 function mqAuName(){var s=mqAuS();return s?s.n:''}
 function mqAuUrl(c,v){var s=mqAuS();return s?s.u(c,v):''}
 function mqAuBar(){
+  mqHl();
   var d=document.getElementById('mq-au');
   if(!mqAu.a||(tab!=='reader'&&!(mqAu.ext&&tab==='cards'))){if(d)d.remove();try{mqAuSync()}catch(e){}return}
   if(!d){d=document.createElement('div');d.id='mq-au';d.className='mq-au';document.body.appendChild(d);
@@ -429,7 +431,7 @@ function mqMenuOpen(vv,x,y){
     else if(k==='share'&&wiOn()){wiShare(vv)}
     else if(k==='share'){var t=mpVerseText(vv);if(navigator.share){navigator.share({text:t}).catch(function(){})}else{try{navigator.clipboard.writeText(t);toast('نُسخت الآية للمشاركة')}catch(x3){}}}
   });
-  document.body.appendChild(bd);
+  document.body.appendChild(bd);mqHl();
   var pn=bd.firstChild;
   var vw=window.innerWidth,ph=pn.offsetHeight||64,pw=pn.offsetWidth||vw-16;
   pn.style.left=Math.max(8,Math.min(x-pw/2,vw-pw-8))+'px';
