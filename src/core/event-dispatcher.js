@@ -204,7 +204,7 @@ document.addEventListener('click',async function(e){
   else if(a==='qtj'){S.quran.tj=S.quran.tj===false;save()}
   else if(a==='qfs'){if(rd&&!isW()){var nf=Math.max(18,Math.min(40,(S.quran.fs||26)+(parseInt(v,10)||0)));if(nf!==(S.quran.fs||26)){S.quran.fs=nf;save()}}}
   else if(a==='qtfs'){var nt=Math.max(16,Math.min(38,(S.quran.tfs||16)+(parseInt(v,10)||0)));if(nt!==(S.quran.tfs||16)){S.quran.tfs=nt;save()}}
-  else if(a==='qbm2clr'){if(!mqClrArm){mqClrArm=true;setTimeout(function(){mqClrArm=false;render()},2600)}else{mqClrArm=false;S.quran.bm2=null;save();toast('تم مسح موضع القراءة')}}
+  else if(a==='qbm2clr'){mqClrOpen()}
   else if(a==='qdone'){if(rd&&rd.free){if(rd.sura)markSuraDone(rd.sura);rd=null;tab='home';window.scrollTo(0,0);toast('تقبّل الله منك')}else if(rd){if(!(qPages(dk())>0))lockSet('q:'+dk());var nn=Math.max(1,rd.page-rd.from+1),kq=dk(),before=qPages(kq);S.quran.log[kq]=before+nn;mtSet('q');var wrap=rd.page>=604;S.quran.pos=wrap?1:rd.page+1;rd=null;tab='home';save();window.scrollTo(0,0);toast(wrap?'ما شاء الله، أتممت ختمة المصحف':(S.quran.log[kq]>=S.quran.goal?'تقبّل الله منك، أتممت وردك اليوم':'تم تسجيل '+ar(nn)+' صفحة'));checkNew()}}
   else if(a==='qadd'){var qk=dk();if(!(S.quran.log[qk]>0))lockSet('q:'+qk);S.quran.log[qk]=Math.min(604,(S.quran.log[qk]||0)+1);mtSet('q');save();if(typeof qwSheetPaint==='function')qwSheetPaint()}
   else if(a==='qsub'){var qk2=dk();if(lockLeft('q:'+qk2)>0){lockBlock(lockLeft('q:'+qk2));return}S.quran.log[qk2]=Math.max(0,(S.quran.log[qk2]||0)-1);if(!S.quran.log[qk2]){delete S.quran.log[qk2];mtDel('q')}save();if(typeof qwSheetPaint==='function')qwSheetPaint()}

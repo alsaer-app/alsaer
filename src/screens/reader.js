@@ -17,30 +17,25 @@ function vHafsFlow(){
   var fs=Math.max(18,Math.min(40,S.quran.fs||26));
   S.quran.last=rd.page=mpVerPage(c,+(String(rd.cv||c+':1').split(':')[1]||1));
   var bm=S.quran.bm2,onBm=bm&&bm.c===c;
-  var _oth=(typeof uiMode==='function'&&uiMode()==='dark')?'light':'dark';
   var body=(c!==1&&c!==9?'<div class="mq-bs">'+esc(D.s[0][0])+'</div>':'');
   for(var v=1;v<=vs.length;v++){
-    body+='<span class="mq-v" data-v="'+c+':'+v+'">'+esc(verseText(c,v))+' <span class="mq-m aym"><span class="ayo">\u06DD<b>'+ar(v)+'</b></span></span> </span>';
+    body+='<span class="mq-v'+(rd.cv===c+':'+v?' cur':'')+'" data-v="'+c+':'+v+'">'+esc(verseText(c,v))+' <span class="mq-m aym"><span class="ayo">\u06DD<b>'+ar(v)+'</b></span></span> </span>';
   }
-  var top='<div class="mq-top"><div class="mq-t1">'
-    +'<button class="ib" data-a="goback" data-v="home" aria-label="رجوع">'+ic('chev')+'</button>'
-    +'<div class="mq-ti"><b>سورة '+esc(D.n[c-1])+'</b> <small>'+suraMeta(c)+'</small></div>'
-    +'</div><div class="mq-ta">'
-    +'<button class="ib" data-a="tab" data-v="cards" aria-label="بطاقات">'+ic('doc')+'</button>'
-    +'<button class="ib" data-a="qtafsir" aria-label="تفسير الآية الحالية">'+ic('book')+'</button>'
-    +'<button class="ib" data-a="qfs" data-v="-2" aria-label="تصغير الخط"'+(fs<=18?' disabled':'')+'>'+ic('minus')+'</button>'
-    +'<b class="mq-fsz">'+ar(fs)+'</b>'
-    +'<button class="ib" data-a="qfs" data-v="2" aria-label="تكبير الخط"'+(fs>=40?' disabled':'')+'>'+ic('plus')+'</button>'
-    +'<button class="ib mq-bm'+(onBm?' on':'')+'" data-a="qbm2" aria-label="العلامة المرجعية" aria-pressed="'+!!onBm+'">'+(onBm?'★':'☆')+'</button>'
-    +'<button class="ib rd-th" data-a="umode" data-v="'+_oth+'" aria-label="تبديل المظهر">'+(_oth==='light'?ic('sun'):ic('moon'))+'</button>'
-    +'<button class="ib" data-a="qjump" aria-label="القائمة">'+ic('menu')+'</button>'
+  var top='<div class="mq-hd"><button class="mq-bk" data-a="goback" data-v="home" aria-label="رجوع">'+ic('chev')+'</button><b class="mq-tt">سورة '+esc(D.n[c-1])+'</b></div>'
+    +'<div class="mq-top"><div class="mq-ti"><small>'+suraMeta(c)+'</small></div>'
+    +'<div class="mq-ta">'
+    +'<button class="mq-pill" data-a="qtafsir" aria-label="تفسير الآية الحالية">'+ic('book')+'<span>التفسير</span></button>'
+    +'<button class="mq-pill" data-a="tab" data-v="cards" aria-label="بطاقات">'+ic('doc')+'<span>بطاقات</span></button>'
+    +'<div class="mq-stp"><button class="mq-cb" data-a="qfs" data-v="-2" aria-label="تصغير الخط"'+(fs<=18?' disabled':'')+'>'+ic('minus')+'</button><b class="mq-fsz">'+ar(fs)+'</b><button class="mq-cb" data-a="qfs" data-v="2" aria-label="تكبير الخط"'+(fs>=40?' disabled':'')+'>'+ic('plus')+'</button></div>'
+    +'<button class="mq-cb mq-bm'+(onBm?' on':'')+'" data-a="qbm2" aria-label="العلامة المرجعية" aria-pressed="'+!!onBm+'">'+(onBm?'★':'☆')+'</button>'
+    +'<button class="mq-cb" data-a="qjump" aria-label="القائمة">'+ic('menu')+'</button>'
     +'</div>'
-    +'<div class="mq-t2"><button class="ib" data-a="qsurnav" data-v="-1"'+(c<=1?' disabled':'')+'>'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'<small>'+(c>1?esc(D.n[c-2]):'')+'</small></button>'
-    +'<button class="ib" data-a="qsurnav" data-v="1"'+(c>=114?' disabled':'')+'><small>'+(c<114?esc(D.n[c]):'')+'</small>'+ic('chev')+'</button></div></div>';
+    +'<div class="mq-t2"><button class="mq-nav" data-a="qsurnav" data-v="-1"'+(c<=1?' disabled':'')+'>'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'<small>'+(c>1?esc(D.n[c-2]):'')+'</small></button>'
+    +'<button class="mq-nav" data-a="qsurnav" data-v="1"'+(c>=114?' disabled':'')+'><small>'+(c<114?esc(D.n[c]):'')+'</small>'+ic('chev')+'</button></div></div>';
   var bot='<div class="mq-bot"><span class="mq-pos" id="mq-pos">'+esc(D.n[c-1])+'</span>'
     +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button></div>';
   return '<div class="mq-ov" id="mq-ov">'+top+'<div class="mq-sc" id="mq-sc"><div class="mq-t" lang="ar" dir="rtl" style="font-size:'+fs+'px">'
-    +'<h1 class="mq-h">سورة '+esc(D.n[c-1])+'</h1>'+body+'</div></div>'+bot+'</div>'
+    +body+'</div></div>'+bot+'</div>'
     +(rd.jump?mpDrawerHtml(rd.page):'')+mpSearchPanel()+mpIndexPanel();
 }
 function vReader(){

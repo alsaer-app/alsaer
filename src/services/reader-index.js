@@ -13,11 +13,10 @@ function mpIndexPanel(){
   var D=QD();
   if(rd.flow){
     var bm=S.quran.bm2;
-    var cont=bm&&bm.c>=1&&bm.c<=114?'<button class="mq-ixc" data-a="qixgo" data-v="'+bm.c+':'+bm.v+'">'+ic('book')+'<span class="t">متابعة القراءة<small class="muted">سورة '+esc(D.n[bm.c-1])+' · آية '+ar(bm.v)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
-    return '<div class="mq-ov mq-ix"><div class="mq-top"><div class="mq-t1"><button class="ib" data-a="qidx" aria-label="إغلاق">\u2715</button>'
-     +'<input id="mpix-q" class="qd-i mq-ixq" type="search" enterkeyhint="search" autocomplete="off" placeholder="ابحث عن سورة بالاسم أو الرقم" aria-label="بحث في فهرس السور"></div></div>'
-     +'<div class="mq-sc mq-ixs">'+cont
-     +D.n.map(function(nm,i){return '<button class="mq-ixr" data-s="'+esc(mpIxNorm(nm)+'|'+(i+1))+'" data-a="qixgo" data-v="'+(i+1)+'"><span class="mq-ixn">'+ar(i+1)+'</span><span class="mq-ixt"><b>سورة '+esc(nm)+'</b><small>'+suraMeta(i+1)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'}).join('')
+    var cont=bm&&bm.c>=1&&bm.c<=114?'<button class="mq-ixc" data-a="qixgo" data-v="'+bm.c+':'+bm.v+'"><span class="mq-ixci">'+ic('book')+'</span><span class="t">متابعة القراءة<small>سورة '+esc(D.n[bm.c-1])+' · آية '+ar(bm.v)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
+    return '<div class="mq-ov mq-ix"><div class="mq-hd"><button class="mq-bk" data-a="qidx" aria-label="إغلاق">'+ic('chev')+'</button><b class="mq-tt">الفهرس</b></div>'
+     +'<div class="mq-ixs"><div class="mq-ixsb">'+ic('search')+'<input id="mpix-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="ابحث عن سورة بالاسم أو الرقم" aria-label="بحث في فهرس السور"></div>'+cont
+     +'<div class="mq-ixg">'+D.n.map(function(nm,i){return '<button class="mq-ixr" data-s="'+esc(mpIxNorm(nm)+'|'+(i+1))+'" data-a="qixgo" data-v="'+(i+1)+'"><span class="mq-ixn">'+ar(i+1)+'</span><span class="mq-ixt"><b>'+esc(nm)+'</b><small>'+suraMeta(i+1)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'}).join('')+'</div>'
      +'<p class="note" id="mpix-none" hidden>لا توجد سورة بهذا الاسم أو الرقم</p></div></div>';
   }
   return '<div class="rd-sp rd-ix"><div class="rd-sh"><button class="ib" data-a="qidx" aria-label="إغلاق">\u2715</button><input id="mpix-q" class="qd-i" type="search" enterkeyhint="search" autocomplete="off" placeholder="اسم السورة أو رقمها" aria-label="بحث في فهرس السور"></div><div class="rd-sr">'

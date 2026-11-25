@@ -28,6 +28,7 @@ function mpDrawerHtml(p){
   var grid='<div class="rd-mg">'
     +'<button type="button" data-a="qidx">'+ic('doc')+'<small>فهرس السور</small></button>'
     +'<button type="button" data-a="qriw" data-v="'+(isW()?'hafs':'warsh')+'">'+ic('book')+'<small>الرواية: '+(isW()?'ورش':'حفص')+'</small></button>'
+    +(rd&&rd.flow?'<button type="button" data-a="umode" data-v="'+((typeof uiMode==='function'&&uiMode()==='dark')?'light':'dark')+'">'+((typeof uiMode==='function'&&uiMode()==='dark')?ic('sun'):ic('moon'))+'<small>المظهر</small></button>':'')
     +(rd&&rd.flow?'':'<button type="button" class="'+(q.tj!==false?'on':'')+'" data-a="qtj">'+ic('sparkles')+'<small>التجويد: '+(q.tj!==false?'تشغيل':'إيقاف')+'</small></button>'
     +'<button type="button" class="'+(bmHas(p)?'on':'')+'" data-a="bmtog">'+(bmHas(p)?'★':'☆')+'<small>علامة الصفحة</small></button>')+'</div>';
   var last=q.last?'<button class="lrow" data-a="qjgo" data-v="l">'+ic('book')+'<span class="t">تابع من حيث توقفت<small class="muted">صفحة '+ar(q.last)+' · سورة '+esc(pageSura(q.last))+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
@@ -417,15 +418,47 @@ function mqOpenTf(vv){
   mqSetCur(vv,false);mpSel=vv;mpApplySel();
   setTimeout(function(){var b=document.querySelector('#mp-vb [data-mp2=tf]');if(b)b.click()},30);
 }
+/* قائمة الآية العائمة (نموذج التقوى): ضغطة مطوّلة ٥٠٠ms، تلغى بحركة >١٠px، لوحة عند نقطة الضغط */
+function mqMenuClose(){var d=document.getElementById('mq-mbd');if(d)d.remove()}
+function mqMenuOpen(vv,x,y){
+  mqMenuClose();
+  var q=vv.split(':'),c=+q[0],v=+q[1],bm=S.quran.bm2,onB=bm&&bm.c===c&&bm.v===v;
+  var bd=document.createElement('div');bd.id='mq-mbd';bd.className='mq-mbd';
+  bd.innerHTML='<div class="mq-mn" role="menu">'
+   +'<div class="mq-mnh"><b>الآية '+ar(v)+'</b><button class="mq-mnx" data-mqx="1" aria-label="إغلاق">\u2715</button></div>'
+   +'<button data-mqm="bmrk"'+(onB?' class="on"':'')+'>'+ic('star')+'<span>حفظ علامة مرجعية</span></button>'
+   +'<button data-mqm="tf">'+ic('book')+'<span>التفسير</span></button>'
+   +'<button data-mqm="copy">'+ic('pen')+'<span>نسخ الآية</span></button>'
+   +'<button data-mqm="share">'+ic('clup')+'<span>مشاركة</span></button></div>';
+  bd.addEventListener('touchmove',function(e){e.preventDefault()},{passive:false});
+  bd.addEventListener('click',function(e){
+    if(e.target===bd||e.target.closest('[data-mqx]')){mqMenuClose();return}
+    var b=e.target.closest('[data-mqm]');if(!b)return;
+    var k=b.getAttribute('data-mqm');mqMenuClose();
+    if(k==='bmrk'){S.quran.bm2={c:c,v:v};save();toast('تم حفظ العلامة المرجعية');render()}
+    else if(k==='tf'){mqOpenTf(vv)}
+    else if(k==='copy'){try{navigator.clipboard.writeText(mpVerseText(vv));toast('تم نسخ الآية')}catch(x2){toast('تعذّر النسخ')}}
+    else if(k==='share'){var t=mpVerseText(vv);if(navigator.share){navigator.share({text:t}).catch(function(){})}else{try{navigator.clipboard.writeText(t);toast('نُسخت الآية للمشاركة')}catch(x3){}}}
+  });
+  document.body.appendChild(bd);
+  var pn=bd.firstChild;
+  pn.style.left=Math.max(8,Math.min(x,window.innerWidth-180))+'px';
+  pn.style.top=Math.max(8,Math.min(y,window.innerHeight-220))+'px';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')mqMenuClose()});
 (function(){
-  var lp=null,lpt=null;
+  var lp=null,lpt=null,lx=0,ly=0;
   document.addEventListener('touchstart',function(e){
     if(tab!=='reader'||!rd||!rd.flow||!e.touches||e.touches.length!==1)return;
     var el=e.target&&e.target.closest&&e.target.closest('.mq-v[data-v]');if(!el)return;
-    lp=el.getAttribute('data-v');
-    lpt=setTimeout(function(){if(!lp)return;mqSetCur(lp,false);mpSel=lp;mpHap();mpApplySel();lp=null},430);
+    lp=el.getAttribute('data-v');lx=e.touches[0].clientX;ly=e.touches[0].clientY;
+    lpt=setTimeout(function(){if(!lp)return;var vv=lp;mqSetCur(vv,false);mpHap();mqMenuOpen(vv,lx,ly);lp=null},500);
   },{passive:true});
-  document.addEventListener('touchmove',function(){if(lpt){clearTimeout(lpt);lpt=null}lp=null},{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!lpt||!e.touches||!e.touches.length)return;
+    var dx=e.touches[0].clientX-lx,dy=e.touches[0].clientY-ly;
+    if(dx*dx+dy*dy>100){clearTimeout(lpt);lpt=null;lp=null}
+  },{passive:true});
   document.addEventListener('touchend',function(){if(lpt){clearTimeout(lpt);lpt=null}lp=null},{passive:true});
   /* التتبع التلقائي: الآية الأقرب إلى ٤٥٪ من ارتفاع الشاشة تصبح الحالية (لا تُحفظ) */
   var sct=null;
@@ -506,7 +539,17 @@ function mqBmsHtml(){
   return '<h4 style="margin:14px 0 6px">العلامات المرجعية</h4><div class="mpj-m">'+L.map(function(x){return '<button class="chip" data-a="qbmsgo" data-v="'+x.c+':'+x.v+'">'+esc(QD().n[x.c-1])+' · آية '+ar(x.v)+'</button>'}).join('')+'</div>';
 }
 /* إعدادات القراءة (قارئ التدفق): خط القرآن وخط التفسير بمعاينة حية + آخر موضع قراءة ومسحه */
-var mqClrArm=false;
+function mqClrOpen(){
+  var old=document.getElementById('mq-cbd');if(old)old.remove();
+  var d=document.createElement('div');d.id='mq-cbd';d.className='mq-mbd';
+  d.innerHTML='<div class="mq-cdlg" role="alertdialog" aria-modal="true"><b>مسح موضع القراءة؟</b><p>سيُحذف موضع قراءتك المحفوظ وعلامتك المرجعية.</p><div class="mq-cda"><button class="btn" data-mqc="no">إلغاء</button><button class="btn mq-danger" data-mqc="ok">مسح</button></div></div>';
+  d.addEventListener('touchmove',function(e){e.preventDefault()},{passive:false});
+  d.addEventListener('click',function(e){
+    if(e.target===d||e.target.closest('[data-mqc="no"]')){d.remove();return}
+    if(e.target.closest('[data-mqc="ok"]')){d.remove();S.quran.bm2=null;save();toast('تم مسح موضع القراءة');render()}
+  });
+  document.body.appendChild(d);
+}
 function tfSz(){return Math.max(16,Math.min(38,S.quran.tfs||16))}
 function mqReadSet(){
   var q=S.quran,fs=Math.max(18,Math.min(40,q.fs||26)),tfs=tfSz(),bm=q.bm2;
@@ -515,8 +558,8 @@ function mqReadSet(){
   +'<div class="mq-rs-pv mq-pv-q" lang="ar" dir="rtl" style="font-size:'+fs+'px">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</div>'
   +'<div class="mq-rs-row"><b>خط التفسير</b><div class="step"><button class="ib" data-a="qtfs" data-v="-2" aria-label="تصغير خط التفسير"'+(tfs<=16?' disabled':'')+'>'+ic('minus')+'</button><b>'+ar(tfs)+'</b><button class="ib" data-a="qtfs" data-v="2" aria-label="تكبير خط التفسير"'+(tfs>=38?' disabled':'')+'>'+ic('plus')+'</button></div></div>'
   +'<div class="mq-rs-pv" lang="ar" dir="rtl" style="font-size:'+tfs+'px">أي: الحمد لله ربّ العالمين — نموذج لنص التفسير</div>'
-  +'<div class="mq-rs-row"><b>آخر موضع قراءة</b><span class="mq-rs-val">'+(bm?'سورة '+esc(QD().n[bm.c-1])+' · آية '+ar(bm.v):'لا يوجد')+'</span></div>'
-  +(bm?'<button class="btn block mq-rs-clr'+(mqClrArm?' arm':'')+'" data-a="qbm2clr">'+(mqClrArm?'تأكيد مسح الموضع':'مسح موضع القراءة')+'</button>':'')
+  +'<div class="mq-rs-row"><b>آخر موضع قراءة</b><span class="mq-rs-val">'+(bm?'سورة '+esc(QD().n[bm.c-1])+' — الآية '+ar(bm.v):'لا يوجد')+'</span></div>'
+  +(bm?'<button class="btn block mq-rs-clr" data-a="qbm2clr">مسح موضع القراءة</button>':'')
   +'</section>';
 }
 /* بانر متوهج بعد تبديل الرواية يؤكد للمستخدم أين هو */

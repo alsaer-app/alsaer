@@ -1,5 +1,5 @@
 {
- "total": 2604,
+ "total": 2610,
  "protected_files_skipped": {
   "src/constants/adhkar.js": "adhkar text (stays Arabic)",
   "src/services/hisn.js": "Hisn al-Muslim supplications (stays Arabic)",
@@ -32,6 +32,13 @@
     ]
    },
    {
+    "ar": "الآية",
+    "got": null,
+    "files": [
+     "src/services/mushaf-plus.js"
+    ]
+   },
+   {
     "ar": "التفسير الميسّر",
     "got": null,
     "files": [
@@ -53,17 +60,17 @@
     ]
    },
    {
-    "ar": "المختصر في التفسير",
+    "ar": "العلامات المرجعية",
     "got": null,
     "files": [
      "src/services/mushaf-plus.js"
     ]
    },
    {
-    "ar": "بطاقات",
+    "ar": "المختصر في التفسير",
     "got": null,
     "files": [
-     "src/screens/reader.js"
+     "src/services/mushaf-plus.js"
     ]
    },
    {
@@ -84,7 +91,6 @@
     "ar": "تبديل المظهر",
     "got": null,
     "files": [
-     "src/screens/reader.js",
      "src/services/mushaf-plus.js"
     ]
    },
@@ -103,24 +109,10 @@
     ]
    },
    {
-    "ar": "مدنية",
-    "got": null,
-    "files": [
-     "src/screens/reader.js"
-    ]
-   },
-   {
     "ar": "مشاركة الآية",
     "got": null,
     "files": [
      "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "مكية",
-    "got": null,
-    "files": [
-     "src/screens/reader.js"
     ]
    },
    {
@@ -135,6 +127,13 @@
     "got": null,
     "files": [
      "src/core/event-dispatcher.js"
+    ]
+   },
+   {
+    "ar": "— الآية",
+    "got": null,
+    "files": [
+     "src/services/mushaf-plus.js"
     ]
    }
   ]
@@ -157,6 +156,13 @@
     ]
    },
    {
+    "ar": "الآية",
+    "got": null,
+    "files": [
+     "src/services/mushaf-plus.js"
+    ]
+   },
+   {
     "ar": "التفسير الميسّر",
     "got": null,
     "files": [
@@ -178,17 +184,17 @@
     ]
    },
    {
-    "ar": "المختصر في التفسير",
+    "ar": "العلامات المرجعية",
     "got": null,
     "files": [
      "src/services/mushaf-plus.js"
     ]
    },
    {
-    "ar": "بطاقات",
+    "ar": "المختصر في التفسير",
     "got": null,
     "files": [
-     "src/screens/reader.js"
+     "src/services/mushaf-plus.js"
     ]
    },
    {
@@ -209,7 +215,6 @@
     "ar": "تبديل المظهر",
     "got": null,
     "files": [
-     "src/screens/reader.js",
      "src/services/mushaf-plus.js"
     ]
    },
@@ -228,24 +233,10 @@
     ]
    },
    {
-    "ar": "مدنية",
-    "got": null,
-    "files": [
-     "src/screens/reader.js"
-    ]
-   },
-   {
     "ar": "مشاركة الآية",
     "got": null,
     "files": [
      "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "مكية",
-    "got": null,
-    "files": [
-     "src/screens/reader.js"
     ]
    },
    {
@@ -260,6 +251,13 @@
     "got": null,
     "files": [
      "src/core/event-dispatcher.js"
+    ]
+   },
+   {
+    "ar": "— الآية",
+    "got": null,
+    "files": [
+     "src/services/mushaf-plus.js"
     ]
    }
   ]
