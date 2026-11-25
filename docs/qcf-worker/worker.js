@@ -47,7 +47,9 @@ async function getToken(env, hosts) {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': `Basic ${basic}`,
     },
-    body: 'grant_type=client_credentials&scope=content',
+    // No scope parameter: this QCF client rejects explicit scopes (invalid_scope);
+    // omitting it makes Hydra issue the app's granted scopes (verified /debug-auth).
+    body: 'grant_type=client_credentials',
   });
   if (!res.ok) {
     throw new Error(`QCF token request failed: ${res.status} ${await res.text()}`);
