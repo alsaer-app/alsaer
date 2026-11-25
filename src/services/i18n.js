@@ -100,7 +100,8 @@ var TPL=[
 [/^ذكّرك: (.+)$/,'Reminded you: $1'],[/^بقي (\d+) دقيقة على صلاة (.+)$/,'$1 minutes left before prayer of $2'],
 [/^بقي عليك (\d+) صفحات لإتمام وردك اليوم\.$/,'You have $1 pages left to complete today\'s portion.'],
 [/^هذا الأسبوع: (\d+) صلاة من [٣3][٥5]، و(\d+) صفحة قرآن، و(\d+) عادة حسنة\. اضغط للمقارنة بالأسبوع الماضي\.$/,'This week: $1 prayers of 35, and $2 Quran pages, and $3 good habits. Tap to compare with last week.'],
-[/^· (\d+) مرات? كل (\d+) دقيقة$/,'· $1 times every $2 minutes'],[/^\+(\d+) نقطة$/,'+$1 points']
+[/^· (\d+) مرات? كل (\d+) دقيقة$/,'· $1 times every $2 minutes'],[/^\+(\d+) نقطة$/,'+$1 points'],
+[/^(.+[.]) \(((?:http-\d+|[A-Za-z0-9_-]+))\)$/,'$1 ($2)']
 ];
 function tplApply(d){
   var l=lang(),D=(l==='en'||l==='ar')?null:I18N_PACKS[l];

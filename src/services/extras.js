@@ -55,15 +55,16 @@ function bkApply(raw){
 }
 function gdDriveCard(st,disabled){
   var linked=gdHasRt(),em=gdEmail();
-  var h='<section class="sg-card gd-dest"><div class="gd-head"><b>Google Drive</b><span class="sg-pill">'+(linked?'مربوط':'غير مربوط')+'</span></div>';
+  var h='<section class="sg-card gd-dest"><div class="gd-head"><b>Google Drive</b><span class="sg-pill">'+(linked?(gdPerm()?'يلزم التحقق':'مربوط'):'غير مربوط')+'</span></div>';
   if(!linked){
     return h+'<div class="gd-hero"><span class="gd-hero-ic">'+ic('cloud')+'</span><b>احمِ نسختك في Google Drive</b></div>'
       +'<p class="note gd-c">نسخ مؤرخة ترجع على هذا الهاتف أو أي هاتف آخر، حتى بعد إعادة التثبيت. لا يرى التطبيق إلا الملفات التي ينشئها.</p>'
       +'<button class="btn block" data-a="gdconnect"'+disabled+'>'+ic('cloud')+' ربط Google Drive</button></section>';
   }
   var ini=(em||'؟').trim().charAt(0);
-  return h+'<div class="gd-hero"><span class="gd-hero-ic">'+ic('clup')+'</span><b>نسختك محفوظة في Google Drive</b></div>'
-    +'<div class="gd-acct"><span class="gd-ava">'+esc(ini)+'</span><div class="gd-acct-tx"><b>حساب Google</b><span class="dm-email" dir="ltr">'+esc(em)+'</span></div><span class="gd-dot">● متصل</span></div>'
+  var permNote=gdPerm()?'<p class="note gd-perm" role="status">'+esc(gdPermBase())+' <span dir="ltr">('+esc(gdPerm())+')</span></p>':'';
+  return h+permNote+'<div class="gd-hero"><span class="gd-hero-ic">'+ic('clup')+'</span><b>'+(gdPerm()?'الحساب مربوط ووصول النسخ غير مؤكد':'نسختك محفوظة في Google Drive')+'</b></div>'
+    +'<div class="gd-acct"><span class="gd-ava">'+esc(ini)+'</span><div class="gd-acct-tx"><b>حساب Google</b><span class="dm-email" dir="ltr">'+esc(em)+'</span></div><span class="gd-dot">'+(gdPerm()?'● غير متحقق':'● متصل')+'</span></div>'
     +'<div class="gd-stats"><div class="gd-stat">'+ic('clup')+'<span>آخر رفع ناجح</span><b>'+esc(gdDate(st.driveAt))+'</b></div>'
     +'<div class="gd-stat">'+ic('dl')+'<span>آخر استعادة ناجحة</span><b>'+esc(gdDate(st.driveRestoreAt))+'</b></div></div>'
     +'<div class="gd-col">'+gdBtn('up','نسخ الآن',false,disabled)+gdBtn('down','استعادة من Drive',true,disabled)+gdProgBar()+'</div>'

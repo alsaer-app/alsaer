@@ -17,7 +17,7 @@ var gdNativePending=null,gdRevAt=0,gdAuthWait=false,gdLinkAt=0;
 /* الإلغاء الأصلي لدى خدمات Play غير متزامن ولا يُبلغ بانتهائه؛ إن وصل متأخرًا بعد ربط جديد ألغى الإذن الجديد. نسجّل وقته لنؤخّر الربط التالي */
 function gdNativeRevoke(){try{if(window.AlsaerNative&&typeof AlsaerNative.gdriveRevoke==='function'){gdRevAt=Date.now();AlsaerNative.gdriveRevoke()}}catch(e){}}
 function gdResetAuthState(){
-  gdTok={t:'',exp:0};
+  gdTok={t:'',exp:0};gdSetPerm('');
   try{localStorage.removeItem('alsaer_gdrive_native');localStorage.removeItem(GD_RT_KEY);localStorage.removeItem('alsaer_gdrive_email')}catch(e){}
   /* امسح تخزين Google المحلي على الجهاز أيضًا: بلا ذلك قد تعيد خدمات Play الرمز الميت نفسه عند الربط التالي (علة «لا يربط بعد فك الربط») */
   gdNativeRevoke();
@@ -30,13 +30,20 @@ function gdValidateToken(t){
   }).then(function(r){
     try{localStorage.setItem('alsaer_gd_lastcheck',String(r&&r.status)+'@'+Date.now())}catch(e){}
     if(r&&r.status===401)return null;
+    if(r&&r.status===403)return {forbidden:true,code:'http-403'};
     if(!r||!r.ok)throw new Error('http-'+(r&&r.status));
     return r.json().then(function(o){return o||{}});
   });
 }
 /* نجاح ربط أصلي مُثبت: خزّن العلامات والبريد، وأعد ضبط إحصاءات الحساب إن تغيّر */
-function gdNativeLinkOk(p,token,email){
-  var priorEmail=gdEmail();gdLinkAt=Date.now();
+/* حالة التحقق: 2xx مؤكد (يمسح العلم)، 403 صلاحية/حصة أو تعذر الفحص (يُبقى الحساب والنسخة، ويُعلَّم «غير متحقق» برمز عام فقط) */
+var GD_PERM_KEY='alsaer_gd_perm';
+function gdPerm(){try{return localStorage.getItem(GD_PERM_KEY)||''}catch(e){return ''}}
+function gdPermBase(){return 'تم الربط لكن تعذّر التأكد من صلاحية النسخ على Drive. حسابك ونسختك محفوظان. اضغط «نسخ الآن» للمحاولة أو راجع أذونات Google.'}
+function gdPermMsg(){return gdPermBase()+' ('+(gdPerm()||'unverified')+')'}
+function gdSetPerm(code){try{if(code)localStorage.setItem(GD_PERM_KEY,code);else localStorage.removeItem(GD_PERM_KEY)}catch(e){}}
+function gdNativeLinkOk(p,token,email,unverified){
+  var priorEmail=gdEmail();gdLinkAt=Date.now();gdSetPerm(unverified||'');
   gdTok={t:token,exp:Date.now()+50*60000};
   try{
     localStorage.setItem('alsaer_gdrive_native','1');localStorage.removeItem(GD_RT_KEY);
@@ -76,9 +83,10 @@ window.gdriveOnNativeToken=function(token,error,email){
     if(error||!token){if(gdAuthError(error||'no-auth'))gdResetAuthState();bkSay(gdAuthFailMsg(error||'no-auth'));try{render()}catch(e){}return}
     gdValidateToken(token).then(function(o){
       if(!o){gdResetAuthState();bkSay(gdAuthFailMsg('auth'));try{render()}catch(e){}return}
-      gdNativeLinkOk(null,token,email||String((o.user&&o.user.emailAddress)||''));
-      bkSay('تم ربط Google Drive ✓');try{render()}catch(e){}
-    },function(){gdNativeLinkOk(null,token,email);bkSay('تم ربط Google Drive ✓');try{render()}catch(e){}});
+      var u=o.forbidden?o.code:'';
+      gdNativeLinkOk(null,token,email||String((o.user&&o.user.emailAddress)||''),u);
+      bkSay(u?gdPermMsg():'تم ربط Google Drive ✓');try{render()}catch(e){}
+    },function(){gdNativeLinkOk(null,token,email,'unverified');bkSay(gdPermMsg());try{render()}catch(e){}});
     return;
   }
   gdNativePending=null;clearTimeout(p.timer);
@@ -86,9 +94,9 @@ window.gdriveOnNativeToken=function(token,error,email){
   if(error||!token){if(gdAuthError(error||'no-auth')&&!(!p.interactive&&Date.now()-gdLinkAt<120000&&gdHasRt())){gdResetAuthState();if(!p.interactive)bkSay('انتهى ربط Google Drive على هذا الجهاز. اضغط «ربط Google Drive» لإعادة الربط.')}p.reject(new Error(error||'no-auth'));try{render()}catch(e){}return}
   gdValidateToken(token).then(function(o){
     if(!o){gdResetAuthState();p.reject(new Error('auth'));try{render()}catch(e){}return}
-    gdNativeLinkOk(p,token,email||String((o.user&&o.user.emailAddress)||''));
+    gdNativeLinkOk(p,token,email||String((o.user&&o.user.emailAddress)||''),o.forbidden?o.code:'');
     p.resolve(token);
-  },function(){gdNativeLinkOk(p,token,email);p.resolve(token)});
+  },function(){gdNativeLinkOk(p,token,email,'unverified');p.resolve(token)});
 };
 
 /* --- PKCE: مولّد رمز التحقق وتحدّيه (S256) --- */
@@ -104,15 +112,17 @@ function gdAuthFailMsg(m){
   if(m==='timeout')return 'انتهت مهلة الربط دون رد من Google. أعد المحاولة.';
   if(m==='busy')return 'محاولة ربط أخرى جارية. انتظر لحظة ثم أعد المحاولة.';
   if(m==='authorization-failed'||m==='consent-required'||m==='resolution-failed'||m==='scope-not-granted')return 'رفضت Google الربط. إن كان الحساب مربوطًا سابقًا فافتح myaccount.google.com/permissions وألغِ إذن «السائر» ثم أعد المحاولة.';
-  return 'تعذّر الربط. اضغط ربط حساب جديد للمحاولة مجددًا.';
+  /* رمز السبب بجانب الرسالة للتشخيص: auth = رد 401 من فحص الرمز */
+  var code=m==='auth'?'http-401':(String(m||'unknown').replace(/[^A-Za-z0-9_-]/g,'').slice(0,30)||'unknown');
+  return 'تعذّر الربط. اضغط ربط حساب جديد للمحاولة مجددًا.'+' ('+code+')';
 }
 function gdStartAuth(){
   if(gdNative()){
     if(gdAuthWait)return;
     var wait=Math.max(0,7000-(Date.now()-gdRevAt));
-    var go=function(){gdAuthWait=false;bkSay('اختر حساب Google واسمح بالوصول إلى ملف النسخة…');gdNativeToken(true).then(function(){bkSay('تم ربط Google Drive ✓');render();setTimeout(gdOnOpen,300);
+    var go=function(){gdAuthWait=false;bkSay('اختر حساب Google واسمح بالوصول إلى ملف النسخة…');gdNativeToken(true).then(function(){bkSay(gdPerm()?gdPermMsg():'تم ربط Google Drive ✓');render();setTimeout(gdOnOpen,300);
       /* تحقق ثانٍ بعد ثوانٍ: إن ألغى Google الإذن الجديد فور منحه نقول ذلك بدل ترك حالة فارغة */
-      setTimeout(function(){var t=gdTok.t;if(!t||!gdHasRt())return;gdValidateToken(t).then(function(o){if(!o){gdResetAuthState();bkSay('أُلغي الإذن فور منحه (غالبًا من فك الربط السابق). انتظر لحظات ثم اضغط ربط حساب جديد.');try{render()}catch(e){}}},function(){})},3000)},function(e){bkSay(gdAuthFailMsg(e&&e.message));render()})};
+      setTimeout(function(){var t=gdTok.t;if(!t||!gdHasRt())return;gdValidateToken(t).then(function(o){if(o&&o.forbidden){gdSetPerm(o.code);try{render()}catch(e){}return}if(!o){gdResetAuthState();bkSay('أُلغي الإذن فور منحه (غالبًا من فك الربط السابق). انتظر لحظات ثم اضغط ربط حساب جديد.');try{render()}catch(e){}}},function(){})},3000)},function(e){bkSay(gdAuthFailMsg(e&&e.message));render()})};
     if(wait>0){gdAuthWait=true;bkSay('جارٍ إنهاء فك الربط السابق ثم نفتح اختيار الحساب…');setTimeout(go,wait);render();return}
     go();render();return}
   if(!gdConfigured()){bkSay('ربط Google Drive غير مهيأ في هذه النسخة من التطبيق.');return}
@@ -347,7 +357,7 @@ setTimeout(gdOnOpen,3500);
 /* Versioned backup metadata is device-local and cannot be rolled back by restore. */
 var GD_META='alsaer_backup_status_v2',gdPicker=null,gdSelected=[],gdChosen=null,gdVerified='',gdDocPending=false;
 function gdStatus(){try{var p=JSON.parse(localStorage.getItem(GD_META)||'null');if(p)return p;p={driveAt:S.gdAt||0};localStorage.setItem(GD_META,JSON.stringify(p));return p}catch(e){return {}}}
-function gdStatusSet(k,t){var p=gdStatus();p[k]=t;localStorage.setItem(GD_META,JSON.stringify(p))}
+function gdStatusSet(k,t){if(k==='driveAt'||k==='driveRestoreAt')gdSetPerm('');var p=gdStatus();p[k]=t;localStorage.setItem(GD_META,JSON.stringify(p))}
 function gdDate(t){if(!t)return 'لا يوجد بعد';var d=new Date(Number(t)||t);return isNaN(d.getTime())?'تاريخ غير معروف':d.toLocaleString('ar-EG')}
 function gdBytes(n){return ar(Math.ceil((Number(n)||0)/1024))+' كيلوبايت'}
 function gdListFiles(){

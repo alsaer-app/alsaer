@@ -1192,5 +1192,9 @@
 "✓ أتممت الكتاب": "✓ Book finished",
 "✓ تمّ الورد": "✓ Portion complete",
 "🏆 أتممت التحدّي — بارك الله فيك": "🏆 You completed the challenge. May Allah bless you",
-"📖 وردي من القرآن يوميًا": "📖 My daily Quran portion"
+"📖 وردي من القرآن يوميًا": "📖 My daily Quran portion",
+"تم الربط لكن تعذّر التأكد من صلاحية النسخ على Drive. حسابك ونسختك محفوظان. اضغط «نسخ الآن» للمحاولة أو راجع أذونات Google.": "Linked, but we could not confirm backup access on Drive. Your account and backup are kept. Tap Copy now to retry, or check your Google permissions.",
+"يلزم التحقق": "Needs check",
+"الحساب مربوط ووصول النسخ غير مؤكد": "Account linked, backup access not confirmed",
+"● غير متحقق": "● Not verified"
 }
