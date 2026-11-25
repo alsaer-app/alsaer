@@ -47,7 +47,7 @@ function vHafsFlow(){
     +'<button class="mq-nav" data-a="qsurnav" data-v="1"'+(c>=114?' disabled':'')+'><small>'+(c<114?esc(D.n[c]):'')+'</small>'+ic('chev')+'</button></div></div>';
   var bot='<div class="mq-bot"><span class="mq-pos" id="mq-pos">'+esc(D.n[c-1])+'</span>'
     +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button></div>';
-  return '<div class="mq-ov" id="mq-ov">'+top+'<div class="mq-sc" id="mq-sc"><div class="mq-t" lang="ar" dir="rtl" style="font-size:'+fs+'px">'
+  return '<div class="mq-ov" id="mq-ov">'+top+'<div class="mq-sc" id="mq-sc"><div class="mq-sn" aria-hidden="true">سورة '+esc(D.n[c-1])+'</div><div class="mq-t" lang="ar" dir="rtl" style="font-size:'+fs+'px">'
     +body+'</div></div>'+bot+'</div>'
     +(rd.jump?mpDrawerHtml(rd.page):'')+mpSearchPanel()+mpIndexPanel()+mqTafsirHtml();
 }

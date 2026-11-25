@@ -88,6 +88,8 @@ body.rd #mp{padding:0}
 .mq-nav .i{width:16px;height:16px;flex:none}
 .mq-nav small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mq-sc{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.mq-sn{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 28px 0;padding:9px 12px;border-block:2px solid var(--mp-gold);background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--mp-gold) 20%,transparent),transparent);color:var(--mp-gold);font-weight:800;font-size:19px;font-family:"KFGQPC",var(--font-text)}
+.mq-sn::before,.mq-sn::after{content:"\2756";font-size:13px}
 .mq-t{max-width:640px;margin-inline:auto;padding:18px 36px 8px;font-family:"KFGQPC",var(--font-text);line-height:2.05;text-align:justify}
 .mq-bs{text-align:center;color:var(--mp-gold);font-size:.98em;line-height:2;padding:10px 0 4px}
 .mq-v{border-radius:8px;transition:background .2s ease;user-select:none;-webkit-user-select:none}
