@@ -300,10 +300,7 @@ function mqSetCur(vv,hap){
   var pos=document.getElementById('mq-pos');if(pos){var q=vv.split(':');pos.textContent='آية '+ar(+q[1])}
   if(hap)mpHap();
 }
-function mqOpenTf(vv){
-  mqSetCur(vv,false);mpSel=vv;mpApplySel();
-  setTimeout(function(){var b=document.querySelector('#mp-vb [data-mp2=tf]');if(b)b.click()},30);
-}
+function mqOpenTf(vv){mqSetCur(vv,false);tfOpen(vv)}
 /* قائمة الآية العائمة (نموذج التقوى): ضغطة مطوّلة ٥٠٠ms، تلغى بحركة >١٠px، لوحة عند نقطة الضغط */
 function mqMenuClose(){var d=document.getElementById('mq-mbd');if(d)d.remove()}
 function mqMenuOpen(vv,x,y){

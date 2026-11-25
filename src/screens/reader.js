@@ -44,7 +44,7 @@ function vHafsFlow(){
     +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button></div>';
   return '<div class="mq-ov" id="mq-ov">'+top+'<div class="mq-sc" id="mq-sc"><div class="mq-t" lang="ar" dir="rtl" style="font-size:'+fs+'px">'
     +body+'</div></div>'+bot+'</div>'
-    +(rd.jump?mpDrawerHtml(rd.page):'')+mpSearchPanel()+mpIndexPanel();
+    +(rd.jump?mpDrawerHtml(rd.page):'')+mpSearchPanel()+mpIndexPanel()+mqTafsirHtml();
 }
 function vReader(){
   if(!rd)return '<section class="card"><p class="note">لا توجد جلسة قراءة.</p><button class="btn block" data-a="goback" data-v="home">رجوع</button></section>';

@@ -1056,6 +1056,35 @@ body.rd #mp{padding:0}
 .mq-rs-pv{margin:14px 0;padding:16px;border-radius:14px;border:1px solid var(--line);background:var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.35);line-height:2;text-align:right;color:var(--mp-ink)}
 .mq-pv-q{font-family:KFGQPC,Amiri,'Noto Naskh Arabic',serif;text-align:center}
 .mq-rs-clr{background:color-mix(in srgb,#c0392b 16%,transparent);border:1px solid color-mix(in srgb,#c0392b 55%,transparent);color:#e74c3c;margin-top:6px}
+/* ===== التفسير: فهرس + بطاقات قابلة للتوسيع ===== */
+.mq-tf{z-index:62}
+.mq-tfh{display:flex;flex-direction:column;align-items:center;text-align:center;padding:22px 0 6px}
+.mq-tfb{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#2a1c05;background:linear-gradient(135deg,#f0d58a,var(--mp-gold) 55%,#a87a22);box-shadow:0 8px 22px color-mix(in srgb,var(--mp-gold) 35%,transparent)}
+.mq-tfb .i{width:28px;height:28px}
+.mq-tfh h2{margin:12px 0 0;font-size:23px;font-weight:800;color:var(--mp-gold)}
+.mq-tfh .s{margin:2px 0 0;font-size:12.5px;font-weight:600;color:var(--mp-mut)}
+.mq-tfh .d{margin:10px 0 0;max-width:430px;font-size:13px;line-height:1.7;color:var(--mp-ink);opacity:.85}
+.mq-tfst{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:430px;margin-top:16px}
+.mq-tfst>div{padding:10px 6px;border-radius:14px;border:1px solid var(--line);background:var(--surface)}
+.mq-tfst b{display:block;font-size:18px;font-weight:800;color:var(--mp-gold)}
+.mq-tfst small{display:block;margin-top:2px;font-size:11px;color:var(--mp-mut)}
+.mq-tfl{display:flex;flex-direction:column;gap:10px;padding-top:12px}
+.mq-tc{flex:none;border-radius:14px;border:1px solid var(--line);background:var(--surface);overflow:hidden;transition:border-color .2s}
+.mq-tc.open{border-color:color-mix(in srgb,var(--mp-gold) 45%,transparent)}
+.mq-tch{display:flex;align-items:flex-start;gap:10px;width:100%;padding:12px;border:0;background:none;color:inherit;font:inherit;text-align:right;cursor:pointer}
+.mq-tcm{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#2a1c05;background:var(--mp-gold);margin-top:6px}
+.mq-tca{flex:1;min-width:0;font-family:"KFGQPC",var(--font-text);line-height:2.05;text-align:justify}
+.mq-tcv{flex:none;width:16px;height:16px;margin-top:10px;opacity:.6;transform:rotate(-90deg);transition:transform .28s ease}
+.mq-tc.open .mq-tcv{transform:rotate(90deg)}
+.mq-tcb{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease}
+.mq-tc.open .mq-tcb{grid-template-rows:1fr}
+.mq-tci{overflow:hidden;min-height:0}
+.mq-tx{margin:0 12px;padding:12px 0;border-top:1px solid color-mix(in srgb,var(--mp-gold) 20%,transparent);line-height:2.05;text-align:justify;color:var(--mp-ink)}
+.mq-tx[data-ld]{opacity:.6}
+.mq-tcact{display:flex;gap:8px;padding:0 12px 12px}
+.mq-tcact button{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--mp-gold) 45%,transparent);background:color-mix(in srgb,var(--mp-gold) 10%,transparent);color:var(--mp-gold);font:inherit;font-size:12px;font-weight:600}
+.mq-tcact button .i{width:15px;height:15px}
+.mq-tcact button:active{transform:scale(.96)}
 </style>
 <style>
 .release-log{border:1px solid var(--line);background:linear-gradient(145deg,var(--surface),var(--surface-2));border-radius:18px;padding:16px}
@@ -4323,7 +4352,7 @@ function vHafsFlow(){
     +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button></div>';
   return '<div class="mq-ov" id="mq-ov">'+top+'<div class="mq-sc" id="mq-sc"><div class="mq-t" lang="ar" dir="rtl" style="font-size:'+fs+'px">'
     +body+'</div></div>'+bot+'</div>'
-    +(rd.jump?mpDrawerHtml(rd.page):'')+mpSearchPanel()+mpIndexPanel();
+    +(rd.jump?mpDrawerHtml(rd.page):'')+mpSearchPanel()+mpIndexPanel()+mqTafsirHtml();
 }
 function vReader(){
   if(!rd)return '<section class="card"><p class="note">لا توجد جلسة قراءة.</p><button class="btn block" data-a="goback" data-v="home">رجوع</button></section>';
@@ -6199,10 +6228,7 @@ function mqSetCur(vv,hap){
   var pos=document.getElementById('mq-pos');if(pos){var q=vv.split(':');pos.textContent='آية '+ar(+q[1])}
   if(hap)mpHap();
 }
-function mqOpenTf(vv){
-  mqSetCur(vv,false);mpSel=vv;mpApplySel();
-  setTimeout(function(){var b=document.querySelector('#mp-vb [data-mp2=tf]');if(b)b.click()},30);
-}
+function mqOpenTf(vv){mqSetCur(vv,false);tfOpen(vv)}
 /* قائمة الآية العائمة (نموذج التقوى): ضغطة مطوّلة ٥٠٠ms، تلغى بحركة >١٠px، لوحة عند نقطة الضغط */
 function mqMenuClose(){var d=document.getElementById('mq-mbd');if(d)d.remove()}
 function mqMenuOpen(vv,x,y){
@@ -6430,6 +6456,108 @@ function mpIxFilter(q){
   var n=document.getElementById('mpix-none');if(n)n.hidden=shown>0;
 }
 document.addEventListener('input',function(e){var t=e.target;if(t&&t.id==='mpix-q')mpIxFilter(t.value)});
+/* ===== التفسير الميسر: فهرس بالبطاقات + بطاقات آيات قابلة للتوسيع (إعادة تنفيذ لنمط التقوى، الكود لنا).
+   قاعدة ثابتة: نص القرآن يُعرض ويُنسخ كما هو مخزَّن حرفيًا، بلا حذف ولا استبدال ولا تطبيع. التفسير يُنسخ وحده مع مرجع الآية. ===== */
+function mqTfFetch(vv,cb){
+  var ck='alsaer_tf_'+vv,c0='';try{c0=localStorage.getItem(ck)||''}catch(e){}
+  if(c0){tfTouch(ck);cb(c0);return}
+  var q=String(vv).split(':');
+  fetch('https://api.alquran.cloud/v1/ayah/'+q[0]+':'+q[1]+'/ar.muyassar').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+    var t=j&&j.data&&j.data.text;if(!t)throw 0;tfPut(ck,t);cb(t)
+  }).catch(function(){cb(null)});
+}
+function tfCached(vv){try{return localStorage.getItem('alsaer_tf_'+vv)||''}catch(e){return ''}}
+function tfSavedCount(){var n=0;try{n=tfIdx().filter(function(k){return k!==TF_IDX}).length}catch(e){}return n}
+function tfAyah(c,v){return QD().s[c-1][v-1]} /* حفص كما هو مخزَّن */
+function tfFill(vv,t){
+  if(rd&&rd.tf&&t)rd.tf.tx[vv]=t;
+  var el=document.querySelector('.mq-tx[data-tv="'+vv+'"]');if(!el)return;
+  el.textContent=t||'تعذّر تحميل التفسير. يحتاج إنترنتًا أول مرة لكل آية.';
+  if(t)el.removeAttribute('data-ld');else el.setAttribute('data-ld','err');
+}
+function tfLoad(vv){
+  var t=(rd&&rd.tf&&rd.tf.tx[vv])||tfCached(vv);
+  if(t){tfFill(vv,t);return}
+  mqTfFetch(vv,function(x){tfFill(vv,x)});
+}
+function tfPost(){
+  if(!rd||!rd.tf||rd.tf.mode!=='rd')return;
+  [].forEach.call(document.querySelectorAll('.mq-tc.open .mq-tx[data-ld="1"]'),function(el){tfLoad(el.getAttribute('data-tv'))});
+  var sv=rd.tf._sv;
+  if(sv){rd.tf._sv=null;var c=document.querySelector('.mq-tc[data-tv="'+sv+'"]');if(c)c.scrollIntoView({block:'start'})}
+}
+function tfOpen(vv){
+  var q=String(vv||rd.cv||'1:1').split(':'),c=+q[0]||1,v=+q[1]||1;
+  var x={},o={mode:'rd',c:c,x:x,tx:{},fb:false};
+  if(!isW()){x[c+':'+v]=true;o._sv=c+':'+v;S.quran.tfPos={c:c,v:v};save()}
+  else toast('ترقيم التفسير حسب حفص، فُتحت السورة من أولها');
+  rd.tf=o;render();setTimeout(tfPost,80);
+}
+function tfAct(a,v){
+  if(!rd||!rd.tf)return true;
+  var t=rd.tf;
+  if(a==='qtfback'){if(t.mode==='rd'&&t.fb){t.mode='idx';t.fb=false}else rd.tf=null;return false}
+  if(a==='qtfidx'){t.mode='idx';t.fb=false;return false}
+  if(a==='qtfsura'){
+    var p=String(v).split(':'),c=parseInt(p[0],10),vv=p[1]?parseInt(p[1],10):0;if(!(c>=1&&c<=114))return true;
+    var o={mode:'rd',c:c,x:{},tx:t.tx||{},fb:true};
+    if(vv){o.x[c+':'+vv]=true;o._sv=c+':'+vv}
+    S.quran.tfPos={c:c,v:vv||1};save();rd.tf=o;setTimeout(tfPost,80);return false}
+  if(a==='qtfx'){
+    var card=document.querySelector('.mq-tc[data-tv="'+v+'"]');if(!card)return true;
+    var open=!card.classList.contains('open');card.classList.toggle('open',open);
+    var q=String(v).split(':');if(open){t.x[v]=true;S.quran.tfPos={c:+q[0],v:+q[1]};save();tfLoad(v)}else delete t.x[v];
+    var hb=card.querySelector('.mq-tch');if(hb)hb.setAttribute('aria-expanded',open?'true':'false');
+    return true}
+  if(a==='qtfcp'){
+    var tx=t.tx[v]||tfCached(v);if(!tx){toast('لم يُحمَّل التفسير بعد');return true}
+    var q2=String(v).split(':'),ref='\u2014 سورة '+QD().n[+q2[0]-1]+' \u00B7 آية '+q2[1]+' (التفسير الميسر)';
+    try{navigator.clipboard.writeText(tx+'\n'+ref);toast('تم نسخ التفسير')}catch(e){toast('تعذّر النسخ')}
+    return true}
+  if(a==='qtfgo'){
+    var q3=String(v).split(':'),c3=+q3[0],v3=+q3[1]||1;
+    rd.tf=null;mpSel='';rd.sura=c3;rd.idx=false;rd.jump=false;
+    if(isW()){rd.cv=c3+':1';toast('ترقيم التفسير حسب حفص، فُتحت السورة من أولها')}else rd.cv=c3+':'+v3;
+    rd._scrollCv=rd.cv;return false}
+  return true;
+}
+function mqTafsirHtml(){
+  if(!rd||!rd.tf)return '';
+  var t=rd.tf,D=QD(),tfs=tfSz();
+  var back='<button class="mq-bk" data-a="qtfback" aria-label="رجوع">'+ic('chev')+'</button>';
+  if(t.mode==='idx'){
+    var pos=S.quran.tfPos,n=0;for(var i=0;i<114;i++)n+=D.s[i].length;
+    var cont=pos&&pos.c>=1&&pos.c<=114?'<button class="mq-ixc" data-a="qtfsura" data-v="'+pos.c+':'+pos.v+'"><span class="mq-ixci">'+ic('book')+'</span><span class="t">متابعة التفسير<small>سورة '+esc(D.n[pos.c-1])+' \u00B7 آية '+ar(pos.v)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
+    return '<div class="mq-ov mq-tf" id="mq-tf"><div class="mq-hd">'+back+'<b class="mq-tt">التفسير</b></div><div class="mq-ixs">'
+      +'<div class="mq-tfh"><span class="mq-tfb">'+ic('book')+'</span><h2>التفسير الميسر</h2><p class="s">تفسير موجز لكل آية</p>'
+      +'<p class="d">اضغط على أي آية لتفتح تفسيرها في مكانها. يُحمَّل التفسير من الإنترنت أول مرة لكل آية، ثم يبقى محفوظًا على جهازك للقراءة بلا إنترنت.</p>'
+      +'<div class="mq-tfst"><div><b>'+ar(114)+'</b><small>سورة</small></div><div><b>'+ar(n)+'</b><small>آية</small></div><div><b>'+ar(tfSavedCount())+'</b><small>تفسير محفوظ</small></div></div></div>'
+      +cont+'<div class="mq-ixsb">'+ic('search')+'<input id="mptf-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="ابحث عن سورة بالاسم أو الرقم" aria-label="بحث في فهرس التفسير"></div>'
+      +'<div class="mq-ixg">'+D.n.map(function(nm,i){return '<button class="mq-ixr" data-s="'+esc(mpIxNorm(nm)+'|'+(i+1))+'" data-a="qtfsura" data-v="'+(i+1)+'"><span class="mq-ixt"><b>'+esc(nm)+'</b><small>'+suraMeta(i+1)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'}).join('')+'</div>'
+      +'<p class="note" id="mptf-none" hidden>لا توجد سورة بهذا الاسم أو الرقم</p></div></div>';
+  }
+  var c=t.c,vs=D.s[c-1],h='';
+  for(var v=1;v<=vs.length;v++){
+    var vv=c+':'+v,open=!!t.x[vv],tx=open?(t.tx[vv]||tfCached(vv)):'';
+    h+='<div class="mq-tc'+(open?' open':'')+'" data-tv="'+vv+'"><button class="mq-tch" data-a="qtfx" data-v="'+vv+'" aria-expanded="'+(open?'true':'false')+'"><span class="mq-tcm">'+ar(v)+'</span>'
+      +'<span class="mq-tca" lang="ar" dir="rtl" style="font-size:'+(tfs+6)+'px">'+esc(tfAyah(c,v))+'</span>'+ic('chev').replace('class="i"','class="i mq-tcv"')+'</button>'
+      +'<div class="mq-tcb"><div class="mq-tci"><div class="mq-tx" lang="ar" dir="rtl" data-tv="'+vv+'"'+(tx?'':' data-ld="1"')+' style="font-size:'+tfs+'px">'+(tx?esc(tx):'جارٍ تحميل التفسير\u2026')+'</div>'
+      +'<div class="mq-tcact"><button data-a="qtfcp" data-v="'+vv+'">'+ic('pen')+'<span>نسخ التفسير</span></button><button data-a="qtfgo" data-v="'+vv+'">'+ic('book')+'<span>افتح في المصحف</span></button></div></div></div></div>';
+  }
+  return '<div class="mq-ov mq-tf" id="mq-tf"><div class="mq-hd">'+back+'<b class="mq-tt">تفسير سورة '+esc(D.n[c-1])+'</b>'
+    +'<span class="mq-stp" style="margin-inline-start:auto"><button class="mq-cb" data-a="qtfs" data-v="-2" aria-label="تصغير خط التفسير"'+(tfs<=16?' disabled':'')+'>'+ic('minus')+'</button><b class="mq-fsz">'+ar(tfs)+'</b><button class="mq-cb" data-a="qtfs" data-v="2" aria-label="تكبير خط التفسير"'+(tfs>=38?' disabled':'')+'>'+ic('plus')+'</button></span>'
+    +'<button class="mq-cb" data-a="qtfidx" aria-label="فهرس التفسير">'+ic('menu')+'</button></div>'
+    +'<div class="mq-ixs mq-tfl" id="mq-tfl">'+h+'</div></div>';
+}
+document.addEventListener('input',function(e){
+  var t=e.target;if(!t||t.id!=='mptf-q')return;
+  var q=mpIxNorm(t.value).replace(/^سوره\s+/,''),bq=q.replace(/^ال/,''),shown=0;
+  [].forEach.call(document.querySelectorAll('.mq-tf .mq-ixr'),function(r){
+    var p=(r.getAttribute('data-s')||'').split('|'),nm=p[0],no=p[1],bare=nm.replace(/^ال/,'');
+    var ok=!q||(/^\d+$/.test(q)?no===q:(nm.indexOf(q)>-1||bare.indexOf(bq)>-1));r.hidden=!ok;if(ok)shown++;
+  });
+  var n=document.getElementById('mptf-none');if(n)n.hidden=shown>0;
+});
 var ASM_RAW=[
     {n:'الله', m:'الاسم الجامع لكل معاني الألوهية', e:'الاسم الأعظم الذي يجمع كل صفات الكمال، ولا يُسمى به غيره سبحانه، وإليه ترجع بقية الأسماء الحسنى كلها.', i:'يُبدأ به كل دعاء واستغاثة: يا الله، أسألك من فضلك.'},
     {n:'الرحمن', m:'واسع الرحمة لجميع الخلق', e:'رحمته وسعت كل شيء في الدنيا للمؤمن والكافر على حد سواء، فهو الذي يرزق الجميع ويحسن إليهم.', i:'إذا شعرت بضيق الرزق فادع: يا رحمن ارحمني برحمتك الواسعة.'},
@@ -7503,6 +7631,7 @@ document.addEventListener('click',async function(e){
   else if(/^msb[a-z]+$/.test(a)){if(typeof msbAct==='function'&&msbAct(a,v)===false)return}
   else if(a==='qriw'){var nriw=v==='warsh'?'warsh':'hafs';if((S.quran.riwaya||'hafs')===nriw){render()}else{if(typeof qwSheetClose==='function')qwSheetClose();mqUseRiw(nriw,function(){window.scrollTo(0,0);render();if(typeof qwBanner==='function')qwBanner(nriw)})}}
   else if(a==='qbm2'){if(rd&&rd.flow&&rd.cv){var q2=String(rd.cv).split(':');mqBmSet(+q2[0],+q2[1]);save();toast('تم حفظ العلامة المرجعية')}}
+  else if(/^qtf(back|idx|sura|x|cp|go)$/.test(a)){if(tfAct(a,v))return}
   else if(a==='qtafsir'){if(rd&&rd.flow&&rd.cv&&typeof mqOpenTf==='function')mqOpenTf(rd.cv)}
 
   else if(a==='qfs'){if(rd){var nf=Math.max(18,Math.min(40,(S.quran.fs||26)+(parseInt(v,10)||0)));if(nf!==(S.quran.fs||26)){S.quran.fs=nf;save()}}}
