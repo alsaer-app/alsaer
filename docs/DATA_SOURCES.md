@@ -7,7 +7,7 @@
 | Warsh display font | Scheherazade New 4.500, SIL Global (https://github.com/silnrsi/font-scheherazade, release v4.500, SHA512 of the zip checked against SHA512SUMS) | SIL Open Font License 1.1. Embedded unmodified (WOFF2 conversion only, no subsetting, name kept) as www/fonts/scheherazade-new-regular.woff2. Notice: docs/licenses/scheherazade-new/OFL.txt and FONTLOG.txt. |
 | Hafs font | KFGQPC Uthmanic (www/fonts/uthmanic.ttf) | Unchanged. |
 | Hafs audio | Quran Foundation (verses.quran.com), reciter Minshawi | See their terms. |
-| Warsh audio | mp3quran.net, Abdul Basit (whole-surah) | Licence NOT confirmed. Pre-publish item. |
+| Warsh audio | mp3quran.net, Yassin Al-Jazaery (Warsh from Nafi'), whole-surah file with ayah timings (API ayat_timing, read 14; copied to www/warsh-timing-yassin.js). Abdul Basit (whole-surah) is the fallback if the timing file fails to load. | The site's own copyright statement (mp3quran.net/privacy-en.html): rights are available to everyone and any visitor or developer may copy material or use links. No formal license text. Reciters' own rights are not addressed there. |
 
 The stored Quran text is never edited. Search normalises only a derived in-memory index.
 

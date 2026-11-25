@@ -161,7 +161,7 @@ function vSettings(){
    +sgNavTab('developer','info','عن التطبيق','سجل الإصدارات · الخصوصية','')
    +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصدر نص المصحف</b><small>نص المصحف: مجمع الملك فهد لطباعة المصحف الشريف، روايتا حفص (بيانات النسخة 18) وورش (بيانات النسخة 10)، منقول دون تعديل.</small></div></div>'
    +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصادر التفسير والترقيم</b><small>التفسير الميسر لمجمع الملك فهد لطباعة المصحف الشريف، من قاعدة مركز تفسير للدراسات القرآنية (CC BY 4.0). مطابقة ترقيم ورش بحفص: quran-ws/qiraat-ayah-map (CC BY 4.0).</small></div></div>'
-   +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصدر التلاوة</b><small>التلاوة في حفص: محمد صديق المنشاوي (مرتل)، الصوت من Quran Foundation (verses.quran.com). وفي ورش: عبدالباسط عبدالصمد (ورش عن نافع، مرتل)، الصوت من mp3quran.net سورة كاملة. يُبثّ مباشرة ولا يُحفظ على الجهاز، ويحتاج إنترنتًا.</small></div></div>'
+   +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصدر التلاوة</b><small>التلاوة في حفص: محمد صديق المنشاوي (مرتل)، الصوت من Quran Foundation (verses.quran.com). وفي ورش: ياسين الجزائري (ورش عن نافع)، الصوت وتوقيت الآيات من mp3quran.net، مع تظليل الآية الجارية. يُبثّ مباشرة ولا يُحفظ على الجهاز، ويحتاج إنترنتًا.</small></div></div>'
    +'</div>';
 
   var APPBOTTOM='<div class="sg-t">التطبيق</div><div class="sg-card settings-app">'

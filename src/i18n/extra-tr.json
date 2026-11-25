@@ -18,6 +18,7 @@
 "التفسير الميسر لمجمع الملك فهد لطباعة المصحف الشريف، من قاعدة مركز تفسير للدراسات القرآنية (CC BY 4.0). مطابقة ترقيم ورش بحفص: quran-ws/qiraat-ayah-map (CC BY 4.0).": "Bu âyet için tefsir mevcut değil.",
 "التفسير غير متاح لهذه الآية.": "Kral Fahd Mushaf Basım Kompleksi'nin Tefsir-i Müyesser'i, Tefsir Kur'ânî Araştırmalar Merkezi veri tabanından (CC BY 4.0). Verş-Hafs âyet numaralandırma eşlemesi: quran-ws/qiraat-ayah-map (CC BY 4.0).",
 "التلاوة في حفص: محمد صديق المنشاوي (مرتل)، الصوت من Quran Foundation (verses.quran.com). وفي ورش: عبدالباسط عبدالصمد (ورش عن نافع، مرتل)، الصوت من mp3quran.net سورة كاملة. يُبثّ مباشرة ولا يُحفظ على الجهاز، ويحتاج إنترنتًا.": "Hafs'ta tilavet: Muhammed Sıddık el-Minşâvî (Murettel), ses Quran Foundation'dan (verses.quran.com). Verş'te: Abdülbâsıt Abdüssamed (Nâfi'den Verş, Murettel), ses mp3quran.net'ten, tüm sure. Canlı akıtılır, cihaza kaydedilmez; internet gerekir.",
+"التلاوة في حفص: محمد صديق المنشاوي (مرتل)، الصوت من Quran Foundation (verses.quran.com). وفي ورش: ياسين الجزائري (ورش عن نافع)، الصوت وتوقيت الآيات من mp3quran.net، مع تظليل الآية الجارية. يُبثّ مباشرة ولا يُحفظ على الجهاز، ويحتاج إنترنتًا.": "Hafs'ta tilavet: Muhammed Sıddık el-Minşâvî (murattal), ses Quran Foundation'dan (verses.quran.com). Verş'te: Yâsîn el-Cezâirî (Nâfi' kıraatinden Verş), ses ve âyet zamanlamaları mp3quran.net'ten, okunan âyet vurgulanır. Canlı yayınlanır, cihaza kaydedilmez; internet gerekir.",
 "الحساب مربوط ووصول النسخ غير مؤكد": "Hesap bağlandı, yedek erişimi doğrulanamadı",
 "السورة كاملة": "Sûrenin tamamı",
 "العرض: تدفق": "Görünüm: akış",
@@ -98,6 +99,7 @@
 "هل بالفعل تريد الخروج من التطبيق؟": "Uygulamadan gerçekten çıkmak istiyor musunuz?",
 "ورش (غير متحقق منه بعد)": "Verş (henüz doğrulanmadı)",
 "ورش · غير متحقق منه بعد": "Verş · henüz doğrulanmadı",
+"ياسين الجزائري (ورش)": "Yâsîn el-Cezâirî (Verş)",
 "يلزم التحقق": "Kontrol gerekli",
 "— الآية": "— âyet",
 "● غير متحقق": "● Doğrulanmadı"

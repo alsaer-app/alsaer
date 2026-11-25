@@ -313,8 +313,17 @@ function mqMenuClose(){var d=document.getElementById('mq-mbd');if(d)d.remove()}
 var mqAu={a:null,k:'',pa:false},mqAuT=null;
 /* مصدر التلاوة لكل رواية: حفص = المنشاوي مرتل (Quran Foundation)؛ ورش = لا مصدر موثّق بعد (null) فيُخفى الاستماع بدل تلاوة حفص على نص ورش */
 /* ورش = عبدالباسط عبدالصمد (ورش عن نافع، مرتل) من mp3quran.net، سورة كاملة (لا توقيت آيات متاح)، بث مباشر فقط. الترخيص غير مؤكد (لا شروط منشورة) */
-var MQ_AUSRC={h:{n:'المنشاوي (مرتل)',u:function(c,v){return 'https://verses.quran.com/Minshawi/Murattal/mp3/'+('00'+c).slice(-3)+('00'+v).slice(-3)+'.mp3'}},w:{n:'عبدالباسط (ورش)',whole:1,u:function(c){return 'https://cdn.mp3quran.net/audio/abdulbasit-abdulsamad/r2/'+('00'+c).slice(-3)+'.mp3'}}};
-function mqAuS(){return MQ_AUSRC[isW()?'w':'h']}
+var MQ_AUSRC={h:{n:'المنشاوي (مرتل)',u:function(c,v){return 'https://verses.quran.com/Minshawi/Murattal/mp3/'+('00'+c).slice(-3)+('00'+v).slice(-3)+'.mp3'}},w:{n:'ياسين الجزائري (ورش)',tm:1,u:function(c){return 'https://cdn.mp3quran.net/audio/yassen-jazairi/r1/'+('00'+c).slice(-3)+'.mp3'}},w2:{n:'عبدالباسط (ورش)',whole:1,u:function(c){return 'https://cdn.mp3quran.net/audio/abdulbasit-abdulsamad/r2/'+('00'+c).slice(-3)+'.mp3'}}};
+function mqWtEnsure(cb){
+  if(window.WTIM){cb(true);return}
+  var q=window.__wtq||(window.__wtq=[]);q.push(cb);if(window.__wtl)return;window.__wtl=1;
+  var sc=document.createElement('script');sc.src='warsh-timing-yassin.js';
+  sc.onload=sc.onerror=function(){window.__wtl=0;var ok=!!window.WTIM;q.splice(0).forEach(function(f){try{f(ok)}catch(e){}})};
+  document.head.appendChild(sc);
+}
+/* الآية الجارية في ملف ورش المؤقَّت: آخر آية بدأت قبل الزمن الحالي (ثوانٍ) */
+function mqWtAyah(c,t){var a=window.WTIM&&window.WTIM.s[c-1];if(!a)return 0;var ms=t*1000,i=0;while(i+1<a.length-1&&a[i+1]<=ms)i++;return i+1}
+function mqAuS(){return isW()?(window.WTIM||!window.__wtfail?MQ_AUSRC.w:MQ_AUSRC.w2):MQ_AUSRC.h}
 function mqAuOn(){return !!mqAuS()}
 function mqAuName(){var s=mqAuS();return s?s.n:''}
 function mqAuUrl(c,v){var s=mqAuS();return s?s.u(c,v):''}
@@ -350,6 +359,11 @@ function mqAuSync(){
   }
 }
 function tr0(t){var r=(typeof lang==='function'&&lang()!=='ar'&&typeof trS==='function')?trS(t):null;return esc(r||t)}
+function mqAuTick(){
+  if(!mqAu.a||!mqAu.sc||!mqAuS().tm||!window.WTIM||mqAu.a.paused&&!mqAu.a.ended)return;
+  var c=mqAu.sc,n=mqWtAyah(c,mqAu.a.currentTime),cv=+String(mqAu.k).split(':')[1];
+  if(n>=1&&n!==cv&&n<=AD().s[c-1].length){var nv=c+':'+n;mqAu.k=nv;mqSetCur(nv,false);var el=document.querySelector('.mq-v[data-v="'+nv+'"]');if(el&&el.scrollIntoView){try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}}mqAuBar()}
+}
 function mqAuStop(){
   var a=mqAu.a;mqAu={a:null,k:'',pa:false};clearInterval(mqAuT);mqAuT=null;
   if(a){try{a.onended=a.onerror=null;a.pause();a.removeAttribute('src');a.load()}catch(e){}}
@@ -359,12 +373,15 @@ function mqAuPlay(vv){
   if(!mqAuOn()){mqAuStop();return}
   var q=String(vv).split(':'),c=+q[0],v=+q[1];
   if(!(c>=1&&c<=114)||!(v>=1)||v>AD().s[c-1].length){mqAuStop();return}
+  if(isW()&&!window.WTIM&&!window.__wtfail){mqWtEnsure(function(ok){if(!ok)window.__wtfail=1;mqAuPlay(vv)});return}
+  if(mqAuS().tm&&mqAu.a&&mqAu.sc===c&&mqAu.a.readyState>0){mqAu.k=vv;mqAu.a.currentTime=window.WTIM.s[c-1][v-1]/1000;mqAu.pa=false;var r0=mqAu.a.play();if(r0&&r0.catch)r0.catch(function(){});mqAuBar();return}
   var old=mqAu.a;if(old){try{old.onended=old.onerror=null;old.pause();old.removeAttribute('src');old.load()}catch(e){}}
-  var a=new Audio();a.preload='auto';a.src=mqAuUrl(c,v);mqAu={a:a,k:vv,pa:false};
-  a.onended=function(){if(mqAu.a!==a)return;if(mqAuS().whole){mqAuStop();return}if(v<AD().s[c-1].length){var nv=c+':'+(v+1);mqSetCur(nv,false);var el=document.querySelector('.mq-v[data-v="'+nv+'"]');if(el&&el.scrollIntoView){try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}}mqAuPlay(nv)}else mqAuStop()};
+  var a=new Audio();a.preload='auto';a.src=mqAuUrl(c,v);mqAu={a:a,k:vv,pa:false,sc:c};
+  if(mqAuS().tm){var go=function(){try{a.currentTime=window.WTIM.s[c-1][v-1]/1000}catch(e){}};if(a.readyState>0)go();else a.addEventListener('loadedmetadata',go,{once:true})}
+  a.onended=function(){if(mqAu.a!==a)return;if(mqAuS().whole||mqAuS().tm){mqAuStop();return}if(v<AD().s[c-1].length){var nv=c+':'+(v+1);mqSetCur(nv,false);var el=document.querySelector('.mq-v[data-v="'+nv+'"]');if(el&&el.scrollIntoView){try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}}mqAuPlay(nv)}else mqAuStop()};
   a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل التلاوة. تحتاج الميزة إلى اتصال بالإنترنت')};
   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
-  if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader'&&!(mqAu.ext&&tab==='cards'))mqAuStop();else try{mqAuSync()}catch(e){}},500);
+  if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader'&&!(mqAu.ext&&tab==='cards'))mqAuStop();else try{mqAuTick();mqAuSync()}catch(e){}},250);
   mqAuBar()
 }
 /* صورة الآية: تُرسم من النص المخزَّن كما هو (verseText) دون أي تعديل، وتُعرض للمعاينة ثم المشاركة أو الحفظ */
