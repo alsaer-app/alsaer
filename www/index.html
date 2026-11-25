@@ -6361,6 +6361,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')mqMenuClose(
     if(tab!=='reader'||!rd||!rd.flow)return;
     if(sct)return;sct=setTimeout(function(){
       sct=null;
+      if(rd&&rd._pin)return; /* أثناء تثبيت القفز إلى آية لا يغيّرها التتبع التلقائي؛ يُفكّ التثبيت بلمس المستخدم */
       var vs=document.querySelectorAll('.mq-v[data-v]'),target=window.innerHeight*.45,best=null,bd=1e9;
       for(var i=0;i<vs.length;i++){var r=vs[i].getBoundingClientRect();if(r.bottom<0||r.top>window.innerHeight)continue;var d=Math.abs((r.top+r.bottom)/2-target);if(d<bd){bd=d;best=vs[i]}}
       if(best)mqSetCur(best.getAttribute('data-v'),false);
