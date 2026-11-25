@@ -80,18 +80,23 @@ export default {
     // Temporary diagnostics: which QCF oauth host accepts the stored credentials.
     // Returns statuses only; never returns tokens or secrets. Remove after QCF setup settles.
     if (url.pathname === '/debug-auth') {
-      const probe = async (hosts) => {
+      const probe = async (hosts, scope) => {
         try {
           const basic = btoa(`${encodeURIComponent(env.QCF_CLIENT_ID)}:${encodeURIComponent(env.QCF_CLIENT_SECRET)}`);
           const r = await fetch(hosts.oauth, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': `Basic ${basic}` },
-            body: 'grant_type=client_credentials&scope=content',
+            body: 'grant_type=client_credentials' + (scope ? `&scope=${encodeURIComponent(scope)}` : ''),
           });
           return r.ok ? 'token_ok' : `http_${r.status}`;
         } catch (e) { return 'error'; }
       };
-      const out = { prelive: await probe(PRELIVE), production: await probe(PROD) };
+      const out = {
+        prelive_noscope: await probe(PRELIVE, ''),
+        prelive_content: await probe(PRELIVE, 'content'),
+        prelive_fonts: await probe(PRELIVE, 'fonts'),
+        production_noscope: await probe(PROD, ''),
+      };
       return new Response(JSON.stringify(out), { headers: cors({ 'Content-Type': 'application/json' }) });
     }
 

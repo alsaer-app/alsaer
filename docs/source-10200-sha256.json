@@ -341,7 +341,7 @@
  "tests/salawat_interval_e2e.py": "12230f5f734d2c1b861b3420b4a6aa3c7bac5913034277a5f7e2263857b72f42",
  "tests/settings_bottom_e2e.py": "9b7a66a10e0b7925933c038ac40c7b33b86e9afb4ca7058aae5e7281a3746aee",
  "tests/settings_grid_e2e.py": "88be2cc8798feac7ec7f06807e9e83ddc7cbe192c7e441b490d22f106405466e",
- "tests/snooze_auto_contract.py": "16737adfb256f754a5042be4134ca045e45e7fc1e622fddf04c3e32b11d2d861",
+ "tests/snooze_auto_contract.py": "20d1eaac33ef367b6931cac52c984d82671e57efea6d59bd5cc239939d38737c",
  "tests/snooze_channels_contract.py": "ddbfd90852905d74d91615bff3d44dd37b66015f481cca0f917747c94f610f84",
  "tests/webview_compat_e2e.py": "65166975db3f997fa7921760ca6dedc240acd2102731e52dfacfd26d34ab4b4a",
  "tests/widget_packaging_contract.py": "489255765d72f7d792ad48526ba40f1e2269b8a392a9545c97ab275ffd0eec8f",

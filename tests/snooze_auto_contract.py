@@ -23,7 +23,11 @@ assert 'if (!snooze) AlarmScheduler.snoozeChainSet(c' in recv
 assert 'if (AlarmScheduler.snoozeAuto(c)) AlarmScheduler.snoozeChainSet' in act
 # notification actions stay at most 3 (تم/ذكّرني/إيقاف)
 assert sched.count('b.addAction(') <= 3, 'notification action cap'
-assert '"إيقاف"' in sched, 'stop label'
+# stop label lives in the generated NativeStrings table (native-layer i18n, 10201)
+assert 'NativeStrings.get(c, "stop")' in sched, 'stop label via NativeStrings'
+import json as _json
+_ns = _json.loads((R / 'tools/native_strings.json').read_text())
+assert _ns['strings']['stop'][0] == 'إيقاف', 'arabic stop label in native strings table'
 # JS bridge
 for m in ['setSnoozeAuto(boolean on)', 'snoozeStopAll()', 'snoozeActiveCount()']:
     assert m in bridge, m
