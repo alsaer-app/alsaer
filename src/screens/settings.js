@@ -159,6 +159,7 @@ function vSettings(){
    +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>التحقق والتنزيل داخل التطبيق</small></div><div class="sg-ctl"><span class="sg-val">'+(upd?('يتوفر '+esc(upd.versionName||String(upd.versionCode))):updCurrentLabel())+'</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
    +'<button type="button" class="sg-row sg-btn" data-a="tourreplay"><span class="sg-ic">'+ic('sparkles')+'</span><div class="sg-tx"><b>إعادة الجولة التعريفية</b><small>جولة سريعة على أهم الشاشات</small></div>'+sgCtlV('')+'</button>'
    +sgNavTab('developer','info','عن التطبيق','سجل الإصدارات · الخصوصية','')
+   +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصدر نص المصحف</b><small>نص المصحف: مجمع الملك فهد لطباعة المصحف الشريف، رواية حفص (بيانات النسخة 18)، منقول دون تعديل.</small></div></div>'
    +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصدر التفسير</b><small>التفسير الميسر لمجمع الملك فهد لطباعة المصحف الشريف، من قاعدة مركز تفسير للدراسات القرآنية (CC BY 4.0).</small></div></div>'
    +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصدر التلاوة</b><small>التلاوة: محمد صديق المنشاوي (مرتل). الصوت من Quran Foundation (verses.quran.com)، يُبثّ مباشرة ولا يُحفظ على الجهاز، ويحتاج إنترنتًا.</small></div></div>'
    +'</div>';
