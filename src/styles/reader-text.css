@@ -116,7 +116,6 @@ body.rd #mp{padding:0}
 .mq-ixr{display:flex;align-items:center;gap:12px;min-height:74px;padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.35);color:inherit;font:inherit;text-align:right;cursor:pointer;transition:transform .12s,border-color .12s}
 .mq-ixr:active{transform:scale(.97);border-color:var(--gold)}
 .mq-ix .mq-ixr[hidden]{display:none}
-.mq-ixn{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:15px;font-weight:700;color:var(--gold);border:1px solid color-mix(in srgb,var(--gold) 35%,transparent);background:color-mix(in srgb,var(--gold) 12%,transparent)}
 .mq-ixt{flex:1;min-width:0}
 .mq-ixt b{display:block;font-family:KFGQPC,Amiri,'Noto Naskh Arabic',serif;font-size:21px;font-weight:400;color:var(--mp-gold);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mq-ixt small{color:var(--mp-mut);font-size:12px}

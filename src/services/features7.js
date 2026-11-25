@@ -130,7 +130,6 @@ function f7Act(a,v,d){
     A=Math.max(1,Math.min(A,mx));B=Math.max(A,Math.min(B,mx));var L=hfList();L.push({id:'h'+Date.now().toString(36),s:s,a:A,b:B,box:0,next:f7add(dk(),1),last:dk()});if(L.length>300)L.shift();save();toast('أُضيف إلى محفوظك — أولى مراجعاته غدًا');return false}
   if(a==='hfrev'){var p=String(v).split(':'),it=hfList().filter(function(x){return x.id===p[0]})[0];if(it){it.box=p[1]==='1'?Math.min(HF_INT.length-1,it.box+1):Math.max(0,it.box-1);it.next=f7add(dk(),p[1]==='1'?HF_INT[it.box]:1);it.last=dk();save();hapGo([40])}return false}
   if(a==='hfdel'){S.hifz=hfList().filter(function(x){return x.id!==v});save();return false}
-  if(a==='bmtog'){var pg=rd&&rd.page;if(pg){var B=bmList(),i=B.indexOf(pg);if(i>=0)B.splice(i,1);else B.push(pg);save();hapGo([30])}return false}
   if(a==='bmdel'){S.bm=bmList().filter(function(x){return String(x)!==String(v)});save();return false}
   if(a==='ktdur'){var n=parseInt(v,10);if(n>0)kt.dur=n;return false}
   if(a==='ktstart'){kt.end=Date.now()+kt.dur*60000;clearInterval(kt.iv);kt.iv=setInterval(ktTick,1000);try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(w){kt.wl=w},function(){})}catch(e){}return false}

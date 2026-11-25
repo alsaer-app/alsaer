@@ -1,4 +1,7 @@
 function verseText(c,v){
+  if(isW()){ // نص ورش المخزَّن ينتهي برقم الآية؛ يُنزع هنا ويُرسم الرقم بعلامة ۝ كحفص. لا بسملة في أول الآية
+    return String(WD().s[c-1][v-1]).replace(/\s+[\u0660-\u06690-9]+$/,'');
+  }
   var t=QD().s[c-1][v-1];
   if(v===1&&c!==1&&c!==9){ // مصدر النص يُلحق البسملة بأول آية؛ تُعرض مرة واحدة في ترويسة السورة
     var w=t.split(' '),n=w.slice(0,4).join(' ').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g,'').replace(/\u0671/g,'\u0627');
@@ -6,20 +9,25 @@ function verseText(c,v){
   }
   return t;
 }
-
-var TJL=[['غنّة · إخفاء · إقلاب',0],['حرف لا يُنطق · إدغام',1],['مد لازم ٦',2],['مد واجب · جائز',3],['مد طبيعي · عارض',4],['قلقلة',5]];
+/* نص الآية كما يُعرض (ورش: استبدال شكلي للخط فقط) */
+function verseShow(c,v){var t=verseText(c,v);return isW()?warshFix(t):t}
+/* يفتح قارئ التدفق عند صفحة الرواية الحالية */
+function mqRd(from,to,page,extra){
+  var P=curP(),r=P[page-1]||[1,1],o={flow:true,from:from,to:to,page:page,sura:r[0],cv:r[0]+':'+r[1],_scrollCv:r[0]+':'+r[1]};
+  if(extra)for(var k in extra)o[k]=extra[k];return o;
+}
 /* السور المدنية (تصنيف ثابت معروف) — الباقي مكية */
 var MEDINAN=[2,3,4,5,8,9,13,22,24,33,47,48,49,55,57,58,59,60,61,62,63,64,65,66,76,98,99,110];
-function suraMeta(c){var n=QD().s[c-1].length;return (MEDINAN.indexOf(c)>=0?'مدنية':'مكية')+' · '+ar(n)+' '+(n<3?'آية':n<11?'آيات':'آية')}
+function suraMeta(c){var n=AD().s[c-1].length;return (MEDINAN.indexOf(c)>=0?'مدنية':'مكية')+' · '+ar(n)+' '+(n<3?'آية':n<11?'آيات':'آية')}
 /* قارئ حفص الجديد على نمط التقوى (إعادة تنفيذ من الأرقام): سورة واحدة في الشاشة، نص متدفق بتمرير رأسي، بلا صفحات */
 function vHafsFlow(){
-  var D=QD(),c=rd.sura,vs=D.s[c-1];
+  var D=AD(),c=rd.sura,vs=D.s[c-1];
   var fs=Math.max(18,Math.min(40,S.quran.fs||26));
   S.quran.last=rd.page=mpVerPage(c,+(String(rd.cv||c+':1').split(':')[1]||1));
-  var bm=S.quran.bm2,onBm=bm&&bm.c===c;
-  var body=(c!==1&&c!==9?'<div class="mq-bs">'+esc(D.s[0][0])+'</div>':'');
+  var onBm=mqBmOn(c);
+  var body=(c!==1&&c!==9?'<div class="mq-bs">'+esc(isW()?D.b:D.s[0][0])+'</div>':'');
   for(var v=1;v<=vs.length;v++){
-    body+='<span class="mq-v'+(rd.cv===c+':'+v?' cur':'')+'" data-v="'+c+':'+v+'">'+esc(verseText(c,v))+' <span class="mq-m aym"><span class="ayo">\u06DD<b>'+ar(v)+'</b></span></span> </span>';
+    body+='<span class="mq-v'+(rd.cv===c+':'+v?' cur':'')+'" data-v="'+c+':'+v+'">'+esc(verseShow(c,v))+' <span class="mq-m aym"><span class="ayo">\u06DD<b>'+ar(v)+'</b></span></span> </span>';
   }
   var top='<div class="mq-hd"><button class="mq-bk" data-a="goback" data-v="home" aria-label="رجوع">'+ic('chev')+'</button><b class="mq-tt">سورة '+esc(D.n[c-1])+'</b></div>'
     +'<div class="mq-top"><div class="mq-ti"><small>'+suraMeta(c)+'</small></div>'
@@ -39,10 +47,7 @@ function vHafsFlow(){
     +(rd.jump?mpDrawerHtml(rd.page):'')+mpSearchPanel()+mpIndexPanel();
 }
 function vReader(){
-  var MU=window.MUSHAF;
-  if(rd&&isW())return vWarshReader();
-  if(rd&&rd.flow)return vHafsFlow();
-  if(rd&&!MU){try{loadHeavy()}catch(e){}return '<section class="card"><p class="note">جارٍ تجهيز المصحف…</p></section>'}
-  if(!rd||!MU)return '<section class="card"><p class="note">لا توجد جلسة قراءة.</p><button class="btn block" data-a="goback" data-v="home">رجوع</button></section>';
-  return '';
+  if(!rd)return '<section class="card"><p class="note">لا توجد جلسة قراءة.</p><button class="btn block" data-a="goback" data-v="home">رجوع</button></section>';
+  if(S.quran.riwaya==='warsh'&&!window.WDATA){try{loadHeavy()}catch(e){}return '<section class="card"><p class="note">جارٍ تجهيز رواية ورش…</p></section>'}
+  return vHafsFlow();
 }

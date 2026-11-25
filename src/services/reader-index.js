@@ -10,13 +10,13 @@ function mpIxNorm(s){
 }
 function mpIndexPanel(){
   if(!rd||!rd.idx)return '';
-  var D=QD();
+  var D=AD();
   if(rd.flow){
     var bm=S.quran.bm2;
-    var cont=bm&&bm.c>=1&&bm.c<=114?'<button class="mq-ixc" data-a="qixgo" data-v="'+bm.c+':'+bm.v+'"><span class="mq-ixci">'+ic('book')+'</span><span class="t">متابعة القراءة<small>سورة '+esc(D.n[bm.c-1])+' · آية '+ar(bm.v)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
+    var cont=bm&&bm.c>=1&&bm.c<=114?'<button class="mq-ixc" data-a="qixgo" data-v="'+bm.c+':'+bm.v+':'+(bm.w==='w'?'w':'h')+'"><span class="mq-ixci">'+ic('book')+'</span><span class="t">متابعة القراءة<small>سورة '+esc(D.n[bm.c-1])+' · آية '+ar(bm.v)+(bm.w==='w'?' · ورش':'')+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
     return '<div class="mq-ov mq-ix"><div class="mq-hd"><button class="mq-bk" data-a="qidx" aria-label="إغلاق">'+ic('chev')+'</button><b class="mq-tt">الفهرس</b></div>'
      +'<div class="mq-ixs"><div class="mq-ixsb">'+ic('search')+'<input id="mpix-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="ابحث عن سورة بالاسم أو الرقم" aria-label="بحث في فهرس السور"></div>'+cont
-     +'<div class="mq-ixg">'+D.n.map(function(nm,i){return '<button class="mq-ixr" data-s="'+esc(mpIxNorm(nm)+'|'+(i+1))+'" data-a="qixgo" data-v="'+(i+1)+'"><span class="mq-ixn">'+ar(i+1)+'</span><span class="mq-ixt"><b>'+esc(nm)+'</b><small>'+suraMeta(i+1)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'}).join('')+'</div>'
+     +'<div class="mq-ixg">'+D.n.map(function(nm,i){return '<button class="mq-ixr" data-s="'+esc(mpIxNorm(nm)+'|'+(i+1))+'" data-a="qixgo" data-v="'+(i+1)+'"><span class="mq-ixt"><b>'+esc(nm)+'</b><small>'+suraMeta(i+1)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'}).join('')+'</div>'
      +'<p class="note" id="mpix-none" hidden>لا توجد سورة بهذا الاسم أو الرقم</p></div></div>';
   }
   return '<div class="rd-sp rd-ix"><div class="rd-sh"><button class="ib" data-a="qidx" aria-label="إغلاق">\u2715</button><input id="mpix-q" class="qd-i" type="search" enterkeyhint="search" autocomplete="off" placeholder="اسم السورة أو رقمها" aria-label="بحث في فهرس السور"></div><div class="rd-sr">'
@@ -25,21 +25,18 @@ function mpIndexPanel(){
 }
 function mpIdxAct(a,v){
   if(!rd)return true;
-  if(a==='qbmsgo'){
-    if(!rd.flow)return true;
-    var q2=String(v).split(':'),c2=+q2[0],v2=+q2[1]||1;
-    if(!(c2>=1&&c2<=114))return true;
-    mpSel='';rd.sura=c2;rd.cv=c2+':'+v2;rd._scrollCv=rd.cv;rd.jump=false;return false;
-  }
   if(a==='qidx'){rd.idx=!rd.idx;rd.srch=false;rd.jump=false;return false}
-  if(a==='qixgo'){
-    if(rd.flow){
-      var p=String(v).split(':'),c=parseInt(p[0],10),vv=p[1]?parseInt(p[1],10):1;
-      if(!(c>=1&&c<=114))return true;
-      mpSel='';rd.sura=c;rd.cv=c+':'+(vv>=1?vv:1);if(p[1])rd._scrollCv=rd.cv;rd.idx=false;return false;
-    }
-    var t=parseInt(v,10);if(!(t>=1&&t<=604))return true;
-    mpSel='';rd.dir=t>rd.page?1:-1;rd.page=t;rd.idx=false;window.scrollTo(0,0);return false;
+  if(a==='qbmsgo'||a==='qixgo'){
+    if(!rd.flow)return true;
+    var p=String(v).split(':'),c=parseInt(p[0],10),vv=p[1]?parseInt(p[1],10):1,rw=p[2]==='w'?'warsh':(p[2]==='h'?'hafs':null);
+    if(!(c>=1&&c<=114))return true;
+    var go=function(){
+      var n=AD().s[c-1].length,v2=Math.max(1,Math.min(n,vv>=1?vv:1));
+      mpSel='';rd.sura=c;rd.cv=c+':'+v2;if(p[1]||a==='qbmsgo')rd._scrollCv=rd.cv;rd.idx=false;rd.jump=false;
+    };
+    /* علامة من رواية أخرى: تُفتح برواياتها وبآيتها المحفوظة هي لا برقم الصفحة */
+    if(rw&&rw!==(S.quran.riwaya||'hafs')){mqUseRiw(rw,function(){go();render()});return true}
+    go();return false;
   }
   return false;
 }

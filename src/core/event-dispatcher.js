@@ -81,7 +81,7 @@ document.addEventListener('click',async function(e){
   if(a==='xaexit'){xaExit();return}
   if(a==='xastay'){exitAsk=false;render();return}
   if(a==='goback'){if(innerBack())return;if(rd&&rd.flow&&tab==='reader')toast('تم حفظ الموضع');if(navTrail.length>1){history.back();return}tab=v||'home';confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
-  else if(a==='tab'){if(v==='quran'){loadHeavy();var qp=Math.max(1,S.quran.pos||1),ql=Math.max(qp,Math.min(604,S.quran.last||0));rd={from:qp,to:Math.min(604,qp+S.quran.goal-1),page:Math.max(qp,ql||qp)};v='reader'}else if(v==='reader')loadHeavy();if(typeof qwSheetClose==='function')qwSheetClose();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
+  else if(a==='tab'){if(v==='quran'){loadHeavy();var qp=Math.max(1,S.quran.pos||1),ql=Math.max(qp,Math.min(604,S.quran.last||0));rd=mqRd(qp,Math.min(604,qp+S.quran.goal-1),Math.max(qp,ql||qp));v='reader'}else if(v==='reader')loadHeavy();if(typeof qwSheetClose==='function')qwSheetClose();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='updlater'){var us=updState(),ui=updInfo();if(ui){us.dismissed=ui.versionCode;updSave(us)}updSheetClose()}
   else if(a==='updopen'){updSheetOpen()}
   else if(a==='qwird'){if(typeof qwSheetOpen==='function')qwSheetOpen()}
@@ -92,7 +92,7 @@ document.addEventListener('click',async function(e){
   else if(a==='updchecknow'){updCheckNow()}
   else if(a==='notifFix'){if(window.alsaerNotifFix)window.alsaerNotifFix();tab='reminders';window.scrollTo(0,0)}
   else if(/^he[a-z]+$/.test(a)){if(heAct(a,v)===false)return}
-  else if(a==='qsurnav'){if(rd&&rd.flow){var nd=parseInt(v,10)||0,nc=rd.sura+nd;if(nc>=1&&nc<=114){rd.sura=nc;rd.cv=nc+':1';rd.dir=nd>0?1:-1}}else if(rd&&window.MUSHAF){var _d=parseInt(v,10)||0,_P=isW()?WD().p:window.MUSHAF.m,_c=isW()?(_P[rd.page-1]||[1])[0]:window.MUSHAF.m[rd.page-1][2],_t=_c+_d;if(_t>=1&&_t<=114){for(var _i=0;_i<_P.length;_i++){var _sc=isW()?(_P[_i]||[1])[0]:window.MUSHAF.m[_i][2];if(_sc===_t){rd.page=_i+1;rd.pscr=0;rd.dir=_d>0?1:-1;render();window.scrollTo(0,0);break}}}}}
+  else if(a==='qsurnav'){if(rd&&rd.flow){var nd=parseInt(v,10)||0,nc=rd.sura+nd;if(nc>=1&&nc<=114){rd.sura=nc;rd.cv=nc+':1';rd.dir=nd>0?1:-1}}}
   else if(a==='wkedit'){wkOpen('sec',v)}
   else if(a==='wkper'){wkOpen('per')}
   else if(a==='umode'){setUI('mode',v)}
@@ -186,11 +186,11 @@ document.addEventListener('click',async function(e){
       var prate=Math.round(pc/35*100),prl=document.querySelector('.rateline');
       if(prl){var pbt=prl.querySelector('b');if(pbt)pbt.textContent=prate+'%';var pbar=prl.parentElement.querySelector('.bar>div');if(pbar)pbar.style.width=prate+'%'}
       return}}
-  else if(a==='qstart'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st0=S.quran.pos;if(isW())rd={from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0};else{var fr0=curP()[st0-1]||[1,1];rd={flow:true,from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0,sura:fr0[0],cv:fr0[0]+':'+fr0[1],_scrollCv:fr0[0]+':'+fr0[1]}}tab='reader';window.scrollTo(0,0)}
-  else if(a==='qsura'){loadHeavy(function(){var c=parseInt(v,10)||1,st=suraPage(c),en=c<114?Math.max(st,suraPage(c+1)-1):604;if(isW())rd={from:st,to:en,page:st,free:true,sura:c};else rd={flow:true,from:st,to:en,page:st,free:true,sura:c,cv:c+':1'};tab='reader';window.scrollTo(0,0);render()})}
+  else if(a==='qstart'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st0=S.quran.pos;rd=mqRd(st0,Math.min(604,st0+S.quran.goal-1),st0);tab='reader';window.scrollTo(0,0)}
+  else if(a==='qsura'){loadHeavy(function(){var c=parseInt(v,10)||1,st=suraPage(c),en=c<114?Math.max(st,suraPage(c+1)-1):604;rd=mqRd(st,en,st,{free:true,sura:c,cv:c+':1',_scrollCv:null});delete rd._scrollCv;tab='reader';window.scrollTo(0,0);render()})}
   else if(a==='adkopen'){group=v;hsnOpen(v);window.scrollTo(0,0)}
-  else if(a==='qopen'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));if(isW())rd={from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1};else{var fr1=curP()[st1-1]||[1,1];rd={flow:true,from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1,sura:fr1[0],cv:fr1[0]+':'+fr1[1],_scrollCv:fr1[0]+':'+fr1[1]}}tab='reader';window.scrollTo(0,0)}
-  else if(a==='qpage'){if(rd){try{mpSel='';mpHap()}catch(e){}mpStep(v==='1'?1:-1)}}
+  else if(a==='qopen'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));rd=mqRd(st1,Math.min(604,st1+S.quran.goal-1),st1);tab='reader';window.scrollTo(0,0)}
+
   else if(a==='qjump'||a==='qjgo'||a==='qmt'){if(mpAct(a,v))return}
   else if(a==='qidx'||a==='qixgo'||a==='qbmsgo'){if(mpIdxAct(a,v))return}
   else if(/^(qsclose|qsdo|qsgo|qms)$/.test(a)){if(mpAct2(a,v))return}
@@ -198,11 +198,11 @@ document.addEventListener('click',async function(e){
   else if(/^hsn[a-z]+$/.test(a)){if(typeof hsnAct==='function'&&hsnAct(a,v)===false)return}
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}
   else if(/^msb[a-z]+$/.test(a)){if(typeof msbAct==='function'&&msbAct(a,v)===false)return}
-  else if(a==='qriw'){var nriw=(v==='warsh'&&window.WDATA)?'warsh':'hafs';if(S.quran.riwaya===nriw){render()}else{if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy(function(){S.quran.riwaya=nriw;save();window.scrollTo(0,0);render();if(typeof qwBanner==='function')qwBanner(nriw)})}}
-  else if(a==='qbm2'){if(rd&&rd.flow&&rd.cv){var q2=String(rd.cv).split(':');S.quran.bm2={c:+q2[0],v:+q2[1]};save();toast('تم حفظ العلامة المرجعية')}}
+  else if(a==='qriw'){var nriw=v==='warsh'?'warsh':'hafs';if((S.quran.riwaya||'hafs')===nriw){render()}else{if(typeof qwSheetClose==='function')qwSheetClose();mqUseRiw(nriw,function(){window.scrollTo(0,0);render();if(typeof qwBanner==='function')qwBanner(nriw)})}}
+  else if(a==='qbm2'){if(rd&&rd.flow&&rd.cv){var q2=String(rd.cv).split(':');mqBmSet(+q2[0],+q2[1]);save();toast('تم حفظ العلامة المرجعية')}}
   else if(a==='qtafsir'){if(rd&&rd.flow&&rd.cv&&typeof mqOpenTf==='function')mqOpenTf(rd.cv)}
-  else if(a==='qtj'){S.quran.tj=S.quran.tj===false;save()}
-  else if(a==='qfs'){if(rd&&!isW()){var nf=Math.max(18,Math.min(40,(S.quran.fs||26)+(parseInt(v,10)||0)));if(nf!==(S.quran.fs||26)){S.quran.fs=nf;save()}}}
+
+  else if(a==='qfs'){if(rd){var nf=Math.max(18,Math.min(40,(S.quran.fs||26)+(parseInt(v,10)||0)));if(nf!==(S.quran.fs||26)){S.quran.fs=nf;save()}}}
   else if(a==='qtfs'){var nt=Math.max(16,Math.min(38,(S.quran.tfs||16)+(parseInt(v,10)||0)));if(nt!==(S.quran.tfs||16)){S.quran.tfs=nt;save()}}
   else if(a==='qbm2clr'){mqClrOpen()}
   else if(a==='qdone'){if(rd&&rd.free){if(rd.sura)markSuraDone(rd.sura);rd=null;tab='home';window.scrollTo(0,0);toast('تقبّل الله منك')}else if(rd){if(!(qPages(dk())>0))lockSet('q:'+dk());var nn=Math.max(1,rd.page-rd.from+1),kq=dk(),before=qPages(kq);S.quran.log[kq]=before+nn;mtSet('q');var wrap=rd.page>=604;S.quran.pos=wrap?1:rd.page+1;rd=null;tab='home';save();window.scrollTo(0,0);toast(wrap?'ما شاء الله، أتممت ختمة المصحف':(S.quran.log[kq]>=S.quran.goal?'تقبّل الله منك، أتممت وردك اليوم':'تم تسجيل '+ar(nn)+' صفحة'));checkNew()}}

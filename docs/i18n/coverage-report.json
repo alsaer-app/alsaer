@@ -1,5 +1,5 @@
 {
- "total": 2610,
+ "total": 2578,
  "protected_files_skipped": {
   "src/constants/adhkar.js": "adhkar text (stays Arabic)",
   "src/services/hisn.js": "Hisn al-Muslim supplications (stays Arabic)",
@@ -15,15 +15,8 @@
   "widget_res/res/layout/alsaer_widget.xml": "widget source layout defaults (same as above)"
  },
  "en": {
-  "missing": 17,
+  "missing": 7,
   "items": [
-   {
-    "ar": "إزالة علامة الحفظ",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
    {
     "ar": "إن نال «السائر» إعجابك، نجّمه على GitHub؛ نجمتُك تُعين على انتشاره واستمرار تطويره.",
     "got": null,
@@ -32,42 +25,7 @@
     ]
    },
    {
-    "ar": "الآية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "التفسير الميسّر",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "السورة التالية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "السورة السابقة",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
     "ar": "العلامات المرجعية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "المختصر في التفسير",
     "got": null,
     "files": [
      "src/services/mushaf-plus.js"
@@ -88,31 +46,10 @@
     ]
    },
    {
-    "ar": "تبديل المظهر",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
     "ar": "خروج",
     "got": null,
     "files": [
      "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "علامة حفظ على الآية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "مشاركة الآية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
     ]
    },
    {
@@ -127,27 +64,13 @@
     "got": null,
     "files": [
      "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "— الآية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
     ]
    }
   ]
  },
  "fr": {
-  "missing": 17,
+  "missing": 7,
   "items": [
-   {
-    "ar": "إزالة علامة الحفظ",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
    {
     "ar": "إن نال «السائر» إعجابك، نجّمه على GitHub؛ نجمتُك تُعين على انتشاره واستمرار تطويره.",
     "got": null,
@@ -156,42 +79,7 @@
     ]
    },
    {
-    "ar": "الآية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "التفسير الميسّر",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "السورة التالية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "السورة السابقة",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
     "ar": "العلامات المرجعية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "المختصر في التفسير",
     "got": null,
     "files": [
      "src/services/mushaf-plus.js"
@@ -212,31 +100,10 @@
     ]
    },
    {
-    "ar": "تبديل المظهر",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
     "ar": "خروج",
     "got": null,
     "files": [
      "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "علامة حفظ على الآية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "مشاركة الآية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
     ]
    },
    {
@@ -251,13 +118,6 @@
     "got": null,
     "files": [
      "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "— الآية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
     ]
    }
   ]
