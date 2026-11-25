@@ -114,7 +114,8 @@ function tplApply(d){
   }
   return null;
 }
-function trS(s){
+function trS(s){var r=trS0(s);if(r&&r.replace&&lang()==='tr')r=r.replace(/(İmsak|Fajr) (namaz)/g,'Sabah $2');return r}
+function trS0(s){
   var greet=/^(صباح الخير|مساء الخير) يا (.+)$/.exec(s.trim());
   if(greet){var gd=activeDict(),gk=greet[1]==='صباح الخير'?'Good morning, $1':'Good evening, $1';return (gd['§'+gk]||gk).replace('$1',greet[2])}
   var t=s.replace(/\s+/g,' ').trim();if(!t)return null;
