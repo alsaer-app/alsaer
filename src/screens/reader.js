@@ -37,7 +37,7 @@ function vHafsFlow(){
     +'<div class="mq-top"><div class="mq-ti"><small>'+suraMeta(c)+'</small></div>'
     +'<div class="mq-ta">'
     +'<button class="mq-pill" data-a="qtafsir" aria-label="تفسير الآية الحالية">'+ic('book')+'<span>التفسير</span></button>'
-    +'<button class="mq-pill" data-a="tab" data-v="cards" aria-label="بطاقات">'+ic('doc')+'<span>بطاقات</span></button>'
+    +'<button class="mq-pill" data-a="tab" data-v="cards" aria-label="تعريف السورة">'+ic('doc')+'<span>تعريف السورة</span></button>'
     +'<div class="mq-stp"><button class="mq-cb" data-a="qfs" data-v="-2" aria-label="تصغير الخط"'+(fs<=18?' disabled':'')+'>'+ic('minus')+'</button><b class="mq-fsz">'+ar(fs)+'</b><button class="mq-cb" data-a="qfs" data-v="2" aria-label="تكبير الخط"'+(fs>=40?' disabled':'')+'>'+ic('plus')+'</button></div>'
     +'<button class="mq-cb mq-bm'+(onBm?' on':'')+'" data-a="qbm2" aria-label="العلامة المرجعية" aria-pressed="'+!!onBm+'">'+(onBm?'★':'☆')+'</button>'
     +'<button class="mq-cb" data-a="qsrch" aria-label="بحث في الآيات">'+ic('search')+'</button>'

@@ -341,7 +341,7 @@ function mqAuName(){var s=mqAuS();return s?s.n:''}
 function mqAuUrl(c,v){var s=mqAuS();return s?s.u(c,v):''}
 function mqAuBar(){
   var d=document.getElementById('mq-au');
-  if(!mqAu.a||tab!=='reader'){if(d)d.remove();try{mqAuSync()}catch(e){}return}
+  if(!mqAu.a||(tab!=='reader'&&!(mqAu.ext&&tab==='cards'))){if(d)d.remove();try{mqAuSync()}catch(e){}return}
   if(!d){d=document.createElement('div');d.id='mq-au';d.className='mq-au';document.body.appendChild(d);
     d.addEventListener('click',function(e){var b=e.target.closest('[data-au]');if(!b)return;var k=b.getAttribute('data-au');
       if(k==='x'){mqAuStop();return}
@@ -349,9 +349,9 @@ function mqAuBar(){
       if(k==='nx'&&mqAu.k){var q=mqAu.k.split(':');mqAuPlay(q[0]+':'+(+q[1]+1))}
     })}
   var P='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>',Z='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>',N='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14l8-7zM16 5h2v14h-2z" fill="currentColor" transform="translate(24 0) scale(-1 1)"/></svg>';
-  d.innerHTML='<div class="mq-aut"><b>'+tr0(mqAuName())+'</b><small>'+(mqAuS().whole?tr0('السورة كاملة')+' · '+esc(AD().n[+mqAu.k.split(':')[0]-1]):esc(mpVName(mqAu.k)))+'</small></div>'
+  d.innerHTML='<div class="mq-aut"><b>'+(mqAu.ext?esc(mqAu.nm):tr0(mqAuName()))+'</b><small>'+(mqAu.ext?'albitaqat.com':mqAuS().whole?tr0('السورة كاملة')+' · '+esc(AD().n[+mqAu.k.split(':')[0]-1]):esc(mpVName(mqAu.k)))+'</small></div>'
     +'<button data-au="pp" aria-label="'+tr0(mqAu.pa?'متابعة':'إيقاف مؤقت')+'">'+(mqAu.pa?P:Z)+'</button>'
-    +(mqAuS().whole?'':'<button data-au="nx" aria-label="'+tr0('الآية التالية')+'">'+N+'</button>')
+    +((mqAu.ext||mqAuS().whole)?'':'<button data-au="nx" aria-label="'+tr0('الآية التالية')+'">'+N+'</button>')
     +'<button data-au="x" aria-label="'+tr0('إيقاف')+'">'+ic('x')+'</button>';
   mqAuSync()
 }
@@ -385,7 +385,7 @@ function mqAuPlay(vv){
   a.onended=function(){if(mqAu.a!==a)return;if(mqAuS().whole){mqAuStop();return}if(v<AD().s[c-1].length){var nv=c+':'+(v+1);mqSetCur(nv,false);var el=document.querySelector('.mq-v[data-v="'+nv+'"]');if(el&&el.scrollIntoView){try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}}mqAuPlay(nv)}else mqAuStop()};
   a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل التلاوة. تحتاج الميزة إلى اتصال بالإنترنت')};
   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
-  if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader')mqAuStop();else try{mqAuSync()}catch(e){}},500);
+  if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader'&&!(mqAu.ext&&tab==='cards'))mqAuStop();else try{mqAuSync()}catch(e){}},500);
   mqAuBar()
 }
 /* صورة الآية: تُرسم من النص المخزَّن كما هو (verseText) دون أي تعديل، وتُعرض للمعاينة ثم المشاركة أو الحفظ */

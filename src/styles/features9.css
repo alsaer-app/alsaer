@@ -252,3 +252,15 @@ body.orn .rd-menu{background:#f9f5ee;color:#4a2f18}body.orn .rd-menu .qd-i{backg
 .btn.done{background:var(--good);border-color:transparent;color:#fff;opacity:1!important;animation:gdDone .45s ease}
 .btn.done svg.i{width:17px;height:17px}
 @keyframes gdDone{0%{transform:scale(.96)}55%{transform:scale(1.02)}100%{transform:scale(1)}}
+/* بطاقة السورة (المحتوى من albitaqat.com، انظر features7.js) */
+.cd-tabs{display:flex;gap:8px;padding:2px 0 10px}.cd-tabs .chip{flex:1;text-align:center}
+.cds-h{text-align:center;padding:18px 14px 16px;margin:0 -2px 10px;border-radius:20px;background:linear-gradient(var(--surface-2,var(--surface)),var(--bg));border:1px solid var(--line)}
+.cds-b{width:48px;height:48px;border-radius:15px;background:var(--gold);color:#1a1405;font-weight:800;font-size:22px;display:grid;place-items:center;margin:0 auto 8px;box-shadow:0 0 18px color-mix(in srgb,var(--gold) 35%,transparent)}
+.cds-h h2{margin:0;font-size:28px}.cds-en{color:var(--muted);font-size:14px;margin-top:2px;direction:ltr}.cds-m{color:var(--muted);font-size:13px;margin-top:10px}
+.cds-r{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cds-a{margin:0;display:flex;align-items:center;gap:10px;padding:10px;text-align:start;color:inherit;font:inherit;cursor:pointer}
+.cds-ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:700;font-size:12px}.cds-ic.gold{background:var(--gold);color:#1a1405}.cds-ic.pdf{border-radius:12px;background:#3a2a2a;color:#f0c0c0}
+.cds-ic .i{width:20px;height:20px}.cds-t{display:flex;flex-direction:column;min-width:0}.cds-t small{color:var(--muted);font-size:11px}
+.cds-yt{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 10px;padding:12px;border:1px solid color-mix(in srgb,#e07a7a 45%,var(--line));color:#e07a7a;font:inherit;cursor:pointer}.cds-yt .i{width:16px;height:16px}
+.cds-s{margin:0 0 10px}.cds-s h3{color:var(--gold);font-size:17px;margin:0 0 6px}.cds-s p{margin:0;line-height:2;font-size:16px;color:var(--fg)}
+.cds-cr{color:var(--muted);font-size:12px;line-height:1.8;text-align:center;margin:12px 6px 90px}.cds-cr a{color:var(--gold)}

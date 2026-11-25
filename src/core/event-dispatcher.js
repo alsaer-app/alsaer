@@ -81,7 +81,7 @@ document.addEventListener('click',async function(e){
   if(a==='xaexit'){xaExit();return}
   if(a==='xastay'){exitAsk=false;render();return}
   if(a==='goback'){if(innerBack())return;if(rd&&rd.flow&&tab==='reader')toast('تم حفظ الموضع');if(navTrail.length>1){history.back();return}tab=v||'home';confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
-  else if(a==='tab'){if(v==='quran'){loadHeavy();var qp=Math.max(1,S.quran.pos||1),ql=Math.max(qp,Math.min(604,S.quran.last||0));rd=mqRd(qp,Math.min(604,qp+S.quran.goal-1),Math.max(qp,ql||qp));v='reader'}else if(v==='reader')loadHeavy();if(typeof qwSheetClose==='function')qwSheetClose();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
+  else if(a==='tab'){if(v==='quran'){loadHeavy();var qp=Math.max(1,S.quran.pos||1),ql=Math.max(qp,Math.min(604,S.quran.last||0));rd=mqRd(qp,Math.min(604,qp+S.quran.goal-1),Math.max(qp,ql||qp));v='reader'}else if(v==='reader')loadHeavy();if(v==='cards'&&tab==='reader'&&rd&&rd.flow&&rd.sura){cdSura=Math.max(1,Math.min(114,+rd.sura||1));cdTab='sura'}if(typeof qwSheetClose==='function')qwSheetClose();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='updlater'){var us=updState(),ui=updInfo();if(ui){us.dismissed=ui.versionCode;updSave(us)}updSheetClose()}
   else if(a==='updopen'){updSheetOpen()}
   else if(a==='qwird'){if(typeof qwSheetOpen==='function')qwSheetOpen()}
@@ -115,7 +115,7 @@ document.addEventListener('click',async function(e){
   else if(a==='gender'){S.gender=v==='female'?'female':'male';save();toast('تم تحديث طريقة المخاطبة')}
   else if(a==='savereview'){var rv=document.getElementById('review-note');S.reviews=S.reviews||[];S.reviews.push({date:dk(),note:rv?rv.value.slice(0,2000):''});save();toast('تم حفظ مراجعتك على هذا الجهاز')}
   else if(a==='lockdelay'){S.lockDelay=parseInt(v,10);save();toast('تم حفظ مهلة القفل')}
-  else if(/^(bmtog|bmdel|frz|cdsrc|cdmake|cdshare|cddl|hfadd|hfrev|hfdel|ktdur|ktstart|ktstop)$/.test(a)){if(f7Act(a,v,d))return}
+  else if(/^(bmtog|bmdel|frz|cdtab|cdplay|cdopen|cdsrc|cdmake|cdshare|cddl|hfadd|hfrev|hfdel|ktdur|ktstart|ktstop)$/.test(a)){if(f7Act(a,v,d))return}
   else if(/^(ramtog|khset|khgoal|khreset|ntkind|ntadd|ntdel|adkfav|zkbase|zkhawl)$/.test(a)){if(featAct(a,v,d))return}
   else if(/^(qdchg|bkmode|bkexenc|bkcopy|bkimport|gdconnect|gdup|gddown|gddisc|gdrestore|gdcancel|gdsafety|gdauto|gdstore|gdpwsave|gdfileout|gdfilein|gddelete|gdverify|gdpickcancel|gddeleteback|gddeletego|gdpickgo)$/.test(a)){if(extraAct(a,v))return}
   else if(/^(nsf|nsw|nsfreset|nswreset|nsfen|nsftest|nsfpause)$/.test(a)){if(nsAct(a,v))return}
