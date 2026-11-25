@@ -33,7 +33,7 @@ public class FloatingReminderService extends Service {
     static void showIfEnabled(Context c, String title, String body, String route, org.json.JSONObject item, int nid) {
         if (!enabled(c) || pausedUntil(c) > System.currentTimeMillis()) return;
         if (!canDraw(c)) {
-            FloatLog.err(c, NativeStrings.get(this, "show_window_with_reminder"), NativeStrings.get(this, "overlay_perm_missing"));
+            FloatLog.err(c, NativeStrings.get(c, "show_window_with_reminder"), NativeStrings.get(c, "overlay_perm_missing"));
             return; // الإشعار نفسه ظهر بالفعل؛ لا حاجة لبديل هنا
         }
         Intent i = new Intent(c, FloatingReminderService.class);
@@ -51,7 +51,7 @@ public class FloatingReminderService extends Service {
             if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(i);
             else c.startService(i);
         } catch (Throwable t) {
-            FloatLog.err(c, NativeStrings.get(this, "run_window_service"), String.valueOf(t));
+            FloatLog.err(c, NativeStrings.get(c, "run_window_service"), String.valueOf(t));
             FloatLog.fallback(c, i.getStringExtra(EXTRA_TITLE), i.getStringExtra(EXTRA_BODY));
         }
     }
