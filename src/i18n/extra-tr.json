@@ -113,5 +113,22 @@
 "⏸ إيقاف": "⏸ Durdur",
 "ذكر": "No.",
 "نص إضافي للتجربة": "deneme için ek metin",
-"النص والصوت: OpenDua (CC BY 4.0) عن كتاب «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني. عناوين الأبواب والتكرار والمراجع: asellam/HisnElMuslim (MIT).": "Metin ve ses: OpenDua (CC BY 4.0), Şeyh Said bin Ali bin Vehf el-Kahtânî'nin Hısnü'l-Müslim kitabından. Bölüm başlıkları, tekrar sayıları ve kaynaklar: asellam/HisnElMuslim (MIT)."
+"النص والصوت: OpenDua (CC BY 4.0) عن كتاب «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني. عناوين الأبواب والتكرار والمراجع: asellam/HisnElMuslim (MIT).": "Metin ve ses: OpenDua (CC BY 4.0), Şeyh Said bin Ali bin Vehf el-Kahtânî'nin Hısnü'l-Müslim kitabından. Bölüm başlıkları, tekrar sayıları ve kaynaklar: asellam/HisnElMuslim (MIT).",
+"من القرآن الكريم": "Kur'an-ı Kerim'den",
+"لم يُعثر على الاسم بلفظه في آيات المصحف (قد يرد بمعناه أو بصيغة فعل).": "İsim ayetlerde aynen bulunamadı (anlam olarak veya fiil biçiminde geçebilir).",
+"وردت في": "Geçtiği ayet sayısı:",
+"آية، عُرضت أولى خمس منها.": "ayet; ilk beşi gösteriliyor.",
+"الآيات مستخرجة آليًا بورود لفظ الاسم، وقد يرد اللفظ في بعض المواضع بمعنى آخر؛ فبيان المعنى مرجعه أهل العلم.": "Ayetler, ismin lafzının geçmesine göre otomatik bulunur; bazı yerlerde kelime başka anlamda geçebilir, açıklaması âlimlere aittir.",
+"آياتها": "Ayetleri",
+"معنى اسمها": "İsminin anlamı",
+"سبب تسميتها": "İsimlendirme sebebi",
+"أسماؤها": "İsimleri",
+"مقصدها العام": "Genel maksadı",
+"سبب نزولها": "Nüzul sebebi",
+"فضلها": "Faziletleri",
+"مناسباتها": "Okunma vesilesi",
+"آية": "ayet",
+"آيات": "ayet",
+"الجزء": "Cüz",
+"ص": "s."
 }

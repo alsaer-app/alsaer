@@ -105,5 +105,22 @@
 "⏸ إيقاف": "⏸ Stopp",
 "ذكر": "Nr.",
 "نص إضافي للتجربة": "zusätzlicher Text zum Testen",
-"النص والصوت: OpenDua (CC BY 4.0) عن كتاب «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني. عناوين الأبواب والتكرار والمراجع: asellam/HisnElMuslim (MIT).": "Text und Audio: OpenDua (CC BY 4.0), nach dem Buch Hisn al-Muslim von Scheich Sa'id ibn Ali ibn Wahf al-Qahtani. Kapiteltitel, Wiederholungen und Quellenangaben: asellam/HisnElMuslim (MIT)."
+"النص والصوت: OpenDua (CC BY 4.0) عن كتاب «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني. عناوين الأبواب والتكرار والمراجع: asellam/HisnElMuslim (MIT).": "Text und Audio: OpenDua (CC BY 4.0), nach dem Buch Hisn al-Muslim von Scheich Sa'id ibn Ali ibn Wahf al-Qahtani. Kapiteltitel, Wiederholungen und Quellenangaben: asellam/HisnElMuslim (MIT).",
+"من القرآن الكريم": "Aus dem Heiligen Quran",
+"لم يُعثر على الاسم بلفظه في آيات المصحف (قد يرد بمعناه أو بصيغة فعل).": "Der Name wurde nicht wörtlich in den Versen gefunden (er kann dem Sinn nach oder als Verb vorkommen).",
+"وردت في": "Er kommt vor in",
+"آية، عُرضت أولى خمس منها.": "Versen; die ersten fünf werden angezeigt.",
+"الآيات مستخرجة آليًا بورود لفظ الاسم، وقد يرد اللفظ في بعض المواضع بمعنى آخر؛ فبيان المعنى مرجعه أهل العلم.": "Die Verse werden automatisch anhand des Wortlauts des Namens gefunden; an manchen Stellen kann das Wort eine andere Bedeutung haben, die Erklärung obliegt den Gelehrten.",
+"آياتها": "Ihre Verse",
+"معنى اسمها": "Bedeutung ihres Namens",
+"سبب تسميتها": "Grund der Benennung",
+"أسماؤها": "Ihre Namen",
+"مقصدها العام": "Ihr allgemeines Ziel",
+"سبب نزولها": "Offenbarungsanlass",
+"فضلها": "Ihre Vorzüge",
+"مناسباتها": "Ihre Anlässe",
+"آية": "Vers",
+"آيات": "Verse",
+"الجزء": "Dschuz",
+"ص": "S."
 }

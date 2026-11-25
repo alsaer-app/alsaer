@@ -86,10 +86,10 @@ function vCards(){
   if(cdTab==='share')return tabs+vCardsShare();
   if(!window.ALBQ){abqEnsure(function(){if(tab==='cards')render()});return '<div class="cd cds">'+tabs+'<p class="note" style="text-align:center">جارٍ التحميل…</p></div>'}
   var I=cdSuraInfo(cdSura),R=abqRow(cdSura),D=window.ALBQ,playing=!!(mqAu&&mqAu.a&&mqAu.ext&&+mqAu.k.split(':')[0]===cdSura&&!mqAu.pa);
-  var jz=I.j1===I.j2?'الجزء '+ar(I.j1):'الجزء '+ar(I.j1)+'–'+ar(I.j2);
-  var secs=D.titles.map(function(t,i){return '<section class="card cds-s"><h3>'+esc(t)+'</h3><p>'+esc(R[i+1])+'</p></section>'}).join('');
+  var jz=I.j1===I.j2?'<span>الجزء</span> '+ar(I.j1):'<span>الجزء</span> '+ar(I.j1)+'–'+ar(I.j2);
+  var secs=D.titles.map(function(t,i){return '<section class="card cds-s"><h3>'+esc(t)+'</h3><p class="keepar">'+esc(R[i+1])+'</p></section>'}).join('');
   return '<div class="cd cds">'+tabs
-   +'<section class="cds-h"><div class="cds-b">'+ar(I.c)+'</div><h2>'+esc(I.name)+'</h2><div class="cds-en">'+esc(I.en)+'</div><div class="cds-m">'+ar(I.n)+' '+(I.n<3?'آية':I.n<11?'آيات':'آية')+' · '+(I.med?'مدنية':'مكية')+' · '+jz+' · ص '+ar(I.st)+(I.en2>I.st?'–'+ar(I.en2):'')+'</div></section>'
+   +'<section class="cds-h"><div class="cds-b">'+ar(I.c)+'</div><h2>'+esc(I.name)+'</h2><div class="cds-en">'+esc(I.en)+'</div><div class="cds-m">'+ar(I.n)+' <span>'+(I.n<3?'آية':I.n<11?'آيات':'آية')+'</span> · <span>'+(I.med?'مدنية':'مكية')+'</span> · '+jz+' · <span>ص</span> '+ar(I.st)+(I.en2>I.st?'–'+ar(I.en2):'')+'</div></section>'
    +'<div class="cds-r"><button class="card cds-a" data-a="cdplay"><span class="cds-ic gold">'+cdPlayIc(playing)+'</span><span class="cds-t"><b>'+(playing?'إيقاف مؤقت':'صوت')+'</b><small>تلاوة البطاقة بصوت المؤلف</small></span></button>'
    +'<button class="card cds-a" data-a="cdopen" data-v="pdf"><span class="cds-ic pdf">PDF</span><span class="cds-t"><b>PDF</b><small>بطاقة السورة</small></span></button></div>'
    +'<button class="card cds-yt" data-a="cdopen" data-v="yt"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>مشاهدة البطاقة على يوتيوب</span></button>'
