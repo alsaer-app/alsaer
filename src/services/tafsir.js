@@ -10,7 +10,7 @@ function mqTfFetch(vv,cb){
 }
 function tfCached(vv){try{return localStorage.getItem('alsaer_tf_'+vv)||''}catch(e){return ''}}
 function tfSavedCount(){var n=0;try{n=tfIdx().filter(function(k){return k!==TF_IDX}).length}catch(e){}return n}
-function tfAyah(c,v){return QD().s[c-1][v-1]} /* حفص كما هو مخزَّن */
+function tfAyah(c,v){return hafsVerse(c,v)} /* حفص كما في قارئ التدفق: البسملة المُلحقة في المخزَّن تُعرض في الترويسة لا في الآية */
 function tfFill(vv,t){
   if(rd&&rd.tf&&t)rd.tf.tx[vv]=t;
   var el=document.querySelector('.mq-tx[data-tv="'+vv+'"]');if(!el)return;

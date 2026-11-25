@@ -2,6 +2,9 @@ function verseText(c,v){
   if(isW()){ // نص ورش المخزَّن ينتهي برقم الآية؛ يُنزع هنا ويُرسم الرقم بعلامة ۝ كحفص. لا بسملة في أول الآية
     return String(WD().s[c-1][v-1]).replace(/\s+[\u0660-\u06690-9]+$/,'');
   }
+  return hafsVerse(c,v);
+}
+function hafsVerse(c,v){
   var t=QD().s[c-1][v-1];
   if(v===1&&c!==1&&c!==9){ // مصدر النص يُلحق البسملة بأول آية؛ تُعرض مرة واحدة في ترويسة السورة
     var w=t.split(' '),n=w.slice(0,4).join(' ').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g,'').replace(/\u0671/g,'\u0627');

@@ -1,5 +1,5 @@
 {
- "total": 2578,
+ "total": 2595,
  "protected_files_skipped": {
   "src/constants/adhkar.js": "adhkar text (stays Arabic)",
   "src/services/hisn.js": "Hisn al-Muslim supplications (stays Arabic)",
@@ -15,112 +15,12 @@
   "widget_res/res/layout/alsaer_widget.xml": "widget source layout defaults (same as above)"
  },
  "en": {
-  "missing": 7,
-  "items": [
-   {
-    "ar": "إن نال «السائر» إعجابك، نجّمه على GitHub؛ نجمتُك تُعين على انتشاره واستمرار تطويره.",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "العلامات المرجعية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "بقاء",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "تأكيد الخروج",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "خروج",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "نجّمنا على GitHub",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "هل بالفعل تريد الخروج من التطبيق؟",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   }
-  ]
+  "missing": 0,
+  "items": []
  },
  "fr": {
-  "missing": 7,
-  "items": [
-   {
-    "ar": "إن نال «السائر» إعجابك، نجّمه على GitHub؛ نجمتُك تُعين على انتشاره واستمرار تطويره.",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "العلامات المرجعية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "بقاء",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "تأكيد الخروج",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "خروج",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "نجّمنا على GitHub",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "هل بالفعل تريد الخروج من التطبيق؟",
-    "got": null,
-    "files": [
-     "src/core/event-dispatcher.js"
-    ]
-   }
-  ]
+  "missing": 0,
+  "items": []
  },
  "quoted_arabic_kept_by_design": [
   "«تُعْرَضُ الْأَعْمَالُ يَوْمَ الِاثْنَيْنِ وَالْخَمِيسِ، فَأُحِبُّ أَنْ يُعْرَضَ عَمَلِي وَأَنَا صَائِمٌ».",
@@ -133,6 +33,7 @@
   "أُزيل من فحص «الجسر الأصلي» اسم دالة لم تعد مستخدمة (كانت تُظهر خطأً كاذبًا).",
   "إن تعذّر قراءة الحزمة المخزّنة يُحمَّل النموذج مباشرة بدل الفشل، وتظهر تفاصيل السبب كاملة لتسهيل التشخيص.",
   "إِذَا سَمِعْتُمُ الْمُؤَذِّنَ فَقُولُوا مِثْلَ مَا يَقُولُ، ثُمَّ صَلُّوا عَلَيَّ.",
+  "اضغط على أي آية لتفتح تفسيرها في مكانها. يُحمَّل التفسير من الإنترنت أول مرة لكل آية، ثم يبقى محفوظًا على جهازك للقراءة بلا إنترنت.",
   "اقرأ سورة الملك قبل النوم. كَانَ النَّبِيُّ ﷺ لَا يَنَامُ حَتَّى يَقْرَأَ «الم تَنزِيلُ» وَ«تَبَارَكَ الَّذِي بِيَدِهِ الْمُلْكُ».",
   "الدِّينُ النَّصِيحَةُ.",
   "الصلاة على النبي ﷺ كل ١٥ أو ٣٠ دقيقة أو ساعة بفترة تختارها، وورد القرآن لا يُرسَل إذا أتممته، وتنبيه قبل الأذان وتخطّي الصلاة المسجّلة، وتقرير أسبوعي بأرقامك، وتذكيرك الخاص بعدد مرات وفاصل تحدده، وأزرار تفاعلية في الإشعار.",
