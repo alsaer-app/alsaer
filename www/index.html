@@ -4782,12 +4782,13 @@ function gdResetAuthState(){
   gdNativeRevoke();
   /* Keep local backups, encryption choice/password and per-destination history. */
 }
-/* إثبات الرمز قبل إعلان الربط: خدمات Play قد تعيد رمزًا مخزَّنًا أُلغي للتو. 401/403 = موت مؤكد فيُرفض؛ أي خطأ شبكة آخر = لا نستطيع إثبات الموت فنقبل كما كان */
+/* إثبات الرمز قبل إعلان الربط: خدمات Play قد تعيد رمزًا مخزَّنًا أُلغي للتو. 401 وحده = موت مؤكد فيُرفض (403 يعني نقص صلاحية أو حصة وليس رمزًا ميتًا، فلا يُرفض به ربط جديد)؛ أي خطأ آخر = لا نستطيع إثبات الموت فنقبل كما كان */
 function gdValidateToken(t){
   return Promise.resolve().then(function(){
     return gdFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)',{headers:{'Authorization':'Bearer '+t}},15000);
   }).then(function(r){
-    if(r&&(r.status===401||r.status===403))return null;
+    try{localStorage.setItem('alsaer_gd_lastcheck',String(r&&r.status)+'@'+Date.now())}catch(e){}
+    if(r&&r.status===401)return null;
     if(!r||!r.ok)throw new Error('http-'+(r&&r.status));
     return r.json().then(function(o){return o||{}});
   });
