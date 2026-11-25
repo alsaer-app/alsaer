@@ -20,6 +20,7 @@
  * the app will only be able to test with surahs 1-2.
  */
 
+// Deployed via Cloudflare Workers Builds from this repo (branch exp/drive-account-recovery).
 const PRELIVE = {
   oauth: 'https://prelive-oauth2.quran.foundation/oauth2/token',
   api:   'https://apis-prelive.quran.foundation/content/api/v4',

@@ -1,4 +1,4 @@
-name: Alsaer10200 mushaf images splash drive card v2 audit fixes verified source test r4
+name: Alsaer10201 languages packs runtime templates qcf worker test r1
 on:
   push:
     branches: [exp/drive-account-recovery]
