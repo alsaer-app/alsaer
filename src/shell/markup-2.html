@@ -14,3 +14,6 @@ document.getElementById('app').innerHTML='<div class="splash" data-pre="1"><div 
 <div class="toast" id="toast" hidden></div>
 
 <script src="quran.js"></script>
+<script>/* حزم الترجمة ملفات منفصلة: العربية لا تحتاج شيئًا؛ غيرها يُحمَّل متزامنًا قبل السكربت الكبير (اللغة النشطة + الإنجليزية احتياطًا) */
+(function(){try{var s=JSON.parse(localStorage.getItem('tawba_v1')||'{}'),l=(s&&s.ui&&s.ui.lang)||'ar',L=/alsaertest/.test(location.search)?['en','fr','tr','de','fa','ur']:(l!=='ar'&&/^(en|fr|tr|de|fa|ur)$/.test(l)?(l==='en'?['en']:['en',l]):[]);
+L.forEach(function(k){document.write('<script src="i18n-'+k+'.js"><\/script>')})}catch(e){}})();</script>

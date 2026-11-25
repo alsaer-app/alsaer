@@ -11,6 +11,8 @@ for k in LANGS:
 meta=json.load(open(os.path.join(R,'i18n_archive','_meta.json'),encoding='utf-8'))
 meta={k:meta[k] for k in ['ar']+LANGS if k in meta}
 j=lambda o:json.dumps(o,ensure_ascii=False,separators=(',',':'),sort_keys=True)
-lazy="var I18N_PACKS={};\n(function(){var S={%s};Object.keys(S).forEach(function(k){var c;Object.defineProperty(I18N_PACKS,k,{enumerable:true,get:function(){return c||(c=JSON.parse(S[k]))}})})})();\n"%','.join('%s:%s'%(k,json.dumps(j(packs[k]),ensure_ascii=False)) for k in LANGS)
+for k in LANGS:
+    open(os.path.join(R,'www','i18n-'+k+'.js'),'w',encoding='utf-8',newline='').write('/* حزمة ترجمة %s: تُحمَّل عند الحاجة فقط (انظر src/i18n/packs.js) */\n(window.__PK_S=window.__PK_S||{}).%s=%s;\n'%(k,k,json.dumps(j(packs[k]),ensure_ascii=False)))
+lazy="var I18N_PACKS={};\n(function(){%s.forEach(function(k){var c;Object.defineProperty(I18N_PACKS,k,{enumerable:true,get:function(){if(c)return c;var s=window.__PK_S&&window.__PK_S[k];return s?(c=JSON.parse(s)):undefined}})})})();\nfunction i18nLoad(ls,cb){var n=0,t=ls.filter(function(l){return !I18N_PACKS[l]});if(!t.length){cb();return}t.forEach(function(l){var sc=document.createElement('script');sc.src='i18n-'+l+'.js';sc.onload=sc.onerror=function(){if(++n===t.length)cb()};document.head.appendChild(sc)})}\nfunction ENPK(){return I18N_PACKS.en||{}}\n"%json.dumps(LANGS)
 open(os.path.join(R,'src','i18n','packs.js'),'w',encoding='utf-8',newline='').write(lazy+'var I18N_META='+j(meta)+';\n')
 print(' '.join('%s %d'%(k,len(packs[k])) for k in LANGS))

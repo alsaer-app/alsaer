@@ -108,7 +108,7 @@ document.addEventListener('click',async function(e){
   else if(a==='wkper'){wkOpen('per')}
   else if(a==='umode'){setUI('mode',v)}
   else if(a==='clkset'){setClockMode(v)}
-  else if(a==='ulang'){if(typeof LANG_CHOICES!=='undefined'&&LANG_CHOICES.indexOf(v)>=0&&(typeof langAvail!=='function'||langAvail(v)))U().lang=v;saveNow();try{_lcKey=null;applyUI()}catch(x){}var lw=document.getElementById('lang-wrap');if(lw)lw.remove();render()}
+  else if(a==='ulang'){var _ul=function(){if(typeof LANG_CHOICES!=='undefined'&&LANG_CHOICES.indexOf(v)>=0&&(typeof langAvail!=='function'||langAvail(v)))U().lang=v;saveNow();try{_lcKey=null;applyUI()}catch(x){}var lw=document.getElementById('lang-wrap');if(lw)lw.remove();render()};if(v!=='ar'&&typeof I18N_PACKS!=='undefined'&&!I18N_PACKS[v]&&typeof i18nLoad==='function')i18nLoad(['en',v],_ul);else _ul()}
   else if(a==='ulangsheet'){try{langSheetOpen()}catch(x){}}
   else if(a==='ulangclose'){var lc=document.getElementById('lang-wrap');if(lc)lc.remove()}
   else if(a==='udigits'){U().digits=v==='west'?'west':'east';saveNow();try{digitsApply(true)}catch(x){}}

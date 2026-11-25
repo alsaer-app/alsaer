@@ -1,26 +1,26 @@
 var SUR_EN=['Al-Fatihah','Al-Baqarah','Al Imran','An-Nisa','Al-Ma\'idah','Al-An\'am','Al-A\'raf','Al-Anfal','At-Tawbah','Yunus','Hud','Yusuf','Ar-Ra\'d','Ibrahim','Al-Hijr','An-Nahl','Al-Isra','Al-Kahf','Maryam','Ta-Ha','Al-Anbiya','Al-Hajj','Al-Mu\'minun','An-Nur','Al-Furqan','Ash-Shu\'ara','An-Naml','Al-Qasas','Al-\'Ankabut','Ar-Rum','Luqman','As-Sajdah','Al-Ahzab','Saba','Fatir','Ya-Sin','As-Saffat','Sad','Az-Zumar','Ghafir','Fussilat','Ash-Shura','Az-Zukhruf','Ad-Dukhan','Al-Jathiyah','Al-Ahqaf','Muhammad','Al-Fath','Al-Hujurat','Qaf','Adh-Dhariyat','At-Tur','An-Najm','Al-Qamar','Ar-Rahman','Al-Waqi\'ah','Al-Hadid','Al-Mujadilah','Al-Hashr','Al-Mumtahanah','As-Saff','Al-Jumu\'ah','Al-Munafiqun','At-Taghabun','At-Talaq','At-Tahrim','Al-Mulk','Al-Qalam','Al-Haqqah','Al-Ma\'arij','Nuh','Al-Jinn','Al-Muzzammil','Al-Muddaththir','Al-Qiyamah','Al-Insan','Al-Mursalat','An-Naba','An-Nazi\'at','\'Abasa','At-Takwir','Al-Infitar','Al-Mutaffifin','Al-Inshiqaq','Al-Buruj','At-Tariq','Al-A\'la','Al-Ghashiyah','Al-Fajr','Al-Balad','Ash-Shams','Al-Layl','Ad-Duha','Ash-Sharh','At-Tin','Al-\'Alaq','Al-Qadr','Al-Bayyinah','Az-Zalzalah','Al-\'Adiyat','Al-Qari\'ah','At-Takathur','Al-\'Asr','Al-Humazah','Al-Fil','Quraysh','Al-Ma\'un','Al-Kawthar','Al-Kafirun','An-Nasr','Al-Masad','Al-Ikhlas','Al-Falaq','An-Nas'];
 var ENP=[
 [/^(\d+) من (\d+)$/,'$1 of $2'],[/^(\d+) \/ (\d+) صفحة$/,'$1 / $2 pages'],[/^(\d+) ملتزم · (\d+) تعثر$/,'$1 on track · $2 slipped'],
-[/^الهدف القادم: (\d+) (?:أيام|يوماً) · (.+)$/,function(m,n,r){return 'Next goal: '+n+' days · '+(I18N_PACKS.en[r]||r)}],
-[/^إنجاز جديد: (.+?)(?: \(\+(\d+)\))?$/,function(m,t,n){return 'New achievement: '+(I18N_PACKS.en[t]||t)+(n?' (+'+n+')':'')}],
+[/^الهدف القادم: (\d+) (?:أيام|يوماً) · (.+)$/,function(m,n,r){return 'Next goal: '+n+' days · '+(ENPK()[r]||r)}],
+[/^إنجاز جديد: (.+?)(?: \(\+(\d+)\))?$/,function(m,t,n){return 'New achievement: '+(ENPK()[t]||t)+(n?' (+'+n+')':'')}],
 [/^سورة (.+)$/,function(m,n){var i=QD().n.indexOf(n);return i>=0?'Surah '+SUR_EN[i]:null}],
 [/^ص (\d+)$/,'p. $1'],[/^الجزء (\d+) · حزب (\d+)$/,'Juz $1 · Hizb $2'],
 [/^من صفحة (\d+) إلى (\d+) · (?:سورة )?(.+)$/,function(m,a,b,n){var i=QD().n.indexOf(n);return 'From page '+a+' to '+b+' · '+(i>=0?'Surah '+SUR_EN[i]:n)}],
 [/^(\d+) \/ (\d+) صفحة$/,'$1 / $2 pages'],[/^قرأت اليوم (\d+) من (\d+) صفحات?\.$/,'You read $1 of $2 pages today.'],
 [/^وردك اليوم (\d+) (?:صفحات|صفحة)، وقرأت (\d+)\. هل تقرأ الآن؟$/,'Your portion today is $1 pages, and you read $2. Read now?'],
-[/^لم تسجّل صلاة (.+) بعد\. إن صلّيتها فسجّلها الآن\.$/,function(m,p){return 'You have not logged '+(I18N_PACKS.en[p]||p)+' yet. If you prayed it, log it now.'}],
+[/^لم تسجّل صلاة (.+) بعد\. إن صلّيتها فسجّلها الآن\.$/,function(m,p){return 'You have not logged '+(ENPK()[p]||p)+' yet. If you prayed it, log it now.'}],
 [/^(\d+) صفحة مقروءة(?: · (\d+) ختمة مكتملة)?$/,function(m,a,b){return a+(a==='1'?' page':' pages')+' read'+(b?' · '+b+' khatm completed':'')}],
 [/^(\d+) صفحة$/,'$1 pages'],[/^سلسلة (\d+) (?:أيام|يوماً)$/,'$1-day streak'],[/^(\d+) (?:أيام|يوماً)$/,'$1 days'],[/^(\d+) متتالية$/,'$1 in a row'],
 [/^منها (\d+) في أيام انتكاسة$/,'$1 on relapse days'],[/^أتممت وردك اليوم، بارك الله فيك \((\d+) صفحة\)\.$/,'You completed your portion today, may Allah bless you ($1 pages).'],
 [/^تم تسجيل (\d+) صفحة$/,'$1 pages recorded'],[/^محاولات كثيرة؛ حاول بعد (\d+) ثانية$/,'Too many attempts; try again in $1 seconds'],
-[/^(.+) (\d{4})$/,function(m,mo,y){return I18N_PACKS.en[mo]?I18N_PACKS.en[mo]+' '+y:null}],
-[/^(.+) · اليوم$/,function(m,d){return I18N_PACKS.en[d]?I18N_PACKS.en[d]+' · Today':null}],
+[/^(.+) (\d{4})$/,function(m,mo,y){return ENPK()[mo]?ENPK()[mo]+' '+y:null}],
+[/^(.+) · اليوم$/,function(m,d){return ENPK()[d]?ENPK()[d]+' · Today':null}],
 [/^قرأت اليوم (\d+) صفحة\.?$/,'You read $1 pages today.'],[/^(\d+)٪$/,'$1%']
 ];
 
 var HJ_EN={'محرم':'Muharram','صفر':'Safar','ربيع الأول':'Rabi al-Awwal','ربيع الآخر':'Rabi al-Thani','جمادى الأولى':'Jumada al-Ula','جمادى الآخرة':'Jumada al-Thani','رجب':'Rajab','شعبان':'Shaban','رمضان':'Ramadan','شوال':'Shawwal','ذو القعدة':'Dhul Qadah','ذو الحجة':'Dhul Hijjah'};
 function _tm(s){return s.replace(/(\d+):(\d+)\s*ص/g,'$1:$2 AM').replace(/(\d+):(\d+)\s*م/g,'$1:$2 PM')}
-function _en(s){return I18N_PACKS.en[s]!==undefined?I18N_PACKS.en[s]:s}
+function _en(s){return ENPK()[s]!==undefined?ENPK()[s]:s}
 var ENP2=[
 [/^(\d+:\d+) ([صم])$/,function(m,t,a){return t+(a==='ص'?' AM':' PM')}],
 [/^(\d+) (\S+(?: \S+)?) (\d{4}) هـ$/,function(m,d,mo,y){return HJ_EN[mo]?d+' '+HJ_EN[mo]+' '+y+' AH':null}],
@@ -47,20 +47,20 @@ var ENP2=[
 ENP=ENP.concat(ENP2);
 ENP=ENP.concat([
 [/^(اليوم|غدًا|غدا) (\d+:\d+(?: [صم]| [AP]M)?)$/,function(m,d,t){return (d==='اليوم'?'Today ':'Tomorrow ')+_tm(t)}],
-[/^حان وقتها · حتى (.+?) (\d+:\d+(?: [AP]M| [صم])?)$/,function(m,p,t){return 'Its time has come · until '+(I18N_PACKS.en[p]||p)+' '+_tm(t)}],
+[/^حان وقتها · حتى (.+?) (\d+:\d+(?: [AP]M| [صم])?)$/,function(m,p,t){return 'Its time has come · until '+(ENPK()[p]||p)+' '+_tm(t)}],
 [/^حان وقت صلاة (.+)$/,function(m,p){var P={'الفجر':'Fajr','الظهر':'Dhuhr','العصر':'Asr','المغرب':'Maghrib','العشاء':'Isha'};return 'Time for '+(P[p]||p)+' prayer'}],
 [/^≈ (\d+) إشعارًا في اليوم$/,'≈ $1 notifications per day'],[/^من (\d+)$/,'of $1'],
 [/^الإصدار (?:الحالي )?([\d.]+) · (?:بناء )?(\d+)$/,'Version $1 · build $2'],
 [/^✦ الصيام ✦$/,'✦ Fasting ✦'],[/^تذكير بصيام التطوع$/,'Voluntary fasting reminder'],[/^الضحى والظهر$/,'Duha and Dhuhr'],
 [/^الصلاة · (\d+) من ٥( ✓)?$/,'Prayer · $1 of 5$2'],[/^العادات · (\d+) من (\d+)( ✓)?$/,'Habits · $1 of $2$3'],
-[/^القرآن · (.+)$/,function(m,x){return 'Quran · '+(I18N_PACKS.en[x]||x)}],
+[/^القرآن · (.+)$/,function(m,x){return 'Quran · '+(ENPK()[x]||x)}],
 [/^(\d+) صفحات? من (\d+)$/,'$1 of $2 pages'],
-[/^(اليوم|أمس) · (.+)$/,function(m,d,w){return (I18N_PACKS.en[d]||d)+' · '+(I18N_PACKS.en[w]||w)}],
+[/^(اليوم|أمس) · (.+)$/,function(m,d,w){return (ENPK()[d]||d)+' · '+(ENPK()[w]||w)}],
 [/^(\d+) (?:تذكير مؤجّل|تذكيرات مؤجّلة)$/,function(m,n){return n+(n==='1'?' snoozed reminder':' snoozed reminders')}]
 ]);
 
 
-function activeDict(){return I18N_PACKS[lang()]||I18N_PACKS.en}
+function activeDict(){return I18N_PACKS[lang()]||ENPK()}
 function patLang(r){return r}
 /* قوالب الجمل الديناميكية: (نمط عربي) -> قالب إنجليزي؛ يُترجم القالب لكل لغة عبر المفتاح '§'+القالب، وتُترجم المجموعات العربية منفردةً */
 var TPL=[
@@ -119,9 +119,9 @@ function trS0(s){
   var greet=/^(صباح الخير|مساء الخير) يا (.+)$/.exec(s.trim());
   if(greet){var gd=activeDict(),gk=greet[1]==='صباح الخير'?'Good morning, $1':'Good evening, $1';return (gd['§'+gk]||gk).replace('$1',greet[2])}
   var t=s.replace(/\s+/g,' ').trim();if(!t)return null;
-  var D=activeDict();if(D[t]!==undefined)return D[t];if(I18N_PACKS.en[t]!==undefined)return I18N_PACKS.en[t];
+  var D=activeDict();if(D[t]!==undefined)return D[t];if(ENPK()[t]!==undefined)return ENPK()[t];
   var d=t.replace(/[٠-٩]/g,function(c){return c.charCodeAt(0)-1632});
-  if(d!==t&&I18N_PACKS.en[d]!==undefined)return I18N_PACKS.en[d];
+  if(d!==t&&ENPK()[d]!==undefined)return ENPK()[d];
   var si=QD().n.indexOf(t);if(si>=0){var l0=lang();return (l0==='fa'||l0==='ur')?null:SUR_EN[si]}
   var rt=tplApply(d);if(rt!==null)return rt;
   for(var i=0;i<ENP.length;i++){var m=d.match(ENP[i][0]);if(m){var r=typeof ENP[i][1]==='function'?ENP[i][1].apply(null,m):d.replace(ENP[i][0],ENP[i][1]);if(r)return patLang(r)}}
@@ -132,8 +132,8 @@ function trS0(s){
 var _frIdx={},_frC={};
 var _AR=/[\u0600-\u06FF]/;
 function _frBuild(l){
-  var D=I18N_PACKS[l]||I18N_PACKS.en,idx={};
-  var all={};Object.keys(I18N_PACKS.en).forEach(function(k){all[k]=I18N_PACKS.en[k]});Object.keys(D).forEach(function(k){all[k]=D[k]});
+  var D=I18N_PACKS[l]||ENPK(),idx={};
+  var all={};Object.keys(ENPK()).forEach(function(k){all[k]=ENPK()[k]});Object.keys(D).forEach(function(k){all[k]=D[k]});
   Object.keys(all).forEach(function(k){if(k.length<2||!_AR.test(k)||/[\u064B-\u0652]/.test(k)&&k.length>12)return;var v=all[k];if(typeof v!=='string')return;var c=k.charAt(0);(idx[c]=idx[c]||[]).push([k,v])});
   Object.keys(idx).forEach(function(c){idx[c].sort(function(a,b){return b[0].length-a[0].length})});
   return idx;
