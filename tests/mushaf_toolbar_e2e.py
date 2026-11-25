@@ -10,7 +10,7 @@ async def main():
   out=Path(tmp);html=(ROOT/'www/index.html').read_text()
   hook='window.__toolbarTest={hide:function(){rd.ui=false;render()},legacy:function(){return mpAct2("qimm")}};'
   html=html.replace('})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */',hook+'})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */');(out/'index.html').write_text(html)
-  for f in ['quran.js','fonts']:
+  for f in ['quran.js','warsh.js','fonts']:
    if (ROOT/'www'/f).is_dir():shutil.copytree(ROOT/'www'/f,out/f)
    elif (ROOT/'www'/f).exists():shutil.copy(ROOT/'www'/f,out/f)
   class Quiet(SimpleHTTPRequestHandler):
@@ -18,7 +18,7 @@ async def main():
   server=ThreadingHTTPServer(('127.0.0.1',0),partial(Quiet,directory=tmp));thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
   async with async_playwright() as pw:
    b=await pw.chromium.launch(channel='chrome',args=['--no-sandbox'])
-   for riwaya,immersive,mode in [(r,i,m) for m in ['dark','light'] for r,i in [('hafs',True),('hafs',False)]]:
+   for riwaya,immersive,mode in [(r,i,m) for m in ['dark','light'] for r,i in [('hafs',True),('hafs',False),('warsh',True),('warsh',False)]]:
     p=await b.new_page(viewport={'width':360,'height':780});errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
     seed={'onboarded':True,'tour':{'done':1},'ui':{'mode':mode,'accent':'maleem','digits':'east','press':'glow','trans':'slide'},'quran':{'pos':5,'last':8,'goal':2,'riwaya':riwaya,'log':{},'hint1':1,'sw':1,'imm':immersive,'ui':False}}
     await p.add_init_script('if(!localStorage.tawba_v1)localStorage.tawba_v1='+json.dumps(json.dumps(seed)))

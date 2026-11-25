@@ -10,7 +10,7 @@ function fixShape(o){
   if(!isO(o.ui))o.ui={};
   if(o.lockType!=='pattern'||!o.pin)delete o.lockType;
   if(!o.security||typeof o.security!=='object')o.security={method:'pin'};if(!['pin','password'].includes(o.security.method))o.security.method='pin';
-  o.quran.riwaya='hafs';
+  if(o.quran.riwaya!=='warsh')o.quran.riwaya='hafs';
   if(!isO(o.worship))o.worship={};
   if(!Array.isArray(o.customWorship))o.customWorship=[];o.customWorship=o.customWorship.filter(function(x){return x&&typeof x.id==='string'&&typeof x.t==='string'}).slice(0,30).map(function(x){return{id:x.id.slice(0,28),t:x.t.slice(0,60)}});
   Object.keys(o.worship).slice(0,5000).forEach(function(k){if(!/^\d{4}-\d{2}-\d{2}$/.test(k)||!isO(o.worship[k]))delete o.worship[k];else{Object.keys(o.worship[k]).forEach(function(id){if(typeof o.worship[k][id]!=='boolean')delete o.worship[k][id]})}});

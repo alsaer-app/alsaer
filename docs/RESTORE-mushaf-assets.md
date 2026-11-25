@@ -12,9 +12,3 @@ Both are unchanged in git history. Last commit that contains them: `931b738`.
 
 `tests/mushaf_wordmap_regression.py` skips itself while `www/mushaf.js` is absent and runs again once it is restored.
 The old page-reader code (`vWarshReader`, `mpWrap`, tajweed engine in `quran-warsh.js`) is also in `931b738^`.
-
-## Warsh removed entirely (after 1a66726)
-Warsh text, font, warshFix, switcher and the Warsh-to-Hafs tafsir map were removed on Ahmed's order. Everything is recoverable from commit 1a66726:
-    git show 1a66726:www/warsh.js > www/warsh.js
-    git show 1a66726:www/fonts/warsh.woff2 > www/fonts/warsh.woff2
-    git show 1a66726:src/services/tafsir-map.js > src/services/tafsir-map.js

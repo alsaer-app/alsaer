@@ -13,7 +13,7 @@ async def main():
   d=Path(t);man=json.loads((R/'src/manifest.json').read_text())
   for stage in ['before','after']:
    html=''.join(x['lit'] if 'lit'in x else ((R/'tests/fixtures/more-before-grid.js.txt').read_text() if stage=='before' and x['file']=='screens/more.js' else (R/'src'/x['file']).read_text()) for x in man);(d/(stage+'.html')).write_text(html)
-  for f in ['fonts','quran.js']:(d/f).symlink_to(R/'www'/f)
+  for f in ['fonts','quran.js','warsh.js']:(d/f).symlink_to(R/'www'/f)
   class Quiet(SimpleHTTPRequestHandler):
    def log_message(self,*a):pass
   srv=ThreadingHTTPServer(('127.0.0.1',0),partial(Quiet,directory=t));threading.Thread(target=srv.serve_forever,daemon=True).start()

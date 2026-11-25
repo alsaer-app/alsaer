@@ -1,4 +1,7 @@
 function verseText(c,v){
+  if(isW()){ // نص ورش المخزَّن ينتهي برقم الآية؛ يُنزع هنا ويُرسم الرقم بعلامة ۝ كحفص. لا بسملة في أول الآية
+    return String(WD().s[c-1][v-1]).replace(/\s+[\u0660-\u06690-9]+$/,'');
+  }
   return hafsVerse(c,v);
 }
 function hafsVerse(c,v){
@@ -10,7 +13,7 @@ function hafsVerse(c,v){
   return t;
 }
 /* نص الآية كما يُعرض (ورش: استبدال شكلي للخط فقط) */
-function verseShow(c,v){return verseText(c,v)}
+function verseShow(c,v){return verseText(c,v)} /* ورش يُرسم بخط ورش الرسمي (KFGQPCWarsh) فلا حاجة لاستبدال شكلي */
 /* يفتح قارئ التدفق عند صفحة الرواية الحالية */
 function mqRd(from,to,page,extra){
   var P=curP(),r=P[page-1]||[1,1],o={flow:true,from:from,to:to,page:page,sura:r[0],cv:r[0]+':'+r[1],_scrollCv:r[0]+':'+r[1]};
@@ -25,7 +28,7 @@ function vHafsFlow(){
   var fs=Math.max(18,Math.min(40,S.quran.fs||26));
   S.quran.last=rd.page=mpVerPage(c,+(String(rd.cv||c+':1').split(':')[1]||1));
   var onBm=mqBmOn(c);
-  var body=(c!==1&&c!==9?'<div class="mq-bs">'+esc(D.s[0][0])+'</div>':'');
+  var body=(c!==1&&c!==9?'<div class="mq-bs">'+esc(isW()?D.b:D.s[0][0])+'</div>':'');
   for(var v=1;v<=vs.length;v++){
     body+='<span class="mq-v'+(rd.cv===c+':'+v?' cur':'')+'" data-v="'+c+':'+v+'">'+esc(verseShow(c,v))+' <span class="mq-m aym"><span class="ayo">\u06DD<b>'+ar(v)+'</b></span></span> </span>';
   }
@@ -48,5 +51,6 @@ function vHafsFlow(){
 }
 function vReader(){
   if(!rd)return '<section class="card"><p class="note">لا توجد جلسة قراءة.</p><button class="btn block" data-a="goback" data-v="home">رجوع</button></section>';
+  if(S.quran.riwaya==='warsh'&&!window.WDATA){try{loadHeavy()}catch(e){}return '<section class="card"><p class="note">جارٍ تجهيز رواية ورش…</p></section>'}
   return vHafsFlow();
 }
