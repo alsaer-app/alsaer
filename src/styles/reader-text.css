@@ -2,18 +2,19 @@
 #mp{background:var(--mp-bg);border:0;box-shadow:none;border-radius:0}
 html[data-theme="dark"]{--mp-bg:#101d3a;--mp-ink:#e9e5da;--mp-gold:#d8b25a;--mp-mut:#9db3c9}
 html[data-theme="light"]{--mp-bg:#fbf6ea;--mp-ink:#1c140a;--mp-gold:#b98a2e;--mp-mut:#7a6a4a}
-#mp .mp-in{border:0;border-image:none;background:transparent;box-shadow:none;padding:8px 14px;max-width:640px;margin-inline:auto;width:100%;box-sizing:border-box;align-self:center;flex:none}
-#mp .mp-l{color:var(--mp-ink);display:block;line-height:2.05}
+#mp .mp-in{border:0;border-image:none;background:transparent;box-shadow:none;padding:8px 20px;max-width:640px;margin-inline:auto;width:100%;box-sizing:border-box;align-self:center;flex:none}
+#mp .mp-l{color:var(--mp-ink);display:block;line-height:2.25}
 #mp .ml{flex:none;min-height:0;height:auto;overflow:visible}
 #mp .mp-l .mi{width:100%;white-space:nowrap;transform:none;display:flex;gap:.14em}
 #mp .mp-l .mi.fj{justify-content:space-between}
 #mp .mp-l .mi.fl{justify-content:center;width:max-content;margin-inline:auto}
 #mp .mw.aym,#mp .mw .aym{color:var(--mp-gold)!important}
+#mp .mw.aym{margin-inline:.18em}
 #mp .ml.hd>span{border:0;box-shadow:none;background:transparent;color:var(--mp-gold);letter-spacing:.02em;font-weight:700}
 #mp .ml.hd>span::before,#mp .ml.hd>span::after{color:var(--mp-gold)}
 #mp .ml.bs span{color:var(--mp-gold)}
 #mp .mp-f .pn{color:var(--mp-mut);border:1px solid var(--mp-gold);background:transparent;border-radius:50%;width:30px;height:30px;display:inline-grid;place-items:center}
-#mp .mw.vhl{background:color-mix(in srgb,var(--mp-gold) 22%,transparent);box-shadow:3px 0 0 0 color-mix(in srgb,var(--mp-gold) 22%,transparent),-3px 0 0 0 color-mix(in srgb,var(--mp-gold) 22%,transparent),0 2px 0 0 color-mix(in srgb,var(--mp-gold) 22%,transparent),0 -2px 0 0 color-mix(in srgb,var(--mp-gold) 22%,transparent),inset 0 -2px 0 color-mix(in srgb,var(--mp-gold) 65%,transparent)}
+#mp .mw.vhl{background:color-mix(in srgb,var(--mp-gold) 22%,transparent);box-shadow:1.5px 0 0 0 color-mix(in srgb,var(--mp-gold) 22%,transparent),-1.5px 0 0 0 color-mix(in srgb,var(--mp-gold) 22%,transparent),0 2px 0 0 color-mix(in srgb,var(--mp-gold) 22%,transparent),0 -2px 0 0 color-mix(in srgb,var(--mp-gold) 22%,transparent),inset 0 -2px 0 color-mix(in srgb,var(--mp-gold) 65%,transparent)}
 
 /* شريط الرأس: صف أول (رجوع/العنوان/القائمة) وصف ثانٍ (المظهر + حجم الخط) — يُقاس ارتفاعه تلقائيًا في readerShellInsets */
 #rd-ov .rd-t{flex-direction:column;align-items:stretch;gap:2px}

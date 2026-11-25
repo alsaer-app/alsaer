@@ -70,7 +70,7 @@ function _fitHafs(mp){
   items.forEach(function(it){
     if(it.h!==undefined){html+='<div class="ml hd"><span>سورة '+esc(QD().n[it.h-1])+'</span></div>';return}
     if(it.b){html+='<div class="ml bs"><span>'+esc(QD().s[0][0])+'</span></div>';return}
-    var toks=it.map(function(t){return {t:t,w:wMeasure(mpTokPlain(t))*fs/100}});
+    var toks=it.map(function(t){var mk=t.charCodeAt(0)===0xE0F0;return {t:t,w:wMeasure(mpTokPlain(t))*fs/100+(mk?.36*fs:0)}});
     var lines=[],cur=[],curW=0,gapW=GAP*fs,lim=W*.985;
     toks.forEach(function(tk){
       var add=(cur.length?gapW:0)+tk.w;
