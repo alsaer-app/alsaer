@@ -3,7 +3,7 @@
 html[data-theme="dark"]{--mp-bg:#101d3a;--mp-ink:#e9e5da;--mp-gold:#d8b25a;--mp-mut:#9db3c9}
 html[data-theme="light"]{--mp-bg:#fbf6ea;--mp-ink:#1c140a;--mp-gold:#b98a2e;--mp-mut:#7a6a4a}
 #mp .mp-in{overflow:hidden;border:0;border-image:none;background:transparent;box-shadow:none;padding:2px 2px;max-width:720px;margin-inline:auto;width:100%;box-sizing:border-box;align-self:center;flex:none}
-#mp .mp-l{color:var(--mp-ink);display:flex;flex-direction:column;justify-content:flex-start;flex:1;min-height:0}
+#mp .mp-l{color:var(--mp-ink);padding:0 2px 0 7px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:flex-start;flex:1;min-height:0}
 #mp .ml{flex:1 1 0;min-height:0;height:auto;overflow:visible;display:flex;align-items:center}
 #mp .mp-l .mi{width:100%;white-space:nowrap;transform:none;display:flex;gap:.14em}
 #mp .mp-l .mi.fj{justify-content:space-between}
@@ -49,4 +49,4 @@ html[data-theme="light"]{--mp-bg:#fbf6ea;--mp-ink:#1c140a;--mp-gold:#b98a2e;--mp
 #rd-ov .rd-b .rd-sn{display:flex;gap:6px;margin-top:2px}
 #rd-ov .rd-b .rd-sn .ib{flex:1;height:30px;min-height:30px;padding:0 8px}
 
-body.rd #mp{padding:1px}
+body.rd #mp{padding:0}

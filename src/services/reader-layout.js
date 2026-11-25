@@ -58,27 +58,43 @@ function _fitHafs(mp){
   var MU=window.MUSHAF,pg=MU&&MU.p[rd.page-1];if(!pg)return;
   var W=L.clientWidth;if(!W)return;
   var H=L.clientHeight||0;
-  var fs=Math.max(13,Math.min(26,Math.floor(W/(2286/100)/0.94)));
-  if(H>200){var hf=H/(15*2.3);if(hf<fs)fs=Math.max(13,Math.floor(hf))}
+  /* تدفق مريح: أسطر تُلفّ طبيعيًا بأكبر حجم تتسع له الصفحة — 19px أساسًا (يتسع 575 صفحة من 604 بلا تصغير)،
+     وتُصغَّر الصفحات الكثيفة وحدها بأقل قدر حتى 13px، بلا تمرير رأسي إطلاقًا */
+  function layout(fs){
+    var rows=[],cur=[],curW=0;
+    pg.forEach(function(l){
+      if(l[0]==='h'||l[0]==='b'){
+        if(cur.length){rows.push({t:cur,w:curW});cur=[];curW=0}
+        rows.push(l[0]==='h'?{h:l[1]}:{b:1});return;
+      }
+      l[1].split(' ').forEach(function(t){
+        var w=wMeasure(mpTokPlain(t))*fs/100+(t.charCodeAt(0)===0xE0F0?.36*fs:0);
+        var gap=cur.length?.14*fs:0;
+        if(cur.length&&curW+gap+w>W){rows.push({t:cur,w:curW});cur=[t];curW=w}
+        else{cur.push(t);curW+=gap+w}
+      });
+    });
+    if(cur.length)rows.push({t:cur,w:curW});
+    return rows;
+  }
+  var fs=19,cap=Math.max(1,Math.floor(H/(fs*1.9))),rows=layout(fs);
+  while(rows.length>cap&&fs>13){fs--;cap=Math.max(1,Math.floor(H/(fs*1.9)));rows=layout(fs)}
   L.style.fontSize=fs+'px';L.style.lineHeight='1.9';
   L.style.display='flex';L.style.flexDirection='column';L.style.justifyContent='space-between';
   mpInit(rd.page);
   var html='';
-  pg.forEach(function(l){
-    if(l[0]==='h'){html+='<div class="ml hd"><span>سورة '+esc(QD().n[l[1]-1])+'</span></div>';return}
-    if(l[0]==='b'){html+='<div class="ml bs"><span>'+esc(QD().s[0][0])+'</span></div>';return}
-    var toks=l[1].split(' ');
-    var nat=0;toks.forEach(function(t){nat+=wMeasure(mpTokPlain(t))*fs/100+(t.charCodeAt(0)===0xE0F0?.36*fs:0)});
-    nat+=.14*fs*(toks.length-1);
-    var full=nat>W*.62;
-    var sx=(full&&nat>W)?Math.max(.9,W/nat):1;
-    html+='<div class="ml"><div class="mi '+(full?'fj':'fl')+'"'+(sx<1?' style="transform:scaleX('+sx.toFixed(3)+')"':'')+'>'
-      +toks.map(function(t){var a=mpVAttr(t),mk=t.charCodeAt(0)===0xE0F0;return '<span class="mw'+(mk?' aym':'')+'"'+a+'>'+mTok(t)+'</span>'}).join('')
+  rows.forEach(function(r,ri){
+    if(r.h!==undefined){html+='<div class="ml hd"><span>سورة '+esc(QD().n[r.h-1])+'</span></div>';return}
+    if(r.b){html+='<div class="ml bs"><span>'+esc(QD().s[0][0])+'</span></div>';return}
+    var last=ri===rows.length-1||(rows[ri+1]&&(rows[ri+1].h!==undefined||rows[ri+1].b));
+    var full=!last&&r.w>W*.62;
+    html+='<div class="ml"><div class="mi '+(full?'fj':'fl')+'">'
+      +r.t.map(function(t){var a=mpVAttr(t),mk=t.charCodeAt(0)===0xE0F0;return '<span class="mw'+(mk?' aym':'')+'"'+a+'>'+mTok(t)+'</span>'}).join('')
       +'</div></div>';
   });
   L.innerHTML=html;
 }
-/* الرسم الشرقي: خط الحفص المشرقي لا يملك شكل الياء المغربية (U+06D2)، فتُكتب ياءً عادية */
+/* الرسم الشرقي/* الرسم الشرقي: خط الحفص المشرقي لا يملك شكل الياء المغربية (U+06D2)، فتُكتب ياءً عادية */
 function warshFix(t){
   return String(t).replace(/\u06D2/g,'\u064A')
     /* ألف الوصل بعلامات ورش (ا۬ / ا۪) تُرسم ٱ في الرسم المشرقي */
