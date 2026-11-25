@@ -65,6 +65,39 @@ var HSN={
   };
 /* ===== حصن المسلم (الأذكار) + المسبحة: شاشتان منفصلتان ===== */
 var hsnS={cat:null};
+/* الأبواب الكاملة (١٣٢ بابًا): ملف بيانات يُحمَّل عند فتح الشاشة؛ الفئات السبع القديمة تبقى كما هي */
+var hsnF={ok:0,reg:{},idx:null,q:'',a:null,ak:''};
+function hsnNorm(t){return String(t||'').replace(/[\u064b-\u065f\u0670\u06d6-\u06ed\u0640]/g,'').replace(/[إأآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه')}
+function hsnX(t){return String(t).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function hsnfBuild(){
+  hsnF.reg={};hsnF.idx=[];
+  (window.HSNF&&HSNF.ch||[]).forEach(function(c){
+    var slug='f'+c.n;
+    hsnF.reg[slug]={name:c.t,icon:'',n:c.n,items:c.e.map(function(e){
+      var tx=e.x.map(function(z){return z[0]==='i'?'<small class="hsn-ins">'+hsnX(z[1])+'</small>':'<p>'+hsnX(z[1]).replace(/\n/g,'<br>')+'</p>'}).join('');
+      return {text:tx,repeat:e.c||1,virtue:e.r||'',u:e.u||null,s:e.s,m:e.m||0}})};
+    hsnF.idx.push({slug:slug,k:hsnNorm(c.t+' '+c.e.map(function(e){return e.x.map(function(z){return z[1]}).join(' ')}).join(' '))});
+  });
+  hsnF.ok=1;
+}
+function hsnfEnsure(cb){
+  if(hsnF.ok){cb(true);return}
+  var q=hsnF.q2||(hsnF.q2=[]);q.push(cb);if(hsnF.ld)return;hsnF.ld=1;
+  var sc=document.createElement('script');sc.src='hisn-full.js';
+  sc.onload=sc.onerror=function(){hsnF.ld=0;if(window.HSNF)hsnfBuild();var ok=hsnF.ok;q.splice(0).forEach(function(f){try{f(!!ok)}catch(e){}})};
+  document.head.appendChild(sc);
+}
+function hsnG(s){return HSN[s]||hsnF.reg[s]}
+function hsnAuStop(){if(hsnF.a){try{hsnF.a.pause()}catch(e){}hsnF.a=null;hsnF.ak=''}var b=document.querySelector('.hsn-au.on');if(b){b.classList.remove('on');b.textContent='▶ استماع'}}
+function hsnRows(q){
+  var P=hsnP(),n=hsnNorm(q).trim(),h='';
+  hsnF.idx.forEach(function(r){
+    if(n&&r.k.indexOf(n)<0)return;
+    var c=hsnF.reg[r.slug],dn=hsnDone(P,r.slug);
+    h+='<button class="card hsn-row" data-a="hsncat" data-v="'+r.slug+'"><b>'+ar(c.n)+'</b><span>'+hsnX(c.name)+'</span><small>'+ar(dn)+' / '+ar(c.items.length)+'</small></button>';
+  });
+  return h||'<p class="note">لا نتائج</p>';
+}
 var HSN_PRE=['سُبْحَانَ اللَّهِ','الْحَمْدُ لِلَّهِ','اللَّهُ أَكْبَرُ','لَا إِلَٰهَ إِلَّا اللَّهُ','أَسْتَغْفِرُ اللَّهَ'];
 function hsnP(){
   var P=S.hisn;if(!P||typeof P!=='object')P=S.hisn={fs:22,d:'سُبْحَانَ اللَّهِ',t:99,c:0,tt:0,tn:0,all:0,prog:{}};
@@ -78,20 +111,24 @@ function hsnP(){
 var HSN_MAP={morning:'sabah',evening:'massa',afterprayer:'afterPrayer',sleep:'sleep'};
 function hsnRedirect(){if(tab==='tasbih'){tab='msb';return}tab='hisn';hsnS.cat=null}
 function hsnOpen(g){tab='hisn';hsnS.cat=(HSN_MAP[g]&&HSN[HSN_MAP[g]])?HSN_MAP[g]:null}
-function hsnRem(P,slug,i){var k=slug+':'+i,v=P.prog[k];return v===undefined?HSN[slug].items[i].repeat:v}
-function hsnDone(P,slug){var c=0;HSN[slug].items.forEach(function(it,i){if(hsnRem(P,slug,i)<=0)c++});return c}
+function hsnRem(P,slug,i){var k=slug+':'+i,v=P.prog[k];return v===undefined?hsnG(slug).items[i].repeat:v}
+function hsnDone(P,slug){var c=0;hsnG(slug).items.forEach(function(it,i){if(hsnRem(P,slug,i)<=0)c++});return c}
 function vHisn(){
   var P=hsnP(),h='<div class="hsn">';
   if(hsnS.cat){
-    var cat=HSN[hsnS.cat],dn=hsnDone(P,hsnS.cat);
+    var cat=hsnG(hsnS.cat),dn=hsnDone(P,hsnS.cat);
     h+='<div class="hsn-top"><button class="btn ghost" data-a="hsnback">← الأذكار</button><b class="hsn-cn">'+cat.name+'</b><span class="hsn-fs"><button class="btn ghost" data-a="hsnfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hsnfs" data-v="2">أ+</button></span></div>'
      +'<div class="asm-bar"><i id="hsn-pb" style="width:'+Math.round(dn/cat.items.length*100)+'%"></i></div>'
      +cat.items.map(function(it,i){var r=hsnRem(P,hsnS.cat,i),dn=r<=0;
-       return '<div class="card hsn-z'+(dn?' done':'')+'" data-a="hsnz" data-v="'+hsnS.cat+':'+i+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+it.text+'</div><div class="hsn-b"><small>'+(it.virtue||'')+'</small><span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}).join('');
+       return '<div class="card hsn-z'+(dn?' done':'')+'" data-a="hsnz" data-v="'+hsnS.cat+':'+i+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+it.text+'</div><div class="hsn-b"><small>'+(it.virtue||'')+(it.s?' · ذكر '+ar(it.s):'')+(it.m?' · نص إضافي للتجربة':'')+'</small>'+(it.u?'<button class="btn ghost hsn-au" data-a="hsnau" data-v="'+hsnS.cat+':'+i+'">▶ استماع</button>':'')+'<span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}).join('');
     return h+'</div>';
   }
   h+='<div class="asm-grid">'+Object.keys(HSN).map(function(s){var c=HSN[s],dn=hsnDone(P,s);return '<button class="asm-card" data-a="hsncat" data-v="'+s+'"><i class="asm-dot'+(dn===c.items.length?' on':'')+'"></i><div class="hsn-ic">'+c.icon+'</div><b>'+c.name+'</b><span>'+ar(dn)+' / '+ar(c.items.length)+'</span></button>'}).join('')+'</div>';
-  return h+'<p class="note">الأذكار من حصن المسلم وما ثبت من القرآن والسنة. يُحفظ تقدّمك اليومي على هذا الجهاز ويتجدد كل يوم.</p></div>';
+  h+='<p class="note">الأذكار من حصن المسلم وما ثبت من القرآن والسنة. يُحفظ تقدّمك اليومي على هذا الجهاز ويتجدد كل يوم.</p>';
+  if(hsnF.ok){var tot=0;hsnF.idx.forEach(function(r){tot+=hsnF.reg[r.slug].items.length});
+    h+='<div class="hsn-sr"><input id="hsn-q" type="search" placeholder="ابحث في '+ar(tot)+' ذكرًا من حصن المسلم" value="'+hsnX(hsnF.q).replace(/"/g,'&quot;')+'"></div><h3 class="hsn-h">جميع الأبواب ('+ar(hsnF.idx.length)+')</h3><div id="hsn-l">'+hsnRows(hsnF.q)+'</div><p class="note hsn-src">النص والصوت: OpenDua (CC BY 4.0) عن كتاب «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني. عناوين الأبواب والتكرار والمراجع: asellam/HisnElMuslim (MIT).</p>';
+  }else hsnfEnsure(function(ok){if(ok&&tab==='hisn'&&!hsnS.cat)render()});
+  return h+'</div>';
 }
 /* ===== المسبحة ===== */
 var msbCtx=null;
@@ -118,14 +155,25 @@ function hsnRing(P){
 function hsnAct(a,v){
   var P=hsnP();
   if(a==='hsncat'){hsnS.cat=v;try{window.scrollTo(0,0)}catch(e){}return true}
-  if(a==='hsnback'){hsnS.cat=null;return true}
+  if(a==='hsnback'){hsnAuStop();hsnS.cat=null;return true}
   if(a==='hsnfs'){P.fs=Math.max(16,Math.min(32,P.fs+(+v)));save();return true}
+  if(a==='hsnau'){
+    var q=v.split(':'),it=hsnG(q[0]).items[+q[1]],b=document.querySelector('[data-a=hsnau][data-v="'+v+'"]');
+    if(hsnF.ak===v){hsnAuStop();return false}
+    hsnAuStop();if(!it||!it.u||!it.u.length)return false;
+    try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}
+    var k=0,A=new Audio();hsnF.a=A;hsnF.ak=v;A.preload='auto';
+    var nx=function(){if(hsnF.a!==A)return;if(k>=it.u.length){hsnAuStop();return}A.src=it.u[k++];var pr=A.play();if(pr&&pr.catch)pr.catch(function(){if(hsnF.a===A){hsnAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')}})};
+    A.onended=nx;A.onerror=function(){if(hsnF.a===A){hsnAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')}};
+    if(b){b.classList.add('on');b.textContent='⏸ إيقاف'}
+    nx();return false;
+  }
   if(a==='hsnz'){
     var p=v.split(':'),s=p[0],i=+p[1],r=hsnRem(P,s,i);if(r<=0)return false;
     r--;P.prog[s+':'+i]=r;save();try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}
     var c=document.querySelector('[data-a=hsnz][data-v="'+v+'"]');
     if(c){var n=c.querySelector('.hsn-c');if(r<=0){c.classList.add('done');n.classList.add('done');n.textContent='✓';toast('أحسنت، أُنجز هذا الذكر ✓')}else n.textContent=ar(r)}
-    var pb=document.getElementById('hsn-pb');if(pb)pb.style.width=Math.round(hsnDone(P,s)/HSN[s].items.length*100)+'%';
+    var pb=document.getElementById('hsn-pb');if(pb)pb.style.width=Math.round(hsnDone(P,s)/hsnG(s).items.length*100)+'%';
     return false;
   }
   return false;
@@ -149,3 +197,6 @@ function msbAct(a,v){
   if(a==='msbdel'){var k=+v,x=P.cus[k];if(x===undefined)return false;P.cus.splice(k,1);if(P.d===x)P.d=HSN_PRE[0];save();return true}
   return false;
 }
+
+(function(){var tm;document.addEventListener('input',function(e){
+  if(e.target&&e.target.id==='hsn-q'){var val=e.target.value;clearTimeout(tm);tm=setTimeout(function(){hsnF.q=val;var l=document.getElementById('hsn-l');if(l&&hsnF.ok)l.innerHTML=hsnRows(val)},180)}})})();
