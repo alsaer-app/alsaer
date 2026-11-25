@@ -33,7 +33,7 @@ public class FloatingReminderService extends Service {
     static void showIfEnabled(Context c, String title, String body, String route, org.json.JSONObject item, int nid) {
         if (!enabled(c) || pausedUntil(c) > System.currentTimeMillis()) return;
         if (!canDraw(c)) {
-            FloatLog.err(c, "عرض النافذة مع التذكير", "إذن «العرض فوق التطبيقات الأخرى» غير ممنوح");
+            FloatLog.err(c, NativeStrings.get(this, "show_window_with_reminder"), NativeStrings.get(this, "overlay_perm_missing"));
             return; // الإشعار نفسه ظهر بالفعل؛ لا حاجة لبديل هنا
         }
         Intent i = new Intent(c, FloatingReminderService.class);
@@ -51,7 +51,7 @@ public class FloatingReminderService extends Service {
             if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(i);
             else c.startService(i);
         } catch (Throwable t) {
-            FloatLog.err(c, "تشغيل خدمة النافذة", String.valueOf(t));
+            FloatLog.err(c, NativeStrings.get(this, "run_window_service"), String.valueOf(t));
             FloatLog.fallback(c, i.getStringExtra(EXTRA_TITLE), i.getStringExtra(EXTRA_BODY));
         }
     }
@@ -117,7 +117,7 @@ public class FloatingReminderService extends Service {
             if (Build.VERSION.SDK_INT >= 26) {
                 android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 if (nm != null && nm.getNotificationChannel(CH_FG) == null) {
-                    android.app.NotificationChannel ch = new android.app.NotificationChannel(CH_FG, "السائر — خدمة النافذة العائمة", android.app.NotificationManager.IMPORTANCE_MIN);
+                    android.app.NotificationChannel ch = new android.app.NotificationChannel(CH_FG, NativeStrings.get(this, "ch_service_name"), android.app.NotificationManager.IMPORTANCE_MIN);
                     nm.createNotificationChannel(ch);
                 }
             }
@@ -125,13 +125,13 @@ public class FloatingReminderService extends Service {
             android.app.PendingIntent content = android.app.PendingIntent.getActivity(this, FG_ID, open, android.app.PendingIntent.FLAG_UPDATE_CURRENT | AlarmScheduler.immutable());
             androidx.core.app.NotificationCompat.Builder b = new androidx.core.app.NotificationCompat.Builder(this, CH_FG)
                     .setSmallIcon(R.drawable.ic_stat_alsaer)
-                    .setContentTitle("السائر إلى الله")
-                    .setContentText("تذكير عائم")
+                    .setContentTitle(NativeStrings.get(this, "app_name"))
+                    .setContentText(NativeStrings.get(this, "floating_reminder"))
                     .setContentIntent(content)
                     .setPriority(androidx.core.app.NotificationCompat.PRIORITY_MIN)
                     .setOngoing(true);
             startForeground(FG_ID, b.build());
-        } catch (Throwable t) { FloatLog.err(this, "بدء الخدمة الأمامية", String.valueOf(t)); }
+        } catch (Throwable t) { FloatLog.err(this, NativeStrings.get(this, "fg_service_start"), String.valueOf(t)); }
     }
 
     /** إيقاظ قصير + إضاءة الشاشة عند وصول التذكير والشاشة مطفأة. */
@@ -141,7 +141,7 @@ public class FloatingReminderService extends Service {
             if (pm == null) return;
             wl = pm.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "alsaer:float");
             wl.acquire(90_000L);
-        } catch (Throwable t) { FloatLog.err(this, "إيقاظ الجهاز", String.valueOf(t)); }
+        } catch (Throwable t) { FloatLog.err(this, NativeStrings.get(this, "wake_device"), String.valueOf(t)); }
     }
 
     private void releaseWake() {
@@ -153,7 +153,7 @@ public class FloatingReminderService extends Service {
         startFg();
         if (in == null) { hardStop.run(); return START_NOT_STICKY; }
         if (!canDraw(this)) {
-            FloatLog.err(this, "فتح النافذة", "إذن «العرض فوق التطبيقات الأخرى» غير ممنوح");
+            FloatLog.err(this, NativeStrings.get(this, "open_window"), NativeStrings.get(this, "overlay_perm_missing"));
             FloatLog.fallback(this, in.getStringExtra(EXTRA_TITLE), in.getStringExtra(EXTRA_BODY));
             hardStop.run();
             return START_NOT_STICKY;
@@ -189,7 +189,7 @@ public class FloatingReminderService extends Service {
             else lp.y = "center".equals(pos) ? 0 : "bottom".equals(pos) ? (bar ? 0 : dp(80)) : (bar ? 0 : dp(36));
             lp.x = 0;
             lastRoute = route == null ? "" : route; lastItem = itemJson; lastNid = nid;
-            card = build(title == null ? "السائر إلى الله" : title, body == null ? "" : body, lastRoute, itemJson, nid, src == null ? "" : src);
+            card = build(title == null ? NativeStrings.get(this, "app_name") : title, body == null ? "" : body, lastRoute, itemJson, nid, src == null ? "" : src);
             wm.addView(card, lp);
             animIn(card, pos);
             if (!forceCard) buzz(16);
@@ -198,7 +198,7 @@ public class FloatingReminderService extends Service {
             if (forceCard && "bubble".equals(st.optString("design", "card"))) h.postDelayed(collapse, Math.max(8, secs) * 1000L);
             else if (secs > 0) h.postDelayed(autoClose, smartMs(secs));
         } catch (Throwable t) {
-            FloatLog.err(this, "عرض البطاقة العائمة", String.valueOf(t));
+            FloatLog.err(this, NativeStrings.get(this, "show_float_card"), String.valueOf(t));
             FloatLog.fallback(this, lastT, lastB);
             hardStop.run();
         }
@@ -257,7 +257,7 @@ public class FloatingReminderService extends Service {
             h.removeCallbacks(autoClose);
             int secs = st.optInt("secs", 15); if (secs > 0) h.postDelayed(autoClose, secs * 1000L);
         } catch (Throwable t) {
-            FloatLog.err(this, "عرض الفقاعة العائمة", String.valueOf(t));
+            FloatLog.err(this, NativeStrings.get(this, "show_float_bubble"), String.valueOf(t));
             FloatLog.fallback(this, title, body);
             hardStop.run();
         }
@@ -363,7 +363,7 @@ public class FloatingReminderService extends Service {
         b.setPadding(0, dp(4), 0, 0);
         if (pill || mini) { b.setMaxLines(mini ? 4 : 2); b.setEllipsize(android.text.TextUtils.TruncateAt.END); }
         TextView x = new TextView(this);
-        x.setText("إغلاق");
+        x.setText(NativeStrings.get(this, "close"));
         x.setTextColor(Color.parseColor(pal[4]));
         x.setTextSize(13 * sc);
         x.setPadding(0, dp(8), 0, 0);
@@ -383,24 +383,24 @@ public class FloatingReminderService extends Service {
         try { if (itemJson != null) itj = new org.json.JSONObject(itemJson); } catch (Throwable ignored) { }
         final org.json.JSONObject actJ = itj == null ? null : itj.optJSONObject("act");
         if (feed) {
-            row.addView(chip("التالي", true, v -> {
+            row.addView(chip(NativeStrings.get(this, "next"), true, v -> {
                 org.json.JSONObject nx = FloatFeed.pick(this, FloatFeed.cfg(this));
-                showCard(nx.optString("t", "السائر إلى الله"), nx.optString("b", ""), "", null, 0, FloatFeed.cfg(this).optBoolean("src", false) ? nx.optString("s", "") : "");
+                showCard(nx.optString("t", NativeStrings.get(this, "app_name")), nx.optString("b", ""), "", null, 0, FloatFeed.cfg(this).optBoolean("src", false) ? nx.optString("s", "") : "");
             }));
             final String cp = body;
-            row.addView(chip("نسخ", false, v -> {
+            row.addView(chip(NativeStrings.get(this, "copy"), false, v -> {
                 try { ((android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE)).setPrimaryClip(android.content.ClipData.newPlainText("alsaer", cp)); } catch (Throwable ignored) { }
                 dismiss();
             }));
         } else {
-            if (actJ != null) row.addView(chip(actJ.optString("l", "تم"), true, v -> {
+            if (actJ != null) row.addView(chip(actJ.optString("l", NativeStrings.get(this, "done")), true, v -> {
                 Intent d = new Intent(this, ActionReceiver.class).setAction(AlarmScheduler.ACTION_DONE);
                 d.putExtra("key", actJ.optString("k")); d.putExtra("nid", nid); sendBroadcast(d); ((TextView) v).setText("\u2713 \u062A\u0645"); buzz(30); h.removeCallbacks(autoClose); h.postDelayed(() -> dismiss(), 450); }));
-            if (itemJson != null) row.addView(chip("بعد ١٠ دقائق", false, v -> {
+            if (itemJson != null) row.addView(chip(NativeStrings.get(this, "in_10_min"), false, v -> {
                 Intent s = new Intent(this, ActionReceiver.class).setAction(AlarmScheduler.ACTION_SNOOZE);
                 s.putExtra("item", itemJson); s.putExtra("nid", nid); sendBroadcast(s); ((TextView) v).setText("\u23F1 \u0633\u0646\u0630\u0643\u0651\u0631\u0643"); buzz(22); h.removeCallbacks(autoClose); h.postDelayed(() -> dismiss(), 600); }));
         }
-        if (forceCard) row.addView(chip("تصغير", false, v -> { h.removeCallbacks(collapse); collapse.run(); }));
+        if (forceCard) row.addView(chip(NativeStrings.get(this, "minimize"), false, v -> { h.removeCallbacks(collapse); collapse.run(); }));
         if (quote) {
             TextView q = new TextView(this);
             q.setText("❝");

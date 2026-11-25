@@ -244,10 +244,10 @@ public final class AlarmScheduler {
         nm.deleteNotificationChannel(CH_OLD_CHIME);
         nm.deleteNotificationChannel(CH_OLD_SILENT);
         nm.deleteNotificationChannel(CH_OLD_SYSTEM);
-        String[][] cats = {{"pray","الصلاة"},{"fast","الصيام"},{"habit","العادات والأهداف"}};
-        String[][] modes = {{"chime","صوت هادئ","نغمة تغريد العصافير — نغمة إسلامية هادئة مخصصة للتطبيق"},{"silent","بلا صوت","إشعارات صامتة؛ التذكير يظهر دون نغمة"},{"system","صوت النظام","استخدام نغمة إشعارات الهاتف الافتراضية"}};
+        String[][] cats = {{"pray","cat_pray"},{"fast","cat_fast"},{"habit","cat_habit"}};
+        String[][] modes = {{"chime","mode_chime","chime_tone_desc"},{"silent","mode_silent","silent_notif_desc"},{"system","mode_system","system_tone_desc"}};
         for (String[] cat : cats) for (String[] mode : modes)
-            mkChan(nm, chId(cat[0], mode[0]), "السائر — "+cat[1]+" · "+mode[1], mode[2], mode[0], soundUri, attrs, vibs);
+            mkChan(nm, chId(cat[0], mode[0]), NativeStrings.get(c, "brand")+" — "+NativeStrings.get(c, cat[1])+" · "+NativeStrings.get(c, mode[1]), NativeStrings.get(c, mode[2]), mode[0], soundUri, attrs, vibs);
     }
 
     private static void mkChan(NotificationManager nm, String id, String name, String desc, String mode, Uri soundUri, AudioAttributes attrs, long[] vibs) {
@@ -310,7 +310,7 @@ public final class AlarmScheduler {
         ensureChannel(c);
         String id = it.optString("id");
         int nid = code(c,id,"notification");
-        String title = it.optString("title", "السائر إلى الله");
+        String title = it.optString("title", NativeStrings.get(c, "app_name"));
         String body = it.optString("body", "");
 
         Intent open = new Intent(c, MainActivity.class);
@@ -340,18 +340,18 @@ public final class AlarmScheduler {
             done.putExtra("key", act.optString("k"));
             done.putExtra("nid", nid);
             PendingIntent dpi = PendingIntent.getBroadcast(c, code(c,id,"done"), done, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
-            b.addAction(0, act.optString("l", "تم"), dpi);
+            b.addAction(0, act.optString("l", NativeStrings.get(c, "done")), dpi);
         }
         Intent snz = new Intent(c, ActionReceiver.class).setAction(ACTION_SNOOZE);
         snz.putExtra("item", it.toString());
         snz.putExtra("nid", nid);
         PendingIntent spi = PendingIntent.getBroadcast(c, code(c,id,"snooze-action"), snz, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
-        b.addAction(0, "ذكّرني بعد ١٠ دقائق", spi);
+        b.addAction(0, NativeStrings.get(c, "remind_10_min"), spi);
         Intent stp = new Intent(c, ActionReceiver.class).setAction(ACTION_SNOOZE_STOP);
         stp.putExtra("id", id);
         stp.putExtra("nid", nid);
         PendingIntent stpi = PendingIntent.getBroadcast(c, code(c,id,"snooze-stop"), stp, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
-        b.addAction(0, "إيقاف", stpi);
+        b.addAction(0, NativeStrings.get(c, "stop"), stpi);
 
         try { NotificationManagerCompat.from(c).notify(nid, b.build()); } catch (SecurityException ignored) {}
         if (FloatFeed.linked(c)) FloatingReminderService.showIfEnabled(c, title, body, it.optString("route", ""), it, nid);

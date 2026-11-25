@@ -182,7 +182,7 @@ public class AlsaerNative {
             if (!part.renameTo(apk)) throw new java.io.IOException("rename");
             p.edit().putLong("done", apk.length()).putString("st", "done").putString("err", "").apply();
         } catch (Exception e) {
-            String m = "sha256".equals(e.getMessage()) ? "الملف غير سليم (فشل التحقق من البصمة)" : "انقطع الاتصال";
+            String m = "sha256".equals(e.getMessage()) ? NativeStrings.get(act, "file_invalid_checksum") : NativeStrings.get(act, "connection_lost");
             p.edit().putString("st", "failed").putString("err", m).apply();
         } finally { updRunning = false; }
     }
@@ -306,11 +306,11 @@ public class AlsaerNative {
     @JavascriptInterface
     public void testNotification(String title) {
         try {
-            String t = (title == null || title.trim().isEmpty()) ? "تذكير تجريبي" : title.trim();
+            String t = (title == null || title.trim().isEmpty()) ? NativeStrings.get(act, "test_reminder") : title.trim();
             JSONObject it = new JSONObject();
             it.put("id", "test");
             it.put("title", t);
-            it.put("body", "هذا اختبار للتذكير المحدد؛ إشعارات السائر تعمل بنجاح.");
+            it.put("body", NativeStrings.get(act, "scheduled_reminder_test_ok"));
             it.put("route", "tab:reminders");
             AlarmScheduler.ensureChannel(act);
             AlarmScheduler.scheduleAt(act, it, System.currentTimeMillis() + 3000L, true);

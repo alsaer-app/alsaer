@@ -10,7 +10,12 @@ R=Path(__file__).resolve().parents[1]
 AR=re.compile(r'[\u0600-\u06FF]')
 PROTECTED={'src/constants/adhkar.js':'adhkar text (stays Arabic)','src/services/hisn.js':'Hisn al-Muslim supplications (stays Arabic)',
  'src/services/asma.js':'Names of Allah + meanings (needs scholarly review, phase 2)','src/services/ahadith.js':'hadith text (stays Arabic)',
- 'src/services/mushaf-img-data.js':'Mushaf data','src/i18n/packs.js':'generated packs','src/services/i18n.js':'engine patterns/comments'}
+ 'src/services/mushaf-img-data.js':'Mushaf data','src/i18n/packs.js':'generated packs','src/services/i18n.js':'engine patterns/comments',
+ 'android/app/src/main/java/com/ahmedalajmi/alsaer/NativeStrings.java':'generated i18n table (tools/native_strings_gen.py)',
+ 'android/app/src/main/AndroidManifest.xml':'FGS subtype declaration + app name (brand, manifest constants)',
+ 'android/app/src/main/res/values/strings.xml':'app name (brand, same in all languages)',
+ 'android/app/src/main/res/layout/alsaer_widget.xml':'layout defaults; all widget text set via NativeStrings in AlsaerWidget',
+ 'widget_res/res/layout/alsaer_widget.xml':'widget source layout defaults (same as above)'}
 def lex(t):
     """yield string-literal bodies of JS/Java source, skipping comments (simple lexer; regex literals ignored)."""
     i=0;n=len(t)
@@ -65,6 +70,7 @@ def native():
         try:t=open(f,encoding='utf-8').read()
         except Exception:continue
         rel=os.path.relpath(f,R)
+        if rel in PROTECTED:continue
         if f.endswith('.xml'):
             t=re.sub(r'<!--.*?-->','',t,flags=re.S)
             for m in re.finditer(r'<(?:string|item)[^>]*>([^<]*[\u0600-\u06FF][^<]*)</|"([^"]*[\u0600-\u06FF][^"]*)"',t):

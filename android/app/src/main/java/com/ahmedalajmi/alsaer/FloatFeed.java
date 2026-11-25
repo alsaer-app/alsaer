@@ -143,7 +143,7 @@ public final class FloatFeed {
         cancel(c);
         if (!FloatingReminderService.enabled(c)) return 0;
         if (!FloatingReminderService.canDraw(c)) {
-            FloatLog.err(c, "جدولة النوافذ العائمة", "إذن «العرض فوق التطبيقات الأخرى» غير ممنوح");
+            FloatLog.err(c, NativeStrings.get(c, "schedule_floats"), NativeStrings.get(c, "overlay_perm_missing"));
             return 0;
         }
         long at = next(cfg(c), System.currentTimeMillis());
@@ -171,7 +171,7 @@ public final class FloatFeed {
                 show(c, false);
             }
         } catch (Throwable t) {
-            FloatLog.err(c, "انطلاق النافذة العائمة", String.valueOf(t));
+            FloatLog.err(c, NativeStrings.get(c, "float_launch"), String.valueOf(t));
         }
         schedule(c);
     }
@@ -189,17 +189,17 @@ public final class FloatFeed {
                 if (exact) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, p);
                 else am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, p);
             } else am.setExact(AlarmManager.RTC_WAKEUP, at, p);
-        } catch (Throwable t) { FloatLog.err(c, "تأجيل النافذة العائمة", String.valueOf(t)); }
+        } catch (Throwable t) { FloatLog.err(c, NativeStrings.get(c, "snooze_float"), String.valueOf(t)); }
     }
 
     /** يعرض عنصرًا من المحتوى؛ preview=true يتجاوز التفعيل والإيقاف المؤقت (للمعاينة). */
     static void show(Context c, boolean preview) {
         JSONObject cf = cfg(c);
         JSONObject it = pick(c, cf);
-        String title = it.optString("t", "السائر إلى الله");
+        String title = it.optString("t", NativeStrings.get(c, "app_name"));
         String body = it.optString("b", "");
         if (!FloatingReminderService.canDraw(c)) {
-            FloatLog.err(c, "عرض النافذة العائمة", "إذن «العرض فوق التطبيقات الأخرى» غير ممنوح");
+            FloatLog.err(c, NativeStrings.get(c, "show_float_window"), NativeStrings.get(c, "overlay_perm_missing"));
             FloatLog.fallback(c, title, body);
             return;
         }
@@ -228,12 +228,12 @@ public final class FloatFeed {
             for (int i = 0; i < cu.length(); i++) {
                 String t = cu.optString(i);
                 if (t.length() == 0) continue;
-                try { JSONObject o = new JSONObject(); o.put("k", "custom"); o.put("t", "تذكير"); o.put("b", t); o.put("s", ""); list.add(o); } catch (Exception ignored) {}
+                try { JSONObject o = new JSONObject(); o.put("k", "custom"); o.put("t", NativeStrings.get(c, "reminder")); o.put("b", t); o.put("s", ""); list.add(o); } catch (Exception ignored) {}
             }
         }
         if (list.isEmpty()) {
             JSONObject o = new JSONObject();
-            try { o.put("t", "ذكر"); o.put("b", "سبحان الله وبحمده، سبحان الله العظيم"); o.put("s", ""); } catch (Exception ignored) {}
+            try { o.put("t", NativeStrings.get(c, "dhikr")); o.put("b", NativeStrings.get(c, "dhikr_subhanallah")); o.put("s", ""); } catch (Exception ignored) {}
             return o;
         }
         SharedPreferences s = sp(c);

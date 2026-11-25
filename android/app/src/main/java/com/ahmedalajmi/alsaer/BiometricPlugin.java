@@ -46,12 +46,12 @@ public class BiometricPlugin extends Plugin {
     public void authenticate(PluginCall call) {
         String reason = call.getString(
                 "reason",
-                "تأكيد هويتك لفتح تطبيق السائر إلى الله"
+                NativeStrings.get(getContext(), "biometric_confirm_open")
         );
 
         androidx.fragment.app.FragmentActivity activity = (androidx.fragment.app.FragmentActivity) getActivity();
         if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
-            call.reject("التطبيق ليس في المقدمة الآن، أعد المحاولة", "ACTIVITY_UNAVAILABLE");
+            call.reject(NativeStrings.get(getContext(), "app_not_foreground"), "ACTIVITY_UNAVAILABLE");
             return;
         }
 
@@ -66,7 +66,7 @@ public class BiometricPlugin extends Plugin {
             // بعض الأجهزة تدعم بصمة ضعيفة فقط؛ لا ننهار بل ن revert
             int weak = manager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK);
             if (weak != BiometricManager.BIOMETRIC_SUCCESS) {
-                call.reject("البصمة غير متاحة على هذا الجهاز", "BIOMETRIC_UNAVAILABLE");
+                call.reject(NativeStrings.get(getContext(), "biometric_unavailable"), "BIOMETRIC_UNAVAILABLE");
                 return;
             }
             level = BiometricManager.Authenticators.BIOMETRIC_WEAK;
@@ -79,7 +79,7 @@ public class BiometricPlugin extends Plugin {
         Executor executor = ContextCompat.getMainExecutor(context);
         executor.execute(() -> {
             if (act.isFinishing() || act.isDestroyed()) {
-                call.reject("التطبيق ليس في المقدمة الآن، أعد المحاولة", "ACTIVITY_UNAVAILABLE");
+                call.reject(NativeStrings.get(getContext(), "app_not_foreground"), "ACTIVITY_UNAVAILABLE");
                 return;
             }
             try {
@@ -111,15 +111,15 @@ public class BiometricPlugin extends Plugin {
 
                 BiometricPrompt.PromptInfo info =
                         new BiometricPrompt.PromptInfo.Builder()
-                                .setTitle("السائر إلى الله")
+                                .setTitle(NativeStrings.get(getContext(), "app_name"))
                                 .setSubtitle(promptReason)
-                                .setNegativeButtonText("إلغاء")
+                                .setNegativeButtonText(NativeStrings.get(getContext(), "cancel"))
                                 .setAllowedAuthenticators(authLevel)
                                 .build();
 
                 prompt.authenticate(info);
             } catch (Throwable t) {
-                call.reject("تعذر فتح نافذة البصمة: " + t.getMessage(), "BIOMETRIC_START_FAILED");
+                call.reject(NativeStrings.get(getContext(), "biometric_open_failed") + " " + t.getMessage(), "BIOMETRIC_START_FAILED");
             }
         });
     }

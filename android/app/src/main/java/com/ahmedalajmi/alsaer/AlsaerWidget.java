@@ -91,7 +91,7 @@ public class AlsaerWidget extends AppWidgetProvider {
     static void render(Context c, AppWidgetManager m, int[] ids) {
         int layout = c.getResources().getIdentifier("alsaer_widget", "layout", c.getPackageName());
         if (layout == 0) return;
-        String name = "افتح التطبيق", time = "--:--", date = "", book = "";
+        String name = NativeStrings.get(c, "open_app"), time = "--:--", date = "", book = "";
         long at = 0;
         java.util.ArrayList<String[]> up = new java.util.ArrayList<>();
         try {
@@ -102,7 +102,7 @@ public class AlsaerWidget extends AppWidgetProvider {
             if (l != null) for (int k = 0; k < l.length(); k++) {
                 JSONObject p = l.getJSONObject(k);
                 if (p.optLong("at") > now) {
-                    if (at == 0) { at = p.optLong("at"); name = "الصلاة القادمة: " + p.optString("n"); time = p.optString("t"); }
+                    if (at == 0) { at = p.optLong("at"); name = NativeStrings.get(c, "next_prayer") + " " + p.optString("n"); time = p.optString("t"); }
                     if (up.size() < 5) up.add(new String[]{p.optString("n"), p.optString("t")});
                 }
             }
@@ -125,12 +125,13 @@ public class AlsaerWidget extends AppWidgetProvider {
             int pw = Math.min(560, Math.max(80, (int) (wdp * den))), ph = Math.min(560, Math.max(60, (int) (hdp * den)));
             float rad = Math.min(Math.max(0, Math.min(40, st.optInt("radius", 22))) * den * ((float) pw / (wdp * den)), Math.min(pw, ph) / 2f);
             try { v.setImageViewBitmap(id(c, "wg_bg"), bg(pl, pw, ph, rad, st.optInt("alpha", 100))); } catch (Throwable ignored) { }
-            v.setTextViewText(id(c, "wg_next"), clock ? name.replace("الصلاة القادمة: ", "") : name);
+            v.setTextViewText(id(c, "wg_next"), clock ? name.replace(NativeStrings.get(c, "next_prayer") + " ", "") : name);
             v.setTextViewText(id(c, "wg_time"), time);
             v.setTextViewText(id(c, "wg_date"), date);
             v.setTextViewText(id(c, "wg_book"), book);
             v.setTextColor(id(c, "wg_next"), colT);
             v.setTextColor(id(c, "wg_time"), colX);
+            v.setTextViewText(id(c, "wg_lbl"), NativeStrings.get(c, "remaining") + " ");
             v.setTextColor(id(c, "wg_lbl"), col2);
             v.setTextColor(id(c, "wg_left"), col2);
             v.setTextColor(id(c, "wg_date"), col2);

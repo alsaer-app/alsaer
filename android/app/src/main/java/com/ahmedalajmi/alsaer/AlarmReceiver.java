@@ -33,7 +33,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 if (at > 0) AlarmScheduler.scheduleAt(c, it, at, false);
             }
         } catch (Exception e) {
-            FloatLog.err(c, "استقبال التنبيه", String.valueOf(e));
+            FloatLog.err(c, NativeStrings.get(c, "receive_alert"), String.valueOf(e));
         }
     }
 }

@@ -625,6 +625,7 @@
  "تعذّر فتح منتقي الملفات؛ أعد المحاولة.": "Impossible d'ouvrir le sélecteur de fichiers ; réessayez.",
  "تعذّر قراءة الإعدادات الحالية؛ أُوقفت الاستعادة.": "Impossible de lire les réglages actuels ; restauration interrompue.",
  "تعذّر قراءة الصورة": "Impossible de lire l'image",
+ "تعذّر قراءة بياناتك المحفوظة؛ حُفظت كنسخة تالفة ولم نكتب فوقها. يمكنك الاستعادة من «الأمان والبيانات».": "Impossible de lire vos données enregistrées ; elles ont été conservées comme copie corrompue et rien n’a été écrasé. Vous pouvez restaurer depuis « Sécurité et données ».",
  "تعذّرت قراءة البيانات.": "Impossible de lire les données.",
  "تعذّرت قراءة الملف.": "Impossible de lire le fichier.",
  "تعمل المعاينة داخل تطبيق الأندرويد": "L'aperçu fonctionne dans l'application Android",

@@ -62,8 +62,8 @@ final class FloatLog {
         if (Build.VERSION.SDK_INT < 26) return;
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null && nm.getNotificationChannel(CH_ALERTS) == null) {
-            NotificationChannel ch = new NotificationChannel(CH_ALERTS, "السائر — تنبيهات النوافذ العائمة", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("تنبيه عند تعذّر ظهور النافذة العائمة مع ذكر السبب");
+            NotificationChannel ch = new NotificationChannel(CH_ALERTS, NativeStrings.get(c, "ch_float_name"), NotificationManager.IMPORTANCE_HIGH);
+            ch.setDescription(NativeStrings.get(c, "float_fail_alert_desc"));
             nm.createNotificationChannel(ch);
         }
     }
@@ -77,7 +77,7 @@ final class FloatLog {
             PendingIntent content = PendingIntent.getActivity(c, 771001, open, PendingIntent.FLAG_UPDATE_CURRENT | AlarmScheduler.immutable());
             NotificationCompat.Builder b = new NotificationCompat.Builder(c, CH_ALERTS)
                     .setSmallIcon(R.drawable.ic_stat_alsaer)
-                    .setContentTitle("تعذّر عرض النافذة العائمة")
+                    .setContentTitle(NativeStrings.get(c, "float_show_failed"))
                     .setContentText(reason)
                     .setStyle(new NotificationCompat.BigTextStyle().bigText(reason))
                     .setContentIntent(content)
@@ -99,15 +99,15 @@ final class FloatLog {
             String txt = body == null ? "" : body;
             NotificationCompat.Builder b = new NotificationCompat.Builder(c, CH_ALERTS)
                     .setSmallIcon(R.drawable.ic_stat_alsaer)
-                    .setContentTitle(title == null || title.isEmpty() ? "السائر إلى الله" : title)
+                    .setContentTitle(title == null || title.isEmpty() ? NativeStrings.get(c, "app_name") : title)
                     .setContentText(txt)
                     .setStyle(new NotificationCompat.BigTextStyle().bigText(txt))
                     .setContentIntent(content)
                     .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                    .addAction(0, "فتح التطبيق", content)
-                    .addAction(0, "ذكّرني بعد ١٠ دقائق", snooze);
+                    .addAction(0, NativeStrings.get(c, "open_app_action"), content)
+                    .addAction(0, NativeStrings.get(c, "remind_10_min"), snooze);
             NotificationManagerCompat.from(c).notify(771004, b.build());
         } catch (Throwable ignored) {}
     }

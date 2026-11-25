@@ -619,6 +619,7 @@
  "تعذّر فتح منتقي الملفات؛ أعد المحاولة.": "Could not open the file picker; try again.",
  "تعذّر قراءة الإعدادات الحالية؛ أُوقفت الاستعادة.": "Could not read the current settings; restore stopped.",
  "تعذّر قراءة الصورة": "Could not read the image",
+ "تعذّر قراءة بياناتك المحفوظة؛ حُفظت كنسخة تالفة ولم نكتب فوقها. يمكنك الاستعادة من «الأمان والبيانات».": "Your saved data could not be read; it was kept as a corrupt copy and nothing was written over it. You can restore from \"Security & Data\".",
  "تعذّرت قراءة البيانات.": "Could not read the data.",
  "تعذّرت قراءة الملف.": "Could not read the file.",
  "تعمل المعاينة داخل تطبيق الأندرويد": "Preview works inside the Android app",
