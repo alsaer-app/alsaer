@@ -20,6 +20,10 @@ public class MainActivity extends BridgeActivity {
         if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
         driveAuthorization.authorize(interactive);
     }
+    void revokeDrive() {
+        if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
+        driveAuthorization.revoke();
+    }
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (backupDocuments != null && backupDocuments.onResult(requestCode,resultCode,data)) return;
         if (driveAuthorization != null && driveAuthorization.onResult(requestCode, resultCode, data)) return;

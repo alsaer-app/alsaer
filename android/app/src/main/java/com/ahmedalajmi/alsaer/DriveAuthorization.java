@@ -6,6 +6,7 @@ import android.webkit.WebView;
 import com.google.android.gms.auth.api.identity.AuthorizationRequest;
 import com.google.android.gms.auth.api.identity.AuthorizationResult;
 import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.auth.api.identity.RevokeAccessRequest;
 import com.google.android.gms.common.api.Scope;
 import org.json.JSONObject;
 import java.util.Collections;
@@ -32,6 +33,15 @@ final class DriveAuthorization {
                 .addOnSuccessListener(this::accept)
                 .addOnFailureListener(e -> deliver("", "authorization-failed"));
         });
+    }
+    /** Full local unlink: clears Play services' cached grant/token so a later authorize() cannot hand back a stale revoked token. Best-effort: the HTTP revoke in JS governs success/failure; this only cleans the on-device cache. */
+    void revoke() {
+        try {
+            Identity.getAuthorizationClient(activity)
+                .revokeAccess(RevokeAccessRequest.builder()
+                    .setScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive.file")))
+                    .build());
+        } catch (Exception ignored) { }
     }
     private void accept(AuthorizationResult result) {
         if (result.hasResolution()) {

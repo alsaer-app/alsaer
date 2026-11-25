@@ -17,7 +17,29 @@ var gdNativePending=null;
 function gdResetAuthState(){
   gdTok={t:'',exp:0};
   try{localStorage.removeItem('alsaer_gdrive_native');localStorage.removeItem(GD_RT_KEY);localStorage.removeItem('alsaer_gdrive_email')}catch(e){}
+  /* امسح تخزين Google المحلي على الجهاز أيضًا: بلا ذلك قد تعيد خدمات Play الرمز الميت نفسه عند الربط التالي (علة «لا يربط بعد فك الربط») */
+  try{if(gdNative()&&typeof AlsaerNative.gdriveRevoke==='function')AlsaerNative.gdriveRevoke()}catch(e){}
   /* Keep local backups, encryption choice/password and per-destination history. */
+}
+/* إثبات الرمز قبل إعلان الربط: خدمات Play قد تعيد رمزًا مخزَّنًا أُلغي للتو. 401/403 = موت مؤكد فيُرفض؛ أي خطأ شبكة آخر = لا نستطيع إثبات الموت فنقبل كما كان */
+function gdValidateToken(t){
+  return Promise.resolve().then(function(){
+    return gdFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)',{headers:{'Authorization':'Bearer '+t}},15000);
+  }).then(function(r){
+    if(r&&(r.status===401||r.status===403))return null;
+    if(!r||!r.ok)throw new Error('http-'+(r&&r.status));
+    return r.json().then(function(o){return o||{}});
+  });
+}
+/* نجاح ربط أصلي مُثبت: خزّن العلامات والبريد، وأعد ضبط إحصاءات الحساب إن تغيّر */
+function gdNativeLinkOk(p,token,email){
+  var priorEmail=gdEmail();
+  gdTok={t:token,exp:Date.now()+50*60000};
+  try{
+    localStorage.setItem('alsaer_gdrive_native','1');localStorage.removeItem(GD_RT_KEY);
+    if(email)localStorage.setItem('alsaer_gdrive_email',String(email));else localStorage.removeItem('alsaer_gdrive_email');
+  }catch(e){}
+  if(p&&p.interactive&&(!email||!priorEmail||String(email)!==priorEmail)){var st=gdStatus();st.driveAt=0;st.driveRestoreAt=0;try{localStorage.setItem(GD_META,JSON.stringify(st))}catch(e){}S.gdAt=0;gdAutoTried=0;save()}
 }
 function gdAuthError(error){
   return ['consent-required','scope-not-granted','auth','no-auth','invalid_grant'].indexOf(String(error))>=0;
@@ -49,19 +71,21 @@ window.gdriveOnNativeToken=function(token,error,email){
     if(!late)return;
     try{localStorage.removeItem(GD_PENDING_KEY)}catch(e){}
     if(error||!token){if(gdAuthError(error||'no-auth'))gdResetAuthState();bkSay(gdAuthFailMsg(error||'no-auth'));try{render()}catch(e){}return}
-    gdTok={t:token,exp:Date.now()+50*60000};
-    try{localStorage.setItem('alsaer_gdrive_native','1');localStorage.removeItem(GD_RT_KEY);if(email)localStorage.setItem('alsaer_gdrive_email',String(email));else localStorage.removeItem('alsaer_gdrive_email')}catch(e){}
-    bkSay('تم ربط Google Drive ✓');try{render()}catch(e){}return;
+    gdValidateToken(token).then(function(o){
+      if(!o){gdResetAuthState();bkSay(gdAuthFailMsg('auth'));try{render()}catch(e){}return}
+      gdNativeLinkOk(null,token,email||String((o.user&&o.user.emailAddress)||''));
+      bkSay('تم ربط Google Drive ✓');try{render()}catch(e){}
+    },function(){gdNativeLinkOk(null,token,email);bkSay('تم ربط Google Drive ✓');try{render()}catch(e){}});
+    return;
   }
   gdNativePending=null;clearTimeout(p.timer);
   try{localStorage.removeItem(GD_PENDING_KEY)}catch(e){}
-  var priorEmail=gdEmail();
-  if(!error&&token){try{if(email)localStorage.setItem('alsaer_gdrive_email',String(email));else localStorage.removeItem('alsaer_gdrive_email')}catch(e){}}
   if(error||!token){if(gdAuthError(error||'no-auth'))gdResetAuthState();p.reject(new Error(error||'no-auth'));try{render()}catch(e){}return}
-  gdTok={t:token,exp:Date.now()+50*60000};
-  try{localStorage.setItem('alsaer_gdrive_native','1');localStorage.removeItem(GD_RT_KEY)}catch(e){}
-  if(p.interactive&&(!email||!priorEmail||String(email)!==priorEmail)){var st=gdStatus();st.driveAt=0;st.driveRestoreAt=0;try{localStorage.setItem(GD_META,JSON.stringify(st))}catch(e){}S.gdAt=0;gdAutoTried=0;save()}
-  p.resolve(token);
+  gdValidateToken(token).then(function(o){
+    if(!o){gdResetAuthState();p.reject(new Error('auth'));try{render()}catch(e){}return}
+    gdNativeLinkOk(p,token,email||String((o.user&&o.user.emailAddress)||''));
+    p.resolve(token);
+  },function(){gdNativeLinkOk(p,token,email);p.resolve(token)});
 };
 
 /* --- PKCE: مولّد رمز التحقق وتحدّيه (S256) --- */
@@ -216,7 +240,8 @@ function gdRestoreApply(raw){
 }
 
 function gdDisconnect(){
-  if(gdNative())return gdToken().then(function(t){return gdFetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(t),{method:'POST'},15000)}).then(function(r){if(!r.ok)throw new Error('revoke');gdTok={t:'',exp:0};gdForgetLocalAuth();try{localStorage.removeItem('alsaer_gdrive_native');localStorage.removeItem(GD_RT_KEY)}catch(e){}});
+  if(gdNative())return gdToken().then(function(t){return gdFetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(t),{method:'POST'},15000)}).then(function(r){if(!r.ok)throw new Error('revoke');gdTok={t:'',exp:0};gdForgetLocalAuth();try{localStorage.removeItem('alsaer_gdrive_native');localStorage.removeItem(GD_RT_KEY)}catch(e){}/* إلغاء محلي كامل: تخزين خدمات Play يمسح أيضًا وإلا أعاد الربطُ التالي رمزًا ملغًى */
+  try{if(window.AlsaerNative&&typeof AlsaerNative.gdriveRevoke==='function')AlsaerNative.gdriveRevoke()}catch(e){}});
   gdForgetLocalAuth();var rt='';try{rt=localStorage.getItem(GD_RT_KEY)||''}catch(e){}
   gdTok={t:'',exp:0};try{localStorage.removeItem(GD_RT_KEY)}catch(e){}
   if(rt)fetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(rt)).catch(function(){});

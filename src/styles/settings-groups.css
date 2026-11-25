@@ -61,3 +61,10 @@ html[data-trans="none"] .sc-page-sub,html[data-trans="none"] .sc-page-index{anim
 .sg-anim{animation:sgSlideIn .25s cubic-bezier(.2,.8,.25,1) both}
 @keyframes sgSlideIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.sg-anim{animation:none}}
+/* منتقي اللغة (ورقة سفلية) */
+.lang-list{display:flex;flex-direction:column;margin-top:4px}
+.lang-it{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px 4px;background:none;border:0;border-bottom:1px solid var(--line,rgba(127,127,127,.18));color:inherit;font:inherit;font-weight:700;font-size:16px;text-align:start;cursor:pointer}
+.lang-it:last-child{border-bottom:0}
+.lang-it .lang-ck{display:inline-flex;color:var(--gold,#2fa08c)}
+.lang-it .lang-ck .i{width:20px;height:20px}
+.lang-it:active{opacity:.7}

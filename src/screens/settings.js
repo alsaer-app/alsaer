@@ -41,6 +41,15 @@ function sgLit(html,on){return on?html.replace('class="lrow','class="lrow lit').
 
 /* --- صفوف الاتجاه أ: تنقّل/لوحات داخل بطاقات مجمّعة --- */
 function sgCtlV(val){return '<div class="sg-ctl">'+(val?'<span class="sg-val">'+val+'</span>':'')+ic('chev').replace('class="i"','class="i chev"')+'</div>'}
+/* اللغة: صف بقيمة + ورقة سفلية بسبع لغات (النموذج B المعتمد) */
+var LANG_NAMES={ar:'العربية',en:'English',fr:'Français',tr:'Türkçe',de:'Deutsch',fa:'فارسی',ur:'اردو'};
+function sgLangRow(){var cur=(typeof lang==='function'?lang():'ar');return '<button type="button" class="sg-row sg-btn" data-a="ulangsheet"><span class="sg-ic">'+ic('globe')+'</span><div class="sg-tx"><b>اللغة</b><small>العربية افتراضية؛ القرآن والأذكار والأحاديث تبقى عربية دائمًا</small></div>'+sgCtlV('<span class="keepar">'+(LANG_NAMES[cur]||LANG_NAMES.ar)+'</span>')+'</button>'}
+function langSheetOpen(){
+  var o=document.getElementById('lang-wrap');if(o)o.remove();var cur=(typeof lang==='function'?lang():'ar');
+  var w=document.createElement('div');w.id='lang-wrap';w.className='mps-wrap';
+  w.innerHTML='<div class="mps-back" data-a="ulangclose"></div><section class="mps" role="dialog" aria-modal="true" aria-label="اللغة"><div class="mps-grab"></div><div class="mps-h"><button class="mps-x" data-a="ulangclose" aria-label="إغلاق">'+ic('x')+'</button><h3>اللغة</h3></div><div class="lang-list">'+LANG_CHOICES.map(function(c){var on=c===cur;return '<button type="button" class="lang-it'+(on?' on':'')+'" data-a="ulang" data-v="'+c+'" aria-pressed="'+on+'"><span class="keepar">'+LANG_NAMES[c]+'</span>'+(on?'<i class="lang-ck">'+ic('check')+'</i>':'')+'</button>'}).join('')+'</div></section>';
+  document.body.appendChild(w);
+}
 function sgNav(key,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="sopen" data-v="'+key+'" aria-expanded="'+(setOpen===key)+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div>'+sgCtlV(val)+'</button>'}
 function sgNavTab(tabId,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="tab" data-v="'+tabId+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div>'+sgCtlV(val)+'</button>'}
 function sgNavSub(sub,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="ssub" data-v="'+sub+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div>'+sgCtlV(val)+'</button>'}
@@ -73,7 +82,7 @@ function vSettings(){
    +sgSegRow(isDark()?'moon':'sun','الوضع','تلقائي يتبع نظام هاتفك',sgSeg([['system','تلقائي'],['light','فاتح'],['dark','داكن']],md,'umode'))
    +sgNav('sty','sparkles','النمط','الثيم وشكل الواجهة في اختيار واحد',STY[sid].n+' · '+lkE[1])
    +P('sty','<div style="padding:4px 2px 8px"><p class="sg-pl">الثيم</p><div class="sty-grid">'+Object.keys(STY).map(function(k){var s=STY[k];return oBtn('ustyle',k,sid,'<span class="pv" style="background:'+s.pv[0]+'"><i style="background:'+s.pv[1]+'"></i><b style="background:'+s.pv[2]+'"></b></span><small>'+s.n+'</small>','uo sty')}).join('')+'</div><p class="sg-pl" style="margin-top:12px">شكل الواجهة</p><div class="look-row">'+LOOKS.map(function(x){return oBtn('ulook',x[0],lk,'<span class="lk-pv '+x[0]+'"><i></i><i></i></span><b>'+x[1]+'</b>','uo lo')}).join('')+'</div><p class="note">'+lkE[2]+'</p></div>')
-   +sgSegRow('globe','اللغة','العربية افتراضية؛ القرآن والأذكار والأحاديث تبقى عربية دائمًا','<div class="keepar" dir="ltr">'+sgSeg([['ar','العربية'],['en','English'],['fr','Français']],lang(),'ulang')+'</div>')
+   +sgLangRow()
    +sgNav('acc','target','لون التطبيق','','<span class="sg-dot" style="background:'+ac.col+'"></span>'+(ac.name?' '+ac.name:''))
    +P('acc','<div style="padding:4px 2px 8px"><div class="acc-row">'+ACC.map(function(x){var on=ac.id===x.id;return '<button class="acc" data-a="uacc" data-v="'+x.id+'" aria-pressed="'+on+'" aria-label="'+x.n+'" style="background:'+(isDark()?x.d:x.l)+'">'+(on?'✓':'')+'</button>'}).join('')+'</div></div>')
    +sgNav('dgclk','hash','الأرقام والساعة','',(dg==='west'?'0-9 عادية':'٠-٩ مشرقية')+' · '+(clk12()?'١٢ ساعة':'٢٤ ساعة'))
