@@ -66,10 +66,10 @@ body.rd #mp{padding:0}
 .mq-ov{position:fixed;top:0;left:0;width:100vw;height:100dvh;z-index:60;background:var(--mp-bg);display:flex;flex-direction:column;color:var(--mp-ink)}
 .mq-top{flex:none;padding:6px 8px 4px;border-bottom:1px solid color-mix(in srgb,var(--mp-gold) 18%,transparent);background:var(--mp-bg)}
 .mq-t1{display:flex;align-items:center;gap:6px}
-.mq-ti{flex:1;min-width:0;text-align:center}
-.mq-ti b{display:block;color:var(--mp-gold);font-size:16px}
+.mq-ti{flex:1;min-width:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mq-ti b{color:var(--mp-gold);font-size:16px}
 .mq-ti small{color:var(--mp-mut);font-size:11px}
-.mq-ta{display:flex;align-items:center;gap:4px}
+.mq-ta{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:4px}
 .mq-ta .ib{width:32px;height:32px;min-width:32px;padding:0;display:inline-grid;place-items:center}
 .mq-ta .ib .i{width:16px;height:16px}
 .mq-ta .mq-fsz{font-size:13px;min-width:24px;text-align:center;color:var(--mp-gold)}

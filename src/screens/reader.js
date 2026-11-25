@@ -24,8 +24,8 @@ function vHafsFlow(){
   }
   var top='<div class="mq-top"><div class="mq-t1">'
     +'<button class="ib" data-a="goback" data-v="home" aria-label="رجوع">'+ic('chev')+'</button>'
-    +'<div class="mq-ti"><b>سورة '+esc(D.n[c-1])+'</b><small>'+suraMeta(c)+'</small></div>'
-    +'<div class="mq-ta">'
+    +'<div class="mq-ti"><b>سورة '+esc(D.n[c-1])+'</b> <small>'+suraMeta(c)+'</small></div>'
+    +'</div><div class="mq-ta">'
     +'<button class="ib" data-a="tab" data-v="cards" aria-label="بطاقات">'+ic('doc')+'</button>'
     +'<button class="ib" data-a="qtafsir" aria-label="تفسير الآية الحالية">'+ic('book')+'</button>'
     +'<button class="ib" data-a="qfs" data-v="-2" aria-label="تصغير الخط"'+(fs<=18?' disabled':'')+'>'+ic('minus')+'</button>'
@@ -34,7 +34,7 @@ function vHafsFlow(){
     +'<button class="ib mq-bm'+(onBm?' on':'')+'" data-a="qbm2" aria-label="العلامة المرجعية" aria-pressed="'+!!onBm+'">'+(onBm?'★':'☆')+'</button>'
     +'<button class="ib rd-th" data-a="umode" data-v="'+_oth+'" aria-label="تبديل المظهر">'+(_oth==='light'?ic('sun'):ic('moon'))+'</button>'
     +'<button class="ib" data-a="qjump" aria-label="القائمة">'+ic('menu')+'</button>'
-    +'</div></div>'
+    +'</div>'
     +'<div class="mq-t2"><button class="ib" data-a="qsurnav" data-v="-1"'+(c<=1?' disabled':'')+'>'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'<small>'+(c>1?esc(D.n[c-2]):'')+'</small></button>'
     +'<button class="ib" data-a="qsurnav" data-v="1"'+(c>=114?' disabled':'')+'><small>'+(c<114?esc(D.n[c]):'')+'</small>'+ic('chev')+'</button></div></div>';
   var bot='<div class="mq-bot"><span class="mq-pos" id="mq-pos">'+esc(D.n[c-1])+'</span>'

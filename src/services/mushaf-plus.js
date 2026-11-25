@@ -216,6 +216,7 @@ function mpPlaceBar(bar){
     if(below>=bar.offsetHeight||below>=above)tt=cr.bottom+gap2;
     else tt=Math.max(60,(cr.top-gap2)-bar.offsetHeight);
     bar.style.top=Math.max(56,Math.min(tt,vh2-10-bar.offsetHeight))+'px';
+    bar.style.bottom='auto';
     return;
   }
   if(!ws||!ws.length)return;
