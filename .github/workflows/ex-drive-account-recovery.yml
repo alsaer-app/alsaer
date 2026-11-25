@@ -1,4 +1,4 @@
-name: Alsaer10201 languages packs runtime templates qcf worker test r1
+name: Alsaer10201 languages packs runtime templates qcf worker test r2
 on:
   push:
     branches: [exp/drive-account-recovery]
