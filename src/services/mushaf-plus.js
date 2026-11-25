@@ -187,17 +187,19 @@ function mpAyahCard(k,cb){
     return{g0:mix(d,'#0E2A2B',.45),g1:mix(d2,'#1B4A45',.30),hd:hex.test(ag)?ag:'#E8C873'}})();
   var draw=function(fam){
     try{
-      var c=document.createElement('canvas');c.width=1080;c.height=1350;var x=c.getContext('2d');
-      var g=x.createLinearGradient(0,0,1080,1350);g.addColorStop(0,pal.g0);g.addColorStop(1,pal.g1);x.fillStyle=g;x.fillRect(0,0,1080,1350);
-      x.strokeStyle='#C9A24B';x.lineWidth=4;x.strokeRect(40,40,1000,1270);x.lineWidth=1.5;x.strokeRect(58,58,964,1234);
+      /* قياس أولًا ثم رسم: النص كاملًا دون أي اقتطاع؛ يطول ارتفاع الصورة عند الحاجة بدل حذف كلمات */
+      var m0=document.createElement('canvas').getContext('2d');m0.direction='rtl';
+      var size=Math.max(34,Math.min(76,Math.round(1250/Math.sqrt(t.length||1)))),lines,lh;
+      for(;;){m0.font=size+'px '+fam;lines=mpWrapLines(m0,t,880);lh=size*1.7;if(lines.length*lh<=760||size<=34)break;size-=4}
+      var Hc=Math.max(1350,Math.ceil(lines.length*lh+590));
+      var c=document.createElement('canvas');c.width=1080;c.height=Hc;var x=c.getContext('2d');
+      var g=x.createLinearGradient(0,0,1080,Hc);g.addColorStop(0,pal.g0);g.addColorStop(1,pal.g1);x.fillStyle=g;x.fillRect(0,0,1080,Hc);
+      x.strokeStyle='#C9A24B';x.lineWidth=4;x.strokeRect(40,40,1000,Hc-80);x.lineWidth=1.5;x.strokeRect(58,58,964,Hc-116);
       x.direction='rtl';x.textAlign='center';
       x.fillStyle=pal.hd;x.font='bold 46px '+ff;x.fillText('السائر إلى الله',540,150);
-      /* ابدأ من تقدير مبني على طول النص بدل النزول من 76: القياس 76*sqrt(254)≈68*sqrt(366)≈52*sqrt(567)≈1250 — يوفّر أغلب جولات measureText في الآيات الطويلة */
-      var size=Math.max(34,Math.min(76,Math.round(1250/Math.sqrt(t.length||1)))),lines,lh;
-      for(;;){x.font=size+'px '+fam;lines=mpWrapLines(x,t,880);lh=size*1.7;if(lines.length*lh<=760||size<=34)break;size-=4}
-      x.fillStyle='#fff';var y0=640-lines.length*lh/2+lh*0.6;lines.slice(0,14).forEach(function(l,i){x.fillText(l,540,y0+i*lh)});
-      x.fillStyle='#9FB3AE';x.font='36px '+ff;x.fillText(mpVName(k),540,1180);
-      x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر إلى الله · مجاني بالكامل',540,1250);
+      x.font=size+'px '+fam;x.fillStyle='#fff';var y0=Hc/2-35-lines.length*lh/2+lh*0.6;lines.forEach(function(l,i){x.fillText(l,540,y0+i*lh)});
+      x.fillStyle='#9FB3AE';x.font='36px '+ff;x.fillText(mpVName(k),540,Hc-170);
+      x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر إلى الله · مجاني بالكامل',540,Hc-100);
       cb(c)
     }catch(e){cb(null)}
   };
@@ -279,6 +281,26 @@ function mqSetCur(vv,hap){
 function mqOpenTf(vv){mqSetCur(vv,false);tfOpen(vv)}
 /* قائمة الآية العائمة (نموذج التقوى): ضغطة مطوّلة ٥٠٠ms، تلغى بحركة >١٠px، لوحة عند نقطة الضغط */
 function mqMenuClose(){var d=document.getElementById('mq-mbd');if(d)d.remove()}
+/* صورة الآية: تُرسم من النص المخزَّن كما هو (verseText) دون أي تعديل، وتُعرض للمعاينة ثم المشاركة أو الحفظ */
+function mqImgClose(){var d=document.getElementById('mq-ish');if(d)d.remove();mpImgClear()}
+function mqImgSheet(vv){
+  mqImgClose();
+  var d=document.createElement('div');d.id='mq-ish';d.className='mq-ish';d.innerHTML='<div class="mq-ishm">جارٍ تجهيز الصورة…</div>';document.body.appendChild(d);
+  d.addEventListener('click',function(e){
+    if(e.target===d||e.target.closest('[data-ish=x]')){mqImgClose();return}
+    var b=e.target.closest('[data-ish]');if(!b||!mpImg.blob)return;var k=b.getAttribute('data-ish');
+    if(k==='sh'){try{var f=new File([mpImg.blob],'alsaer-ayah.jpg',{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return}}catch(x){}toast('المشاركة غير متاحة هنا — اضغط مطوّلًا على الصورة لحفظها')}
+    else if(k==='dl'){try{var an=document.createElement('a');an.href=mpImg.url;an.download='alsaer-ayah.jpg';document.body.appendChild(an);an.click();an.remove();toast('إن لم يبدأ التنزيل، اضغط مطوّلًا على الصورة لحفظها')}catch(x2){toast('اضغط مطوّلًا على الصورة لحفظها')}}
+  });
+  mpAyahCard(vv,function(cv){
+    if(!cv){mqImgClose();toast('تعذّر إنشاء الصورة');return}
+    try{cv.toBlob(function(bl){
+      if(!bl||!document.getElementById('mq-ish')){if(!bl){mqImgClose();toast('تعذّر إنشاء الصورة')}return}
+      mpImg={k:vv,url:URL.createObjectURL(bl),blob:bl};
+      d.innerHTML='<img class="mq-ishi" src="'+mpImg.url+'" alt="بطاقة الآية"><div class="mq-ishb"><button class="btn" data-ish="sh">مشاركة الصورة</button><button class="btn ghost" data-ish="dl">حفظ</button><button class="btn ghost" data-ish="x">إغلاق</button></div>';
+    },'image/jpeg',0.92)}catch(e){mqImgClose();toast('تعذّر إنشاء الصورة')}
+  });
+}
 function mqMenuOpen(vv,x,y){
   mqMenuClose();
   var q=vv.split(':'),c=+q[0],v=+q[1],onB=mqBmOn(c,v);
@@ -288,7 +310,8 @@ function mqMenuOpen(vv,x,y){
    +'<button data-mqm="bmrk"'+(onB?' class="on"':'')+'>'+ic('star')+'<span>حفظ علامة مرجعية</span></button>'
    +'<button data-mqm="tf">'+ic('book')+'<span>التفسير</span></button>'
    +'<button data-mqm="copy">'+ic('pen')+'<span>نسخ الآية</span></button>'
-   +'<button data-mqm="share">'+ic('clup')+'<span>مشاركة</span></button></div>';
+   +'<button data-mqm="share">'+ic('clup')+'<span>مشاركة</span></button>'
+   +'<button data-mqm="img">'+ic('doc')+'<span>صورة الآية</span></button></div>';
   bd.addEventListener('touchmove',function(e){e.preventDefault()},{passive:false});
   bd.addEventListener('click',function(e){
     if(e.target===bd||e.target.closest('[data-mqx]')){mqMenuClose();return}
@@ -297,6 +320,7 @@ function mqMenuOpen(vv,x,y){
     if(k==='bmrk'){mqBmSet(c,v);save();toast('تم حفظ العلامة المرجعية');render()}
     else if(k==='tf'){mqOpenTf(vv)}
     else if(k==='copy'){try{navigator.clipboard.writeText(mpVerseText(vv));toast('تم نسخ الآية')}catch(x2){toast('تعذّر النسخ')}}
+    else if(k==='img'){mqImgSheet(vv)}
     else if(k==='share'){var t=mpVerseText(vv);if(navigator.share){navigator.share({text:t}).catch(function(){})}else{try{navigator.clipboard.writeText(t);toast('نُسخت الآية للمشاركة')}catch(x3){}}}
   });
   document.body.appendChild(bd);
