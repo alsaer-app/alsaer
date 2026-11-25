@@ -80,7 +80,7 @@ document.addEventListener('click',async function(e){
   if(a==='xastar'){xaStar();return}
   if(a==='xaexit'){xaExit();return}
   if(a==='xastay'){exitAsk=false;render();return}
-  if(a==='goback'){if(innerBack())return;if(navTrail.length>1){history.back();return}tab=v||'home';confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
+  if(a==='goback'){if(innerBack())return;if(rd&&rd.flow&&tab==='reader')toast('تم حفظ الموضع');if(navTrail.length>1){history.back();return}tab=v||'home';confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='tab'){if(v==='quran'){loadHeavy();var qp=Math.max(1,S.quran.pos||1),ql=Math.max(qp,Math.min(604,S.quran.last||0));rd={from:qp,to:Math.min(604,qp+S.quran.goal-1),page:Math.max(qp,ql||qp)};v='reader'}else if(v==='reader')loadHeavy();if(typeof qwSheetClose==='function')qwSheetClose();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='updlater'){var us=updState(),ui=updInfo();if(ui){us.dismissed=ui.versionCode;updSave(us)}updSheetClose()}
   else if(a==='updopen'){updSheetOpen()}
@@ -192,7 +192,7 @@ document.addEventListener('click',async function(e){
   else if(a==='qopen'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));if(isW())rd={from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1};else{var fr1=curP()[st1-1]||[1,1];rd={flow:true,from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1,sura:fr1[0],cv:fr1[0]+':'+fr1[1],_scrollCv:fr1[0]+':'+fr1[1]}}tab='reader';window.scrollTo(0,0)}
   else if(a==='qpage'){if(rd){try{mpSel='';mpHap()}catch(e){}mpStep(v==='1'?1:-1)}}
   else if(a==='qjump'||a==='qjgo'||a==='qmt'){if(mpAct(a,v))return}
-  else if(a==='qidx'||a==='qixgo'){if(mpIdxAct(a,v))return}
+  else if(a==='qidx'||a==='qixgo'||a==='qbmsgo'){if(mpIdxAct(a,v))return}
   else if(/^(qsclose|qsdo|qsgo|qms)$/.test(a)){if(mpAct2(a,v))return}
   else if(/^hdt[a-z]+$/.test(a)){if(typeof hdtAct==='function'&&hdtAct(a,v)===false)return}
   else if(/^hsn[a-z]+$/.test(a)){if(typeof hsnAct==='function'&&hsnAct(a,v)===false)return}
@@ -203,6 +203,8 @@ document.addEventListener('click',async function(e){
   else if(a==='qtafsir'){if(rd&&rd.flow&&rd.cv&&typeof mqOpenTf==='function')mqOpenTf(rd.cv)}
   else if(a==='qtj'){S.quran.tj=S.quran.tj===false;save()}
   else if(a==='qfs'){if(rd&&!isW()){var nf=Math.max(18,Math.min(40,(S.quran.fs||26)+(parseInt(v,10)||0)));if(nf!==(S.quran.fs||26)){S.quran.fs=nf;save()}}}
+  else if(a==='qtfs'){var nt=Math.max(16,Math.min(38,(S.quran.tfs||16)+(parseInt(v,10)||0)));if(nt!==(S.quran.tfs||16)){S.quran.tfs=nt;save()}}
+  else if(a==='qbm2clr'){if(!mqClrArm){mqClrArm=true;setTimeout(function(){mqClrArm=false;render()},2600)}else{mqClrArm=false;S.quran.bm2=null;save();toast('تم مسح موضع القراءة')}}
   else if(a==='qdone'){if(rd&&rd.free){if(rd.sura)markSuraDone(rd.sura);rd=null;tab='home';window.scrollTo(0,0);toast('تقبّل الله منك')}else if(rd){if(!(qPages(dk())>0))lockSet('q:'+dk());var nn=Math.max(1,rd.page-rd.from+1),kq=dk(),before=qPages(kq);S.quran.log[kq]=before+nn;mtSet('q');var wrap=rd.page>=604;S.quran.pos=wrap?1:rd.page+1;rd=null;tab='home';save();window.scrollTo(0,0);toast(wrap?'ما شاء الله، أتممت ختمة المصحف':(S.quran.log[kq]>=S.quran.goal?'تقبّل الله منك، أتممت وردك اليوم':'تم تسجيل '+ar(nn)+' صفحة'));checkNew()}}
   else if(a==='qadd'){var qk=dk();if(!(S.quran.log[qk]>0))lockSet('q:'+qk);S.quran.log[qk]=Math.min(604,(S.quran.log[qk]||0)+1);mtSet('q');save();if(typeof qwSheetPaint==='function')qwSheetPaint()}
   else if(a==='qsub'){var qk2=dk();if(lockLeft('q:'+qk2)>0){lockBlock(lockLeft('q:'+qk2));return}S.quran.log[qk2]=Math.max(0,(S.quran.log[qk2]||0)-1);if(!S.quran.log[qk2]){delete S.quran.log[qk2];mtDel('q')}save();if(typeof qwSheetPaint==='function')qwSheetPaint()}

@@ -26,6 +26,12 @@ function mpIndexPanel(){
 }
 function mpIdxAct(a,v){
   if(!rd)return true;
+  if(a==='qbmsgo'){
+    if(!rd.flow)return true;
+    var q2=String(v).split(':'),c2=+q2[0],v2=+q2[1]||1;
+    if(!(c2>=1&&c2<=114))return true;
+    mpSel='';rd.sura=c2;rd.cv=c2+':'+v2;rd._scrollCv=rd.cv;rd.jump=false;return false;
+  }
   if(a==='qidx'){rd.idx=!rd.idx;rd.srch=false;rd.jump=false;return false}
   if(a==='qixgo'){
     if(rd.flow){

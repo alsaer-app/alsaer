@@ -1,5 +1,5 @@
 {
- "total": 2580,
+ "total": 2604,
  "protected_files_skipped": {
   "src/constants/adhkar.js": "adhkar text (stays Arabic)",
   "src/services/hisn.js": "Hisn al-Muslim supplications (stays Arabic)",
@@ -15,7 +15,7 @@
   "widget_res/res/layout/alsaer_widget.xml": "widget source layout defaults (same as above)"
  },
  "en": {
-  "missing": 16,
+  "missing": 17,
   "items": [
    {
     "ar": "إزالة علامة الحفظ",
@@ -60,6 +60,13 @@
     ]
    },
    {
+    "ar": "بطاقات",
+    "got": null,
+    "files": [
+     "src/screens/reader.js"
+    ]
+   },
+   {
     "ar": "بقاء",
     "got": null,
     "files": [
@@ -77,13 +84,7 @@
     "ar": "تبديل المظهر",
     "got": null,
     "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "تصغير الخط",
-    "got": null,
-    "files": [
+     "src/screens/reader.js",
      "src/services/mushaf-plus.js"
     ]
    },
@@ -102,6 +103,13 @@
     ]
    },
    {
+    "ar": "مدنية",
+    "got": null,
+    "files": [
+     "src/screens/reader.js"
+    ]
+   },
+   {
     "ar": "مشاركة الآية",
     "got": null,
     "files": [
@@ -109,17 +117,17 @@
     ]
    },
    {
+    "ar": "مكية",
+    "got": null,
+    "files": [
+     "src/screens/reader.js"
+    ]
+   },
+   {
     "ar": "نجّمنا على GitHub",
     "got": null,
     "files": [
      "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "نسخ الآية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
     ]
    },
    {
@@ -132,7 +140,7 @@
   ]
  },
  "fr": {
-  "missing": 16,
+  "missing": 17,
   "items": [
    {
     "ar": "إزالة علامة الحفظ",
@@ -177,6 +185,13 @@
     ]
    },
    {
+    "ar": "بطاقات",
+    "got": null,
+    "files": [
+     "src/screens/reader.js"
+    ]
+   },
+   {
     "ar": "بقاء",
     "got": null,
     "files": [
@@ -194,13 +209,7 @@
     "ar": "تبديل المظهر",
     "got": null,
     "files": [
-     "src/services/mushaf-plus.js"
-    ]
-   },
-   {
-    "ar": "تصغير الخط",
-    "got": null,
-    "files": [
+     "src/screens/reader.js",
      "src/services/mushaf-plus.js"
     ]
    },
@@ -219,6 +228,13 @@
     ]
    },
    {
+    "ar": "مدنية",
+    "got": null,
+    "files": [
+     "src/screens/reader.js"
+    ]
+   },
+   {
     "ar": "مشاركة الآية",
     "got": null,
     "files": [
@@ -226,17 +242,17 @@
     ]
    },
    {
+    "ar": "مكية",
+    "got": null,
+    "files": [
+     "src/screens/reader.js"
+    ]
+   },
+   {
     "ar": "نجّمنا على GitHub",
     "got": null,
     "files": [
      "src/core/event-dispatcher.js"
-    ]
-   },
-   {
-    "ar": "نسخ الآية",
-    "got": null,
-    "files": [
-     "src/services/mushaf-plus.js"
     ]
    },
    {
@@ -268,6 +284,7 @@
   "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ.",
   "اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ.",
   "اللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى نَبِيِّنَا مُحَمَّدٍ ﷺ. لا تجعل يومك يمضي بلا صلاة عليه.",
+  "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
   "تخصيص الرئيسية: نافذة مستقلة تقفل تمرير الصفحة خلفها وتطبّق التغيير فورًا. «تسجيل اليوم» بتنظيم أوضح (شريط عادات يُمرَّر، عدّادان، وتفاصيل الرغبة مطويّة). المسبحة: تحديد الذكر بالضغط على الشريحة. سجل الإصدارات بأرقام النسخ.",
   "تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ لَكَ صَدَقَةٌ.",
   "حدّد وقتاً ثابتاً للنوم ولا تبقَ مستيقظاً وحدك على الجوال بعده.",

@@ -105,3 +105,14 @@ body.rd #mp{padding:0}
 .mq-ixt b{display:block;font-size:14.5px}
 .mq-ixt small{color:var(--mp-mut);font-size:11.5px}
 .mq-ixr .chev{width:16px;height:16px;opacity:.5;flex:none}
+
+/* إعدادات القراءة في قائمة المصحف (وضع التدفق) */
+.mq-rs{margin-top:10px}
+.mq-rs h3{margin:0 0 10px}
+.mq-rs-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0}
+.mq-rs-row>b{font-size:13.5px}
+.mq-rs-val{color:var(--mp-mut);font-size:12.5px}
+.mq-rs-pv{margin:2px 0 10px;padding:10px 12px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--mp-gold) 30%,transparent);line-height:2;text-align:center;color:var(--mp-ink)}
+.mq-pv-q{font-family:KFGQPC,Amiri,'Noto Naskh Arabic',serif}
+.mq-rs-clr{background:color-mix(in srgb,#c0392b 16%,transparent);border:1px solid color-mix(in srgb,#c0392b 55%,transparent);color:#e74c3c;margin-top:6px}
+.mq-rs-clr.arm{background:#c0392b;color:#fff}
