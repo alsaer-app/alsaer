@@ -41,7 +41,7 @@ function vHafsFlow(){
     +'<div class="mq-stp"><button class="mq-cb" data-a="qfs" data-v="-2" aria-label="تصغير الخط"'+(fs<=18?' disabled':'')+'>'+ic('minus')+'</button><b class="mq-fsz">'+ar(fs)+'</b><button class="mq-cb" data-a="qfs" data-v="2" aria-label="تكبير الخط"'+(fs>=40?' disabled':'')+'>'+ic('plus')+'</button></div>'
     +'<button class="mq-cb mq-bm'+(onBm?' on':'')+'" data-a="qbm2" aria-label="العلامة المرجعية" aria-pressed="'+!!onBm+'">'+(onBm?'★':'☆')+'</button>'
     +'<button class="mq-cb" data-a="qsrch" aria-label="بحث في الآيات">'+ic('search')+'</button>'
-    +'<button class="mq-cb" data-a="qjump" aria-label="القائمة">'+ic('menu')+'</button>'
+    +'<button class="mq-pill" data-a="qjump" aria-label="القائمة">'+ic('menu')+'<span>قائمة</span></button>'
     +'</div>'
     +'<div class="mq-t2"><button class="mq-nav" data-a="qsurnav" data-v="-1"'+(c<=1?' disabled':'')+'>'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'<small>'+(c>1?esc(D.n[c-2]):'')+'</small></button>'
     +'<button class="mq-nav" data-a="qsurnav" data-v="1"'+(c>=114?' disabled':'')+'><small>'+(c<114?esc(D.n[c]):'')+'</small>'+ic('chev')+'</button></div></div>';

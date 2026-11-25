@@ -223,7 +223,6 @@ body.orn .mp-fa{background:#f9f5ee;border-color:#b98a2e;color:#8a5a36}body.orn .
 .rd-mg button.on{border-color:color-mix(in srgb,var(--gold) 70%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 40%,transparent),0 0 16px 2px color-mix(in srgb,var(--gold) 35%,transparent);color:var(--gold)}
 .rd-mg button.on .i{color:var(--gold);filter:drop-shadow(0 0 4px color-mix(in srgb,var(--gold) 80%,transparent))}
 .rd-b .ib.bm[aria-pressed="true"],.rd-mtb .ib[aria-pressed="true"],.fsz .ib[aria-pressed="true"]{border-color:color-mix(in srgb,var(--gold) 70%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 40%,transparent),0 0 16px 2px color-mix(in srgb,var(--gold) 35%,transparent);color:var(--gold)}
-body.orn .rd-menu{background:#f9f5ee;color:#4a2f18}body.orn .rd-menu .qd-i{background:#fff;color:#4a2f18;border-color:#d8c4a4}body.orn .rd-mt button{background:#fff;color:#4a2f18}body.orn .rd-mg button{background:#fff;color:#4a2f18}
 
 /* ===== سجل النشاط اليومي ===== */
 .jn-fchips{display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 12px}
@@ -264,3 +263,5 @@ body.orn .rd-menu{background:#f9f5ee;color:#4a2f18}body.orn .rd-menu .qd-i{backg
 .cds-yt{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 10px;padding:12px;border:1px solid color-mix(in srgb,#e07a7a 45%,var(--line));color:#e07a7a;font:inherit;cursor:pointer}.cds-yt .i{width:16px;height:16px}
 .cds-s{margin:0 0 10px}.cds-s h3{color:var(--gold);font-size:17px;margin:0 0 6px}.cds-s p{margin:0;line-height:2;font-size:16px;color:var(--fg)}
 .cds-cr{color:var(--muted);font-size:12px;line-height:1.8;text-align:center;margin:12px 6px 90px}.cds-cr a{color:var(--gold)}
+.mq-pill{white-space:nowrap}@media(max-width:400px){.mq-ta .mq-pill .i{display:none}.mq-ta .mq-pill{padding:0 7px}}
+.mq-ta .mq-cb,.mq-ta .mq-pill{flex:none}@media(max-width:400px){.mq-ta .mq-cb{width:28px;min-width:28px;height:28px}.mq-ta .mq-pill{font-size:10.5px;padding:0 6px}}

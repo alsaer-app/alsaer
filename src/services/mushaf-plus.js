@@ -412,7 +412,7 @@ function mqMenuOpen(vv,x,y){
   mqMenuClose();
   var q=vv.split(':'),c=+q[0],v=+q[1],onB=mqBmOn(c,v);
   var bd=document.createElement('div');bd.id='mq-mbd';bd.className='mq-mbd';
-  bd.innerHTML='<div class="mq-mn" role="menu">'
+  bd.innerHTML='<div class="mq-mn hz" role="menu">'
    +'<div class="mq-mnh"><b>الآية '+ar(v)+'</b><button class="mq-mnx" data-mqx="1" aria-label="إغلاق">\u2715</button></div>'
    +'<button data-mqm="bmrk"'+(onB?' class="on"':'')+'>'+ic('star')+'<span>حفظ علامة مرجعية</span></button>'
    +'<button data-mqm="tf">'+ic('book')+'<span>التفسير</span></button>'
@@ -420,7 +420,7 @@ function mqMenuOpen(vv,x,y){
    +'<button data-mqm="share">'+ic('clup')+'<span>مشاركة</span></button>'
    +(!mqAuOn()?'':'<button data-mqm="aud">'+ic('bell')+'<span>استماع</span></button>')
    +'<button data-mqm="img">'+ic('doc')+'<span>صورة الآية</span></button></div>';
-  bd.addEventListener('touchmove',function(e){if(e.target.closest&&e.target.closest('.mq-mn')&&bd.firstChild.scrollHeight>bd.firstChild.clientHeight+1)return;e.preventDefault()},{passive:false});
+  bd.addEventListener('touchmove',function(e){if(e.target.closest&&e.target.closest('.mq-mn')&&bd.firstChild.scrollWidth>bd.firstChild.clientWidth+1)return;e.preventDefault()},{passive:false});
   bd.addEventListener('click',function(e){
     if(e.target===bd||e.target.closest('[data-mqx]')){mqMenuClose();return}
     var b=e.target.closest('[data-mqm]');if(!b)return;
@@ -434,10 +434,9 @@ function mqMenuOpen(vv,x,y){
   });
   document.body.appendChild(bd);
   var pn=bd.firstChild;
-  var ph=pn.offsetHeight||330,mxh=window.innerHeight-16;
-  if(ph>mxh){pn.style.maxHeight=mxh+'px';pn.style.overflowY='auto';ph=mxh}
-  pn.style.left=Math.max(8,Math.min(x,window.innerWidth-180))+'px';
-  pn.style.top=Math.max(8,Math.min(y,window.innerHeight-ph-8))+'px';
+  var vw=window.innerWidth,ph=pn.offsetHeight||64,pw=pn.offsetWidth||vw-16;
+  pn.style.left=Math.max(8,Math.min(x-pw/2,vw-pw-8))+'px';
+  pn.style.top=Math.max(8,Math.min(y-ph-14<8?y+14:y-ph-14,window.innerHeight-ph-8))+'px';
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')mqMenuClose()});
 (function(){

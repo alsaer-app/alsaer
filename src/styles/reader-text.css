@@ -200,3 +200,9 @@ body.rd #mp{padding:0}
 html[data-riw="w"] .mq-t,html[data-riw="w"] .mq-tca,html[data-riw="w"] .fwp,html[data-riw="w"] .rd-rt{font-family:"ScheherazadeNewW","KFGQPC",var(--font-text)}
 @media(max-width:400px){.mq-ta{gap:3px}.mq-cb{width:30px;height:30px;min-width:30px}.mq-stp{gap:2px}.mq-stp .mq-fsz{min-width:22px}}
 .mq-ov~.rd-sp{top:0;left:0;width:100vw;height:100dvh;inset:auto;top:0;left:0}.mq-ov~.rd-sp>:not(.rd-sh){overflow-y:auto}
+/* قائمة الآية أفقية: أزرار بجانب بعضها، تمرير أفقي عند الضيق */
+.mq-mn.hz{width:auto;max-width:calc(100vw - 16px);display:flex;flex-direction:row;align-items:stretch;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;transform-origin:center bottom;padding:4px;gap:2px}
+.mq-mn.hz::-webkit-scrollbar{display:none}
+.mq-mn.hz .mq-mnh{flex:none;flex-direction:column;justify-content:center;gap:2px;padding:4px 10px;border-bottom:0;border-inline-end:1px solid var(--line)}
+.mq-mn.hz [data-mqm]{flex:none;flex-direction:column;justify-content:center;gap:4px;width:auto;min-width:62px;padding:8px 8px;font-size:11px;text-align:center;white-space:nowrap}
+.mq-mn.hz [data-mqm] .i{width:19px;height:19px}
