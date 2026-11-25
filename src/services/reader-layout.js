@@ -51,56 +51,32 @@ function sizeMp(mp){
 /* نص متدفق بحجم خط يختاره المستخدم: تُقاس الكلمات وتُلفّ على عرض الصفحة لفًّا طبيعيًّا */
 function mpTokPlain(t){var o='';for(var i=0;i<t.length;i++){var c=t.charCodeAt(i);if(c>=0xE000&&c<=0xE005)continue;if(c===0xE0FF||c===0xE0F0)continue;o+=t.charAt(i)}return o}
 function fitHafs(mp){try{window.__fitErr='';_fitHafs(mp)}catch(e){window.__fitErr=String(e&&e.stack||e)}}
+/* تخطيط طبعة المدينة: أسطر الصفحة الخمسة عشر كما هي، بحجم موحّد يحسبه الجهاز (أعرض سطر × أكثر صفحة)،
+   يملأ الارتفاع بتباعد متساوٍ، ولا انكماش يتجاوز 6% ولا تمرير رأسي إطلاقًا */
 function _fitHafs(mp){
   var L=mp.querySelector('.mp-l');if(!L||!rd)return;
   var MU=window.MUSHAF,pg=MU&&MU.p[rd.page-1];if(!pg)return;
-  var fs0=(S.quran&&S.quran.fs)||26;
   var W=L.clientWidth;if(!W)return;
-  var availH=L.clientHeight||0;
-  L.style.display='';L.style.flexDirection='';L.style.justifyContent='';
-  var items=[],words=[];
-  function flush(){if(words.length){items.push(words);words=[]}}
+  var H=L.clientHeight||0;
+  var fs=Math.max(13,Math.min(26,Math.floor(W/(2286/100)/0.94)));
+  if(H>200){var hf=H/(15*2.3);if(hf<fs)fs=Math.max(13,Math.floor(hf))}
+  L.style.fontSize=fs+'px';L.style.lineHeight='1.9';
+  L.style.display='flex';L.style.flexDirection='column';L.style.justifyContent='space-between';
   mpInit(rd.page);
+  var html='';
   pg.forEach(function(l){
-    if(l[0]==='h'){flush();items.push({h:l[1]})}
-    else if(l[0]==='b'){flush();items.push({b:1})}
-    else l[1].split(' ').forEach(function(t){words.push(t)});
+    if(l[0]==='h'){html+='<div class="ml hd"><span>سورة '+esc(QD().n[l[1]-1])+'</span></div>';return}
+    if(l[0]==='b'){html+='<div class="ml bs"><span>'+esc(QD().s[0][0])+'</span></div>';return}
+    var toks=l[1].split(' ');
+    var nat=0;toks.forEach(function(t){nat+=wMeasure(mpTokPlain(t))*fs/100+(t.charCodeAt(0)===0xE0F0?.36*fs:0)});
+    nat+=.14*fs*(toks.length-1);
+    var full=nat>W*.62;
+    var sx=(full&&nat>W)?Math.max(.9,W/nat):1;
+    html+='<div class="ml"><div class="mi '+(full?'fj':'fl')+'"'+(sx<1?' style="transform:scaleX('+sx.toFixed(3)+')"':'')+'>'
+      +toks.map(function(t){var a=mpVAttr(t),mk=t.charCodeAt(0)===0xE0F0;return '<span class="mw'+(mk?' aym':'')+'"'+a+'>'+mTok(t)+'</span>'}).join('')
+      +'</div></div>';
   });
-  flush();
-  var GAP=.14;
-  function pack(fs){
-    var html='';
-    items.forEach(function(it){
-      if(it.h!==undefined){html+='<div class="ml hd"><span>سورة '+esc(QD().n[it.h-1])+'</span></div>';return}
-      if(it.b){html+='<div class="ml bs"><span>'+esc(QD().s[0][0])+'</span></div>';return}
-      var toks=it.map(function(t){var mk=t.charCodeAt(0)===0xE0F0;return {t:t,w:wMeasure(mpTokPlain(t))*fs/100+(mk?.36*fs:0)}});
-      var lines=[],cur=[],curW=0,gapW=GAP*fs,lim=W*.985;
-      toks.forEach(function(tk){
-        var add=(cur.length?gapW:0)+tk.w;
-        if(cur.length&&curW+add>lim){lines.push(cur);cur=[];curW=0;add=tk.w}
-        cur.push(tk);curW+=add;
-      });
-      if(cur.length)lines.push(cur);
-      lines.forEach(function(ln,idx){
-        var last=idx===lines.length-1;
-        html+='<div class="ml"><div class="mi '+(last?'fl':'fj')+'">'+ln.map(function(tk){var a=mpVAttr(tk.t),mk=tk.t.charCodeAt(0)===0xE0F0;return '<span class="mw'+(mk?' aym':'')+'"'+a+'>'+mTok(tk.t)+'</span>'}).join('')+'</div></div>';
-      });
-    });
-    return html;
-  }
-  /* ارتفاع الصفحة لا يتجاوز الشاشة أبدًا: نبدأ بحجم الخط المختار ثم ننزل تدريجيًا إن لزم */
-  var fs=fs0,html=pack(fs);
-  L.style.fontSize=fs+'px';L.innerHTML=html;
-  if(availH>120){
-    var guard=0;
-    while(L.scrollHeight>availH+1&&fs>13&&guard++<9){
-      fs=Math.max(13,fs-2);L.style.fontSize=fs+'px';L.innerHTML=pack(fs);
-    }
-    if(L.scrollHeight>availH+1){ /* حدّ أدنى للخط وصلناه: ضغط تباعد الأسطر كملاذ أخير */
-      var lh=2.25;
-      while(L.scrollHeight>availH+1&&lh>1.7&&guard++<14){lh-=.08;L.style.lineHeight=lh.toFixed(2)}
-    }
-  }
+  L.innerHTML=html;
 }
 /* الرسم الشرقي: خط الحفص المشرقي لا يملك شكل الياء المغربية (U+06D2)، فتُكتب ياءً عادية */
 function warshFix(t){
@@ -195,9 +171,10 @@ function fitWarsh(mp){
 /* Shell space only. Keep all Mushaf rows, pagination and fitting algorithms intact. */
 function readerShellInsets(){
   if(!document.body.classList.contains('rdi'))return;
-  var head=document.querySelector('#rd-ov .rd-t'),foot=document.querySelector('#rd-ov .rd-b');
+  var ov=document.getElementById('rd-ov'),head=document.querySelector('#rd-ov .rd-t'),foot=document.querySelector('#rd-ov .rd-b');
   if(!head||!foot)return;
-  app.style.setProperty('padding-top',Math.ceil(head.getBoundingClientRect().height)+'px','important');
+  var hidden=ov&&ov.classList.contains('hd-hide');
+  app.style.setProperty('padding-top',(hidden?4:Math.ceil(head.getBoundingClientRect().height))+'px','important');
   document.body.style.setProperty('padding-bottom',(Math.ceil(foot.getBoundingClientRect().height)+6)+'px','important');
 }
 function fitReader(force){

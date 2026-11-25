@@ -41,7 +41,7 @@ function render(){
   if(lang()!=='ar'){trWalk(app);trWalk(top);trWalk(tabs)}
   /* A transformed view animation must not become the fixed controls' viewport. */
   var readerOverlay=document.getElementById('rd-ov');if(readerOverlay)document.body.appendChild(readerOverlay);
-  if(tab==='reader'){fitSoon()}else if(typeof mpCloseOverlays==='function'){var kw=document.getElementById('mps-wrap');if(!(kw&&kw.dataset.keep===tab))mpCloseOverlays()}
+  if(tab==='reader'){fitSoon();if(typeof mpArmChromeHide==='function')mpArmChromeHide()}else if(typeof mpCloseOverlays==='function'){var kw=document.getElementById('mps-wrap');if(!(kw&&kw.dataset.keep===tab))mpCloseOverlays()}
   renderFirstUpdateNotice();tourAuto();trkFix();qfabSync();
   /* Apply synchronously after every render; MutationObserver remains for later timer/dialog changes. */
   if(typeof digitsApply==='function')digitsApply(false);

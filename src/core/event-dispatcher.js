@@ -92,7 +92,6 @@ document.addEventListener('click',async function(e){
   else if(a==='updchecknow'){updCheckNow()}
   else if(a==='notifFix'){if(window.alsaerNotifFix)window.alsaerNotifFix();tab='reminders';window.scrollTo(0,0)}
   else if(/^he[a-z]+$/.test(a)){if(heAct(a,v)===false)return}
-  else if(a==='mpfs'){var d=parseInt(v,10)||0,f=Math.min(44,Math.max(18,(S.quran.fs||26)+d));if(f!==(S.quran.fs||26)){S.quran.fs=f;save();render()}}
   else if(a==='qsurnav'){if(rd&&window.MUSHAF){var _d=parseInt(v,10)||0,_P=isW()?WD().p:window.MUSHAF.m,_c=isW()?(_P[rd.page-1]||[1])[0]:window.MUSHAF.m[rd.page-1][2],_t=_c+_d;if(_t>=1&&_t<=114){for(var _i=0;_i<_P.length;_i++){var _sc=isW()?(_P[_i]||[1])[0]:window.MUSHAF.m[_i][2];if(_sc===_t){rd.page=_i+1;rd.dir=_d>0?1:-1;render();window.scrollTo(0,0);break}}}}}
   else if(a==='wkedit'){wkOpen('sec',v)}
   else if(a==='wkper'){wkOpen('per')}
