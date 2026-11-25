@@ -904,7 +904,7 @@ body.rd .rbar .reader-done{min-height:44px}
 #mp{background:var(--mp-bg);border:0;box-shadow:none;border-radius:0}
 html[data-theme="dark"]{--mp-bg:#101d3a;--mp-ink:#e9e5da;--mp-gold:#d8b25a;--mp-mut:#9db3c9}
 html[data-theme="light"]{--mp-bg:#fbf6ea;--mp-ink:#1c140a;--mp-gold:#b98a2e;--mp-mut:#7a6a4a}
-#mp .mp-in{overflow:hidden;border:0;border-image:none;background:transparent;box-shadow:none;padding:2px 4px;max-width:720px;margin-inline:auto;width:100%;box-sizing:border-box;align-self:center;flex:none}
+#mp .mp-in{overflow:hidden;border:0;border-image:none;background:transparent;box-shadow:none;padding:2px 2px;max-width:720px;margin-inline:auto;width:100%;box-sizing:border-box;align-self:center;flex:none}
 #mp .mp-l{color:var(--mp-ink);display:flex;flex-direction:column;justify-content:flex-start;flex:1;min-height:0}
 #mp .ml{flex:1 1 0;min-height:0;height:auto;overflow:visible;display:flex;align-items:center}
 #mp .mp-l .mi{width:100%;white-space:nowrap;transform:none;display:flex;gap:.14em}
@@ -939,6 +939,19 @@ html[data-theme="light"]{--mp-bg:#fbf6ea;--mp-ink:#1c140a;--mp-gold:#b98a2e;--mp
 /* إخفاء رأس القارئ تلقائيًا — الشريط السفلي يبقى */
 #rd-ov .rd-t{transition:transform .22s ease,opacity .18s ease}
 #rd-ov.hd-hide .rd-t{transform:translateY(-112%);opacity:0;pointer-events:none}
+
+/* شريط سفلي مدمج ثابت: صفحة بكامل الارتفاع فوقه */
+#rd-ov .rd-b{position:absolute;bottom:0;left:0;right:0;padding:2px 10px max(4px,env(safe-area-inset-bottom));background:transparent;border-radius:0;box-shadow:none;border-top:0;max-height:none;overflow:visible}
+#rd-ov .rd-b .rd-sl{margin:0 0 2px;align-items:center}
+#rd-ov .rd-b .rd-sl input[type=range]{height:18px}
+#rd-ov .rd-b .rd-r{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0}
+#rd-ov .rd-b .rd-r .ib{min-width:34px;width:34px;height:34px;padding:0}
+#rd-ov .rd-b .rd-r .rd-pn b{font-size:14px}
+#rd-ov .rd-b .rd-r .reader-done{padding:6px 12px;font-size:13px}
+#rd-ov .rd-b .rd-sn{display:flex;gap:6px;margin-top:2px}
+#rd-ov .rd-b .rd-sn .ib{flex:1;height:30px;min-height:30px;padding:0 8px}
+
+body.rd #mp{padding:1px}
 </style>
 <style>
 .release-log{border:1px solid var(--line);background:linear-gradient(145deg,var(--surface),var(--surface-2));border-radius:18px;padding:16px}
@@ -4298,7 +4311,7 @@ function sizeMp(mp){
   var imm=document.body.classList.contains('rdi')||document.body.classList.contains('rpi');if(imm)rbH=0;
   var avail=Math.floor(vh-topDoc-rbH-pad-2);
   var maxW=Math.min(app.clientWidth||window.innerWidth,640);
-  var w=imm?Math.max(240,maxW):Math.max(240,Math.min(maxW,Math.floor(avail*.80)));
+  var w=imm?Math.max(240,maxW-2):Math.max(240,Math.min(maxW,Math.floor(avail*.80)));
   var h=Math.max(300,Math.min(avail,Math.floor(w*(imm?2.1:1.75))));
   mp.style.width=w+'px';mp.style.height=h+'px';
 }
@@ -6176,7 +6189,7 @@ function mpWrap(main,ctl,p,m){
   var _oth=(typeof uiMode==='function'&&uiMode()==='dark')?'light':'dark';
   return main+'<div class="rd-ov on" id="rd-ov"><div class="rd-t"><div class="rd-t1"><button class="ib" data-a="goback" data-v="home" aria-label="رجوع">'+ic('chev')+'</button>'
    +'<div class="rd-ti"><b>سورة '+esc(D.n[mu[2]-1])+'</b><small>الجزء '+ar(mu[0])+' · الحزب '+ar(mu[1])+' · صفحة '+ar(p)+'</small></div>'
-   +'<span class="rd-ta"><button class="ib rd-th" data-a="umode" data-v="'+_oth+'" aria-label="تبديل المظهر">'+(_oth==='light'?ic('sun'):ic('moon'))+'</button><button class="ib" data-a="qjump" aria-label="قائمة المصحف">'+ic('menu')+'<small>القائمة</small></button></span></div>'
+   +'<span class="rd-ta"><button class="ib rd-th" data-a="umode" data-v="'+_oth+'" aria-label="تبديل المظهر">'+(_oth==='light'?ic('sun'):ic('moon'))+'</button><button class="ib" data-a="qjump" aria-label="قائمة المصحف">'+ic('menu')+'<small>القائمة</small></button></span></div></div>'
    +'<div class="rd-b"><div class="rd-sl"><small>١</small><input type="range" id="rd-rg" min="1" max="604" value="'+p+'" aria-label="الانتقال بين الصفحات"><small>٦٠٤</small></div>'
    +'<div class="rd-r"><button class="ib bm" data-a="bmtog" aria-pressed="'+bm+'" aria-label="علامة">'+(bm?'★':'☆')+'</button><button class="ib" data-a="qpage" data-v="-1" aria-label="الصفحة السابقة"'+(p<=1?' disabled':'')+'>'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'</button>'+mid
    +'<button class="ib" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+ic('chev')+'</button><button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button></div>'

@@ -44,7 +44,7 @@ function sizeMp(mp){
   var imm=document.body.classList.contains('rdi')||document.body.classList.contains('rpi');if(imm)rbH=0;
   var avail=Math.floor(vh-topDoc-rbH-pad-2);
   var maxW=Math.min(app.clientWidth||window.innerWidth,640);
-  var w=imm?Math.max(240,maxW):Math.max(240,Math.min(maxW,Math.floor(avail*.80)));
+  var w=imm?Math.max(240,maxW-2):Math.max(240,Math.min(maxW,Math.floor(avail*.80)));
   var h=Math.max(300,Math.min(avail,Math.floor(w*(imm?2.1:1.75))));
   mp.style.width=w+'px';mp.style.height=h+'px';
 }

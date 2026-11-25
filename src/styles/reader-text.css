@@ -2,7 +2,7 @@
 #mp{background:var(--mp-bg);border:0;box-shadow:none;border-radius:0}
 html[data-theme="dark"]{--mp-bg:#101d3a;--mp-ink:#e9e5da;--mp-gold:#d8b25a;--mp-mut:#9db3c9}
 html[data-theme="light"]{--mp-bg:#fbf6ea;--mp-ink:#1c140a;--mp-gold:#b98a2e;--mp-mut:#7a6a4a}
-#mp .mp-in{overflow:hidden;border:0;border-image:none;background:transparent;box-shadow:none;padding:2px 4px;max-width:720px;margin-inline:auto;width:100%;box-sizing:border-box;align-self:center;flex:none}
+#mp .mp-in{overflow:hidden;border:0;border-image:none;background:transparent;box-shadow:none;padding:2px 2px;max-width:720px;margin-inline:auto;width:100%;box-sizing:border-box;align-self:center;flex:none}
 #mp .mp-l{color:var(--mp-ink);display:flex;flex-direction:column;justify-content:flex-start;flex:1;min-height:0}
 #mp .ml{flex:1 1 0;min-height:0;height:auto;overflow:visible;display:flex;align-items:center}
 #mp .mp-l .mi{width:100%;white-space:nowrap;transform:none;display:flex;gap:.14em}
@@ -37,3 +37,16 @@ html[data-theme="light"]{--mp-bg:#fbf6ea;--mp-ink:#1c140a;--mp-gold:#b98a2e;--mp
 /* إخفاء رأس القارئ تلقائيًا — الشريط السفلي يبقى */
 #rd-ov .rd-t{transition:transform .22s ease,opacity .18s ease}
 #rd-ov.hd-hide .rd-t{transform:translateY(-112%);opacity:0;pointer-events:none}
+
+/* شريط سفلي مدمج ثابت: صفحة بكامل الارتفاع فوقه */
+#rd-ov .rd-b{position:absolute;bottom:0;left:0;right:0;padding:2px 10px max(4px,env(safe-area-inset-bottom));background:transparent;border-radius:0;box-shadow:none;border-top:0;max-height:none;overflow:visible}
+#rd-ov .rd-b .rd-sl{margin:0 0 2px;align-items:center}
+#rd-ov .rd-b .rd-sl input[type=range]{height:18px}
+#rd-ov .rd-b .rd-r{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0}
+#rd-ov .rd-b .rd-r .ib{min-width:34px;width:34px;height:34px;padding:0}
+#rd-ov .rd-b .rd-r .rd-pn b{font-size:14px}
+#rd-ov .rd-b .rd-r .reader-done{padding:6px 12px;font-size:13px}
+#rd-ov .rd-b .rd-sn{display:flex;gap:6px;margin-top:2px}
+#rd-ov .rd-b .rd-sn .ib{flex:1;height:30px;min-height:30px;padding:0 8px}
+
+body.rd #mp{padding:1px}

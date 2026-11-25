@@ -84,7 +84,7 @@ function mpWrap(main,ctl,p,m){
   var _oth=(typeof uiMode==='function'&&uiMode()==='dark')?'light':'dark';
   return main+'<div class="rd-ov on" id="rd-ov"><div class="rd-t"><div class="rd-t1"><button class="ib" data-a="goback" data-v="home" aria-label="رجوع">'+ic('chev')+'</button>'
    +'<div class="rd-ti"><b>سورة '+esc(D.n[mu[2]-1])+'</b><small>الجزء '+ar(mu[0])+' · الحزب '+ar(mu[1])+' · صفحة '+ar(p)+'</small></div>'
-   +'<span class="rd-ta"><button class="ib rd-th" data-a="umode" data-v="'+_oth+'" aria-label="تبديل المظهر">'+(_oth==='light'?ic('sun'):ic('moon'))+'</button><button class="ib" data-a="qjump" aria-label="قائمة المصحف">'+ic('menu')+'<small>القائمة</small></button></span></div>'
+   +'<span class="rd-ta"><button class="ib rd-th" data-a="umode" data-v="'+_oth+'" aria-label="تبديل المظهر">'+(_oth==='light'?ic('sun'):ic('moon'))+'</button><button class="ib" data-a="qjump" aria-label="قائمة المصحف">'+ic('menu')+'<small>القائمة</small></button></span></div></div>'
    +'<div class="rd-b"><div class="rd-sl"><small>١</small><input type="range" id="rd-rg" min="1" max="604" value="'+p+'" aria-label="الانتقال بين الصفحات"><small>٦٠٤</small></div>'
    +'<div class="rd-r"><button class="ib bm" data-a="bmtog" aria-pressed="'+bm+'" aria-label="علامة">'+(bm?'★':'☆')+'</button><button class="ib" data-a="qpage" data-v="-1" aria-label="الصفحة السابقة"'+(p<=1?' disabled':'')+'>'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'</button>'+mid
    +'<button class="ib" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+ic('chev')+'</button><button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button></div>'
