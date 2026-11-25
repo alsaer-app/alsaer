@@ -76,8 +76,11 @@ function mpFind(q){
   var m=/^(\d{1,3})\s*[:\/\-\s]\s*(\d{1,3})$/.exec(nq);
   if(m){var c=+m[1],v=+m[2];if(c>=1&&c<=114&&v>=1&&v<=D.s[c-1].length)return [{c:c,v:v,pg:mpVerPage(c,v)}]}
   D.n.forEach(function(n,i){if(mpNorm(n).indexOf(nq)>=0)out.push({sura:i+1,pg:suraPage(i+1)})});
-  var ws=nq.split(' '),idx=mpBuild(),k=0;
-  for(var i=0;i<idx.length&&k<60;i++){var e=idx[i],ok=true;for(var j=0;j<ws.length;j++)if(e.n.indexOf(ws[j])<0){ok=false;break}if(ok){out.push({c:e.c,v:e.v,pg:mpVerPage(e.c,e.v)});k++}}
+  var ws=nq.split(' '),idx=mpBuild(),k=0,rest=[]; /* العبارة المتصلة أولاً ثم الكلمات بأي ترتيب؛ السقف ٦٠ للمجموع */
+  for(var i=0;i<idx.length;i++){var e=idx[i],ok=true;for(var j=0;j<ws.length;j++)if(e.n.indexOf(ws[j])<0){ok=false;break}if(!ok)continue;
+    var it={c:e.c,v:e.v,pg:mpVerPage(e.c,e.v)};
+    if(ws.length>1&&e.n.indexOf(nq)>=0){if(k<60){out.push(it);k++}}else if(rest.length<60)rest.push(it)}
+  for(var r=0;r<rest.length&&k<60;r++,k++)out.push(rest[r]);
   return out;
 }
 function mpSearchPanel(){
