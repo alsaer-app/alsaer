@@ -13,7 +13,7 @@ var gdTok={t:'',exp:0},gdBusy=false;
 function gdConfigured(){return /^[0-9a-z-]+\.apps\.googleusercontent\.com$/i.test(GD_CLIENT_ID)}
 function gdNative(){return !!(window.AlsaerNative&&typeof AlsaerNative.gdriveAuthorize==='function')}
 function gdHasRt(){try{return gdNative()?localStorage.getItem('alsaer_gdrive_native')==='1':!!localStorage.getItem(GD_RT_KEY)}catch(e){return false}}
-var gdNativePending=null,gdRevAt=0,gdAuthWait=false;
+var gdNativePending=null,gdRevAt=0,gdAuthWait=false,gdLinkAt=0;
 /* الإلغاء الأصلي لدى خدمات Play غير متزامن ولا يُبلغ بانتهائه؛ إن وصل متأخرًا بعد ربط جديد ألغى الإذن الجديد. نسجّل وقته لنؤخّر الربط التالي */
 function gdNativeRevoke(){try{if(window.AlsaerNative&&typeof AlsaerNative.gdriveRevoke==='function'){gdRevAt=Date.now();AlsaerNative.gdriveRevoke()}}catch(e){}}
 function gdResetAuthState(){
@@ -35,7 +35,7 @@ function gdValidateToken(t){
 }
 /* نجاح ربط أصلي مُثبت: خزّن العلامات والبريد، وأعد ضبط إحصاءات الحساب إن تغيّر */
 function gdNativeLinkOk(p,token,email){
-  var priorEmail=gdEmail();
+  var priorEmail=gdEmail();gdLinkAt=Date.now();
   gdTok={t:token,exp:Date.now()+50*60000};
   try{
     localStorage.setItem('alsaer_gdrive_native','1');localStorage.removeItem(GD_RT_KEY);
@@ -82,7 +82,7 @@ window.gdriveOnNativeToken=function(token,error,email){
   }
   gdNativePending=null;clearTimeout(p.timer);
   try{localStorage.removeItem(GD_PENDING_KEY)}catch(e){}
-  if(error||!token){if(gdAuthError(error||'no-auth')){gdResetAuthState();if(!p.interactive)bkSay('انتهى ربط Google Drive على هذا الجهاز. اضغط «ربط Google Drive» لإعادة الربط.')}p.reject(new Error(error||'no-auth'));try{render()}catch(e){}return}
+  if(error||!token){if(gdAuthError(error||'no-auth')&&!(!p.interactive&&Date.now()-gdLinkAt<120000&&gdHasRt())){gdResetAuthState();if(!p.interactive)bkSay('انتهى ربط Google Drive على هذا الجهاز. اضغط «ربط Google Drive» لإعادة الربط.')}p.reject(new Error(error||'no-auth'));try{render()}catch(e){}return}
   gdValidateToken(token).then(function(o){
     if(!o){gdResetAuthState();p.reject(new Error('auth'));try{render()}catch(e){}return}
     gdNativeLinkOk(p,token,email||String((o.user&&o.user.emailAddress)||''));
@@ -330,7 +330,7 @@ function gdRunBackup(automatic){
 }
 function gdOnOpen(){
   if(document.hidden||!S.onboarded||gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return;
-  if(gdHasRt()&&!gdEmail()&&!gdEmailLoading&&gdNative()){gdEmailLoading=true;gdNativeToken(false).then(function(t){return gdReq('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)').then(function(r){return r.json()}).then(function(o){if(o.user&&o.user.emailAddress)localStorage.setItem('alsaer_gdrive_email',o.user.emailAddress)})},function(){}).catch(function(){}).finally(function(){gdEmailLoading=false;render();gdAutoOnOpen()});return}
+  if(gdHasRt()&&!gdEmail()&&!gdEmailLoading&&gdNative()){gdEmailLoading=true;gdToken().then(function(t){return gdReq('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)').then(function(r){return r.json()}).then(function(o){if(o.user&&o.user.emailAddress)localStorage.setItem('alsaer_gdrive_email',o.user.emailAddress)})},function(){}).catch(function(){}).finally(function(){gdEmailLoading=false;render();gdAutoOnOpen()});return}
   gdAutoOnOpen();
 }
 function gdAutoOnOpen(){
