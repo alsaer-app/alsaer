@@ -1,8 +1,8 @@
 {
  "src/screens/more.js": "e0af99a431e7da05d8230eebed40f7a07890e75c93b972a45e161b164f3a68bb",
  "src/screens/reader.js": "25957922a4e7dd868662e752ef5ab1167ec8c8b2517582a8de6fd5827f64519c",
- "src/services/extras.js": "1e59145213c2fdc1cf7566ede85b67d1a680aba17012484765f6acf0a7bc28bd",
- "src/services/gdrive-backup.js": "04995e400fc560148bfed7de55046eefd3c863d9ba346ecbde2572c6e7ccc0a1",
+ "src/services/extras.js": "af7b1d3d9449420c489a177e15fb3d400c291467ee700286ac47e41235856111",
+ "src/services/gdrive-backup.js": "af10c137b71f3a9ee9c83cc3ef51c77f8e8894b65ef26c8e7885a378beb11f04",
  "src/services/reader-layout.js": "7b1ca788eb93c587b24d74aba516dfe0a444591c884516ee036ac0f87df76697",
  "src/styles/inputs.css": "f88bf78a7df10bfed7d4f3aa351fa58504cc94177c1eabe24f82ed05631e55c7",
  "www/quran.js": "d3739994426491e333b0f90250edb0961eb36a41a787666540b199e503640ea2",

@@ -321,7 +321,7 @@ function gdRunBackup(automatic){
       bkSay((localDue?(localOK?'حُفظت نسخة الأمان داخل التطبيق. ':'تعذّر حفظ نسخة الأمان داخل التطبيق. '):'')+(driveDue?(driveOK?'تم الرفع إلى Drive.':'تعذّر الرفع إلى Drive؛ تحقق من الاتصال وصلاحية الربط.'):(gdHasRt()?'نسخة Drive حديثة ولم تُرفع مجددًا.':'لم يُرفع شيء إلى Drive؛ الحساب غير مربوط.')));
       return localOK&&driveOK;
     });
-  }).catch(function(e){bkSay(e.message==='password-required'?'أدخل كلمة مرور النسخ المشفّرة أولًا.':'تعذّر تجهيز النسخة؛ لم يُرفع شيء.');return false}).finally(function(){gdBusy=false;gdPhase='';try{render()}catch(e){}});
+  }).catch(function(e){bkSay(e.message==='password-required'?'أدخل كلمة مرور النسخ المشفّرة أولًا.':'تعذّر تجهيز النسخة؛ لم يُرفع شيء.');return false}).finally(function(){gdBusy=false;gdPhase='';if(automatic&&typeof bkDirty==='function'&&bkDirty())return;try{render()}catch(e){}});
 }
 function gdOnOpen(){
   if(document.hidden||!S.onboarded||gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return;

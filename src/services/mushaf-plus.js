@@ -129,6 +129,24 @@ function mpAct2(a,v){
   if(a==='qsgo'){var t=parseInt(v,10);mpSel='';if(t>=1&&t<=604){rd.dir=t>rd.page?1:-1;rd.page=t;rd.pscr=0;if(rd.flow){var fr2=curP()[t-1];if(fr2){rd.sura=fr2[0];rd.cv=fr2[0]+':'+fr2[1]}}}rd.srch=false;rd.jump=false;rd.mq='';rd.mr=null;rd.ui=false;window.scrollTo(0,0);return false}
   return false;
 }
+(function(){
+  var lt=null,comp=false;
+  function run(){
+    var i=document.getElementById('mq-q');if(!i||!rd||tab!=='reader')return;
+    var q=(i.value||'').trim();
+    if(q===(rd.mq||''))return;
+    if(q&&q.length<2&&!/[0-9\u0660-\u0669]/.test(q))return;
+    rd.mq=q;rd.mr=q?mpFind(q):null;
+    var pos=i.selectionStart;
+    render();
+    var back=function(){var n=document.getElementById('mq-q');if(n&&document.activeElement!==n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}};
+    back();setTimeout(back,0);setTimeout(back,60);
+  }
+  function sched(){clearTimeout(lt);lt=setTimeout(run,250)}
+  document.addEventListener('input',function(e){if(e.target&&e.target.id==='mq-q'&&!comp&&!e.isComposing)sched()});
+  document.addEventListener('compositionstart',function(e){if(e.target&&e.target.id==='mq-q')comp=true});
+  document.addEventListener('compositionend',function(e){if(e.target&&e.target.id==='mq-q'){comp=false;sched()}});
+})();
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&(e.target.id==='mps-q'||e.target.id==='mq-q')){var qid=e.target.id;e.preventDefault();if(!mpAct2(qid==='mq-q'?'qms':'qsdo')){render();setTimeout(function(){var i=document.getElementById(qid);if(i)i.blur()},50)}}});
 
 /* ---------- تظليل الآية بتوهج يتبع الإصبع + علامات الحفظ ---------- */
@@ -402,7 +420,7 @@ function mqMenuOpen(vv,x,y){
    +'<button data-mqm="share">'+ic('clup')+'<span>مشاركة</span></button>'
    +(!mqAuOn()?'':'<button data-mqm="aud">'+ic('bell')+'<span>استماع</span></button>')
    +'<button data-mqm="img">'+ic('doc')+'<span>صورة الآية</span></button></div>';
-  bd.addEventListener('touchmove',function(e){e.preventDefault()},{passive:false});
+  bd.addEventListener('touchmove',function(e){if(e.target.closest&&e.target.closest('.mq-mn')&&bd.firstChild.scrollHeight>bd.firstChild.clientHeight+1)return;e.preventDefault()},{passive:false});
   bd.addEventListener('click',function(e){
     if(e.target===bd||e.target.closest('[data-mqx]')){mqMenuClose();return}
     var b=e.target.closest('[data-mqm]');if(!b)return;
@@ -416,8 +434,10 @@ function mqMenuOpen(vv,x,y){
   });
   document.body.appendChild(bd);
   var pn=bd.firstChild;
+  var ph=pn.offsetHeight||330,mxh=window.innerHeight-16;
+  if(ph>mxh){pn.style.maxHeight=mxh+'px';pn.style.overflowY='auto';ph=mxh}
   pn.style.left=Math.max(8,Math.min(x,window.innerWidth-180))+'px';
-  pn.style.top=Math.max(8,Math.min(y,window.innerHeight-220))+'px';
+  pn.style.top=Math.max(8,Math.min(y,window.innerHeight-ph-8))+'px';
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')mqMenuClose()});
 (function(){
