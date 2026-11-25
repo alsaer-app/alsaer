@@ -207,7 +207,7 @@ function mpAyahCard(k,cb){
     }catch(e){cb(null)}
   };
   if(document.fonts&&document.fonts.load){
-    var FN=isW()?'KFGQPCWarsh':'KFGQPC';document.fonts.load('64px '+FN,t.slice(0,20)).then(function(){
+    var FN=isW()?'ScheherazadeNewW':'KFGQPC';document.fonts.load('64px '+FN,t.slice(0,20)).then(function(){
       var ok=false;try{ok=document.fonts.check('64px '+FN)}catch(e){}
       draw(ok?FN:ff)
     },function(){draw(ff)});

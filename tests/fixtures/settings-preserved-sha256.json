@@ -1,6 +1,6 @@
 {
  "src/screens/more.js": "e0af99a431e7da05d8230eebed40f7a07890e75c93b972a45e161b164f3a68bb",
- "src/screens/reader.js": "40df1608982c02021220d3d75c4fa8ba619afc5df87ec0f5cd62ff883bed82d1",
+ "src/screens/reader.js": "80dbd9c9fa11273928ec72468186b84c6972234e131fb686db08bef8888c1d55",
  "src/services/extras.js": "1e59145213c2fdc1cf7566ede85b67d1a680aba17012484765f6acf0a7bc28bd",
  "src/services/gdrive-backup.js": "04995e400fc560148bfed7de55046eefd3c863d9ba346ecbde2572c6e7ccc0a1",
  "src/services/reader-layout.js": "7b1ca788eb93c587b24d74aba516dfe0a444591c884516ee036ac0f87df76697",

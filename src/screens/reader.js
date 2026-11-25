@@ -13,7 +13,7 @@ function hafsVerse(c,v){
   return t;
 }
 /* نص الآية كما يُعرض (ورش: استبدال شكلي للخط فقط) */
-function verseShow(c,v){return verseText(c,v)} /* ورش يُرسم بخط ورش الرسمي (KFGQPCWarsh) فلا حاجة لاستبدال شكلي */
+function verseShow(c,v){return verseText(c,v)} /* ورش يُرسم بخط ورش الرسمي (Scheherazade New) فلا حاجة لاستبدال شكلي */
 /* يفتح قارئ التدفق عند صفحة الرواية الحالية */
 function mqRd(from,to,page,extra){
   var P=curP(),r=P[page-1]||[1,1],o={flow:true,from:from,to:to,page:page,sura:r[0],cv:r[0]+':'+r[1],_scrollCv:r[0]+':'+r[1]};

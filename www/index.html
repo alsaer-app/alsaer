@@ -1099,7 +1099,7 @@ body.rd #mp{padding:0}
 .mq-au button .i{width:18px;height:18px}
 
 /* رواية ورش: الخط الرسمي لورش (KFGQPC Warsh v10) للنص فقط، والتخطيط كما في حفص */
-html[data-riw="w"] .mq-t,html[data-riw="w"] .mq-tca,html[data-riw="w"] .fwp,html[data-riw="w"] .rd-rt{font-family:"KFGQPCWarsh","KFGQPC",var(--font-text)}
+html[data-riw="w"] .mq-t,html[data-riw="w"] .mq-tca,html[data-riw="w"] .fwp,html[data-riw="w"] .rd-rt{font-family:"ScheherazadeNewW","KFGQPC",var(--font-text)}
 @media(max-width:400px){.mq-ta{gap:3px}.mq-cb{width:30px;height:30px;min-width:30px}.mq-stp{gap:2px}.mq-stp .mq-fsz{min-width:22px}}
 .mq-ov~.rd-sp{top:0;left:0;width:100vw;height:100dvh;inset:auto;top:0;left:0}.mq-ov~.rd-sp>:not(.rd-sh){overflow-y:auto}
 </style>
@@ -1116,14 +1116,14 @@ html[data-riw="w"] .mq-t,html[data-riw="w"] .mq-tca,html[data-riw="w"] .fwp,html
 .pat i::after{content:"";position:absolute;inset:22px;border-radius:50%;background:var(--muted);opacity:.7}
 .pat i.on{border-color:var(--gold);background:var(--gold-soft);transform:scale(1.08)}
 .pat i.on::after{background:var(--gold);opacity:1}
-@font-face{font-family:"KFGQPCWarsh";src:url(fonts/warsh.woff2) format("woff2");font-display:block}
+@font-face{font-family:"ScheherazadeNewW";src:url(fonts/scheherazade-new-regular.woff2) format("woff2");font-display:block}
 .riw{display:flex;gap:6px;padding:4px;margin:0 0 10px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .riw button{flex:1;border:0;border-radius:10px;padding:9px 6px;font:inherit;font-weight:800;color:var(--muted);background:transparent;cursor:pointer}
 .riw button.on{background:var(--gold);color:var(--on-gold)}
 .mp.wr .wp{
   flex:1 1 0;min-height:0;width:100%;box-sizing:border-box;overflow:hidden;
   display:flex;flex-direction:column;justify-content:space-evenly;
-  font-family:"KFGQPCWarsh","KFGQPC",var(--font-text);color:var(--fg);
+  font-family:"ScheherazadeNewW","KFGQPC",var(--font-text);color:var(--fg);
   direction:rtl;text-align:justify;text-align-last:center;
   font-size:clamp(20px,5.7vw,30px);line-height:1.5;word-spacing:.02em;
   padding:5px 6px 3px;
@@ -4338,7 +4338,7 @@ function hafsVerse(c,v){
   return t;
 }
 /* نص الآية كما يُعرض (ورش: استبدال شكلي للخط فقط) */
-function verseShow(c,v){return verseText(c,v)} /* ورش يُرسم بخط ورش الرسمي (KFGQPCWarsh) فلا حاجة لاستبدال شكلي */
+function verseShow(c,v){return verseText(c,v)} /* ورش يُرسم بخط ورش الرسمي (Scheherazade New) فلا حاجة لاستبدال شكلي */
 /* يفتح قارئ التدفق عند صفحة الرواية الحالية */
 function mqRd(from,to,page,extra){
   var P=curP(),r=P[page-1]||[1,1],o={flow:true,from:from,to:to,page:page,sura:r[0],cv:r[0]+':'+r[1],_scrollCv:r[0]+':'+r[1]};
@@ -6156,7 +6156,7 @@ function mpAyahCard(k,cb){
     }catch(e){cb(null)}
   };
   if(document.fonts&&document.fonts.load){
-    var FN=isW()?'KFGQPCWarsh':'KFGQPC';document.fonts.load('64px '+FN,t.slice(0,20)).then(function(){
+    var FN=isW()?'ScheherazadeNewW':'KFGQPC';document.fonts.load('64px '+FN,t.slice(0,20)).then(function(){
       var ok=false;try{ok=document.fonts.check('64px '+FN)}catch(e){}
       draw(ok?FN:ff)
     },function(){draw(ff)});
