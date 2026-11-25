@@ -63,7 +63,7 @@
       var cn=Math.max(1,Math.min(12,parseInt(cu.n,10)||1)),ce=Math.max(5,parseInt(cu.ev,10)||30),c0=mins(cu.time,'07:00'),cdone=(r.cuDone||{})[cu.id]===TK,cdw=(cu.dow&&cu.dow.length)?cu.dow.slice():[];
       if(cdone){cdw=exd(cdw)}
       for(var ci=0;ci<cn;ci++){var cm=c0+ci*ce;if(cm>=1440)break;var ct=fmt(cm);
-        daily('cu_'+cu.id+'_'+ci,cn>1?cu.t+' ('+(ci+1)+'/'+cn+')':cu.t,'ذكّرك: '+cu.t,ct,ct,'',{k:'cu:'+cu.id,l:'تم'},cdw)}
+        daily('cu_'+cu.id+'_'+ci,cn>1?cu.t+' ('+(ci+1)+'/'+cn+')':cu.t,nt('ذكّرك:')+' '+cu.t,ct,ct,'',{k:'cu:'+cu.id,l:'تم'},cdw)}
     });
     if(r.fasting&&fr&&fr.enabled){      var today=new Date();today.setHours(0,0,0,0);
       for(var i=0;i<=21;i++){
@@ -118,9 +118,9 @@
         T=T||S.ptimes||{};
         PR.forEach(function(p){var m=/^(\d{1,2}):(\d{2})$/.exec(T[p[0]]||'');if(!m)return;
           var at=new Date(day.getFullYear(),day.getMonth(),day.getDate(),parseInt(m[1],10),parseInt(m[2],10),0,0).getTime();
-          if(at>now-60000)out.push({n:p[1],at:at,t:(typeof ptFmt==='function'?ptFmt(T[p[0]]):T[p[0]])})});
+          if(at>now-60000)out.push({n:nt(p[1]),at:at,t:(typeof ptFmt==='function'?ptFmt(T[p[0]]):T[p[0]])})});
       }
-      var hj='';try{var hd=hijriNumeric(new Date());hj=ar(hd.day)+' '+['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'][hd.month-1]}catch(e){}
+      var hj='';try{var hd=hijriNumeric(new Date());hj=ar(hd.day)+' '+nt(['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'][hd.month-1])}catch(e){}
       var bw='';try{bw=typeof boWidget==='function'?boWidget():''}catch(e){}
       var js=JSON.stringify({l:out.slice(0,12),h:hj,b:bw});
       if(js===lastW)return;lastW=js;n.setWidget(js);
