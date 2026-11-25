@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; worker-src 'self' blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.jsdelivr.net https://raw.githubusercontent.com; media-src 'self' https://qurango.net https://verses.quran.com https://cdn.islamic.network https://everyayah.com https://cdn.mp3quran.net https://audio.opendua.org https://archive.org https://*.archive.org; font-src 'self' data:; connect-src 'self' blob: data: https://bayan.alwa7i.com https://api.alquran.cloud https://cdn.jsdelivr.net https://raw.githubusercontent.com https://oauth2.googleapis.com https://www.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; worker-src 'self' blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.jsdelivr.net https://raw.githubusercontent.com; media-src 'self' https://qurango.net https://*.mp3quran.net https://verses.quran.com https://cdn.islamic.network https://everyayah.com https://cdn.mp3quran.net https://audio.opendua.org https://archive.org https://*.archive.org; font-src 'self' data:; connect-src 'self' blob: data: https://bayan.alwa7i.com https://api.alquran.cloud https://cdn.jsdelivr.net https://raw.githubusercontent.com https://oauth2.googleapis.com https://www.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="author" content="أحمد العجمي">
 <meta name="theme-color" content="#061d1a">
@@ -2170,6 +2170,10 @@ body.orn .mp-fa{background:#f9f5ee;border-color:#b98a2e;color:#8a5a36}body.orn .
 .rdo-hero{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}.rdo-hero b{font-size:20px}.rdo-hero span{font-size:13px;opacity:.75}
 .rdo-chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}.rdo-chips::-webkit-scrollbar{display:none}.rdo-chips button{flex:none;border:1px solid color-mix(in srgb,var(--fg) 18%,transparent);background:transparent;color:var(--fg);border-radius:999px;padding:7px 14px;font:inherit;font-size:13px}.rdo-chips button.on{background:var(--accent,#4c9a8f);color:#fff;border-color:transparent}
 .rdo-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px;width:100%;text-align:start;margin:8px 0;padding:12px 14px}.rdo-row .rdo-n{font-weight:700;line-height:1.5}.rdo-row small{grid-column:1;opacity:.65}.rdo-row .rdo-ic{grid-row:1/3;grid-column:2;font-style:normal;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--fg) 10%,transparent)}.rdo-row.on{border-color:var(--accent,#4c9a8f)}.rdo-src{text-align:center;margin-top:12px}
+
+.rdo-back{border:0;background:transparent;color:var(--accent,#4c9a8f);font:inherit;font-size:14px;padding:4px 2px 10px}
+.rct-s .rdo-n{align-self:center}
+.rct-s .rdo-n{grid-row:1/3;align-self:center}.rct-no{opacity:.6;font-weight:600;margin-inline-end:6px}
 /* لمسات الشكل والسرعة */
 html{-webkit-tap-highlight-color:transparent;scroll-behavior:auto}
 .mr-g{content-visibility:auto;contain-intrinsic-size:auto 90px}
@@ -3124,9 +3128,9 @@ var calD=new Date(), calSel=null, group='morning', qi=new Date().getDate(), secs
 var lastTab=null,navTrail=['home'],backPopHandling=false,backHistoryReady=false,pressKey=null,pressXY=null,splash=true, obStep=1, obGender='male', per='week', addingHabit=false, addingHabitType='good', addingWorship=false, showPrivacy=false, showLog=false,  rd=null, setOpen=null;
 var app=document.getElementById('app'), tabs=document.getElementById('tabs'), top=document.getElementById('top'), toastEl=document.getElementById('toast');
 var NAV=[['home','الرئيسية','home'],['calendar','التقويم','cal'],['progress','التقدم','chart'],['more','المزيد','menu']];
-var PARENT={asma:'more',msb:'more',hisn:'more',radio:'more',ahadith:'more',month:'more',sacred:'more',chal:'more',muh:'more',floatfeed:'settings',floatset:'settings',widgetset:'settings',books:'more',occasions:'more',cards:'more',hifz:'more',khushu:'more',ramadan:'more',khatma:'more',weekly:'more',notes:'more',zakat:'more',qada:'more',backup:'settings',tasbih:'more',worship:'home',reminders:'settings',fasting:'home',reader:'home',prayers:'home',quran:'home',adhkar:'home',habits:'home',boost:'more',ach:'more',developer:'settings',ptloc:'prayers',settings:'more',journal:'home'};
-var TITLES={asma:'أسماء الله الحسنى',msb:'المسبحة',hisn:'حصن المسلم',radio:'راديو قرآن',ahadith:'الأحاديث النبوية',month:'ملخص الشهر',sacred:'الأوقات المستحبة',chal:'تحدّي ٣٠ يومًا',muh:'محاسبة النفس',floatfeed:'جدولة النوافذ العائمة',floatset:'شكل النوافذ العائمة',widgetset:'الودجت',books:'كتابي',occasions:'المناسبات الهجرية',cards:'تعريف السورة',hifz:'متابعة الحفظ',khushu:'الخشوع والتركيز',ramadan:'وضع رمضان',khatma:'ختمة القرآن',weekly:'إحصاءاتي',notes:'ملاحظاتي ومفضلتي',zakat:'حاسبة الزكاة',qada:'قضاء ما فاتك',backup:'النسخ الاحتياطي',tasbih:'المسبحة',worship:'عباداتي اليوم',reminders:'تذكيرات اليوم',fasting:'الصيام والتذكير',reader:'المصحف الشريف',calendar:'التقويم والمتابعة',progress:'التقدم والتقييم',more:'المزيد',prayers:'الصلوات',quran:'القرآن الكريم',adhkar:'الأذكار',habits:'العادات والتغيير',boost:'محفزات ولحظة الرغبة',ach:'الإنجازات والشارات',developer:'المطوّر وحقوق التطبيق',ptloc:'الموقع والمواقيت',settings:'الإعدادات',journal:'سجل النشاط اليومي'};
-var TICON={asma:'star',msb:'beads',hisn:'beads',radio:'star',ahadith:'book',month:'chart',sacred:'moon',chal:'target',muh:'check',floatfeed:'bell',floatset:'sparkles',widgetset:'sparkles',books:'book',occasions:'cal',cards:'sparkles',hifz:'book',khushu:'beads',ramadan:'moon',khatma:'book',weekly:'chart',notes:'pen',zakat:'star',qada:'check',backup:'shield',tasbih:'beads',worship:'sparkles',reminders:'bell',fasting:'moon',reader:'book',calendar:'cal',progress:'chart',more:'menu',prayers:'mosque',quran:'book',adhkar:'beads',habits:'target',boost:'shield',ach:'trophy',developer:'star',ptloc:'mosque',settings:'gear',journal:'clock'};
+var PARENT={asma:'more',msb:'more',hisn:'more',radio:'more',reciters:'more',ahadith:'more',month:'more',sacred:'more',chal:'more',muh:'more',floatfeed:'settings',floatset:'settings',widgetset:'settings',books:'more',occasions:'more',cards:'more',hifz:'more',khushu:'more',ramadan:'more',khatma:'more',weekly:'more',notes:'more',zakat:'more',qada:'more',backup:'settings',tasbih:'more',worship:'home',reminders:'settings',fasting:'home',reader:'home',prayers:'home',quran:'home',adhkar:'home',habits:'home',boost:'more',ach:'more',developer:'settings',ptloc:'prayers',settings:'more',journal:'home'};
+var TITLES={asma:'أسماء الله الحسنى',msb:'المسبحة',hisn:'حصن المسلم',radio:'راديو قرآن',reciters:'استمع لقارئ',ahadith:'الأحاديث النبوية',month:'ملخص الشهر',sacred:'الأوقات المستحبة',chal:'تحدّي ٣٠ يومًا',muh:'محاسبة النفس',floatfeed:'جدولة النوافذ العائمة',floatset:'شكل النوافذ العائمة',widgetset:'الودجت',books:'كتابي',occasions:'المناسبات الهجرية',cards:'تعريف السورة',hifz:'متابعة الحفظ',khushu:'الخشوع والتركيز',ramadan:'وضع رمضان',khatma:'ختمة القرآن',weekly:'إحصاءاتي',notes:'ملاحظاتي ومفضلتي',zakat:'حاسبة الزكاة',qada:'قضاء ما فاتك',backup:'النسخ الاحتياطي',tasbih:'المسبحة',worship:'عباداتي اليوم',reminders:'تذكيرات اليوم',fasting:'الصيام والتذكير',reader:'المصحف الشريف',calendar:'التقويم والمتابعة',progress:'التقدم والتقييم',more:'المزيد',prayers:'الصلوات',quran:'القرآن الكريم',adhkar:'الأذكار',habits:'العادات والتغيير',boost:'محفزات ولحظة الرغبة',ach:'الإنجازات والشارات',developer:'المطوّر وحقوق التطبيق',ptloc:'الموقع والمواقيت',settings:'الإعدادات',journal:'سجل النشاط اليومي'};
+var TICON={asma:'star',msb:'beads',hisn:'beads',radio:'star',reciters:'star',ahadith:'book',month:'chart',sacred:'moon',chal:'target',muh:'check',floatfeed:'bell',floatset:'sparkles',widgetset:'sparkles',books:'book',occasions:'cal',cards:'sparkles',hifz:'book',khushu:'beads',ramadan:'moon',khatma:'book',weekly:'chart',notes:'pen',zakat:'star',qada:'check',backup:'shield',tasbih:'beads',worship:'sparkles',reminders:'bell',fasting:'moon',reader:'book',calendar:'cal',progress:'chart',more:'menu',prayers:'mosque',quran:'book',adhkar:'beads',habits:'target',boost:'shield',ach:'trophy',developer:'star',ptloc:'mosque',settings:'gear',journal:'clock'};
 
 var ACC=[{id:'maleem',n:'الأصلي',l:'#017D84',l2:'#00535F',d:'#0E8A86',d2:'#0A4A51',g:'#5FCFC1'},
 {id:'green',n:'أخضر',l:'#0E6B57',l2:'#0A5243',d:'#2FA586',d2:'#13574A'},{id:'blue',n:'أزرق',l:'#1D5FBF',l2:'#164A94',d:'#4C8DF0',d2:'#1B3F78'},
@@ -4667,7 +4671,7 @@ var MI=0;
 function vMore(){
   MI=0;
   var G=[
-   ['العبادة اليومية',[mtile('asma','star','أسماء الله الحسنى','٩٩ اسمًا: حفظ ومسبحة واختبار'),mtile('hisn','shield','الأذكار · حصن المسلم','الصباح والمساء وبعد الصلاة وقبل النوم بعدّاد تكرار'),mtile('radio','star','راديو قرآن','بث مباشر لإذاعات القرآن والبرامج الإسلامية'),mtile('msb','beads','المسبحة','عدّاد تسبيح بأذكار مخصّصة وصوت نقر'),mtile('ahadith','book','الأحاديث النبوية','تسعة كتب: بحث ومفضلة وحديث اليوم'),mtile('sacred','clock','الأوقات المستحبة والمنهي عنها','الثلث الأخير والضحى وأوقات النهي'),mtile('khushu','leaf','الخشوع والتركيز','مؤقت ورد وذكر، ووضع هادئ للمصلين'),mtile('fasting','sun','الصيام والتذكير','الاثنين والخميس والأيام البيض والمناسبات'),mtile('qada','check','قضاء ما فاتك','عدّاد لصلوات وأيام صيام فاتتك')]],
+   ['العبادة اليومية',[mtile('asma','star','أسماء الله الحسنى','٩٩ اسمًا: حفظ ومسبحة واختبار'),mtile('hisn','shield','الأذكار · حصن المسلم','الصباح والمساء وبعد الصلاة وقبل النوم بعدّاد تكرار'),mtile('radio','star','راديو قرآن','بث مباشر لإذاعات القرآن والبرامج الإسلامية'),mtile('reciters','star','استمع لقارئ','سور كاملة بأصوات أكثر من ١٥٠ قارئًا'),mtile('msb','beads','المسبحة','عدّاد تسبيح بأذكار مخصّصة وصوت نقر'),mtile('ahadith','book','الأحاديث النبوية','تسعة كتب: بحث ومفضلة وحديث اليوم'),mtile('sacred','clock','الأوقات المستحبة والمنهي عنها','الثلث الأخير والضحى وأوقات النهي'),mtile('khushu','leaf','الخشوع والتركيز','مؤقت ورد وذكر، ووضع هادئ للمصلين'),mtile('fasting','sun','الصيام والتذكير','الاثنين والخميس والأيام البيض والمناسبات'),mtile('qada','check','قضاء ما فاتك','عدّاد لصلوات وأيام صيام فاتتك')]],
    ['القرآن والعلم',[mtile('month','chart','ملخص الشهر','صلواتك وورد القرآن وكتبك وتحدّياتك في شهر'),mtile('chal','target','تحدّي ٣٠ يومًا','التزم بعادة طيبة وتابع سلسلتك يومًا بيوم'),mtile('muh','user','محاسبة النفس','محاسبة يومية قبل النوم وشكر لله'),mtile('books','doc','كتابي','أضف كتبك وحدّد وقت قراءتك وتابع ما قرأت وما بقي'),mtile('khatma','flag','ختمة القرآن','وردك اليومي حسب مدة تختارها'),mtile('hifz','refresh','متابعة الحفظ','مراجعة متباعدة لما حفظته'),mtile('notes','pen','ملاحظاتي ومفضلتي','أدعيتك وفوائدك وأذكارك المفضلة وعلامات المصحف')]],
    ['المناسبات والمال',[mtile('ramadan','moon','وضع رمضان','عدّ تنازلي وجدول عبادات الشهر'),mtile('occasions','cal','المناسبات الهجرية','عدّ تنازلي لعرفة وعاشوراء والأيام البيض'),mtile('zakat','coins','حاسبة الزكاة','تقدير النصاب والزكاة وموعد الحول')]],
    ['المتابعة والتحفيز',[mtile('habits','up','العادات الحسنة والسيئة','متابعة العادات والعدادات اليومية'),mtile('weekly','report','إحصاءاتي','أسبوعك وأهدافك وأيام الراحة'),mtile('ach','trophy','لوحة الإنجازات','أوسمتك وسلاسل الأيام'),mtile('boost','heart','محفزات ولحظة الرغبة','مؤقت وخطوات عملية وأسبابي'),mtile('cards','sparkles','بطاقات المشاركة','حوّل إنجازك أو ذكرك إلى صورة')]],
@@ -7364,6 +7368,69 @@ function rdoAct(a,v){
   return true}
 (function(){var tm;document.addEventListener('input',function(e){
   if(e.target&&e.target.id==='rdo-q'){var val=e.target.value;clearTimeout(tm);tm=setTimeout(function(){rdoS.q=val;rdoRefresh()},150)}})})();
+/* استمع لقارئ: بث سور كاملة من سيرفرات mp3quran.net لقائمة القراء المأخوذة من تطبيق التقوى (Altaqwaa). البيانات في reciters.js تُحمَّل عند الحاجة. */
+var rctS={q:'',sq:'',rw:'',sel:0,a:null,sura:0,st:''};
+var RCT_RW=['حفص عن عاصم','قالون عن نافع','ورش عن نافع'];
+function rctT(t){try{var r=typeof trS==='function'?trS(t):null;return r===null||r===undefined?t:r}catch(e){return t}}
+function rctEsc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function rctNorm(t){return String(t).normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase()}
+function rctEnsure(cb){
+  if(window.RCT){cb();return}
+  var sc=document.createElement('script');sc.src='reciters.js';
+  sc.onload=function(){cb()};sc.onerror=function(){try{toast('تعذّر تحميل قائمة القراء')}catch(e){}};
+  document.head.appendChild(sc)}
+function rctGet(id){return (window.RCT||[]).filter(function(x){return x[0]===id})[0]}
+function rctRows(){
+  var n=rctNorm(rctS.q).trim(),h='';
+  window.RCT.forEach(function(r){
+    if(rctS.rw==='other'?RCT_RW.indexOf(r[2])>=0:(rctS.rw&&r[2]!==rctS.rw))return;
+    if(n&&rctNorm(r[1]).indexOf(n)<0)return;
+    h+='<button class="card rdo-row" data-a="rctopen" data-v="'+r[0]+'"><span class="rdo-n keepar">'+rctEsc(r[1])+'</span><small class="keepar">'+rctEsc(r[2])+'</small><i class="rdo-ic">‹</i></button>'});
+  return h||'<p class="note">لا نتائج</p>'}
+function rctSuras(){
+  var r=rctGet(rctS.sel),N=(typeof QD==='function'?QD().n:[])||[],q=rctNorm(rctS.sq).trim(),h='';
+  for(var i=1;i<=114;i++){
+    var nm=N[i-1]||('سورة '+i);
+    if(q&&rctNorm(nm).indexOf(q)<0&&String(i)!==q)continue;
+    var on=rctS.sura===i;
+    h+='<button class="card rdo-row rct-s'+(on?' on':'')+'" data-a="rctplay" data-v="'+i+'"><span class="rdo-n keepar"><bdi class="rct-no">'+i+'</bdi> '+rctEsc(nm)+'</span><i class="rdo-ic">'+(on?(rctS.st==='load'?'…':'⏸'):'▶')+'</i></button>'}
+  return h||'<p class="note">لا نتائج</p>'}
+function vReciters(){
+  var h='<div class="rdo">';
+  if(!window.RCT){rctEnsure(function(){if(typeof render==='function')render()});return h+'<p class="note" style="text-align:center">جارٍ التحميل…</p></div>'}
+  var r=rctS.sel?rctGet(rctS.sel):null;
+  if(r){
+    h+='<button class="rdo-back" data-a="rctback">→ القراء</button>';
+    h+='<section class="card rdo-hero"><b class="keepar">'+rctEsc(r[1])+'</b><span class="keepar">'+rctEsc(r[2])+'</span></section>';
+    h+='<input type="search" id="rct-sq" class="rm-sel" placeholder="ابحث عن سورة" value="'+rctEsc(rctS.sq)+'" autocomplete="off">';
+    h+='<div id="rct-l">'+rctSuras()+'</div>';
+  }else{
+    h+='<section class="card rdo-hero"><b>استمع لقارئ</b><span>سور القرآن كاملة بأصوات القراء</span></section>';
+    h+='<div class="rdo-chips"><button class="'+(rctS.rw?'':'on')+'" data-a="rctrw" data-v="">الكل</button>'+RCT_RW.map(function(c){return '<button class="keepar '+(rctS.rw===c?'on':'')+'" data-a="rctrw" data-v="'+c+'">'+c+'</button>'}).join('')+'<button class="'+(rctS.rw==='other'?'on':'')+'" data-a="rctrw" data-v="other">روايات أخرى</button></div>';
+    h+='<input type="search" id="rct-q" class="rm-sel" placeholder="ابحث عن قارئ" value="'+rctEsc(rctS.q)+'" autocomplete="off">';
+    h+='<div id="rct-l">'+rctRows()+'</div>';
+  }
+  h+='<p class="note rdo-src">قائمة القراء من تطبيق التقوى (Altaqwaa)، والصوت من mp3quran.net. يحتاج اتصالًا بالإنترنت.</p></div>';
+  return h}
+function rctStop(){if(rctS.a){try{rctS.a.pause();rctS.a.removeAttribute('src');rctS.a.load()}catch(e){}rctS.a=null}rctS.sura=0;rctS.st=''}
+function rctRefresh(){var l=document.getElementById('rct-l');if(l&&window.RCT)l.innerHTML=rctS.sel?rctSuras():rctRows()}
+function rctPlay(i){
+  var r=rctGet(rctS.sel);if(!r)return;
+  rctStop();try{if(typeof rdoStop==='function')rdoStop()}catch(e){}try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}try{if(typeof hsnAuStop==='function')hsnAuStop()}catch(e){}
+  var A=new Audio();rctS.a=A;rctS.sura=i;rctS.st='load';A.preload='none';A.src=r[3]+'/'+('00'+i).slice(-3)+'.mp3';
+  A.onplaying=function(){if(rctS.a===A){rctS.st='play';rctRefresh()}};
+  A.onended=function(){if(rctS.a===A){var nx=i<114?i+1:0;if(nx)rctPlay(nx);else{rctStop();rctRefresh()}}};
+  var bad=function(){if(rctS.a===A){rctStop();rctRefresh();toast('تعذّر تشغيل السورة. تحتاج الميزة إلى اتصال بالإنترنت')}};
+  A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad);rctRefresh()}
+function rctAct(a,v){
+  if(a==='rctrw'){rctS.rw=v;if(typeof render==='function')render();return false}
+  if(a==='rctopen'){rctS.sel=+v;rctS.sq='';rctStop();if(typeof render==='function')render();return false}
+  if(a==='rctback'){rctS.sel=0;rctS.sq='';rctStop();if(typeof render==='function')render();return false}
+  if(a==='rctplay'){var i=+v;if(rctS.sura===i){rctStop();rctRefresh();return false}rctPlay(i);return false}
+  return true}
+(function(){var tm;document.addEventListener('input',function(e){
+  var t=e.target;if(!t)return;
+  if(t.id==='rct-q'||t.id==='rct-sq'){var val=t.value,id=t.id;clearTimeout(tm);tm=setTimeout(function(){if(id==='rct-q')rctS.q=val;else rctS.sq=val;rctRefresh()},150)}})})();
 /* ===== جولة تفاعلية: تظلّل عناصر التطبيق الحقيقية وتنتقل بين شاشاته ===== */
 var TOUR=[
  {e:'🌙',t:'أهلًا بك في السائر إلى الله',d:'رفيقك اليومي: مواقيت وأذكار وورد ومتابعة، مجانًا بالكامل. جولة قصيرة تعرّفك بكل شيء في أقل من دقيقة.'},
@@ -7855,7 +7922,7 @@ function render(){
   else{top.style.display='';top.style.position=(tab==='reader'?'static':'');top.innerHTML='<h1>'+ic(TICON[tab])+TITLES[tab]+'</h1>'+(PARENT[tab]?'<button class="ib" data-a="goback" data-v="'+PARENT[tab]+'" aria-label="رجوع">'+ic('chev')+'</button>':'<span></span>')}
   tabs.hidden=(tab==='reader');app.style.paddingBottom=(tab==='reader'?'16px':'');document.body.classList.toggle('rd',tab==='reader');document.body.classList.toggle('rdi',tab==='reader');document.body.classList.toggle('orn',tab==='reader'&&S.quran.pg===undefined||tab==='reader'&&S.quran.pg==='ornate');
   tabs.innerHTML=NAV.map(function(t){return '<button class="tab'+(par===t[0]?' on':'')+'" data-a="tab" data-v="'+t[0]+'"><span class="pill">'+ic(t[2])+'</span>'+t[1]+'</button>'}).join('');
-  var v={home:vHome,worship:vWorship,calendar:vCal,progress:vProgress,more:vMore,fasting:vFasting,prayers:vPrayers,quran:vQuran,reader:vReader,reminders:vReminders,books:vBooks,chal:vChal,month:vMonth,sacred:vSacred,muh:vMuh,floatfeed:vFloatFeed,floatset:vFloatSet,widgetset:vWidgetSet,habits:vHabits,boost:vBoost,ach:vAch,developer:vDeveloper,settings:vSettings,qada:vQada,ramadan:vRamadan,occasions:vOccasions,cards:vCards,hifz:vHifz,khushu:vKhushu,khatma:vKhatma,weekly:vWeekly,notes:vNotes,zakat:vZakat,backup:vBackup,msb:vMsb,asma:vAsma,hisn:vHisn,radio:vRadio,ahadith:vAhadith,ptloc:vPtLoc,journal:vJournal}[tab];
+  var v={home:vHome,worship:vWorship,calendar:vCal,progress:vProgress,more:vMore,fasting:vFasting,prayers:vPrayers,quran:vQuran,reader:vReader,reminders:vReminders,books:vBooks,chal:vChal,month:vMonth,sacred:vSacred,muh:vMuh,floatfeed:vFloatFeed,floatset:vFloatSet,widgetset:vWidgetSet,habits:vHabits,boost:vBoost,ach:vAch,developer:vDeveloper,settings:vSettings,qada:vQada,ramadan:vRamadan,occasions:vOccasions,cards:vCards,hifz:vHifz,khushu:vKhushu,khatma:vKhatma,weekly:vWeekly,notes:vNotes,zakat:vZakat,backup:vBackup,msb:vMsb,asma:vAsma,hisn:vHisn,radio:vRadio,reciters:vReciters,ahadith:vAhadith,ptloc:vPtLoc,journal:vJournal}[tab];
   if(tab==='reminders'&&lastTab!=='reminders'&&typeof window.alsaerRemindersEnter==='function')window.alsaerRemindersEnter();
   var vh;try{if(typeof v!=='function')throw new Error('شاشة غير معروفة: '+tab);vh=v()}catch(ex){vh=vRenderFail(ex,tab)}
   app.classList.toggle('sg-tabs-active',tab==='settings');
@@ -8134,6 +8201,7 @@ document.addEventListener('click',async function(e){
   else if(a==='qidx'||a==='qixgo'||a==='qbmsgo'){if(mpIdxAct(a,v))return}
   else if(/^(qsclose|qsdo|qsgo|qms|qsrch|qsgov)$/.test(a)){if(mpAct2(a,v))return}
   else if(/^hdt[a-z]+$/.test(a)){if(typeof hdtAct==='function'&&hdtAct(a,v)===false)return}
+  else if(/^rct[a-z]+$/.test(a)){if(typeof rctAct==='function'&&rctAct(a,v)===false)return}
   else if(/^rdo[a-z]+$/.test(a)){if(typeof rdoAct==='function'&&rdoAct(a,v)===false)return}
   else if(/^hsn[a-z]+$/.test(a)){if(typeof hsnAct==='function'&&hsnAct(a,v)===false)return}
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}
