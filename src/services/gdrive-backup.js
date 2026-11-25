@@ -13,12 +13,14 @@ var gdTok={t:'',exp:0},gdBusy=false;
 function gdConfigured(){return /^[0-9a-z-]+\.apps\.googleusercontent\.com$/i.test(GD_CLIENT_ID)}
 function gdNative(){return !!(window.AlsaerNative&&typeof AlsaerNative.gdriveAuthorize==='function')}
 function gdHasRt(){try{return gdNative()?localStorage.getItem('alsaer_gdrive_native')==='1':!!localStorage.getItem(GD_RT_KEY)}catch(e){return false}}
-var gdNativePending=null;
+var gdNativePending=null,gdRevAt=0,gdAuthWait=false;
+/* الإلغاء الأصلي لدى خدمات Play غير متزامن ولا يُبلغ بانتهائه؛ إن وصل متأخرًا بعد ربط جديد ألغى الإذن الجديد. نسجّل وقته لنؤخّر الربط التالي */
+function gdNativeRevoke(){try{if(window.AlsaerNative&&typeof AlsaerNative.gdriveRevoke==='function'){gdRevAt=Date.now();AlsaerNative.gdriveRevoke()}}catch(e){}}
 function gdResetAuthState(){
   gdTok={t:'',exp:0};
   try{localStorage.removeItem('alsaer_gdrive_native');localStorage.removeItem(GD_RT_KEY);localStorage.removeItem('alsaer_gdrive_email')}catch(e){}
   /* امسح تخزين Google المحلي على الجهاز أيضًا: بلا ذلك قد تعيد خدمات Play الرمز الميت نفسه عند الربط التالي (علة «لا يربط بعد فك الربط») */
-  try{if(gdNative()&&typeof AlsaerNative.gdriveRevoke==='function')AlsaerNative.gdriveRevoke()}catch(e){}
+  gdNativeRevoke();
   /* Keep local backups, encryption choice/password and per-destination history. */
 }
 /* إثبات الرمز قبل إعلان الربط: خدمات Play قد تعيد رمزًا مخزَّنًا أُلغي للتو. 401/403 = موت مؤكد فيُرفض؛ أي خطأ شبكة آخر = لا نستطيع إثبات الموت فنقبل كما كان */
@@ -104,7 +106,14 @@ function gdAuthFailMsg(m){
   return 'تعذّر الربط. اضغط ربط حساب جديد للمحاولة مجددًا.';
 }
 function gdStartAuth(){
-  if(gdNative()){bkSay('اختر حساب Google واسمح بالوصول إلى ملف النسخة…');gdNativeToken(true).then(function(){bkSay('تم ربط Google Drive ✓');render();setTimeout(gdOnOpen,300)},function(e){bkSay(gdAuthFailMsg(e&&e.message));render()});render();return}
+  if(gdNative()){
+    if(gdAuthWait)return;
+    var wait=Math.max(0,7000-(Date.now()-gdRevAt));
+    var go=function(){gdAuthWait=false;bkSay('اختر حساب Google واسمح بالوصول إلى ملف النسخة…');gdNativeToken(true).then(function(){bkSay('تم ربط Google Drive ✓');render();setTimeout(gdOnOpen,300);
+      /* تحقق ثانٍ بعد ثوانٍ: إن ألغى Google الإذن الجديد فور منحه نقول ذلك بدل ترك حالة فارغة */
+      setTimeout(function(){var t=gdTok.t;if(!t||!gdHasRt())return;gdValidateToken(t).then(function(o){if(!o){gdResetAuthState();bkSay('أُلغي الإذن فور منحه (غالبًا من فك الربط السابق). انتظر لحظات ثم اضغط ربط حساب جديد.');try{render()}catch(e){}}},function(){})},3000)},function(e){bkSay(gdAuthFailMsg(e&&e.message));render()})};
+    if(wait>0){gdAuthWait=true;bkSay('جارٍ إنهاء فك الربط السابق ثم نفتح اختيار الحساب…');setTimeout(go,wait);render();return}
+    go();render();return}
   if(!gdConfigured()){bkSay('ربط Google Drive غير مهيأ في هذه النسخة من التطبيق.');return}
   var rnd=new Uint8Array(32);crypto.getRandomValues(rnd);
   var ver=gdB64url(rnd);
@@ -228,7 +237,7 @@ function gdRestoreApply(raw){
 
 function gdDisconnect(){
   if(gdNative())return gdToken().then(function(t){return gdFetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(t),{method:'POST'},15000)}).then(function(r){if(!r.ok)throw new Error('revoke');gdTok={t:'',exp:0};gdForgetLocalAuth();try{localStorage.removeItem('alsaer_gdrive_native');localStorage.removeItem(GD_RT_KEY)}catch(e){}/* إلغاء محلي كامل: تخزين خدمات Play يمسح أيضًا وإلا أعاد الربطُ التالي رمزًا ملغًى */
-  try{if(window.AlsaerNative&&typeof AlsaerNative.gdriveRevoke==='function')AlsaerNative.gdriveRevoke()}catch(e){}});
+  gdNativeRevoke();});
   gdForgetLocalAuth();var rt='';try{rt=localStorage.getItem(GD_RT_KEY)||''}catch(e){}
   gdTok={t:'',exp:0};try{localStorage.removeItem(GD_RT_KEY)}catch(e){}
   if(rt)fetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(rt)).catch(function(){});
