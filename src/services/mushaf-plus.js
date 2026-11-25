@@ -25,15 +25,6 @@ function mqUseRiw(nr,cb){
 }
 /* ---------- المصحف: انتقال سريع · تقليب بالسحب · متابعة من حيث توقفت ---------- */
 function mpJuzPage(j){var P=curP();for(var i=0;i<P.length;i++)if(P[i][4]===j)return i+1;return 1}
-function mpJump(p){
-  var D=QD(),h='<section class="card mpj"><h3>انتقال سريع</h3><div class="mpj-r"><label>الصفحة<input id="mpj-p" class="qd-i" type="number" inputmode="numeric" min="1" max="604" placeholder="'+ar(p)+'"></label><button class="btn" data-a="qjgo" data-v="p">اذهب</button></div>'
-   +'<div class="mpj-r"><label>السورة<select id="mpj-s" class="qd-i">'+D.n.map(function(n,i){return '<option value="'+(i+1)+'">'+ar(i+1)+' · '+esc(n)+'</option>'}).join('')+'</select></label><button class="btn" data-a="qjgo" data-v="s">اذهب</button></div>'
-   +'<div class="mpj-r"><label>الجزء<select id="mpj-j" class="qd-i">'+Array.apply(null,Array(30)).map(function(_,i){return '<option value="'+(i+1)+'">الجزء '+ar(i+1)+'</option>'}).join('')+'</select></label><button class="btn" data-a="qjgo" data-v="j">اذهب</button></div>'
-   +'<div class="mpj-r"><label>الحزب والربع<select id="mpj-q" class="qd-i">'+Array.apply(null,Array(240)).map(function(_,i){var h=Math.floor(i/4)+1,q=i%4;return '<option value="'+i+'">الحزب '+ar(h)+(q?' · '+['','الربع الأول','النصف','ثلاثة أرباع'][q]:'')+'</option>'}).join('')+'</select></label><button class="btn" data-a="qjgo" data-v="q">اذهب</button></div>'
-   +mpMarksHtml()
-   +(S.quran.last?'<div class="acts"><button class="btn ghost" data-a="qjgo" data-v="l">↩ آخر صفحة قرأتها ('+ar(S.quran.last)+')</button></div>':'')+'</section>';
-  return h;
-}
 /* قائمة المصحف الجانبية: بحث + انتقال سريع + الورد اليومي + أقسام المصحف + العلامات */
 function mpDrawerHtml(p){
   var D=QD(),q=S.quran,k=dk(),pg=qPages(k),goal=q.goal,done=pg>=goal,mt=rd.mt||'p';
@@ -81,7 +72,6 @@ function mpAct(a,v){
    قد تصيب زرًا ظهر تحت الإصبع. الابتلاع مرة واحدة فقط، خلال 400ms، وعلى بعد 60px من موضع
    الإصبع — أي نقرة حقيقية أبعد أو لاحقة تمر فورًا (كان 700ms تبتلع كل النقرات). */
 var mpSwAt=0,mpSwX=0,mpSwY=0;
-function mpSwallow(x,y){mpSwAt=Date.now();mpSwX=x;mpSwY=y}
 document.addEventListener('click',function(e){
   if(!mpSwAt)return;
   if(Date.now()-mpSwAt>400){mpSwAt=0;return}
@@ -265,18 +255,6 @@ var TF_CAP=300,TF_IDX='alsaer_tf_idx',tfMig=false;
 function tfIdx(){try{var a=JSON.parse(localStorage.getItem(TF_IDX)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
 function tfSaveIdx(a){try{localStorage.setItem(TF_IDX,JSON.stringify(a))}catch(e){}}
 function tfMigrate(){if(tfMig)return;tfMig=true;try{var a=tfIdx(),add=[];for(var n=0;n<localStorage.length;n++){var k2=localStorage.key(n);if(k2&&k2.indexOf('alsaer_tf_')===0&&k2!==TF_IDX&&a.indexOf(k2)<0)add.push(k2)}if(add.length){a=add.concat(a);tfSaveIdx(a)}}catch(e){}}
-function tfTouch(ck){tfMigrate();var a=tfIdx(),i=a.indexOf(ck);if(i>=0){a.splice(i,1);a.push(ck);tfSaveIdx(a)}}
-function tfPut(ck,t){
-  tfMigrate();var a=tfIdx(),i=a.indexOf(ck);if(i>=0)a.splice(i,1);
-  try{localStorage.setItem(ck,t)}catch(e){
-    /* امتلأت المساحة: امسح الأقدم حتى النصف وحاول مرة أخيرة */
-    while(a.length>Math.floor(TF_CAP/2)){var o0=a.shift();try{localStorage.removeItem(o0)}catch(e2){}}
-    try{localStorage.setItem(ck,t)}catch(e3){}
-  }
-  a.push(ck);
-  while(a.length>TF_CAP){var old=a.shift();try{localStorage.removeItem(old)}catch(e4){}}
-  tfSaveIdx(a);
-}
 document.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('[data-mp2]');if(!b)return;e.stopPropagation();
   var k=b.getAttribute('data-mp2');

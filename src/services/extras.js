@@ -24,10 +24,6 @@ function bkBuild(){
   var rem=null;try{rem=JSON.parse(localStorage.getItem('alsaer_daily_reminders_v1')||'null')}catch(e){}
   return JSON.stringify({app:'alsaer',v:1,at:Date.now(),S:c,rem:rem});
 }
-function bkCopy(txt){
-  try{if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(txt).then(function(){return true},function(){return bkCopyOld(txt)})}catch(e){}
-  return Promise.resolve(bkCopyOld(txt));
-}
 function bkCopyOld(txt){try{var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0;top:0';document.body.appendChild(ta);ta.select();var ok=document.execCommand('copy');ta.remove();return !!ok}catch(e){return false}}
 function bkApply(raw){
   var o;try{o=JSON.parse(String(raw||'').trim())}catch(e){return 'الملف غير صالح (ليس بصيغة النسخة الاحتياطية).'}
@@ -56,14 +52,6 @@ function bkApply(raw){
 
   S=n;mem=n;setTimeout(function(){location.reload()},400);
   return '';
-}
-function bkAgo(t){
-  var d=Math.floor((Date.now()-t)/864e5);
-  if(d<=0)return 'اليوم';
-  if(d===1)return 'أمس';
-  if(d===2)return 'منذ يومين';
-  if(d<=10)return 'منذ '+ar(d)+' أيام';
-  return 'منذ '+ar(d)+' يومًا';
 }
 function gdDriveCard(st,disabled){
   var linked=gdHasRt(),em=gdEmail();

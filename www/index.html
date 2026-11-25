@@ -4401,7 +4401,6 @@ function vReader(){
   return vHafsFlow();
 }
 /* القارئ المتدفق لا يحتاج قياس أسطر الصفحة؛ بقيت الدالتان لأن الغلاف يستدعيهما */
-function fitReader(){}
 function fitSoon(){}
 var BAD_HABITS=[['smoke','التدخين'],['lie','الكذب'],['deceive','الخداع'],['backbite','الغيبة']];
 var WORSHIP=[['prayer','الصلاة','mosque'],['fast','الصوم','sun'],['adhkar','الأذكار','beads'],['quran','قراءة القرآن','book'],['wird','الورد اليومي','doc'],['istighfar','الاستغفار','refresh'],['salawat','الصلاة على النبي ﷺ','heart'],['charity','الصدقة','coins'],['lesson','حضور درس علم','star'],['night','قيام الليل','moon'],['help','مساعدة محتاج','leaf'],['visit','زيارة مريض','user']];
@@ -4616,10 +4615,6 @@ function bkBuild(){
   var rem=null;try{rem=JSON.parse(localStorage.getItem('alsaer_daily_reminders_v1')||'null')}catch(e){}
   return JSON.stringify({app:'alsaer',v:1,at:Date.now(),S:c,rem:rem});
 }
-function bkCopy(txt){
-  try{if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(txt).then(function(){return true},function(){return bkCopyOld(txt)})}catch(e){}
-  return Promise.resolve(bkCopyOld(txt));
-}
 function bkCopyOld(txt){try{var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0;top:0';document.body.appendChild(ta);ta.select();var ok=document.execCommand('copy');ta.remove();return !!ok}catch(e){return false}}
 function bkApply(raw){
   var o;try{o=JSON.parse(String(raw||'').trim())}catch(e){return 'الملف غير صالح (ليس بصيغة النسخة الاحتياطية).'}
@@ -4648,14 +4643,6 @@ function bkApply(raw){
 
   S=n;mem=n;setTimeout(function(){location.reload()},400);
   return '';
-}
-function bkAgo(t){
-  var d=Math.floor((Date.now()-t)/864e5);
-  if(d<=0)return 'اليوم';
-  if(d===1)return 'أمس';
-  if(d===2)return 'منذ يومين';
-  if(d<=10)return 'منذ '+ar(d)+' أيام';
-  return 'منذ '+ar(d)+' يومًا';
 }
 function gdDriveCard(st,disabled){
   var linked=gdHasRt(),em=gdEmail();
@@ -4891,10 +4878,6 @@ function gdReq(url,opt){
   });
 }
 
-function gdFindFile(){
-  return gdReq('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent("name='"+GD_FILE+"' and trashed=false")+'&orderBy=modifiedTime%20desc&fields=files(id,modifiedTime)&pageSize=1')
-    .then(function(r){return r.json()}).then(function(o){return o.files&&o.files.length?o.files[0]:null});
-}
 
 /* --- رفع النسخة (إنشاء أو استبدال الملف نفسه) --- */
 function gdUpload(provided){
@@ -5432,7 +5415,6 @@ document.addEventListener('change',function(e){var t=e.target;if(t&&t.getAttribu
 
 /* ---------- علامات المصحف ---------- */
 function bmList(){if(!Array.isArray(S.bm))S.bm=[];return S.bm}
-function bmHas(p){return !!p&&bmList().indexOf(p)>=0}
 function bmCard(){
   var L=bmList().slice().sort(function(a,b){return a-b});
   return '<section class="card"><h3>علامات المصحف</h3>'+(L.length?L.map(function(p){return '<div class="nt-i"><button class="bm-go" data-a="qopen" data-v="'+p+'"><b>صفحة '+ar(p)+'</b><small>سورة '+esc(pageSura(p))+'</small></button><button class="nt-x" data-a="bmdel" data-v="'+p+'" aria-label="حذف">✕</button></div>'}).join(''):'<p class="note">اضغط ☆ أثناء القراءة في المصحف لوضع علامة.</p>')+'</section>';
@@ -6043,15 +6025,6 @@ function mqUseRiw(nr,cb){
 }
 /* ---------- المصحف: انتقال سريع · تقليب بالسحب · متابعة من حيث توقفت ---------- */
 function mpJuzPage(j){var P=curP();for(var i=0;i<P.length;i++)if(P[i][4]===j)return i+1;return 1}
-function mpJump(p){
-  var D=QD(),h='<section class="card mpj"><h3>انتقال سريع</h3><div class="mpj-r"><label>الصفحة<input id="mpj-p" class="qd-i" type="number" inputmode="numeric" min="1" max="604" placeholder="'+ar(p)+'"></label><button class="btn" data-a="qjgo" data-v="p">اذهب</button></div>'
-   +'<div class="mpj-r"><label>السورة<select id="mpj-s" class="qd-i">'+D.n.map(function(n,i){return '<option value="'+(i+1)+'">'+ar(i+1)+' · '+esc(n)+'</option>'}).join('')+'</select></label><button class="btn" data-a="qjgo" data-v="s">اذهب</button></div>'
-   +'<div class="mpj-r"><label>الجزء<select id="mpj-j" class="qd-i">'+Array.apply(null,Array(30)).map(function(_,i){return '<option value="'+(i+1)+'">الجزء '+ar(i+1)+'</option>'}).join('')+'</select></label><button class="btn" data-a="qjgo" data-v="j">اذهب</button></div>'
-   +'<div class="mpj-r"><label>الحزب والربع<select id="mpj-q" class="qd-i">'+Array.apply(null,Array(240)).map(function(_,i){var h=Math.floor(i/4)+1,q=i%4;return '<option value="'+i+'">الحزب '+ar(h)+(q?' · '+['','الربع الأول','النصف','ثلاثة أرباع'][q]:'')+'</option>'}).join('')+'</select></label><button class="btn" data-a="qjgo" data-v="q">اذهب</button></div>'
-   +mpMarksHtml()
-   +(S.quran.last?'<div class="acts"><button class="btn ghost" data-a="qjgo" data-v="l">↩ آخر صفحة قرأتها ('+ar(S.quran.last)+')</button></div>':'')+'</section>';
-  return h;
-}
 /* قائمة المصحف الجانبية: بحث + انتقال سريع + الورد اليومي + أقسام المصحف + العلامات */
 function mpDrawerHtml(p){
   var D=QD(),q=S.quran,k=dk(),pg=qPages(k),goal=q.goal,done=pg>=goal,mt=rd.mt||'p';
@@ -6099,7 +6072,6 @@ function mpAct(a,v){
    قد تصيب زرًا ظهر تحت الإصبع. الابتلاع مرة واحدة فقط، خلال 400ms، وعلى بعد 60px من موضع
    الإصبع — أي نقرة حقيقية أبعد أو لاحقة تمر فورًا (كان 700ms تبتلع كل النقرات). */
 var mpSwAt=0,mpSwX=0,mpSwY=0;
-function mpSwallow(x,y){mpSwAt=Date.now();mpSwX=x;mpSwY=y}
 document.addEventListener('click',function(e){
   if(!mpSwAt)return;
   if(Date.now()-mpSwAt>400){mpSwAt=0;return}
@@ -6283,18 +6255,6 @@ var TF_CAP=300,TF_IDX='alsaer_tf_idx',tfMig=false;
 function tfIdx(){try{var a=JSON.parse(localStorage.getItem(TF_IDX)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
 function tfSaveIdx(a){try{localStorage.setItem(TF_IDX,JSON.stringify(a))}catch(e){}}
 function tfMigrate(){if(tfMig)return;tfMig=true;try{var a=tfIdx(),add=[];for(var n=0;n<localStorage.length;n++){var k2=localStorage.key(n);if(k2&&k2.indexOf('alsaer_tf_')===0&&k2!==TF_IDX&&a.indexOf(k2)<0)add.push(k2)}if(add.length){a=add.concat(a);tfSaveIdx(a)}}catch(e){}}
-function tfTouch(ck){tfMigrate();var a=tfIdx(),i=a.indexOf(ck);if(i>=0){a.splice(i,1);a.push(ck);tfSaveIdx(a)}}
-function tfPut(ck,t){
-  tfMigrate();var a=tfIdx(),i=a.indexOf(ck);if(i>=0)a.splice(i,1);
-  try{localStorage.setItem(ck,t)}catch(e){
-    /* امتلأت المساحة: امسح الأقدم حتى النصف وحاول مرة أخيرة */
-    while(a.length>Math.floor(TF_CAP/2)){var o0=a.shift();try{localStorage.removeItem(o0)}catch(e2){}}
-    try{localStorage.setItem(ck,t)}catch(e3){}
-  }
-  a.push(ck);
-  while(a.length>TF_CAP){var old=a.shift();try{localStorage.removeItem(old)}catch(e4){}}
-  tfSaveIdx(a);
-}
 document.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('[data-mp2]');if(!b)return;e.stopPropagation();
   var k=b.getAttribute('data-mp2');
@@ -8061,14 +8021,6 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
     try{localStorage.setItem(REM_KEY,JSON.stringify(x));return true}catch(e){return false}
   }
   function remEsc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-  function remRow(id,title,desc,field,timeField){
-    var r=remLoad();
-    return '<div class="card" style="margin:12px 0;padding:15px;border:1px solid var(--line,rgba(150,170,210,.2));">'
-      +'<div style="display:flex;gap:12px;align-items:center;justify-content:space-between">'
-      +'<div style="flex:1"><b>'+title+'</b><div class="note" style="margin-top:5px">'+desc+'</div></div>'
-      +'<label style="display:flex;align-items:center;gap:7px"><input type="checkbox" data-rem-toggle="'+field+'" '+(r[field]?'checked':'')+'><span>تفعيل</span></label></div>'
-      +'<div style="display:flex;align-items:center;gap:10px;margin-top:12px"><label for="rem-'+id+'">وقت التذكير</label><input id="rem-'+id+'" type="time" data-rem-time="'+timeField+'" value="'+remEsc(r[timeField])+'" style="padding:9px;border-radius:10px;background:var(--surface);color:var(--text);border:1px solid var(--line);font:inherit"></div></div>';
-  }
   var SOUND_PLAYER=null;
   function remPlayTone(){
     try{

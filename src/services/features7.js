@@ -195,7 +195,6 @@ document.addEventListener('change',function(e){var t=e.target;if(t&&t.getAttribu
 
 /* ---------- علامات المصحف ---------- */
 function bmList(){if(!Array.isArray(S.bm))S.bm=[];return S.bm}
-function bmHas(p){return !!p&&bmList().indexOf(p)>=0}
 function bmCard(){
   var L=bmList().slice().sort(function(a,b){return a-b});
   return '<section class="card"><h3>علامات المصحف</h3>'+(L.length?L.map(function(p){return '<div class="nt-i"><button class="bm-go" data-a="qopen" data-v="'+p+'"><b>صفحة '+ar(p)+'</b><small>سورة '+esc(pageSura(p))+'</small></button><button class="nt-x" data-a="bmdel" data-v="'+p+'" aria-label="حذف">✕</button></div>'}).join(''):'<p class="note">اضغط ☆ أثناء القراءة في المصحف لوضع علامة.</p>')+'</section>';

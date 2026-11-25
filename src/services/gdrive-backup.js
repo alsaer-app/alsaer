@@ -196,10 +196,6 @@ function gdReq(url,opt){
   });
 }
 
-function gdFindFile(){
-  return gdReq('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent("name='"+GD_FILE+"' and trashed=false")+'&orderBy=modifiedTime%20desc&fields=files(id,modifiedTime)&pageSize=1')
-    .then(function(r){return r.json()}).then(function(o){return o.files&&o.files.length?o.files[0]:null});
-}
 
 /* --- رفع النسخة (إنشاء أو استبدال الملف نفسه) --- */
 function gdUpload(provided){

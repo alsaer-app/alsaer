@@ -15,14 +15,6 @@
     try{localStorage.setItem(REM_KEY,JSON.stringify(x));return true}catch(e){return false}
   }
   function remEsc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-  function remRow(id,title,desc,field,timeField){
-    var r=remLoad();
-    return '<div class="card" style="margin:12px 0;padding:15px;border:1px solid var(--line,rgba(150,170,210,.2));">'
-      +'<div style="display:flex;gap:12px;align-items:center;justify-content:space-between">'
-      +'<div style="flex:1"><b>'+title+'</b><div class="note" style="margin-top:5px">'+desc+'</div></div>'
-      +'<label style="display:flex;align-items:center;gap:7px"><input type="checkbox" data-rem-toggle="'+field+'" '+(r[field]?'checked':'')+'><span>تفعيل</span></label></div>'
-      +'<div style="display:flex;align-items:center;gap:10px;margin-top:12px"><label for="rem-'+id+'">وقت التذكير</label><input id="rem-'+id+'" type="time" data-rem-time="'+timeField+'" value="'+remEsc(r[timeField])+'" style="padding:9px;border-radius:10px;background:var(--surface);color:var(--text);border:1px solid var(--line);font:inherit"></div></div>';
-  }
   var SOUND_PLAYER=null;
   function remPlayTone(){
     try{
