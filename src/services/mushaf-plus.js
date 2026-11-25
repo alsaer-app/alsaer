@@ -526,7 +526,7 @@ function mqClrOpen(){
 }
 function tfSz(){return Math.max(16,Math.min(38,S.quran.tfs||16))}
 function mqReadSet(){
-  var q=S.quran,fs=Math.max(18,Math.min(40,q.fs||26)),tfs=tfSz(),bm=q.bm2;
+  var q=S.quran,fs=Math.max(18,Math.min(40,qFs())),tfs=tfSz(),bm=q.bm2;
   return '<section class="card mq-rs"><h3>إعدادات القراءة</h3>'
   +'<div class="mq-rs-row"><b>خط القرآن</b><div class="step"><button class="ib" data-a="qfs" data-v="-2" aria-label="تصغير خط القرآن"'+(fs<=18?' disabled':'')+'>'+ic('minus')+'</button><b>'+ar(fs)+'</b><button class="ib" data-a="qfs" data-v="2" aria-label="تكبير خط القرآن"'+(fs>=40?' disabled':'')+'>'+ic('plus')+'</button></div></div>'
   +'<div class="mq-rs-pv mq-pv-q" lang="ar" dir="rtl" style="font-size:'+fs+'px">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</div>'

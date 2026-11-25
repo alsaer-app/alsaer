@@ -13,6 +13,7 @@ function hafsVerse(c,v){
   return t;
 }
 /* نص الآية كما يُعرض (ورش: استبدال شكلي للخط فقط) */
+function qFs(){return isW()?(S.quran.fsw||22):(S.quran.fs||26)} /* حجم ورش مستقل عن حفص؛ الافتراضي ٢٢ لأن الخط أعرض */
 function verseShow(c,v){return verseText(c,v)} /* ورش يُرسم بخط ورش الرسمي (Scheherazade New) فلا حاجة لاستبدال شكلي */
 /* يفتح قارئ التدفق عند صفحة الرواية الحالية */
 function mqRd(from,to,page,extra){
@@ -25,7 +26,7 @@ function suraMeta(c){var n=AD().s[c-1].length;return (MEDINAN.indexOf(c)>=0?'م�
 /* قارئ حفص الجديد على نمط التقوى (إعادة تنفيذ من الأرقام): سورة واحدة في الشاشة، نص متدفق بتمرير رأسي، بلا صفحات */
 function vHafsFlow(){
   var D=AD(),c=rd.sura,vs=D.s[c-1];
-  var fs=Math.max(18,Math.min(40,S.quran.fs||26));
+  var fs=Math.max(18,Math.min(40,qFs()));
   S.quran.last=rd.page=mpVerPage(c,+(String(rd.cv||c+':1').split(':')[1]||1));
   var onBm=mqBmOn(c);
   var body=(c!==1&&c!==9?'<div class="mq-bs">'+esc(isW()?D.b:D.s[0][0])+'</div>':'');

@@ -203,7 +203,7 @@ document.addEventListener('click',async function(e){
   else if(/^qtf(back|idx|sura|x|cp|go|au)$/.test(a)){if(tfAct(a,v))return}
   else if(a==='qtafsir'){if(rd&&rd.flow&&rd.cv&&typeof mqOpenTf==='function')mqOpenTf(rd.cv)}
 
-  else if(a==='qfs'){if(rd){var nf=Math.max(18,Math.min(40,(S.quran.fs||26)+(parseInt(v,10)||0)));if(nf!==(S.quran.fs||26)){S.quran.fs=nf;save()}}}
+  else if(a==='qfs'){if(rd){var fk=isW()?'fsw':'fs',cf=qFs(),nf=Math.max(18,Math.min(40,cf+(parseInt(v,10)||0)));if(nf!==cf){S.quran[fk]=nf;save()}}}
   else if(a==='qtfs'){var nt=Math.max(16,Math.min(38,(S.quran.tfs||16)+(parseInt(v,10)||0)));if(nt!==(S.quran.tfs||16)){S.quran.tfs=nt;save()}}
   else if(a==='qbm2clr'){mqClrOpen()}
   else if(a==='qdone'){if(rd&&rd.free){if(rd.sura)markSuraDone(rd.sura);rd=null;tab='home';window.scrollTo(0,0);toast('تقبّل الله منك')}else if(rd){if(!(qPages(dk())>0))lockSet('q:'+dk());var nn=Math.max(1,rd.page-rd.from+1),kq=dk(),before=qPages(kq);S.quran.log[kq]=before+nn;mtSet('q');var wrap=rd.page>=604;S.quran.pos=wrap?1:rd.page+1;rd=null;tab='home';save();window.scrollTo(0,0);toast(wrap?'ما شاء الله، أتممت ختمة المصحف':(S.quran.log[kq]>=S.quran.goal?'تقبّل الله منك، أتممت وردك اليوم':'تم تسجيل '+ar(nn)+' صفحة'));checkNew()}}
