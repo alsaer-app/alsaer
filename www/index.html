@@ -7845,7 +7845,7 @@ document.addEventListener('pointerdown',function(e){
 (function(){var _r=render;render=function(){var x=_r.apply(this,arguments);try{applyMp();femizeDom(document.getElementById('app'));femizeDom(document.getElementById('top'))}catch(e){}return x}})();
 (function(){var _t=toast;toast=function(t){return _t(isFem()?femStr(t):t)}})();
 render();
-setTimeout(function(){splash=false;render();checkNew()},window.__NOSPLASH?0:1000);
+setTimeout(function(){splash=false;render();checkNew();try{var _w=Math.round(performance.now()),_t=-1;if(window.AlsaerNative&&AlsaerNative.bootDone)_t=AlsaerNative.bootDone(_w);window.__alsaerBoot={webMs:_w,totalMs:typeof _t==='number'?_t:-1}}catch(e){}},window.__NOSPLASH?0:1000);
 setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,300)})(function(){loadHeavy()})}catch(e){}},window.__NOSPLASH?1500:6000);
 (function(){var x0=null,y0=null;
   document.addEventListener('touchstart',function(e){var m=e.target.closest&&e.target.closest('#mp');if(m&&e.touches.length===1){x0=e.touches[0].clientX;y0=e.touches[0].clientY}else x0=null},{passive:true});

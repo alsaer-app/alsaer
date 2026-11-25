@@ -27,6 +27,17 @@ public class AlsaerNative {
         return act.getSharedPreferences("alsaer_webstore_mirror", 0).getString(k, null);
     }
 
+    /* ---- بند 64: قياس بدء التشغيل — نبضة خفية بلا واجهة: آخر زمن إقلاع يُحفظ ويُسجَّل في logcat (AlsaerBoot) ---- */
+    private static volatile long bootT0 = 0;
+    public static void markBoot() { bootT0 = SystemClock.elapsedRealtime(); }
+    @JavascriptInterface public long bootDone(int webMs) {
+        long totalMs = bootT0 > 0 ? SystemClock.elapsedRealtime() - bootT0 : -1;
+        act.getSharedPreferences("alsaer_boot", 0).edit()
+            .putLong("last_web_ms", webMs).putLong("last_total_ms", totalMs).apply();
+        android.util.Log.i("AlsaerBoot", "web_ms=" + webMs + " total_ms=" + totalMs);
+        return totalMs;
+    }
+
     @JavascriptInterface public void gdriveAuthorize(boolean interactive) {
         act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).authorizeDrive(interactive); });
     }

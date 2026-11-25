@@ -27,6 +27,7 @@ public class MainActivity extends BridgeActivity {
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        AlsaerNative.markBoot(); // ALSAER بند 64: بداية ساعة قياس الإقلاع
         registerPlugin(BiometricPlugin.class);
         super.onCreate(savedInstanceState);
         // ALSAER: جسر الإشعارات الأصلية + تعليق المستمع + جدولة التنبيهات عند إعادة الفتح
