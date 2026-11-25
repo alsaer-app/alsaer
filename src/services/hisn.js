@@ -121,7 +121,7 @@ function vHisn(){
     h+='<div class="hsn-top"><button class="btn ghost" data-a="hsnback">← الأذكار</button><b class="hsn-cn">'+cat.name+'</b><span class="hsn-fs"><button class="btn ghost" data-a="hsnfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hsnfs" data-v="2">أ+</button></span></div>'
      +'<div class="asm-bar"><i id="hsn-pb" style="width:'+Math.round(dn/cat.items.length*100)+'%"></i></div>'
      +cat.items.map(function(it,i){var r=hsnRem(P,hsnS.cat,i),dn=r<=0;
-       return '<div class="card hsn-z'+(dn?' done':'')+'" data-a="hsnz" data-v="'+hsnS.cat+':'+i+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+it.text+'</div><div class="hsn-b"><small>'+(it.virtue||'')+(it.s?' · <span>ذكر</span> '+ar(it.s):'')+(it.m?' · <span>نص إضافي للتجربة</span>':'')+'</small>'+(it.u?'<button class="btn ghost hsn-au" data-a="hsnau" data-v="'+hsnS.cat+':'+i+'">▶ استماع</button>':'')+'<span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}).join('');
+       return '<div class="card hsn-z'+(dn?' done':'')+'" data-a="hsnz" data-v="'+hsnS.cat+':'+i+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+it.text+'</div><div class="hsn-b"><small>'+(it.virtue||'')+(it.s?' · <span>ذكر</span> '+ar(it.s):'')+(it.m?' · <span>نص إضافي للتجربة</span>':'')+'</small>'+(it.u?'<button class="btn ghost hsn-au" data-a="hsnau" data-v="'+hsnS.cat+':'+i+'">▶ استماع</button>':'')+'<button class="btn ghost hsn-au hsn-sh" data-a="hsnsh" data-v="'+hsnS.cat+':'+i+'">مشاركة</button>'+'<span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}).join('');
     return h+'</div>';
   }
   h+='<div class="asm-grid">'+Object.keys(HSN).map(function(s){var c=HSN[s],dn=hsnDone(P,s);return '<button class="asm-card" data-a="hsncat" data-v="'+s+'"><i class="asm-dot'+(dn===c.items.length?' on':'')+'"></i><div class="hsn-ic">'+c.icon+'</div><b>'+c.name+'</b><span>'+ar(dn)+' / '+ar(c.items.length)+'</span></button>'}).join('')+'</div>';
@@ -158,6 +158,9 @@ function hsnAct(a,v){
   if(a==='hsncat'){hsnS.cat=v;try{window.scrollTo(0,0)}catch(e){}return true}
   if(a==='hsnback'){hsnAuStop();hsnS.cat=null;return true}
   if(a==='hsnfs'){P.fs=Math.max(16,Math.min(32,P.fs+(+v)));save();return true}
+  if(a==='hsnsh'){var q2=v.split(':'),it2=hsnG(q2[0]).items[+q2[1]];if(!it2)return false;var tx=String(it2.text).replace(/<[^>]*>/g,'')+(it2.virtue?'\n\n'+it2.virtue:'');
+    try{if(navigator.share){navigator.share({text:tx});return false}}catch(e){}
+    try{navigator.clipboard.writeText(tx);toast('تم نسخ الذكر')}catch(e){toast('تعذّر النسخ')}return false}
   if(a==='hsnau'){
     var q=v.split(':'),it=hsnG(q[0]).items[+q[1]],b=document.querySelector('[data-a=hsnau][data-v="'+v+'"]');
     if(hsnF.ak===v){hsnAuStop();return false}
