@@ -24,7 +24,7 @@ assert "gdPhase='down'" in seg and "gdPhase=''" in seg
 assert "gdRestoreApply(gdVerified);gdFlashDone('down')" in gd
 # all three button clusters use the helper
 assert ex.count("gdBtn('up'") >= 1 and ex.count("gdBtn('down'") >= 1 and 'gdProgBar()' in ex
-assert gd.count("gdBtn('up'") >= 1 and gd.count("gdBtn('down'") >= 1
+assert "function gdBtn(" in gd  # the old second cluster (vGdCard) was removed in 4b884bb; the live Drive card is the extras.js one
 # CSS from the approved mock
 for sel in ['.gd-spin', '.gd-prog', '@keyframes gdProg', '.btn.done', '@keyframes gdDone', 'animation:spin .7s linear infinite']:
     assert sel in css, sel

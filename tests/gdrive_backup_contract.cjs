@@ -6,7 +6,7 @@ const tick=()=>new Promise(r=>setImmediate(r));
  let uploads=[];ctx.gdUpload=async c=>uploads.push(c);
  assert.equal(ctx.gdPrefs().auto,true);assert.equal(ctx.gdPrefs().encrypt,false);
  await ctx.gdRunBackup(false);assert.equal(uploads[0],'{"sample":true}');assert.ok(ctx.gdPrefs().phoneAt);assert.ok(ctx.S.gdAt);
- ctx.gdAct('gdstore','drive');assert.equal(ctx.gdPrefs().storage,'drive');
+ assert.equal(ctx.gdPrefs().storage,'both');/* gdstore removed in fb2878d: the UI no longer offers a storage choice, default is phone+Drive */
  ctx.gdAct('gdpwsave');assert.equal(ctx.gdPrefs().encrypt,true);assert.ok(data.get('alsaer_drive_sealed_pw').startsWith('sealed:'));
  await ctx.gdRunBackup(false);assert.ok(uploads.at(-1).startsWith('ALSAER-ENC1:'));
  ctx.S.gdAt=Date.now();ctx.gdStatusSet('driveAt',ctx.S.gdAt);let n=uploads.length;ctx.gdAutoOnOpen();await tick();assert.equal(uploads.length,n);
