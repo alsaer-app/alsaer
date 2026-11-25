@@ -160,3 +160,4 @@ jobs:
         run: rm -f android/app/alsaer-release-key.p12
 
 # Reviewed text-only in-app privacy correction and Settings fixtures included.
+# trigger: mushaf test build of local HEAD
