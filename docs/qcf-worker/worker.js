@@ -90,34 +90,6 @@ export default {
       return new Response(null, { status: 204, headers: cors() });
     }
 
-    // Temporary diagnostics: which QCF oauth host accepts the stored credentials.
-    // Returns statuses only; never returns tokens or secrets. Remove after QCF setup settles.
-    if (url.pathname === '/debug-auth') {
-      const probe = async (hosts, scope) => {
-        try {
-          const basic = btoa(`${encodeURIComponent(env.QCF_CLIENT_ID)}:${encodeURIComponent(env.QCF_CLIENT_SECRET)}`);
-          const r = await fetch(hosts.oauth, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': `Basic ${basic}` },
-            body: 'grant_type=client_credentials' + (scope ? `&scope=${encodeURIComponent(scope)}` : ''),
-          });
-          return r.ok ? 'token_ok' : `http_${r.status}`;
-        } catch (e) { return 'error'; }
-      };
-      const out = {
-        quran: await probe(PRELIVE, 'content.quran.read'),
-        translations: await probe(PRELIVE, 'content.translations.read'),
-        tafsirs: await probe(PRELIVE, 'content.tafsirs.read'),
-        audio: await probe(PRELIVE, 'content.audio.read'),
-        hadith: await probe(PRELIVE, 'content.hadith.read'),
-        metadata: await probe(PRELIVE, 'content.metadata.read'),
-        sync: await probe(PRELIVE, 'content.sync.read'),
-        reflections: await probe(PRELIVE, 'content.reflections.read'),
-        qa: await probe(PRELIVE, 'content.qa.read'),
-      };
-      return new Response(JSON.stringify(out), { headers: cors({ 'Content-Type': 'application/json' }) });
-    }
-
     if (url.pathname === '/health') {
       return new Response(JSON.stringify({ ok: true, service: 'alsaer-qcf-proxy' }), {
         headers: cors({ 'Content-Type': 'application/json' }),
