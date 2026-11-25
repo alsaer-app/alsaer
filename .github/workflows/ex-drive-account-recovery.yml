@@ -152,6 +152,7 @@ jobs:
           "$BT/aapt" dump resources "$APK" | tee /tmp/apkfiles.txt
           grep -q 'layout/alsaer_widget:' /tmp/apkfiles.txt
           grep -q 'xml/alsaer_widget_info:' /tmp/apkfiles.txt
+          echo "fatwas files in APK: $(unzip -l "$APK" | grep -c assets/public/fatwas/)"; unzip -l "$APK" | tail -1
           stat -c '%s bytes' "$APK" && sha256sum "$APK" && git rev-parse HEAD
       - uses: actions/upload-artifact@v4
         with: {name: alsaer-2.0.0-10200-mushaf-images-drive-card-test, path: android/app/build/outputs/apk/release/app-release.apk, retention-days: 3, if-no-files-found: error}
@@ -162,3 +163,4 @@ jobs:
 # Reviewed text-only in-app privacy correction and Settings fixtures included.
 # trigger: mushaf test build of local HEAD
 # rerun
+# trigger: fatwas online test build, R8 off

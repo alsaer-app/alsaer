@@ -22,7 +22,7 @@
  "_settings_preserved_sha256": "8d802d561af6ea03179cda2bc6496c1527acde42834978c8c1f1a3f0da7c411a",
  "android/.gitignore": "065e4a92a240fe11a0ea230491ad9dabef143f5fd5a3e6884ad6f0395666a971",
  "android/app/.gitignore": "99c54e51ee601a60fbde8016b2cbf717483bc2e92773be86c9247d02a7fa6ea4",
- "android/app/build.gradle": "863e33b5e0e2858f849f533f23fa07d030b76a700b8556af0d6baf38c0c58c4b",
+ "android/app/build.gradle": "1177933c5b0af422aca9b33a583ff9197bf809c16c2d36ae9d40afed4d833c00",
  "android/app/capacitor.build.gradle": "99daeda0f3366bba0fe6bae2b51295645aebcb09c0c72c17d580515b47df1a9c",
  "android/app/proguard-rules.pro": "3daffacfdcf9d77af67d33b00dd786a600e816204055f0de7ffe7189bd6a92dc",
  "android/app/src/androidTest/java/com/getcapacitor/myapp/ExampleInstrumentedTest.java": "ff50b4c110a7434312f9af54171f9e8523b015836f707c9b387b76d4c38a97f8",
