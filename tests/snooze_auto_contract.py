@@ -40,3 +40,10 @@ assert 'data-rem-toggle="snoozeAuto"' in st and 'snzstop' in st and 'snoozeActiv
 disp = (R / 'src/core/event-dispatcher.js').read_text()
 assert "a==='snzstop'" in disp and 'snoozeStopAll' in disp
 print('PASS snooze: 10min chain cap 3, stop action, per-firing prefs, one-shot fallback, settings rows, bridge')
+# 10201 fix: rescheduling (app open / setSchedule) must keep active snoozes; next occurrence is scheduled before show()
+i = sched.index('static void cancelAll')
+body = sched[i:sched.index('static void cancelLegacyAction')]
+assert 'keptSnoozes' in body and 'alsaer-alarm://snooze/' in body, 'cancelAll keeps snooze records'
+assert 'putString("alarm-records-v2",keptSnoozes.toString())' in body, 'kept snoozes stay recorded'
+assert recv.index('AlarmScheduler.scheduleAt') < recv.index('AlarmScheduler.show(c, it)'), 'schedule next before show'
+assert recv.count('AlarmScheduler.show(c, it)') == 1

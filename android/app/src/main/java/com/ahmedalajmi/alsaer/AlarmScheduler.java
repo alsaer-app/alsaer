@@ -116,11 +116,14 @@ public final class AlarmScheduler {
             JSONArray ids=new JSONArray(prefs(c).getString(K_IDS,"[]"));
             for(int n=0;n<ids.length();n++)cancelIntent(c,am,ids.optInt(n),new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM));
         }catch(Exception ignored){}
+        final JSONArray keptSnoozes=new JSONArray();
         /* Both normal and snooze entries are tracked as exact identity records, including deleted items. */
         try {
             JSONArray records=new JSONArray(prefs(c).getString("alarm-records-v2","[]"));
             for(int n=0;n<records.length();n++){
                 JSONObject r=records.optJSONObject(n);if(r==null)continue;
+                /* الغفوات النشطة لا تُلغى عند إعادة الجدولة (فتح التطبيق/حفظ الجدول) وتبقى مسجّلة */
+                if(r.optString("uri").startsWith("alsaer-alarm://snooze/")){keptSnoozes.put(r);continue;}
                 Intent in=new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM).setData(Uri.parse(r.optString("uri")));
                 cancelIntent(c,am,r.optInt("rc"),in);
             }
@@ -140,7 +143,7 @@ public final class AlarmScheduler {
                 cancelIntent(c,am,legacyCode(id+"#snz"),new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM));
             }
         }catch(Exception ignored){}
-        prefs(c).edit().putBoolean("legacy-identity-cleaned-v2",true).putString("alarm-records-v2","[]").putString("legacy-items-v2",prefs(c).getString(K_ITEMS,"[]")).apply();
+        prefs(c).edit().putBoolean("legacy-identity-cleaned-v2",true).putString("alarm-records-v2",keptSnoozes.toString()).putString("legacy-items-v2",prefs(c).getString(K_ITEMS,"[]")).apply();
     }
     static void cancelLegacyAction(Context c,int rc,String action){
         PendingIntent pi=PendingIntent.getBroadcast(c,rc,new Intent(c,ActionReceiver.class).setAction(action),PendingIntent.FLAG_NO_CREATE|immutable());if(pi!=null)pi.cancel();

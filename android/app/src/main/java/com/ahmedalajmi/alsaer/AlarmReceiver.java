@@ -20,7 +20,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 if(!AlarmScheduler.prefs(c).edit().putLong(onceKey,once).commit())return;
             }
             if (!snooze) AlarmScheduler.snoozeChainSet(c, it.optString("id"), 0); // إطلاق جديد: نهاية سلسلة التأجيل السابقة
-            AlarmScheduler.show(c, it);
+            /* الجدولة التالية قبل العرض: فشل العرض لا يقطع سلسلة التذكير المتكرر ولا الغفوة. */
             if (snooze && AlarmScheduler.snoozeAuto(c)) {
                 int n = AlarmScheduler.snoozeChain(c, it.optString("id"));
                 if (n > 0 && n < AlarmScheduler.SNOOZE_MAX) {
@@ -32,6 +32,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 long at = AlarmScheduler.nextTrigger(it, System.currentTimeMillis() + 1000L);
                 if (at > 0) AlarmScheduler.scheduleAt(c, it, at, false);
             }
+            AlarmScheduler.show(c, it);
         } catch (Exception e) {
             FloatLog.err(c, NativeStrings.get(c, "receive_alert"), String.valueOf(e));
         }
