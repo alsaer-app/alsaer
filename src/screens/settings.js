@@ -160,6 +160,7 @@ function vSettings(){
    +'<button type="button" class="sg-row sg-btn" data-a="tourreplay"><span class="sg-ic">'+ic('sparkles')+'</span><div class="sg-tx"><b>إعادة الجولة التعريفية</b><small>جولة سريعة على أهم الشاشات</small></div>'+sgCtlV('')+'</button>'
    +sgNavTab('developer','info','عن التطبيق','سجل الإصدارات · الخصوصية','')
    +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصدر التفسير</b><small>التفسير الميسر لمجمع الملك فهد لطباعة المصحف الشريف، من قاعدة مركز تفسير للدراسات القرآنية (CC BY 4.0).</small></div></div>'
+   +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصدر التلاوة</b><small>التلاوة: محمد صديق المنشاوي (مرتل). الصوت من Quran Foundation (verses.quran.com)، يُبثّ مباشرة ولا يُحفظ على الجهاز، ويحتاج إنترنتًا.</small></div></div>'
    +'</div>';
 
   var APPBOTTOM='<div class="sg-t">التطبيق</div><div class="sg-card settings-app">'
