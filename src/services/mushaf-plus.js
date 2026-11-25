@@ -286,7 +286,7 @@ var mqAu={a:null,k:'',pa:false},mqAuT=null;
 function mqAuUrl(c,v){return 'https://verses.quran.com/Minshawi/Murattal/mp3/'+('00'+c).slice(-3)+('00'+v).slice(-3)+'.mp3'}
 function mqAuBar(){
   var d=document.getElementById('mq-au');
-  if(!mqAu.a||tab!=='reader'){if(d)d.remove();return}
+  if(!mqAu.a||tab!=='reader'){if(d)d.remove();try{mqAuSync()}catch(e){}return}
   if(!d){d=document.createElement('div');d.id='mq-au';d.className='mq-au';document.body.appendChild(d);
     d.addEventListener('click',function(e){var b=e.target.closest('[data-au]');if(!b)return;var k=b.getAttribute('data-au');
       if(k==='x'){mqAuStop();return}
@@ -297,7 +297,23 @@ function mqAuBar(){
   d.innerHTML='<div class="mq-aut"><b>'+tr0('المنشاوي (مرتل)')+'</b><small>'+esc(mpVName(mqAu.k))+'</small></div>'
     +'<button data-au="pp" aria-label="'+tr0(mqAu.pa?'متابعة':'إيقاف مؤقت')+'">'+(mqAu.pa?P:Z)+'</button>'
     +'<button data-au="nx" aria-label="'+tr0('الآية التالية')+'">'+N+'</button>'
-    +'<button data-au="x" aria-label="'+tr0('إيقاف')+'">'+ic('x')+'</button>'
+    +'<button data-au="x" aria-label="'+tr0('إيقاف')+'">'+ic('x')+'</button>';
+  mqAuSync()
+}
+/* أزرار الاستماع في شاشة التفسير: الزر يعرض حالة التشغيل لآيته، وسطر زمن مستقل تحت الأزرار */
+var MQ_PI='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>',MQ_ZI='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>';
+function mqAuFmt(x){x=isFinite(x)?Math.max(0,Math.floor(x)):0;return ar(Math.floor(x/60)+':'+('0'+(x%60)).slice(-2))}
+function mqAuSync(){
+  var L=document.querySelectorAll('.mq-tc .mq-tcact button[data-a=qtfau]');
+  for(var i=0;i<L.length;i++){
+    var b=L[i],on=!!(mqAu.a&&mqAu.k===b.getAttribute('data-v')),act=b.parentNode,ln=act.querySelector('.mq-tcau');
+    b.classList.toggle('on',on);
+    var want=on?(mqAu.pa?'متابعة':'إيقاف مؤقت'):'استماع';
+    if(b.getAttribute('data-k')!==want){b.setAttribute('data-k',want);b.innerHTML=(on&&!mqAu.pa?MQ_ZI:MQ_PI)+'<span>'+tr0(want)+'</span>'}
+    if(on){if(!ln){ln=document.createElement('small');ln.className='mq-tcau';act.appendChild(ln)}
+      ln.textContent=((typeof lang==='function'&&lang()!=='ar'&&typeof trS==='function'&&trS('المنشاوي (مرتل)'))||'المنشاوي (مرتل)')+' · '+mqAuFmt(mqAu.a.currentTime)+' / '+mqAuFmt(mqAu.a.duration)}
+    else if(ln)ln.remove();
+  }
 }
 function tr0(t){var r=(typeof lang==='function'&&lang()!=='ar'&&typeof trS==='function')?trS(t):null;return esc(r||t)}
 function mqAuStop(){
@@ -313,7 +329,7 @@ function mqAuPlay(vv){
   a.onended=function(){if(mqAu.a!==a)return;if(v<AD().s[c-1].length){var nv=c+':'+(v+1);mqSetCur(nv,false);var el=document.querySelector('.mq-v[data-v="'+nv+'"]');if(el&&el.scrollIntoView){try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}}mqAuPlay(nv)}else mqAuStop()};
   a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل التلاوة. تحتاج الميزة إلى اتصال بالإنترنت')};
   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
-  if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader')mqAuStop()},1000);
+  if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader')mqAuStop();else try{mqAuSync()}catch(e){}},500);
   mqAuBar()
 }
 /* صورة الآية: تُرسم من النص المخزَّن كما هو (verseText) دون أي تعديل، وتُعرض للمعاينة ثم المشاركة أو الحفظ */

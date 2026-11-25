@@ -178,7 +178,9 @@ body.rd #mp{padding:0}
 .mq-tci{overflow:hidden;min-height:0}
 .mq-tx{margin:0 12px;padding:12px 0;border-top:1px solid color-mix(in srgb,var(--mp-gold) 20%,transparent);line-height:2.05;text-align:justify;color:var(--mp-ink)}
 .mq-tx[data-ld]{opacity:.6}
-.mq-tcact{display:flex;gap:8px;padding:0 12px 12px}
+.mq-tcact{display:flex;flex-wrap:wrap;gap:8px;padding:0 12px 12px}
+.mq-tcact button.on{border-color:var(--mp-gold);background:color-mix(in srgb,var(--mp-gold) 22%,transparent)}
+.mq-tcau{flex-basis:100%;text-align:center;color:var(--mp-mut);font-size:11px}
 .mq-tcact button{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--mp-gold) 45%,transparent);background:color-mix(in srgb,var(--mp-gold) 10%,transparent);color:var(--mp-gold);font:inherit;font-size:12px;font-weight:600}
 .mq-tcact button .i{width:15px;height:15px}
 .mq-tcact button:active{transform:scale(.96)}

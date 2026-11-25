@@ -23,7 +23,7 @@ function tfFill(vv,t){
 function tfLoad(vv){
   tfEnsure(function(){var t=tfText(vv);tfFill(vv,t||null)});
 }
-function tfPost(){
+function tfPost(){try{mqAuSync()}catch(e){}
   if(!rd||!rd.tf||rd.tf.mode!=='rd')return;
   [].forEach.call(document.querySelectorAll('.mq-tc.open .mq-tx[data-ld="1"]'),function(el){tfLoad(el.getAttribute('data-tv'))});
   var sv=rd.tf._sv;
@@ -51,6 +51,9 @@ function tfAct(a,v){
     var q=String(v).split(':');if(open){t.x[v]=true;S.quran.tfPos={c:+q[0],v:+q[1],w:isW()?1:0};save();tfLoad(v)}else delete t.x[v];
     var hb=card.querySelector('.mq-tch');if(hb)hb.setAttribute('aria-expanded',open?'true':'false');
     return true}
+  if(a==='qtfau'){
+    if(mqAu.a&&mqAu.k===v){if(mqAu.a.paused){mqAu.pa=false;var r0=mqAu.a.play();if(r0&&r0.catch)r0.catch(function(){})}else{mqAu.pa=true;mqAu.a.pause()}mqAuBar();return true}
+    mqAuPlay(v);return true}
   if(a==='qtfcp'){
     var tx=t.tx[v]||tfText(v);if(!tx){toast('لم يُحمَّل التفسير بعد');return true}
     var q2=String(v).split(':'),ref='\u2014 سورة '+QD().n[+q2[0]-1]+' \u00B7 آية '+q2[1]+' (التفسير الميسر)',nt2=tfNote(v);if(nt2)ref+='\n'+nt2;
@@ -84,7 +87,7 @@ function mqTafsirHtml(){
     h+='<div class="mq-tc'+(open?' open':'')+'" data-tv="'+vv+'"><button class="mq-tch" data-a="qtfx" data-v="'+vv+'" aria-expanded="'+(open?'true':'false')+'"><span class="mq-tcm">'+ar(v)+'</span>'
       +'<span class="mq-tca" lang="ar" dir="rtl" style="font-size:'+(tfs+6)+'px">'+esc(tfAyah(c,v))+'</span>'+ic('chev').replace('class="i"','class="i mq-tcv"')+'</button>'
       +'<div class="mq-tcb"><div class="mq-tci">'+(nt?'<div class="mq-tn">'+esc(nt)+'</div>':'')+'<div class="mq-tx" lang="ar" dir="rtl" data-tv="'+vv+'"'+(tx?'':' data-ld="1"')+' style="font-size:'+tfs+'px">'+(tx?esc(tx):'جارٍ تحميل التفسير\u2026')+'</div>'
-      +'<div class="mq-tcact"><button data-a="qtfcp" data-v="'+vv+'">'+ic('pen')+'<span>نسخ التفسير</span></button><button data-a="qtfgo" data-v="'+vv+'">'+ic('book')+'<span>افتح في المصحف</span></button></div></div></div></div>';
+      +'<div class="mq-tcact"><button data-a="qtfau" data-v="'+vv+'" data-k="استماع">'+MQ_PI+'<span>استماع</span></button><button data-a="qtfcp" data-v="'+vv+'">'+ic('pen')+'<span>نسخ التفسير</span></button><button data-a="qtfgo" data-v="'+vv+'">'+ic('book')+'<span>افتح في المصحف</span></button></div></div></div></div>';
   }
   return '<div class="mq-ov mq-tf" id="mq-tf"><div class="mq-hd">'+back+'<b class="mq-tt">تفسير سورة '+esc(D.n[c-1])+'</b>'
     +'<span class="mq-stp" style="margin-inline-start:auto"><button class="mq-cb" data-a="qtfs" data-v="-2" aria-label="تصغير خط التفسير"'+(tfs<=16?' disabled':'')+'>'+ic('minus')+'</button><b class="mq-fsz">'+ar(tfs)+'</b><button class="mq-cb" data-a="qtfs" data-v="2" aria-label="تكبير خط التفسير"'+(tfs>=38?' disabled':'')+'>'+ic('plus')+'</button></span>'

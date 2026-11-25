@@ -199,7 +199,7 @@ document.addEventListener('click',async function(e){
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}
   else if(/^msb[a-z]+$/.test(a)){if(typeof msbAct==='function'&&msbAct(a,v)===false)return}
   else if(a==='qbm2'){if(rd&&rd.flow&&rd.cv){var q2=String(rd.cv).split(':');mqBmSet(+q2[0],+q2[1]);save();toast('تم حفظ العلامة المرجعية')}}
-  else if(/^qtf(back|idx|sura|x|cp|go)$/.test(a)){if(tfAct(a,v))return}
+  else if(/^qtf(back|idx|sura|x|cp|go|au)$/.test(a)){if(tfAct(a,v))return}
   else if(a==='qtafsir'){if(rd&&rd.flow&&rd.cv&&typeof mqOpenTf==='function')mqOpenTf(rd.cv)}
 
   else if(a==='qfs'){if(rd){var nf=Math.max(18,Math.min(40,(S.quran.fs||26)+(parseInt(v,10)||0)));if(nf!==(S.quran.fs||26)){S.quran.fs=nf;save()}}}

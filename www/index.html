@@ -1080,7 +1080,9 @@ body.rd #mp{padding:0}
 .mq-tci{overflow:hidden;min-height:0}
 .mq-tx{margin:0 12px;padding:12px 0;border-top:1px solid color-mix(in srgb,var(--mp-gold) 20%,transparent);line-height:2.05;text-align:justify;color:var(--mp-ink)}
 .mq-tx[data-ld]{opacity:.6}
-.mq-tcact{display:flex;gap:8px;padding:0 12px 12px}
+.mq-tcact{display:flex;flex-wrap:wrap;gap:8px;padding:0 12px 12px}
+.mq-tcact button.on{border-color:var(--mp-gold);background:color-mix(in srgb,var(--mp-gold) 22%,transparent)}
+.mq-tcau{flex-basis:100%;text-align:center;color:var(--mp-mut);font-size:11px}
 .mq-tcact button{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--mp-gold) 45%,transparent);background:color-mix(in srgb,var(--mp-gold) 10%,transparent);color:var(--mp-gold);font:inherit;font-size:12px;font-weight:600}
 .mq-tcact button .i{width:15px;height:15px}
 .mq-tcact button:active{transform:scale(.96)}
@@ -6197,7 +6199,7 @@ var mqAu={a:null,k:'',pa:false},mqAuT=null;
 function mqAuUrl(c,v){return 'https://verses.quran.com/Minshawi/Murattal/mp3/'+('00'+c).slice(-3)+('00'+v).slice(-3)+'.mp3'}
 function mqAuBar(){
   var d=document.getElementById('mq-au');
-  if(!mqAu.a||tab!=='reader'){if(d)d.remove();return}
+  if(!mqAu.a||tab!=='reader'){if(d)d.remove();try{mqAuSync()}catch(e){}return}
   if(!d){d=document.createElement('div');d.id='mq-au';d.className='mq-au';document.body.appendChild(d);
     d.addEventListener('click',function(e){var b=e.target.closest('[data-au]');if(!b)return;var k=b.getAttribute('data-au');
       if(k==='x'){mqAuStop();return}
@@ -6208,7 +6210,23 @@ function mqAuBar(){
   d.innerHTML='<div class="mq-aut"><b>'+tr0('المنشاوي (مرتل)')+'</b><small>'+esc(mpVName(mqAu.k))+'</small></div>'
     +'<button data-au="pp" aria-label="'+tr0(mqAu.pa?'متابعة':'إيقاف مؤقت')+'">'+(mqAu.pa?P:Z)+'</button>'
     +'<button data-au="nx" aria-label="'+tr0('الآية التالية')+'">'+N+'</button>'
-    +'<button data-au="x" aria-label="'+tr0('إيقاف')+'">'+ic('x')+'</button>'
+    +'<button data-au="x" aria-label="'+tr0('إيقاف')+'">'+ic('x')+'</button>';
+  mqAuSync()
+}
+/* أزرار الاستماع في شاشة التفسير: الزر يعرض حالة التشغيل لآيته، وسطر زمن مستقل تحت الأزرار */
+var MQ_PI='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>',MQ_ZI='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>';
+function mqAuFmt(x){x=isFinite(x)?Math.max(0,Math.floor(x)):0;return ar(Math.floor(x/60)+':'+('0'+(x%60)).slice(-2))}
+function mqAuSync(){
+  var L=document.querySelectorAll('.mq-tc .mq-tcact button[data-a=qtfau]');
+  for(var i=0;i<L.length;i++){
+    var b=L[i],on=!!(mqAu.a&&mqAu.k===b.getAttribute('data-v')),act=b.parentNode,ln=act.querySelector('.mq-tcau');
+    b.classList.toggle('on',on);
+    var want=on?(mqAu.pa?'متابعة':'إيقاف مؤقت'):'استماع';
+    if(b.getAttribute('data-k')!==want){b.setAttribute('data-k',want);b.innerHTML=(on&&!mqAu.pa?MQ_ZI:MQ_PI)+'<span>'+tr0(want)+'</span>'}
+    if(on){if(!ln){ln=document.createElement('small');ln.className='mq-tcau';act.appendChild(ln)}
+      ln.textContent=((typeof lang==='function'&&lang()!=='ar'&&typeof trS==='function'&&trS('المنشاوي (مرتل)'))||'المنشاوي (مرتل)')+' · '+mqAuFmt(mqAu.a.currentTime)+' / '+mqAuFmt(mqAu.a.duration)}
+    else if(ln)ln.remove();
+  }
 }
 function tr0(t){var r=(typeof lang==='function'&&lang()!=='ar'&&typeof trS==='function')?trS(t):null;return esc(r||t)}
 function mqAuStop(){
@@ -6224,7 +6242,7 @@ function mqAuPlay(vv){
   a.onended=function(){if(mqAu.a!==a)return;if(v<AD().s[c-1].length){var nv=c+':'+(v+1);mqSetCur(nv,false);var el=document.querySelector('.mq-v[data-v="'+nv+'"]');if(el&&el.scrollIntoView){try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}}mqAuPlay(nv)}else mqAuStop()};
   a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل التلاوة. تحتاج الميزة إلى اتصال بالإنترنت')};
   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
-  if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader')mqAuStop()},1000);
+  if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader')mqAuStop();else try{mqAuSync()}catch(e){}},500);
   mqAuBar()
 }
 /* صورة الآية: تُرسم من النص المخزَّن كما هو (verseText) دون أي تعديل، وتُعرض للمعاينة ثم المشاركة أو الحفظ */
@@ -6486,7 +6504,7 @@ function tfFill(vv,t){
 function tfLoad(vv){
   tfEnsure(function(){var t=tfText(vv);tfFill(vv,t||null)});
 }
-function tfPost(){
+function tfPost(){try{mqAuSync()}catch(e){}
   if(!rd||!rd.tf||rd.tf.mode!=='rd')return;
   [].forEach.call(document.querySelectorAll('.mq-tc.open .mq-tx[data-ld="1"]'),function(el){tfLoad(el.getAttribute('data-tv'))});
   var sv=rd.tf._sv;
@@ -6514,6 +6532,9 @@ function tfAct(a,v){
     var q=String(v).split(':');if(open){t.x[v]=true;S.quran.tfPos={c:+q[0],v:+q[1],w:isW()?1:0};save();tfLoad(v)}else delete t.x[v];
     var hb=card.querySelector('.mq-tch');if(hb)hb.setAttribute('aria-expanded',open?'true':'false');
     return true}
+  if(a==='qtfau'){
+    if(mqAu.a&&mqAu.k===v){if(mqAu.a.paused){mqAu.pa=false;var r0=mqAu.a.play();if(r0&&r0.catch)r0.catch(function(){})}else{mqAu.pa=true;mqAu.a.pause()}mqAuBar();return true}
+    mqAuPlay(v);return true}
   if(a==='qtfcp'){
     var tx=t.tx[v]||tfText(v);if(!tx){toast('لم يُحمَّل التفسير بعد');return true}
     var q2=String(v).split(':'),ref='\u2014 سورة '+QD().n[+q2[0]-1]+' \u00B7 آية '+q2[1]+' (التفسير الميسر)',nt2=tfNote(v);if(nt2)ref+='\n'+nt2;
@@ -6547,7 +6568,7 @@ function mqTafsirHtml(){
     h+='<div class="mq-tc'+(open?' open':'')+'" data-tv="'+vv+'"><button class="mq-tch" data-a="qtfx" data-v="'+vv+'" aria-expanded="'+(open?'true':'false')+'"><span class="mq-tcm">'+ar(v)+'</span>'
       +'<span class="mq-tca" lang="ar" dir="rtl" style="font-size:'+(tfs+6)+'px">'+esc(tfAyah(c,v))+'</span>'+ic('chev').replace('class="i"','class="i mq-tcv"')+'</button>'
       +'<div class="mq-tcb"><div class="mq-tci">'+(nt?'<div class="mq-tn">'+esc(nt)+'</div>':'')+'<div class="mq-tx" lang="ar" dir="rtl" data-tv="'+vv+'"'+(tx?'':' data-ld="1"')+' style="font-size:'+tfs+'px">'+(tx?esc(tx):'جارٍ تحميل التفسير\u2026')+'</div>'
-      +'<div class="mq-tcact"><button data-a="qtfcp" data-v="'+vv+'">'+ic('pen')+'<span>نسخ التفسير</span></button><button data-a="qtfgo" data-v="'+vv+'">'+ic('book')+'<span>افتح في المصحف</span></button></div></div></div></div>';
+      +'<div class="mq-tcact"><button data-a="qtfau" data-v="'+vv+'" data-k="استماع">'+MQ_PI+'<span>استماع</span></button><button data-a="qtfcp" data-v="'+vv+'">'+ic('pen')+'<span>نسخ التفسير</span></button><button data-a="qtfgo" data-v="'+vv+'">'+ic('book')+'<span>افتح في المصحف</span></button></div></div></div></div>';
   }
   return '<div class="mq-ov mq-tf" id="mq-tf"><div class="mq-hd">'+back+'<b class="mq-tt">تفسير سورة '+esc(D.n[c-1])+'</b>'
     +'<span class="mq-stp" style="margin-inline-start:auto"><button class="mq-cb" data-a="qtfs" data-v="-2" aria-label="تصغير خط التفسير"'+(tfs<=16?' disabled':'')+'>'+ic('minus')+'</button><b class="mq-fsz">'+ar(tfs)+'</b><button class="mq-cb" data-a="qtfs" data-v="2" aria-label="تكبير خط التفسير"'+(tfs>=38?' disabled':'')+'>'+ic('plus')+'</button></span>'
@@ -7637,7 +7658,7 @@ document.addEventListener('click',async function(e){
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}
   else if(/^msb[a-z]+$/.test(a)){if(typeof msbAct==='function'&&msbAct(a,v)===false)return}
   else if(a==='qbm2'){if(rd&&rd.flow&&rd.cv){var q2=String(rd.cv).split(':');mqBmSet(+q2[0],+q2[1]);save();toast('تم حفظ العلامة المرجعية')}}
-  else if(/^qtf(back|idx|sura|x|cp|go)$/.test(a)){if(tfAct(a,v))return}
+  else if(/^qtf(back|idx|sura|x|cp|go|au)$/.test(a)){if(tfAct(a,v))return}
   else if(a==='qtafsir'){if(rd&&rd.flow&&rd.cv&&typeof mqOpenTf==='function')mqOpenTf(rd.cv)}
 
   else if(a==='qfs'){if(rd){var nf=Math.max(18,Math.min(40,(S.quran.fs||26)+(parseInt(v,10)||0)));if(nf!==(S.quran.fs||26)){S.quran.fs=nf;save()}}}
