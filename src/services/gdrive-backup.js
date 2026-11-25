@@ -210,16 +210,7 @@ function gdUpload(provided){
 }
 
 /* --- استعادة آخر نسخة إلى صندوق الاستيراد (دون تطبيقها؛ التأكيد يبقى بيد المستخدم) --- */
-function gdDownload(){
-  return gdFindFile().then(function(f){
-    if(!f)throw new Error('no-file');
-    return gdReq('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media')
-      .then(function(r){return r.text()});
-  });
-}
-
 /* Restore stays pending until the explicit replacement button is pressed. */
-function gdSafetyExists(){try{return !!localStorage.getItem(GD_SAFETY_KEY)}catch(e){return false}}
 function gdRestorePanel(){
  if(!gdRestoreRaw)return '';
  var h='<section class="gd-dialog" role="dialog" aria-modal="true"><div class="gd-box" id="gd-restore"><h3>'+(gdVerified?'تأكيد استعادة هذه النسخة؟':'التحقق من النسخة المختارة')+'</h3><p class="gd-file-name keepar" dir="ltr">'+esc((gdChosen||{}).name||'backup')+'</p><p class="note">المصدر: '+(gdRestoreSource==='file'?'ملف مستقل':gdRestoreSource==='safety'?'نسخة أمان داخل التطبيق':'Google Drive')+' · '+gdBytes((gdChosen||{}).size)+'</p>';
@@ -259,20 +250,6 @@ function gdProgBar(){return gdPhase?'<div class="gd-prog" aria-hidden="true"><i>
 function gdFlashDone(kind){gdDoneKind=kind;gdDoneAt=Date.now();setTimeout(function(){if(gdDoneKind===kind){gdDoneKind='';try{render()}catch(e){}}},2600)}
 
 /* --- بطاقة Google Drive داخل شاشة النسخ الاحتياطي --- */
-function vGdCard(){
-  if(!gdConfigured())return '';
-  var h='<section class="card"><h3>نسخة Google Drive</h3>';
-  if(!gdHasRt()){
-    h+='<p class="note">اربط حساب Google لرفع نسختك الاحتياطية إلى ملف واحد في درايف («'+GD_FILE+'») واستعادتها على أي جهاز. لا يرى التطبيق إلا الملفات التي ينشئها هو.</p>'
-      +'<div class="acts"><button class="btn" data-a="gdconnect">'+ic('cloud')+' ربط Google Drive</button></div>';
-  }else{
-    h+='<p class="note">الحساب مربوط ✓'+(S.gdAt?' — آخر رفع: <b>'+bkAgo(S.gdAt)+'</b>':' — لم ترفع نسخة بعد')+'</p>'
-      +'<div class="acts">'+gdBtn('up','رفع نسخة الآن')+gdBtn('down','استعادة آخر نسخة',true)+gdProgBar()
-      +'<button class="btn ghost" data-a="gddisc">فصل الحساب</button></div>';
-  }
-  return h+'</section>';
-}
-
 function gdAct(a,v){
   if(a==='gdfileout'){gdExportFile();return true}
   if(a==='gdfilein'){gdImportFile();return true}

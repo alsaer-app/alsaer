@@ -55,14 +55,6 @@ function updCheck(force){
 var UPD_DL=null,UPD_T=null; /* {st:'downloading'|'verifying'|'done'|'failed',pct,done,total,err,url,run} */
 function updNative(){return !!(window.AlsaerNative&&typeof AlsaerNative.updateStart==='function'&&typeof AlsaerNative.updateProgress==='function'&&typeof AlsaerNative.updateInstall==='function')}
 function updFmtSize(n){if(!n||n<=0)return '';var mb=n/1048576;return mb>=1?(mb>=10?Math.round(mb):Math.round(mb*10)/10)+' م.ب':Math.max(1,Math.round(n/1024))+' ك.ب'}
-function updRowSub(){
-  var cur=ar(String((typeof APP_VERSION!=='undefined')?APP_VERSION:''));
-  var i=updInfo();
-  if(UPD_DL&&UPD_DL.st==='downloading')return 'جارٍ تحميل التحديث…';
-  if(UPD_DL&&UPD_DL.st==='done')return 'التحديث جاهز للتثبيت';
-  if(i)return 'الإصدار '+cur+' · يتوفر '+esc(i.versionName||String(i.versionCode));
-  return 'الإصدار '+cur+' · '+updCurrentLabel();
-}
 function updSheetHtml(){
   var cur=ar(String((typeof APP_VERSION!=='undefined')?APP_VERSION:''));
   var i=updInfo();

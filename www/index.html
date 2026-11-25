@@ -2562,14 +2562,6 @@ function updCheck(force){
 var UPD_DL=null,UPD_T=null; /* {st:'downloading'|'verifying'|'done'|'failed',pct,done,total,err,url,run} */
 function updNative(){return !!(window.AlsaerNative&&typeof AlsaerNative.updateStart==='function'&&typeof AlsaerNative.updateProgress==='function'&&typeof AlsaerNative.updateInstall==='function')}
 function updFmtSize(n){if(!n||n<=0)return '';var mb=n/1048576;return mb>=1?(mb>=10?Math.round(mb):Math.round(mb*10)/10)+' م.ب':Math.max(1,Math.round(n/1024))+' ك.ب'}
-function updRowSub(){
-  var cur=ar(String((typeof APP_VERSION!=='undefined')?APP_VERSION:''));
-  var i=updInfo();
-  if(UPD_DL&&UPD_DL.st==='downloading')return 'جارٍ تحميل التحديث…';
-  if(UPD_DL&&UPD_DL.st==='done')return 'التحديث جاهز للتثبيت';
-  if(i)return 'الإصدار '+cur+' · يتوفر '+esc(i.versionName||String(i.versionCode));
-  return 'الإصدار '+cur+' · '+updCurrentLabel();
-}
 function updSheetHtml(){
   var cur=ar(String((typeof APP_VERSION!=='undefined')?APP_VERSION:''));
   var i=updInfo();
@@ -2723,7 +2715,6 @@ function fixShape(o){
 /* يسجّل وقت تعليم عنصر لسجل النشاط (مفتاح إضافي لا يغيّر أي مفتاح قائم، ويتدفق مع النسخة الاحتياطية كما هي) */
 function mtSet(id,k){try{S.mtimes=S.mtimes||{};k=k||dk();var L=S.mtimes[k]=S.mtimes[k]||{};L[id]=Date.now()}catch(e){}}
 function mtDel(id){try{var k=dk(),L=S.mtimes&&S.mtimes[k];if(L){delete L[id];if(!Object.keys(L).length)delete S.mtimes[k]}}catch(e){}}
-function mtOf(k,id){try{return (S.mtimes&&S.mtimes[k]&&S.mtimes[k][id])||0}catch(e){return 0}}
 function load(){
   var local=null,mirror=null,raw=null,mraw=null,corrupt=false;
   try{raw=localStorage.getItem(KEY);if(raw){var lo=JSON.parse(raw);if(lo&&typeof lo==='object'&&!Array.isArray(lo))local=fixShape(Object.assign(def(),lo));else corrupt=true}}catch(e){corrupt=true}
@@ -3131,18 +3122,7 @@ function trWalk(root){
 /* ===== محرك اللغات الهجين: اكتشاف لغة الهاتف → حزمة محلية → الإنجليزية مؤقتًا (دون إنترنت) ===== */
 var I18N_RTL=['ar','ur','fa','he','ps','sd','ug','ckb','dv','yi'];
 var _dl=null,_lcKey=null,_lcVal='ar';
-function devCodes(){
-  var out=[];
-  try{if(window.__devLang)out.push(String(window.__devLang))}catch(e){}
-  try{var L=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||navigator.userLanguage];for(var i=0;i<L.length;i++)if(L[i])out.push(String(L[i]))}catch(e){}
-  return out.map(function(x){var c=x.toLowerCase().replace('_','-').split('-')[0];return ({'iw':'he','in':'id','nb':'no','nn':'no','jw':'jv'})[c]||c}).filter(function(c,i,a){return c&&a.indexOf(c)===i});
-}
 function langAvail(c){return c==='ar'||!!I18N_PACKS[c]}
-function langLogMissing(list){
-  try{var k='alsaer_missing_langs',o=JSON.parse(localStorage.getItem(k)||'{}'),ch=false;
-    list.forEach(function(c){if(!o[c]){o[c]={first:Date.now(),n:0};ch=true}o[c].n++;o[c].last=Date.now()});
-    localStorage.setItem(k,JSON.stringify(o))}catch(e){}
-}
 /* المرحلة 1: العربية افتراضية دائمًا؛ English/Français فقط باختيار صريح من الإعدادات (لا اكتشاف تلقائي للغة الهاتف). المرحلة 2: حزم tr/de/fa/ur متاحة هنا وتُجرَّب عبر خطاف الاختبار __I18N.setLang قبل إضافتها إلى منتقي اللغة في الإعدادات (يحتاج اعتماد نموذج بصري) */
 var LANG_CHOICES=['ar','en','fr','tr','de','fa','ur'];
 function langResolve(){var p=(typeof U==='function'&&U().lang)||'ar';return (LANG_CHOICES.indexOf(p)>=0&&langAvail(p))?p:'ar'}
@@ -4726,19 +4706,6 @@ function bkAgo(t){
   if(d<=10)return 'منذ '+ar(d)+' أيام';
   return 'منذ '+ar(d)+' يومًا';
 }
-function bkRow(a,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="'+a+'"'+(a==='bkmode'?' data-v="'+val+'"':'')+'><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div><div class="sg-ctl">'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'}
-function vGdRows(){
-  if(!gdConfigured())return '';
-  var h='<div class="sg-t">Google Drive</div><div class="sg-card">';
-  if(!gdHasRt()){
-    h+='<div class="sg-row"><span class="sg-ic">'+ic('cloud')+'</span><div class="sg-tx"><b>النسخة السحابية</b><small>ملف واحد في درايف لا يرى التطبيق غيره — استعده على أي جهاز</small></div><div class="sg-ctl"><span class="sg-pill">غير مربوط</span></div></div>'
-      +'<div class="panel"><button class="btn block" data-a="gdconnect">'+ic('cloud')+' ربط Google Drive</button></div>';
-  }else{
-    h+='<div class="sg-row lit"><span class="sg-ic">'+ic('cloud')+'</span><div class="sg-tx"><b>النسخة السحابية</b><small>'+(S.gdAt?'آخر رفع: '+bkAgo(S.gdAt):'لم ترفع نسخة بعد')+'</small></div><div class="sg-ctl"><span class="sg-pill ok">مربوط ✓</span></div></div>'
-      +'<div class="panel"><div class="acts" style="margin:2px 0">'+gdBtn('up','رفع نسخة الآن')+gdBtn('down','استعادة آخر نسخة',true)+gdProgBar()+'<button class="btn ghost" data-a="gddisc">فصل الحساب</button></div></div>';
-  }
-  return h+gdRestorePanel()+'</div>';
-}
 function gdDriveCard(st,disabled){
   var linked=gdHasRt(),em=gdEmail();
   var h='<section class="sg-card gd-dest"><div class="gd-head"><b>Google Drive</b><span class="sg-pill">'+(linked?'مربوط':'غير مربوط')+'</span></div>';
@@ -5020,16 +4987,7 @@ function gdUpload(provided){
 }
 
 /* --- استعادة آخر نسخة إلى صندوق الاستيراد (دون تطبيقها؛ التأكيد يبقى بيد المستخدم) --- */
-function gdDownload(){
-  return gdFindFile().then(function(f){
-    if(!f)throw new Error('no-file');
-    return gdReq('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(f.id)+'?alt=media')
-      .then(function(r){return r.text()});
-  });
-}
-
 /* Restore stays pending until the explicit replacement button is pressed. */
-function gdSafetyExists(){try{return !!localStorage.getItem(GD_SAFETY_KEY)}catch(e){return false}}
 function gdRestorePanel(){
  if(!gdRestoreRaw)return '';
  var h='<section class="gd-dialog" role="dialog" aria-modal="true"><div class="gd-box" id="gd-restore"><h3>'+(gdVerified?'تأكيد استعادة هذه النسخة؟':'التحقق من النسخة المختارة')+'</h3><p class="gd-file-name keepar" dir="ltr">'+esc((gdChosen||{}).name||'backup')+'</p><p class="note">المصدر: '+(gdRestoreSource==='file'?'ملف مستقل':gdRestoreSource==='safety'?'نسخة أمان داخل التطبيق':'Google Drive')+' · '+gdBytes((gdChosen||{}).size)+'</p>';
@@ -5069,20 +5027,6 @@ function gdProgBar(){return gdPhase?'<div class="gd-prog" aria-hidden="true"><i>
 function gdFlashDone(kind){gdDoneKind=kind;gdDoneAt=Date.now();setTimeout(function(){if(gdDoneKind===kind){gdDoneKind='';try{render()}catch(e){}}},2600)}
 
 /* --- بطاقة Google Drive داخل شاشة النسخ الاحتياطي --- */
-function vGdCard(){
-  if(!gdConfigured())return '';
-  var h='<section class="card"><h3>نسخة Google Drive</h3>';
-  if(!gdHasRt()){
-    h+='<p class="note">اربط حساب Google لرفع نسختك الاحتياطية إلى ملف واحد في درايف («'+GD_FILE+'») واستعادتها على أي جهاز. لا يرى التطبيق إلا الملفات التي ينشئها هو.</p>'
-      +'<div class="acts"><button class="btn" data-a="gdconnect">'+ic('cloud')+' ربط Google Drive</button></div>';
-  }else{
-    h+='<p class="note">الحساب مربوط ✓'+(S.gdAt?' — آخر رفع: <b>'+bkAgo(S.gdAt)+'</b>':' — لم ترفع نسخة بعد')+'</p>'
-      +'<div class="acts">'+gdBtn('up','رفع نسخة الآن')+gdBtn('down','استعادة آخر نسخة',true)+gdProgBar()
-      +'<button class="btn ghost" data-a="gddisc">فصل الحساب</button></div>';
-  }
-  return h+'</section>';
-}
-
 function gdAct(a,v){
   if(a==='gdfileout'){gdExportFile();return true}
   if(a==='gdfilein'){gdImportFile();return true}

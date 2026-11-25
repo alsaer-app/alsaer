@@ -65,19 +65,6 @@ function bkAgo(t){
   if(d<=10)return 'منذ '+ar(d)+' أيام';
   return 'منذ '+ar(d)+' يومًا';
 }
-function bkRow(a,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="'+a+'"'+(a==='bkmode'?' data-v="'+val+'"':'')+'><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div><div class="sg-ctl">'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'}
-function vGdRows(){
-  if(!gdConfigured())return '';
-  var h='<div class="sg-t">Google Drive</div><div class="sg-card">';
-  if(!gdHasRt()){
-    h+='<div class="sg-row"><span class="sg-ic">'+ic('cloud')+'</span><div class="sg-tx"><b>النسخة السحابية</b><small>ملف واحد في درايف لا يرى التطبيق غيره — استعده على أي جهاز</small></div><div class="sg-ctl"><span class="sg-pill">غير مربوط</span></div></div>'
-      +'<div class="panel"><button class="btn block" data-a="gdconnect">'+ic('cloud')+' ربط Google Drive</button></div>';
-  }else{
-    h+='<div class="sg-row lit"><span class="sg-ic">'+ic('cloud')+'</span><div class="sg-tx"><b>النسخة السحابية</b><small>'+(S.gdAt?'آخر رفع: '+bkAgo(S.gdAt):'لم ترفع نسخة بعد')+'</small></div><div class="sg-ctl"><span class="sg-pill ok">مربوط ✓</span></div></div>'
-      +'<div class="panel"><div class="acts" style="margin:2px 0">'+gdBtn('up','رفع نسخة الآن')+gdBtn('down','استعادة آخر نسخة',true)+gdProgBar()+'<button class="btn ghost" data-a="gddisc">فصل الحساب</button></div></div>';
-  }
-  return h+gdRestorePanel()+'</div>';
-}
 function gdDriveCard(st,disabled){
   var linked=gdHasRt(),em=gdEmail();
   var h='<section class="sg-card gd-dest"><div class="gd-head"><b>Google Drive</b><span class="sg-pill">'+(linked?'مربوط':'غير مربوط')+'</span></div>';

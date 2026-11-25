@@ -1,8 +1,8 @@
 {
  "src/screens/more.js": "6166cc6d129964ba68ac1d47fe46c60106edc123f3b6bce9bb80a3025dac8bff",
  "src/screens/reader.js": "1fb2e8362d4ee0dcee27fc82895bc493bfbaf85d395f8e92316f26531da2ae2d",
- "src/services/extras.js": "c526ba2b50a9af1affa3106a8dd821db44421a8181ff3f2bf260c67badb9c144",
- "src/services/gdrive-backup.js": "4dde4078fdea7aef6938fb7b0cdb350e39ce4d5ab3895874b7250311b003c6c0",
+ "src/services/extras.js": "d017c55621a3b8303281d7733bb943c331f7842e3642d9dee2165afdc1f25262",
+ "src/services/gdrive-backup.js": "727b03445fec5d7a0d17768e83151be2bf50eb8df45bfd59a4169e1e752c670a",
  "src/services/reader-layout.js": "935b6d5b164c28f689a008a9eeab98a8a08fb162d1f89be7d1a844efdcc1ee76",
  "src/styles/inputs.css": "f88bf78a7df10bfed7d4f3aa351fa58504cc94177c1eabe24f82ed05631e55c7",
  "www/mushaf.js": "b7afa2888fa9f8e3be3c710df7c67f6d8f32b03b78e43091660bf0d9c3312a30",

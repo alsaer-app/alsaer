@@ -39,7 +39,6 @@ function fixShape(o){
 /* يسجّل وقت تعليم عنصر لسجل النشاط (مفتاح إضافي لا يغيّر أي مفتاح قائم، ويتدفق مع النسخة الاحتياطية كما هي) */
 function mtSet(id,k){try{S.mtimes=S.mtimes||{};k=k||dk();var L=S.mtimes[k]=S.mtimes[k]||{};L[id]=Date.now()}catch(e){}}
 function mtDel(id){try{var k=dk(),L=S.mtimes&&S.mtimes[k];if(L){delete L[id];if(!Object.keys(L).length)delete S.mtimes[k]}}catch(e){}}
-function mtOf(k,id){try{return (S.mtimes&&S.mtimes[k]&&S.mtimes[k][id])||0}catch(e){return 0}}
 function load(){
   var local=null,mirror=null,raw=null,mraw=null,corrupt=false;
   try{raw=localStorage.getItem(KEY);if(raw){var lo=JSON.parse(raw);if(lo&&typeof lo==='object'&&!Array.isArray(lo))local=fixShape(Object.assign(def(),lo));else corrupt=true}}catch(e){corrupt=true}
