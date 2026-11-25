@@ -28,10 +28,15 @@ async def main():
       await p.evaluate('([c,s,o])=>__oldSettings.show(c,s,o)',[c,s,o]);await p.wait_for_timeout(350)
      async def frame():
       assert await p.locator('.sg-tabs button').evaluate_all('(a)=>a.every(e=>{while(e){let c=getComputedStyle(e);if(c.opacity!=="1"||c.animationName!=="none")return false;e=e.parentElement}return true})')
-     await show();assert await p.locator('.sg-tabs [role=tab]').count()==4
+     await show();assert await p.locator('.sg-tabs [role=tab]').count()==0
+     assert await p.locator('.sg-tab-body [data-a=scat]').count()==4
+     assert await p.locator('.sg-tab-body [data-a=ssub]').count()==2
+     await p.screenshot(path=str(OUT/f'index-{mode}-{width}.png'))
      for cat in ['look','notif','loc','account']:
-      await p.locator('[data-a=scat][data-v='+cat+']').click();await frame()
+      await show();await p.locator('.sg-tab-body [data-a=scat][data-v='+cat+']').click();await frame()
+      assert await p.locator('.sg-tabs [role=tab]').count()==4
       assert await p.locator('[role=tab][aria-selected=true]').get_attribute('data-v')==cat
+      assert await p.locator('.sc-head [data-a=scat][data-v=""]').count()==1
       assert await p.evaluate('document.documentElement.scrollWidth<=innerWidth'),(mode,width,cat)
       await p.screenshot(path=str(OUT/f'{cat}-{mode}-{width}.png'))
      for sub in ['account-prof','account-sec','account-about']:

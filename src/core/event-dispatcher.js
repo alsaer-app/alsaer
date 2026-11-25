@@ -267,6 +267,7 @@ function innerBack(){
   if(typeof mpCloseOverlays==='function'&&mpCloseOverlays())return true;
   if(tab==='settings'&&setOpen){setOpen=null;confirmReset=false;msg='';render();return true}
   if(tab==='settings'&&setSub){setSub='';setOpen=null;msg='';scAnim=1;window.scrollTo(0,0);render();return true}
+  if(tab==='settings'&&setCat){setCat='';setOpen=null;msg='';scAnim=1;window.scrollTo(0,0);render();return true}
 
   return false;
 }

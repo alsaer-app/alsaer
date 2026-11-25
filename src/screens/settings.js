@@ -156,7 +156,6 @@ function vSettings(){
    +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>الإصدار '+esc(APP_VERSION)+' · التحقق من وجود تحديث</small></div>'+sgCtlV('')+'</button>'
    +'<a class="sg-row sg-btn" href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer"><span class="sg-ic">'+ic('mail')+'</span><div class="sg-tx"><b>اقتراحات وملاحظات</b><small>شارك فكرة أو أبلغ عن مشكلة</small></div>'+sgCtlV('')+'</a></div>'+sgDeveloperCard();
 
-  var tabsHtml='<div class="sg-tabs" role="tablist" aria-label="أقسام الإعدادات">'+[['look','العرض'],['notif','التنبيهات'],['loc','الموقع'],['account','حسابي']].map(function(x){return '<button type="button" role="tab" aria-selected="'+((setCat||'look')===x[0])+'" class="'+((setCat||'look')===x[0]?'on':'')+'" data-a="scat" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
   var ACCOUNT='<div class="sg-card">'+sgNavSub('account-prof','user','الملف الشخصي','الاسم والصورة وطريقة المخاطبة',(S.profile&&S.profile.name)||'')+sgNavSub('account-sec','shield','الأمان والبيانات','القفل والبصمة والنسخ الاحتياطي','')+sgNavSub('account-about','info','المساعدة والمعلومات','حالة النظام والجولة وعن التطبيق','')+'</div>'+APPBOTTOM;
   var views={look:LOOK,notif:NOTIF,loc:LOC,account:ACCOUNT};
   var subs={
@@ -166,10 +165,24 @@ function vSettings(){
    'account-sec':['account','الأمان والبيانات',SEC],
    'account-about':['account','المساعدة والمعلومات',ABOUT]
   };
-  scAnim=0;
+  var CATS=[['look','العرض'],['notif','التنبيهات'],['loc','الموقع'],['account','حسابي']];
+  var activeCat=(setSub&&subs[setSub])?subs[setSub][0]:(setCat||'');
+  var tabsHtml='<div class="sg-tabs" role="tablist" aria-label="أقسام الإعدادات">'+CATS.map(function(x){return '<button type="button" role="tab" aria-selected="'+(activeCat===x[0])+'" class="'+(activeCat===x[0]?'on':'')+'" data-a="scat" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
+  var _an=scAnim?1:0;scAnim=0;
+  var pgCls='sg-tab-page',anCls=_an?'sg-anim':'';
   if(setSub&&subs[setSub]){
     var sub=subs[setSub];
-    return '<section class="sg-tab-page">'+tabsHtml+'<div class="sc-head"><button type="button" class="sc-back" data-a="ssub" data-v="">'+ic('chev')+' رجوع</button><h2>'+sub[1]+'</h2></div>'+sub[2]+'</section>'+COPY;
+    return '<section class="'+pgCls+'">'+tabsHtml+'<div class="'+anCls+'"><div class="sc-head"><button type="button" class="sc-back" data-a="ssub" data-v="">'+ic('chev')+' رجوع</button><h2>'+sub[1]+'</h2></div>'+sub[2]+'</div></section>'+COPY;
   }
-  return '<section class="sg-tab-page">'+tabsHtml+'<div class="sg-tab-body" role="tabpanel">'+(views[setCat||'look']||LOOK)+'</div></section>'+COPY;
+  if(setCat&&views[setCat]){
+    var catN=(CATS.filter(function(x){return x[0]===setCat})[0]||['',''])[1];
+    return '<section class="'+pgCls+'">'+tabsHtml+'<div class="'+anCls+'"><div class="sc-head"><button type="button" class="sc-back" data-a="scat" data-v="">'+ic('chev')+' الإعدادات</button><h2>'+catN+'</h2></div><div class="sg-tab-body" role="tabpanel">'+views[setCat]+'</div></div></section>'+COPY;
+  }
+  var idxRow=function(act,val,icon,title,desc){return '<button type="button" class="sg-row sg-btn" data-a="'+act+'" data-v="'+val+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b><small>'+desc+'</small></div><div class="sg-ctl">'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'};
+  var INDEX='<div class="sg-t">الشكل</div><div class="sg-card">'+idxRow('scat','look','sparkles','العرض والمظهر','الوضع · النمط · اللغة · اللون · الأرقام والساعة')+'</div>'
+   +'<div class="sg-t">التنبيهات</div><div class="sg-card">'+idxRow('scat','notif','bell','التنبيهات والتذكيرات','القنوات · الصوت · النوافذ العائمة · الودجت')+'</div>'
+   +'<div class="sg-t">الموقع</div><div class="sg-card">'+idxRow('scat','loc','mosque','الموقع والمواقيت','المدينة · طريقة الحساب · الضبط')+'</div>'
+   +'<div class="sg-t">الخصوصية</div><div class="sg-card">'+idxRow('ssub','account-sec','shield','الأمان والبيانات','القفل · النسخ الاحتياطي · درايف · الاستعادة')+'</div>'
+   +'<div class="sg-t">حسابك</div><div class="sg-card">'+idxRow('scat','account','user','حسابي','الملف الشخصي · الأجهزة · الجولة التعريفية')+idxRow('ssub','account-about','info','المساعدة والمعلومات','التحديثات · سجل الإصدارات · فحص التطبيق')+'</div>';
+  return '<section class="'+pgCls+'"><div class="sg-tab-body '+anCls+'" role="tabpanel">'+INDEX+'</div></section>'+COPY;
 }
