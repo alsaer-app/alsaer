@@ -25,9 +25,10 @@ import java.util.Calendar;
 public final class AlarmScheduler {
     static final String PREFS = "alsaer_notif";
     static final String K_ITEMS = "items", K_IDS = "ids", K_PENDING = "pending", K_ROUTE = "route", K_SOUND = "sound";
-    static final String CH_CHIME = "alsaer_reminders_v7";
-    static final String CH_SILENT = "alsaer_reminders_silent_v7";
-    static final String CH_SYSTEM = "alsaer_reminders_system_v7";
+    /* بند 62: قنوات الإشعارات حسب الفئة (صلاة/صيام/عادات) × نمط الصوت، تظهر في إعدادات النظام فيمكن كتم فئة دون غيرها. القنوات القديمة بأسماء الأنماط تُحذف عند أول تشغيل. */
+    static final String CH_OLD_CHIME = "alsaer_reminders_v7";
+    static final String CH_OLD_SILENT = "alsaer_reminders_silent_v7";
+    static final String CH_OLD_SYSTEM = "alsaer_reminders_system_v7";
     static final String ACTION_ALARM = "com.ahmedalajmi.alsaer.ALARM";
     static final String ACTION_DONE = "com.ahmedalajmi.alsaer.DONE";
     static final String ACTION_SNOOZE = "com.ahmedalajmi.alsaer.SNOOZE";
@@ -240,33 +241,24 @@ public final class AlarmScheduler {
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build();
-        if (nm.getNotificationChannel(CH_CHIME) == null) {
-            NotificationChannel ch = new NotificationChannel(CH_CHIME, "السائر — تذكيرات بصوت هادئ", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("نغمة تغريد العصافير — نغمة إسلامية هادئة مخصصة للتطبيق");
-            ch.setSound(soundUri, attrs);
-            ch.enableVibration(true);
-            ch.setVibrationPattern(vibs);
-            ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            nm.createNotificationChannel(ch);
-        }
-        if (nm.getNotificationChannel(CH_SILENT) == null) {
-            NotificationChannel ch = new NotificationChannel(CH_SILENT, "السائر — تذكيرات بلا صوت", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("إشعارات صامتة؛ التذكير يظهر دون نغمة");
-            ch.setSound(null, null);
-            ch.enableVibration(false);
-            ch.setVibrationPattern(new long[]{0});
-            ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            nm.createNotificationChannel(ch);
-        }
-        if (nm.getNotificationChannel(CH_SYSTEM) == null) {
-            NotificationChannel ch = new NotificationChannel(CH_SYSTEM, "السائر — صوت النظام", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("استخدام نغمة إشعارات الهاتف الافتراضية");
-            ch.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, attrs);
-            ch.enableVibration(true);
-            ch.setVibrationPattern(vibs);
-            ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            nm.createNotificationChannel(ch);
-        }
+        nm.deleteNotificationChannel(CH_OLD_CHIME);
+        nm.deleteNotificationChannel(CH_OLD_SILENT);
+        nm.deleteNotificationChannel(CH_OLD_SYSTEM);
+        String[][] cats = {{"pray","الصلاة"},{"fast","الصيام"},{"habit","العادات والأهداف"}};
+        String[][] modes = {{"chime","صوت هادئ","نغمة تغريد العصافير — نغمة إسلامية هادئة مخصصة للتطبيق"},{"silent","بلا صوت","إشعارات صامتة؛ التذكير يظهر دون نغمة"},{"system","صوت النظام","استخدام نغمة إشعارات الهاتف الافتراضية"}};
+        for (String[] cat : cats) for (String[] mode : modes)
+            mkChan(nm, chId(cat[0], mode[0]), "السائر — "+cat[1]+" · "+mode[1], mode[2], mode[0], soundUri, attrs, vibs);
+    }
+
+    private static void mkChan(NotificationManager nm, String id, String name, String desc, String mode, Uri soundUri, AudioAttributes attrs, long[] vibs) {
+        if (nm.getNotificationChannel(id) != null) return;
+        NotificationChannel ch = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_HIGH);
+        ch.setDescription(desc);
+        if ("silent".equals(mode)) { ch.setSound(null, null); ch.enableVibration(false); ch.setVibrationPattern(new long[]{0}); }
+        else if ("system".equals(mode)) { ch.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, attrs); ch.enableVibration(true); ch.setVibrationPattern(vibs); }
+        else { ch.setSound(soundUri, attrs); ch.enableVibration(true); ch.setVibrationPattern(vibs); }
+        ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        nm.createNotificationChannel(ch);
     }
 
     /** نمط الصوت المختار: chime | silent | system */
@@ -279,9 +271,20 @@ public final class AlarmScheduler {
         prefs(c).edit().putString(K_SOUND, ("silent".equals(m) || "system".equals(m)) ? m : "chime").apply();
     }
 
-    static String channelFor(Context c) {
+    static String categoryOf(String id) {
+        if (id != null && (id.startsWith("pray_") || id.startsWith("prep_"))) return "pray";
+        if (id != null && (id.startsWith("fs_") || id.startsWith("fi_"))) return "fast";
+        return "habit";
+    }
+
+    static String chId(String cat, String mode) {
+        String m = ("silent".equals(mode) || "system".equals(mode)) ? mode : "chime";
+        return "alsaer_" + cat + ("chime".equals(m) ? "" : "_" + m) + "_v1";
+    }
+
+    static String channelFor(Context c, String id) {
         String mode = soundMode(c);
-        return "silent".equals(mode) ? CH_SILENT : ("system".equals(mode) ? CH_SYSTEM : CH_CHIME);
+        return chId(categoryOf(id), mode);
     }
 
     /** أيقونة كبيرة مطابقة لأيقونة التطبيق داخل الإشعار. */
@@ -315,7 +318,7 @@ public final class AlarmScheduler {
         open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent content = PendingIntent.getActivity(c, nid, open, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
 
-        NotificationCompat.Builder b = new NotificationCompat.Builder(c, channelFor(c))
+        NotificationCompat.Builder b = new NotificationCompat.Builder(c, channelFor(c, id))
                 .setSmallIcon(R.drawable.ic_stat_alsaer)
                 .setLargeIcon(launcherIcon(c))
                 .setContentTitle(title)
