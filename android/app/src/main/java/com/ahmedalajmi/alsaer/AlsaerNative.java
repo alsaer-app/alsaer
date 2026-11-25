@@ -42,6 +42,9 @@ public class AlsaerNative {
     @JavascriptInterface public void gdriveAuthorize(boolean interactive) {
         act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).authorizeDrive(interactive); });
     }
+    @JavascriptInterface public void gdriveAuthorizeAccount(boolean interactive, String accountEmail) {
+        act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).authorizeDrive(interactive, accountEmail); });
+    }
     /* ALSAER: مسح تخزين تفويض Google Drive على الجهاز (يرافق فك الربط وإعادة الضبط بعد رمز ميت) */
     @JavascriptInterface public void gdriveRevoke() {
         act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).revokeDrive(); });

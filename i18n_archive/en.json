@@ -1892,5 +1892,6 @@
  "المحتوى من «كتاب البطاقات» لأ.د. ياسر بن إسماعيل راضي، موقع": "Content from the “Cards” book by Prof. Yasser bin Ismail Radi, site",
  "قائمة": "Menu",
  "جارٍ إنهاء فك الربط السابق ثم نفتح اختيار الحساب…": "Finishing the previous unlink, then opening the account picker…",
- "أُلغي الإذن فور منحه (غالبًا من فك الربط السابق). انتظر لحظات ثم اضغط ربط حساب جديد.": "The permission was revoked right after it was granted (likely by the previous unlink). Wait a moment, then tap Link new account."
+ "أُلغي الإذن فور منحه (غالبًا من فك الربط السابق). انتظر لحظات ثم اضغط ربط حساب جديد.": "The permission was revoked right after it was granted (likely by the previous unlink). Wait a moment, then tap Link new account.",
+ "انتهى ربط Google Drive على هذا الجهاز. اضغط «ربط Google Drive» لإعادة الربط.": "The Google Drive link on this device has expired. Tap “Link Google Drive” to link again."
 }

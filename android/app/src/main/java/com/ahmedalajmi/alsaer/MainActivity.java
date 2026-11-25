@@ -20,6 +20,10 @@ public class MainActivity extends BridgeActivity {
         if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
         driveAuthorization.authorize(interactive);
     }
+    void authorizeDrive(boolean interactive, String accountEmail) {
+        if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
+        driveAuthorization.authorize(interactive, accountEmail);
+    }
     void revokeDrive() {
         if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
         driveAuthorization.revoke();

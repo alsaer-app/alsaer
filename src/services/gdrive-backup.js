@@ -54,7 +54,7 @@ function gdNativeToken(interactive){
     var timer=setTimeout(function(){var wasInteractive=gdNativePending&&gdNativePending.interactive;gdNativePending=null;if(!wasInteractive){try{localStorage.removeItem(GD_PENDING_KEY)}catch(e){}}reject(new Error('timeout'));try{render()}catch(e){}},300000);
     gdNativePending={resolve:resolve,reject:reject,timer:timer,interactive:!!interactive};
     try{if(interactive)localStorage.setItem(GD_PENDING_KEY,'1')}catch(e){}
-    try{AlsaerNative.gdriveAuthorize(!!interactive)}catch(e){clearTimeout(timer);gdNativePending=null;try{localStorage.removeItem(GD_PENDING_KEY)}catch(x){}reject(e)}
+    try{if(!interactive&&typeof AlsaerNative.gdriveAuthorizeAccount==='function'&&gdEmail())AlsaerNative.gdriveAuthorizeAccount(false,gdEmail());else AlsaerNative.gdriveAuthorize(!!interactive)}catch(e){clearTimeout(timer);gdNativePending=null;try{localStorage.removeItem(GD_PENDING_KEY)}catch(x){}reject(e)}
   });
 }
 /* إن قتل أندرويد التطبيق أثناء اختيار الحساب ضاعت النتيجة بصمت؛ نوضح ذلك عند العودة لشاشة النسخ */
@@ -82,7 +82,7 @@ window.gdriveOnNativeToken=function(token,error,email){
   }
   gdNativePending=null;clearTimeout(p.timer);
   try{localStorage.removeItem(GD_PENDING_KEY)}catch(e){}
-  if(error||!token){if(gdAuthError(error||'no-auth'))gdResetAuthState();p.reject(new Error(error||'no-auth'));try{render()}catch(e){}return}
+  if(error||!token){if(gdAuthError(error||'no-auth')){gdResetAuthState();if(!p.interactive)bkSay('انتهى ربط Google Drive على هذا الجهاز. اضغط «ربط Google Drive» لإعادة الربط.')}p.reject(new Error(error||'no-auth'));try{render()}catch(e){}return}
   gdValidateToken(token).then(function(o){
     if(!o){gdResetAuthState();p.reject(new Error('auth'));try{render()}catch(e){}return}
     gdNativeLinkOk(p,token,email||String((o.user&&o.user.emailAddress)||''));

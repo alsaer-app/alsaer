@@ -19,7 +19,9 @@ final class DriveAuthorization {
     private long busySince;
     private boolean interactive;
     DriveAuthorization(MainActivity activity) { this.activity = activity; }
-    void authorize(boolean allowUi) {
+    void authorize(boolean allowUi) { authorize(allowUi, null); }
+    /** Silent requests name the account chosen at link time; without it Play may resolve a different default account, find no grant for it and report consent-required. */
+    void authorize(boolean allowUi, String accountEmail) {
         activity.runOnUiThread(() -> {
             // A wedged latch (result never delivered) must not block relinking forever; the JS side times out at 300s.
             if (busy && System.currentTimeMillis() - busySince <= 300000) { deliver("", "busy"); return; }
@@ -28,6 +30,7 @@ final class DriveAuthorization {
                 .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive.file")));
             // Only an explicit Link/change-account action asks for an account picker.
             if (allowUi) builder.setPrompt(AuthorizationRequest.Prompt.SELECT_ACCOUNT);
+            else if (accountEmail != null && !accountEmail.isEmpty() && accountEmail.indexOf('@') > 0) builder.setAccount(new android.accounts.Account(accountEmail, "com.google"));
             AuthorizationRequest request = builder.build();
             Identity.getAuthorizationClient(activity).authorize(request)
                 .addOnSuccessListener(this::accept)
