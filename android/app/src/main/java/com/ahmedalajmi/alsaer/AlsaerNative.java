@@ -96,6 +96,10 @@ public class AlsaerNative {
     }
 
     /* ALSAER: فتح رابط في متصفح الجهاز (صفحة موافقة Google لربط النسخة الاحتياطية) */
+    // ALSAER: زر «خروج» في حوار تأكيد الخروج يُقلِّص التطبيق (نفس أثر زر الرجوع النهائي سابقًا)
+    @JavascriptInterface public void exitApp() {
+        act.runOnUiThread(() -> act.moveTaskToBack(true));
+    }
     @JavascriptInterface public boolean openUrl(String url) {
         try {
             Intent i = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url));

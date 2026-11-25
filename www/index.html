@@ -1999,6 +1999,19 @@ input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(
 .adk-seg.lg i.long{flex:none;background:var(--good);height:9px;border-radius:9px}.adk-seg.lg{background:color-mix(in srgb,var(--fg) 18%,transparent);border-radius:9px;overflow:hidden;gap:0;direction:rtl}
 .adk-t{font-family:var(--font-text);font-size:23px;line-height:2.1;margin:14px 4px 6px;text-align:start}
 .adk-hint{text-align:center;font-size:12px;color:var(--muted);opacity:.8;margin-top:2px}.adk-ok{text-align:center;color:var(--good);font-weight:800}
+
+/* حوار تأكيد الخروج (نجمة GitHub) — يظهر عند زر الرجوع في الجذر فقط */
+.xa-ov{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(2,8,6,.6);padding:24px;box-sizing:border-box}
+.xa{position:relative;width:100%;max-width:340px;background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:26px 18px 18px;box-shadow:0 18px 48px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.xa-ic{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold)}
+.xa-ic .i{width:26px;height:26px}
+.xa-t{font-size:17px}
+.xa-p{margin:0;font-size:13px;line-height:1.9;opacity:.8}
+.xa-bb{display:flex;gap:10px;width:100%;margin-top:6px}
+.xa-bb .btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:0;padding:11px 10px;font-size:14px;white-space:nowrap;border-radius:14px}
+.xa-bb .xa-gh{border:1px solid var(--gold);color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.xa-bb .xa-gh .i{width:16px;height:16px}
+.xa-x{position:absolute;top:10px;inset-inline-start:10px;border:0;background:transparent;color:inherit;opacity:.55;font-size:14px;padding:6px;cursor:pointer}
 /* توحيد كل مربعات الكتابة + إزالة الوهج الداكن عند اللمس/التركيز/الإكمال التلقائي */
 input:not([type]),input[type=text],input[type=search],input[type=number],input[type=password],input[type=email],input[type=url],input[type=tel],textarea,.qd-i,.msb-in{
  -webkit-appearance:none;appearance:none;box-sizing:border-box;min-height:46px;padding:11px 14px;border:1px solid var(--line);border-radius:14px;
@@ -2884,7 +2897,7 @@ function achievements(){
 function rankName(b){return b<3?'بداية الطريق':b<7?'خطوة ثابتة':b<30?'عزيمة':b<90?'إرادة صلبة':'ثبات'}
 
 /* ---------- state ---------- */
-var S=load(), tab='home', unlocked=!S.pin, draft=null, draftTrig=null, covered=false, confirmRelapse=false, confirmReset=false;
+var S=load(), tab='home', unlocked=!S.pin, draft=null, draftTrig=null, covered=false, confirmRelapse=false, confirmReset=false, exitAsk=false;
 var secMethod='pin',secStage='choose',secOldOk=false,secOk='';
 var calD=new Date(), calSel=null, group='morning', qi=new Date().getDate(), secs=null, tmr=null, timerDeadline=0, msg='', toastT=null;
 var lastTab=null,navTrail=['home'],backPopHandling=false,backHistoryReady=false,pressKey=null,pressXY=null,splash=true, obStep=1, obGender='male', per='week', addingHabit=false, addingHabitType='good', addingWorship=false, showPrivacy=false, showLog=false,  rd=null, setOpen=null;
@@ -7320,6 +7333,7 @@ function render(){
   app.classList.toggle('sg-tabs-active',tab==='settings');
   app.innerHTML=vh;
   if(typeof gdMountDialog==='function')gdMountDialog();
+  if(typeof xaMount==='function')xaMount();
   if(tab!==lastTab){
     if(lastTab!==null&&!popping){
       if(navTrail[navTrail.length-1]!==tab)navTrail.push(tab);
@@ -7463,6 +7477,9 @@ document.addEventListener('click',async function(e){
   if(b.classList.contains('tab')||b.classList.contains('btn')||b.classList.contains('tile')||b.classList.contains('ib')||b.classList.contains('lrow')||b.classList.contains('cli')||b.classList.contains('uo'))pressXY=[e.clientX,e.clientY],pressKey='[data-a="'+b.dataset.a+'"]'+(b.dataset.v!==undefined?'[data-v="'+b.dataset.v+'"]':'')+(b.classList.contains('tab')?'.tab':'');
   var a=b.dataset.a,v=b.dataset.v,d=b.dataset;
   if(/^(pray|hab|worship|tap|qadd|badinc|fastrecord)$/.test(a)){hapGo([45])}
+  if(a==='xastar'){xaStar();return}
+  if(a==='xaexit'){xaExit();return}
+  if(a==='xastay'){exitAsk=false;render();return}
   if(a==='goback'){if(innerBack())return;if(navTrail.length>1){history.back();return}tab=v||'home';confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='tab'){if(v==='quran'){loadHeavy();var qp=Math.max(1,S.quran.pos||1),ql=Math.max(qp,Math.min(604,S.quran.last||0));rd={from:qp,to:Math.min(604,qp+S.quran.goal-1),page:Math.max(qp,ql||qp)};v='reader'}else if(v==='reader')loadHeavy();if(typeof qwSheetClose==='function')qwSheetClose();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='updlater'){var us=updState(),ui=updInfo();if(ui){us.dismissed=ui.versionCode;updSave(us)}updSheetClose()}
@@ -7685,7 +7702,33 @@ function handleNativeBack(){
     backPopHandling=true;window.scrollTo(0,0);render();return true;
   }
   if(tab!=='home'){tab='home';navTrail=['home'];backPopHandling=true;window.scrollTo(0,0);render();return true}
-  return false;
+  /* في الجذر: حوار تأكيد الخروج (نجمة GitHub) — زر رجوع ثانٍ يُخفي الحوار ولا يخرج */
+  if(exitAsk){exitAsk=false;render();return true}
+  exitAsk=true;render();return true;
+}
+function xaMount(){
+  var old=document.getElementById('xa-ov');
+  if(!exitAsk){if(old)old.remove();return}
+  if(old)return;
+  var ov=document.createElement('div');ov.id='xa-ov';ov.className='xa-ov';
+  ov.innerHTML='<div class="xa" role="alertdialog" aria-modal="true" aria-label="تأكيد الخروج">'
+   +'<span class="xa-ic">'+ic('star')+'</span>'
+   +'<b class="xa-t">هل بالفعل تريد الخروج من التطبيق؟</b>'
+   +'<p class="xa-p">إن نال «السائر» إعجابك، نجّمه على GitHub؛ نجمتُك تُعين على انتشاره واستمرار تطويره.</p>'
+   +'<div class="xa-bb"><button class="btn xa-gh" data-a="xastar">'+ic('star')+'نجّمنا على GitHub</button><button class="btn" data-a="xaexit">خروج</button></div>'
+   +'<button class="xa-x" data-a="xastay" aria-label="بقاء">✕</button></div>';
+  ov.addEventListener('click',function(e){if(e.target===ov){exitAsk=false;render()}});
+  document.body.appendChild(ov);
+}
+function xaStar(){
+  var u='https://github.com/alsaer-app/alsaer';
+  try{if(window.AlsaerNative&&AlsaerNative.openUrl&&AlsaerNative.openUrl(u))return}catch(e){}
+  try{window.open(u,'_blank','noopener')}catch(e2){try{location.href=u}catch(e3){}}
+}
+function xaExit(){
+  exitAsk=false;
+  try{if(window.AlsaerNative&&AlsaerNative.exitApp){AlsaerNative.exitApp();return}}catch(e){}
+  render();
 }
 window.alsaerBack=handleNativeBack;
 document.addEventListener('backbutton',function(e){

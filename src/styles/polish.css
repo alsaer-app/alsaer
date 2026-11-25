@@ -56,3 +56,16 @@ input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(
 .adk-seg.lg i.long{flex:none;background:var(--good);height:9px;border-radius:9px}.adk-seg.lg{background:color-mix(in srgb,var(--fg) 18%,transparent);border-radius:9px;overflow:hidden;gap:0;direction:rtl}
 .adk-t{font-family:var(--font-text);font-size:23px;line-height:2.1;margin:14px 4px 6px;text-align:start}
 .adk-hint{text-align:center;font-size:12px;color:var(--muted);opacity:.8;margin-top:2px}.adk-ok{text-align:center;color:var(--good);font-weight:800}
+
+/* حوار تأكيد الخروج (نجمة GitHub) — يظهر عند زر الرجوع في الجذر فقط */
+.xa-ov{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(2,8,6,.6);padding:24px;box-sizing:border-box}
+.xa{position:relative;width:100%;max-width:340px;background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:26px 18px 18px;box-shadow:0 18px 48px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.xa-ic{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold)}
+.xa-ic .i{width:26px;height:26px}
+.xa-t{font-size:17px}
+.xa-p{margin:0;font-size:13px;line-height:1.9;opacity:.8}
+.xa-bb{display:flex;gap:10px;width:100%;margin-top:6px}
+.xa-bb .btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:0;padding:11px 10px;font-size:14px;white-space:nowrap;border-radius:14px}
+.xa-bb .xa-gh{border:1px solid var(--gold);color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.xa-bb .xa-gh .i{width:16px;height:16px}
+.xa-x{position:absolute;top:10px;inset-inline-start:10px;border:0;background:transparent;color:inherit;opacity:.55;font-size:14px;padding:6px;cursor:pointer}

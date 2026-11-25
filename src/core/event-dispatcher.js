@@ -77,6 +77,9 @@ document.addEventListener('click',async function(e){
   if(b.classList.contains('tab')||b.classList.contains('btn')||b.classList.contains('tile')||b.classList.contains('ib')||b.classList.contains('lrow')||b.classList.contains('cli')||b.classList.contains('uo'))pressXY=[e.clientX,e.clientY],pressKey='[data-a="'+b.dataset.a+'"]'+(b.dataset.v!==undefined?'[data-v="'+b.dataset.v+'"]':'')+(b.classList.contains('tab')?'.tab':'');
   var a=b.dataset.a,v=b.dataset.v,d=b.dataset;
   if(/^(pray|hab|worship|tap|qadd|badinc|fastrecord)$/.test(a)){hapGo([45])}
+  if(a==='xastar'){xaStar();return}
+  if(a==='xaexit'){xaExit();return}
+  if(a==='xastay'){exitAsk=false;render();return}
   if(a==='goback'){if(innerBack())return;if(navTrail.length>1){history.back();return}tab=v||'home';confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='tab'){if(v==='quran'){loadHeavy();var qp=Math.max(1,S.quran.pos||1),ql=Math.max(qp,Math.min(604,S.quran.last||0));rd={from:qp,to:Math.min(604,qp+S.quran.goal-1),page:Math.max(qp,ql||qp)};v='reader'}else if(v==='reader')loadHeavy();if(typeof qwSheetClose==='function')qwSheetClose();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='updlater'){var us=updState(),ui=updInfo();if(ui){us.dismissed=ui.versionCode;updSave(us)}updSheetClose()}
@@ -299,7 +302,33 @@ function handleNativeBack(){
     backPopHandling=true;window.scrollTo(0,0);render();return true;
   }
   if(tab!=='home'){tab='home';navTrail=['home'];backPopHandling=true;window.scrollTo(0,0);render();return true}
-  return false;
+  /* في الجذر: حوار تأكيد الخروج (نجمة GitHub) — زر رجوع ثانٍ يُخفي الحوار ولا يخرج */
+  if(exitAsk){exitAsk=false;render();return true}
+  exitAsk=true;render();return true;
+}
+function xaMount(){
+  var old=document.getElementById('xa-ov');
+  if(!exitAsk){if(old)old.remove();return}
+  if(old)return;
+  var ov=document.createElement('div');ov.id='xa-ov';ov.className='xa-ov';
+  ov.innerHTML='<div class="xa" role="alertdialog" aria-modal="true" aria-label="تأكيد الخروج">'
+   +'<span class="xa-ic">'+ic('star')+'</span>'
+   +'<b class="xa-t">هل بالفعل تريد الخروج من التطبيق؟</b>'
+   +'<p class="xa-p">إن نال «السائر» إعجابك، نجّمه على GitHub؛ نجمتُك تُعين على انتشاره واستمرار تطويره.</p>'
+   +'<div class="xa-bb"><button class="btn xa-gh" data-a="xastar">'+ic('star')+'نجّمنا على GitHub</button><button class="btn" data-a="xaexit">خروج</button></div>'
+   +'<button class="xa-x" data-a="xastay" aria-label="بقاء">✕</button></div>';
+  ov.addEventListener('click',function(e){if(e.target===ov){exitAsk=false;render()}});
+  document.body.appendChild(ov);
+}
+function xaStar(){
+  var u='https://github.com/alsaer-app/alsaer';
+  try{if(window.AlsaerNative&&AlsaerNative.openUrl&&AlsaerNative.openUrl(u))return}catch(e){}
+  try{window.open(u,'_blank','noopener')}catch(e2){try{location.href=u}catch(e3){}}
+}
+function xaExit(){
+  exitAsk=false;
+  try{if(window.AlsaerNative&&AlsaerNative.exitApp){AlsaerNative.exitApp();return}}catch(e){}
+  render();
 }
 window.alsaerBack=handleNativeBack;
 document.addEventListener('backbutton',function(e){

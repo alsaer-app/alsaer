@@ -28,6 +28,7 @@ function render(){
   app.classList.toggle('sg-tabs-active',tab==='settings');
   app.innerHTML=vh;
   if(typeof gdMountDialog==='function')gdMountDialog();
+  if(typeof xaMount==='function')xaMount();
   if(tab!==lastTab){
     if(lastTab!==null&&!popping){
       if(navTrail[navTrail.length-1]!==tab)navTrail.push(tab);

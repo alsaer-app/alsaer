@@ -1,4 +1,4 @@
-var S=load(), tab='home', unlocked=!S.pin, draft=null, draftTrig=null, covered=false, confirmRelapse=false, confirmReset=false;
+var S=load(), tab='home', unlocked=!S.pin, draft=null, draftTrig=null, covered=false, confirmRelapse=false, confirmReset=false, exitAsk=false;
 var secMethod='pin',secStage='choose',secOldOk=false,secOk='';
 var calD=new Date(), calSel=null, group='morning', qi=new Date().getDate(), secs=null, tmr=null, timerDeadline=0, msg='', toastT=null;
 var lastTab=null,navTrail=['home'],backPopHandling=false,backHistoryReady=false,pressKey=null,pressXY=null,splash=true, obStep=1, obGender='male', per='week', addingHabit=false, addingHabitType='good', addingWorship=false, showPrivacy=false, showLog=false,  rd=null, setOpen=null;
