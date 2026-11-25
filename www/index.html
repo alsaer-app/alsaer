@@ -990,6 +990,23 @@ body.rd #mp{padding:0}
 .mq-m .ayo b{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font-size:.512em;font-weight:400}
 .mq-bot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px max(6px,env(safe-area-inset-bottom));border-top:1px solid color-mix(in srgb,var(--mp-gold) 18%,transparent);background:var(--mp-bg)}
 .mq-bot .mq-pos{color:var(--mp-mut);font-size:12px}
+
+/* فهرس السور في قارئ التدفق */
+.mq-ix{z-index:61}
+.mq-ixq{flex:1;min-width:0}
+.mq-ixs{padding:10px 12px 20px}
+.mq-ixc{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;margin-bottom:10px;border-radius:16px;border:1px solid color-mix(in srgb,var(--mp-gold) 40%,transparent);background:color-mix(in srgb,var(--mp-gold) 10%,transparent);color:inherit;font:inherit;text-align:right;cursor:pointer}
+.mq-ixc .i{width:20px;height:20px;color:var(--mp-gold);flex:none}
+.mq-ixc .t{flex:1;min-width:0;font-weight:700;font-size:14px}
+.mq-ixc .t small{display:block;font-weight:400;font-size:12px;margin-top:2px}
+.mq-ixc .chev{width:16px;height:16px;opacity:.6}
+.mq-ixr{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:0;border-bottom:1px solid color-mix(in srgb,var(--mp-gold) 10%,transparent);background:none;color:inherit;font:inherit;text-align:right;cursor:pointer}
+.mq-ixr:active{background:color-mix(in srgb,var(--mp-gold) 8%,transparent)}
+.mq-ixn{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--mp-gold);border:1px solid color-mix(in srgb,var(--mp-gold) 45%,transparent);background:color-mix(in srgb,var(--mp-gold) 10%,transparent)}
+.mq-ixt{flex:1;min-width:0}
+.mq-ixt b{display:block;font-size:14.5px}
+.mq-ixt small{color:var(--mp-mut);font-size:11.5px}
+.mq-ixr .chev{width:16px;height:16px;opacity:.5;flex:none}
 </style>
 <style>
 .release-log{border:1px solid var(--line);background:linear-gradient(145deg,var(--surface),var(--surface-2));border-radius:18px;padding:16px}
@@ -6459,6 +6476,13 @@ function mqOpenTf(vv){
       if(best)mqSetCur(best.getAttribute('data-v'),false);
     },150);
   },true);
+  /* التمرير لمرة واحدة إلى آية مقصودة عند الفتح (متابعة القراءة/الورد) */
+  new MutationObserver(function(){
+    if(tab!=='reader'||!rd||!rd.flow||!rd._scrollCv)return;
+    var v=document.querySelector('.mq-v[data-v="'+rd._scrollCv+'"]');if(!v)return;
+    var cv=rd._scrollCv;rd._scrollCv=null;
+    v.scrollIntoView({block:'center'});mqSetCur(cv,false);
+  }).observe(document.getElementById('app'),{childList:true,subtree:true});
 })();
 
 /* إخفاء رأس القارئ تلقائيًا بعد فترة قصيرة؛ يُجدَّد بعد كل تنقّل. يتوقف إن كانت النوافذ أو القوائم مفتوحة */
@@ -6528,6 +6552,15 @@ function mpIxNorm(s){
 function mpIndexPanel(){
   if(!rd||!rd.idx)return '';
   var D=QD();
+  if(rd.flow){
+    var bm=S.quran.bm2;
+    var cont=bm&&bm.c>=1&&bm.c<=114?'<button class="mq-ixc" data-a="qixgo" data-v="'+bm.c+':'+bm.v+'">'+ic('book')+'<span class="t">متابعة القراءة<small class="muted">سورة '+esc(D.n[bm.c-1])+' · آية '+ar(bm.v)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
+    return '<div class="mq-ov mq-ix"><div class="mq-top"><div class="mq-t1"><button class="ib" data-a="qidx" aria-label="إغلاق">\u2715</button>'
+     +'<input id="mpix-q" class="qd-i mq-ixq" type="search" enterkeyhint="search" autocomplete="off" placeholder="ابحث عن سورة بالاسم أو الرقم" aria-label="بحث في فهرس السور"></div></div>'
+     +'<div class="mq-sc mq-ixs">'+cont
+     +D.n.map(function(nm,i){return '<button class="mq-ixr" data-s="'+esc(mpIxNorm(nm)+'|'+(i+1))+'" data-a="qixgo" data-v="'+(i+1)+'"><span class="mq-ixn">'+ar(i+1)+'</span><span class="mq-ixt"><b>سورة '+esc(nm)+'</b><small>'+suraMeta(i+1)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'}).join('')
+     +'<p class="note" id="mpix-none" hidden>لا توجد سورة بهذا الاسم أو الرقم</p></div></div>';
+  }
   return '<div class="rd-sp rd-ix"><div class="rd-sh"><button class="ib" data-a="qidx" aria-label="إغلاق">\u2715</button><input id="mpix-q" class="qd-i" type="search" enterkeyhint="search" autocomplete="off" placeholder="اسم السورة أو رقمها" aria-label="بحث في فهرس السور"></div><div class="rd-sr">'
    +D.n.map(function(nm,i){var pg=suraPage(i+1);return '<button class="rd-ri" data-s="'+esc(mpIxNorm(nm)+'|'+(i+1))+'" data-a="qixgo" data-v="'+pg+'"><b>'+ar(i+1)+'. سورة '+esc(nm)+'</b><small>ص '+ar(pg)+'</small></button>'}).join('')
    +'<p class="note" id="mpix-none" hidden>لا توجد سورة بهذا الاسم أو الرقم</p></div></div>';
@@ -6536,6 +6569,11 @@ function mpIdxAct(a,v){
   if(!rd)return true;
   if(a==='qidx'){rd.idx=!rd.idx;rd.srch=false;rd.jump=false;return false}
   if(a==='qixgo'){
+    if(rd.flow){
+      var p=String(v).split(':'),c=parseInt(p[0],10),vv=p[1]?parseInt(p[1],10):1;
+      if(!(c>=1&&c<=114))return true;
+      mpSel='';rd.sura=c;rd.cv=c+':'+(vv>=1?vv:1);if(p[1])rd._scrollCv=rd.cv;rd.idx=false;return false;
+    }
     var t=parseInt(v,10);if(!(t>=1&&t<=604))return true;
     mpSel='';rd.dir=t>rd.page?1:-1;rd.page=t;rd.idx=false;window.scrollTo(0,0);return false;
   }
@@ -6543,7 +6581,7 @@ function mpIdxAct(a,v){
 }
 function mpIxFilter(q){
   var t=mpIxNorm(q).replace(/^سوره\s+/,''),bareT=t.replace(/^ال/,''),shown=0;
-  [].forEach.call(document.querySelectorAll('.rd-ix .rd-ri'),function(r){
+  [].forEach.call(document.querySelectorAll('.rd-ix .rd-ri,.mq-ix .mq-ixr'),function(r){
     var p=(r.getAttribute('data-s')||'').split('|'),nm=p[0],no=p[1],bare=nm.replace(/^ال/,'');
     var ok=!t||(/^\d+$/.test(t)?no===t:(nm.indexOf(t)>-1||bare.indexOf(bareT)>-1));
     r.hidden=!ok;if(ok)shown++;
@@ -7610,10 +7648,10 @@ document.addEventListener('click',async function(e){
       var prate=Math.round(pc/35*100),prl=document.querySelector('.rateline');
       if(prl){var pbt=prl.querySelector('b');if(pbt)pbt.textContent=prate+'%';var pbar=prl.parentElement.querySelector('.bar>div');if(pbar)pbar.style.width=prate+'%'}
       return}}
-  else if(a==='qstart'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st0=S.quran.pos;if(isW())rd={from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0};else{var fr0=curP()[st0-1]||[1,1];rd={flow:true,from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0,sura:fr0[0],cv:fr0[0]+':'+fr0[1]}}tab='reader';window.scrollTo(0,0)}
+  else if(a==='qstart'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st0=S.quran.pos;if(isW())rd={from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0};else{var fr0=curP()[st0-1]||[1,1];rd={flow:true,from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0,sura:fr0[0],cv:fr0[0]+':'+fr0[1],_scrollCv:fr0[0]+':'+fr0[1]}}tab='reader';window.scrollTo(0,0)}
   else if(a==='qsura'){loadHeavy(function(){var c=parseInt(v,10)||1,st=suraPage(c),en=c<114?Math.max(st,suraPage(c+1)-1):604;if(isW())rd={from:st,to:en,page:st,free:true,sura:c};else rd={flow:true,from:st,to:en,page:st,free:true,sura:c,cv:c+':1'};tab='reader';window.scrollTo(0,0);render()})}
   else if(a==='adkopen'){group=v;hsnOpen(v);window.scrollTo(0,0)}
-  else if(a==='qopen'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));if(isW())rd={from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1};else{var fr1=curP()[st1-1]||[1,1];rd={flow:true,from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1,sura:fr1[0],cv:fr1[0]+':'+fr1[1]}}tab='reader';window.scrollTo(0,0)}
+  else if(a==='qopen'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));if(isW())rd={from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1};else{var fr1=curP()[st1-1]||[1,1];rd={flow:true,from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1,sura:fr1[0],cv:fr1[0]+':'+fr1[1],_scrollCv:fr1[0]+':'+fr1[1]}}tab='reader';window.scrollTo(0,0)}
   else if(a==='qpage'){if(rd){try{mpSel='';mpHap()}catch(e){}mpStep(v==='1'?1:-1)}}
   else if(a==='qjump'||a==='qjgo'||a==='qmt'){if(mpAct(a,v))return}
   else if(a==='qidx'||a==='qixgo'){if(mpIdxAct(a,v))return}

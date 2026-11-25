@@ -438,6 +438,13 @@ function mqOpenTf(vv){
       if(best)mqSetCur(best.getAttribute('data-v'),false);
     },150);
   },true);
+  /* التمرير لمرة واحدة إلى آية مقصودة عند الفتح (متابعة القراءة/الورد) */
+  new MutationObserver(function(){
+    if(tab!=='reader'||!rd||!rd.flow||!rd._scrollCv)return;
+    var v=document.querySelector('.mq-v[data-v="'+rd._scrollCv+'"]');if(!v)return;
+    var cv=rd._scrollCv;rd._scrollCv=null;
+    v.scrollIntoView({block:'center'});mqSetCur(cv,false);
+  }).observe(document.getElementById('app'),{childList:true,subtree:true});
 })();
 
 /* إخفاء رأس القارئ تلقائيًا بعد فترة قصيرة؛ يُجدَّد بعد كل تنقّل. يتوقف إن كانت النوافذ أو القوائم مفتوحة */

@@ -186,10 +186,10 @@ document.addEventListener('click',async function(e){
       var prate=Math.round(pc/35*100),prl=document.querySelector('.rateline');
       if(prl){var pbt=prl.querySelector('b');if(pbt)pbt.textContent=prate+'%';var pbar=prl.parentElement.querySelector('.bar>div');if(pbar)pbar.style.width=prate+'%'}
       return}}
-  else if(a==='qstart'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st0=S.quran.pos;if(isW())rd={from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0};else{var fr0=curP()[st0-1]||[1,1];rd={flow:true,from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0,sura:fr0[0],cv:fr0[0]+':'+fr0[1]}}tab='reader';window.scrollTo(0,0)}
+  else if(a==='qstart'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st0=S.quran.pos;if(isW())rd={from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0};else{var fr0=curP()[st0-1]||[1,1];rd={flow:true,from:st0,to:Math.min(604,st0+S.quran.goal-1),page:st0,sura:fr0[0],cv:fr0[0]+':'+fr0[1],_scrollCv:fr0[0]+':'+fr0[1]}}tab='reader';window.scrollTo(0,0)}
   else if(a==='qsura'){loadHeavy(function(){var c=parseInt(v,10)||1,st=suraPage(c),en=c<114?Math.max(st,suraPage(c+1)-1):604;if(isW())rd={from:st,to:en,page:st,free:true,sura:c};else rd={flow:true,from:st,to:en,page:st,free:true,sura:c,cv:c+':1'};tab='reader';window.scrollTo(0,0);render()})}
   else if(a==='adkopen'){group=v;hsnOpen(v);window.scrollTo(0,0)}
-  else if(a==='qopen'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));if(isW())rd={from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1};else{var fr1=curP()[st1-1]||[1,1];rd={flow:true,from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1,sura:fr1[0],cv:fr1[0]+':'+fr1[1]}}tab='reader';window.scrollTo(0,0)}
+  else if(a==='qopen'){if(typeof qwSheetClose==='function')qwSheetClose();loadHeavy();var st1=Math.max(1,Math.min(604,parseInt(v,10)||1));if(isW())rd={from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1};else{var fr1=curP()[st1-1]||[1,1];rd={flow:true,from:st1,to:Math.min(604,st1+S.quran.goal-1),page:st1,sura:fr1[0],cv:fr1[0]+':'+fr1[1],_scrollCv:fr1[0]+':'+fr1[1]}}tab='reader';window.scrollTo(0,0)}
   else if(a==='qpage'){if(rd){try{mpSel='';mpHap()}catch(e){}mpStep(v==='1'?1:-1)}}
   else if(a==='qjump'||a==='qjgo'||a==='qmt'){if(mpAct(a,v))return}
   else if(a==='qidx'||a==='qixgo'){if(mpIdxAct(a,v))return}
