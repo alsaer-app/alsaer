@@ -1,5 +1,5 @@
 {
- "total": 2595,
+ "total": 2598,
  "protected_files_skipped": {
   "src/constants/adhkar.js": "adhkar text (stays Arabic)",
   "src/services/hisn.js": "Hisn al-Muslim supplications (stays Arabic)",

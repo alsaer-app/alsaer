@@ -245,31 +245,8 @@ document.addEventListener('click',function(e){
     return}
   if(k==='imgsh'){var b2=mpImg.blob;if(!b2)return;try{var f=new File([b2],'alsaer-ayah.jpg',{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return}}catch(e){}toast('المشاركة غير متاحة هنا — اضغط مطوّلًا على الصورة لحفظها');return}
   if(k==='imgdl'){if(!mpImg.url)return;try{var an=document.createElement('a');an.href=mpImg.url;an.download='alsaer-ayah.jpg';document.body.appendChild(an);an.click();an.remove();toast('إن لم يبدأ التنزيل، اضغط مطوّلًا على الصورة لحفظها')}catch(e){toast('اضغط مطوّلًا على الصورة لحفظها')}return}
-  if(k==='mk'||k==='mkre'){
-    var kk2=mpSel,re=(k==='mkre');
-    if(!re&&mpMk.k===kk2){mpMk={k:'',t:''};mpApplySel();return}
-    var q9=kk2.split(':'),ck2='alsaer_mk_'+kk2,c1='';
-    if(re){try{localStorage.removeItem(ck2)}catch(x3){}}else{try{c1=localStorage.getItem(ck2)||''}catch(x4){}if(c1)tfTouch(ck2)}
-    mpTf={k:'',t:''};mpMk={k:kk2,t:c1||'جارٍ تحميل المختصر…'};mpApplySel();
-    if(c1)return;
-    var u1='https://cdn.jsdelivr.net/gh/spa5k/tafsir_api@main/tafsir/ar-tafsir-al-mukhtasar/'+q9[0]+'/'+q9[1]+'.json'
-      ,u2='https://raw.githubusercontent.com/spa5k/tafsir_api/main/tafsir/ar-tafsir-al-mukhtasar/'+q9[0]+'/'+q9[1]+'.json';
-    var got=function(j){var t=j&&j.text;if(!t)throw 0;tfPut(ck2,t);if(mpMk.k===kk2){mpMk.t=t;mpApplySel()}};
-    var bad=function(){if(mpMk.k===kk2){mpMk.t='تعذّر تحميل المختصر. يحتاج إنترنتًا أول مرة لكل آية.';mpApplySel()}};
-    fetch(u1).then(function(r){if(!r.ok)throw 0;return r.json()}).then(got)
-     .catch(function(){fetch(u2).then(function(r){if(!r.ok)throw 0;return r.json()}).then(got).catch(bad)});
-    return}
-  if(k==='tf'){
-    var kk=mpSel;if(mpTf.k===kk){mpTf={k:'',t:''};mpApplySel();return}
-    var q8=kk.split(':'),ck='alsaer_tf_'+kk,c0='';try{c0=localStorage.getItem(ck)||''}catch(x){}if(c0)tfTouch(ck)
-    mpMk={k:'',t:''};mpTf={k:kk,t:c0||'جارٍ تحميل التفسير…'};mpApplySel();
-    if(!c0){
-      fetch('https://api.alquran.cloud/v1/ayah/'+q8[0]+':'+q8[1]+'/ar.muyassar').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
-        var t=j&&j.data&&j.data.text;if(!t)throw 0;tfPut(ck,t)
-        if(mpTf.k===kk){mpTf.t=t;mpApplySel()}
-      }).catch(function(){if(mpTf.k===kk){mpTf.t='تعذّر تحميل التفسير. يحتاج إنترنتًا أول مرة لكل آية.';mpApplySel()}});
-    }
-    return}
+  if(k==='mk'||k==='mkre'){return}
+  if(k==='tf'){if(rd&&rd.flow)mqOpenTf(mpSel);return}
   if(k==='bmrk'){var q3=mpSel.split(':');mqBmSet(+q3[0],+q3[1]);save();toast('تم حفظ العلامة المرجعية');mpApplySel();return}
   if(k==='copy'){try{navigator.clipboard.writeText(mpVerseText(mpSel));toast('تم نسخ الآية')}catch(x){toast('تعذّر النسخ')}return}
   if(k==='share'){var t=mpVerseText(mpSel);if(navigator.share){navigator.share({text:t}).catch(function(){})}else{try{navigator.clipboard.writeText(t);toast('نُسخت الآية للمشاركة')}catch(x){}}return}

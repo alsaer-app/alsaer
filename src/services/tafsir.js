@@ -1,16 +1,27 @@
 /* ===== التفسير الميسر: فهرس بالبطاقات + بطاقات آيات قابلة للتوسيع (إعادة تنفيذ لنمط التقوى، الكود لنا).
    قاعدة ثابتة: نص القرآن يُعرض ويُنسخ كما هو مخزَّن حرفيًا، بلا حذف ولا استبدال ولا تطبيع. التفسير يُنسخ وحده مع مرجع الآية. ===== */
-function mqTfFetch(vv,cb){
-  var ck='alsaer_tf_'+vv,c0='';try{c0=localStorage.getItem(ck)||''}catch(e){}
-  if(c0){tfTouch(ck);cb(c0);return}
-  var q=String(vv).split(':');
-  fetch('https://api.alquran.cloud/v1/ayah/'+q[0]+':'+q[1]+'/ar.muyassar').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
-    var t=j&&j.data&&j.data.text;if(!t)throw 0;tfPut(ck,t);cb(t)
-  }).catch(function(){cb(null)});
+function tfEnsure(cb){
+  if(window.TFDATA){cb();return}
+  var q=window.__tfq||(window.__tfq=[]);q.push(cb);if(window.__tfl)return;window.__tfl=1;
+  var sc=document.createElement('script');sc.src='tafsir-muyassar.js';
+  sc.onload=sc.onerror=function(){window.__tfl=0;q.splice(0).forEach(function(f){try{f()}catch(e){}})};
+  document.head.appendChild(sc);
 }
-function tfCached(vv){try{return localStorage.getItem('alsaer_tf_'+vv)||''}catch(e){return ''}}
-function tfSavedCount(){var n=0;try{n=tfIdx().filter(function(k){return k!==TF_IDX}).length}catch(e){}return n}
-function tfAyah(c,v){return hafsVerse(c,v)} /* حفص كما في قارئ التدفق: البسملة المُلحقة في المخزَّن تُعرض في الترويسة لا في الآية */
+function tfRaw(c,h){var D=window.TFDATA;return D&&D[c-1]&&D[c-1][h-1]||''}
+function tfSavedCount(){return 6236}
+function tfAyah(c,v){return isW()?verseShow(c,v):hafsVerse(c,v)} /* حفص كما في قارئ التدفق: البسملة المُلحقة في المخزَّن تُعرض في الترويسة لا في الآية */
+function tfCv(vv){var q=String(vv).split(':'),c=+q[0],v=+q[1];return isW()?tfCover(c,v):{a:v,b:v,f:0}}
+function tfText(vv){var q=String(vv).split(':'),k=tfCv(vv),o=[];if(!k)return '';for(var h=k.a;h<=k.b;h++){var t=tfRaw(+q[0],h);if(!t)return '';o.push(k.b>k.a?'\u00AB\u0622\u064A\u0629 '+ar(h)+' \u0628\u062A\u0631\u0642\u064A\u0645 \u062D\u0641\u0635\u00BB\n'+t:t)}return o.join('\n\n')}
+function tfT(t,a,b){var r=(typeof lang==='function'&&lang()!=='ar'&&typeof trS==='function')?trS(t):null;return String(r||t).replace('{a}',ar(a)).replace('{b}',ar(b))}
+function tfNote(vv){
+  if(!isW())return '';
+  var q=String(vv).split(':'),v=+q[1],k=tfCv(vv);
+  if(!k)return 'التفسير غير متاح لهذه الآية.';
+  if(k.f)return k.b>k.a?tfT('حدّ هذه الآية في رواية ورش يقع داخل الآيات {a} إلى {b} من ترقيم حفص، فالتفسير أدناه لآيات حفص كاملة.',k.a,k.b):tfT('حدّ هذه الآية في رواية ورش يقع داخل آية حفص {a}، فالتفسير أدناه لآية حفص كاملة.',k.a);
+  if(k.b>k.a)return tfT('هذه الآية في ترقيم ورش تشمل الآيات {a} إلى {b} من ترقيم حفص، وتفسيرها أدناه مجموع تفسيريهما.',k.a,k.b);
+  if(k.a!==v)return tfT('تقابل الآية {a} في ترقيم حفص الذي رُقِّم به التفسير.',k.a);
+  return '';
+}
 function tfFill(vv,t){
   if(rd&&rd.tf&&t)rd.tf.tx[vv]=t;
   var el=document.querySelector('.mq-tx[data-tv="'+vv+'"]');if(!el)return;
@@ -18,9 +29,7 @@ function tfFill(vv,t){
   if(t)el.removeAttribute('data-ld');else el.setAttribute('data-ld','err');
 }
 function tfLoad(vv){
-  var t=(rd&&rd.tf&&rd.tf.tx[vv])||tfCached(vv);
-  if(t){tfFill(vv,t);return}
-  mqTfFetch(vv,function(x){tfFill(vv,x)});
+  tfEnsure(function(){var t=tfText(vv);tfFill(vv,t||null)});
 }
 function tfPost(){
   if(!rd||!rd.tf||rd.tf.mode!=='rd')return;
@@ -31,8 +40,7 @@ function tfPost(){
 function tfOpen(vv){
   var q=String(vv||rd.cv||'1:1').split(':'),c=+q[0]||1,v=+q[1]||1;
   var x={},o={mode:'rd',c:c,x:x,tx:{},fb:false};
-  if(!isW()){x[c+':'+v]=true;o._sv=c+':'+v;S.quran.tfPos={c:c,v:v};save()}
-  else toast('ترقيم التفسير حسب حفص، فُتحت السورة من أولها');
+  x[c+':'+v]=true;o._sv=c+':'+v;S.quran.tfPos={c:c,v:v,w:isW()?1:0};save();
   rd.tf=o;render();setTimeout(tfPost,80);
 }
 function tfAct(a,v){
@@ -44,22 +52,22 @@ function tfAct(a,v){
     var p=String(v).split(':'),c=parseInt(p[0],10),vv=p[1]?parseInt(p[1],10):0;if(!(c>=1&&c<=114))return true;
     var o={mode:'rd',c:c,x:{},tx:t.tx||{},fb:true};
     if(vv){o.x[c+':'+vv]=true;o._sv=c+':'+vv}
-    S.quran.tfPos={c:c,v:vv||1};save();rd.tf=o;setTimeout(tfPost,80);return false}
+    S.quran.tfPos={c:c,v:vv||1,w:isW()?1:0};save();rd.tf=o;setTimeout(tfPost,80);return false}
   if(a==='qtfx'){
     var card=document.querySelector('.mq-tc[data-tv="'+v+'"]');if(!card)return true;
     var open=!card.classList.contains('open');card.classList.toggle('open',open);
-    var q=String(v).split(':');if(open){t.x[v]=true;S.quran.tfPos={c:+q[0],v:+q[1]};save();tfLoad(v)}else delete t.x[v];
+    var q=String(v).split(':');if(open){t.x[v]=true;S.quran.tfPos={c:+q[0],v:+q[1],w:isW()?1:0};save();tfLoad(v)}else delete t.x[v];
     var hb=card.querySelector('.mq-tch');if(hb)hb.setAttribute('aria-expanded',open?'true':'false');
     return true}
   if(a==='qtfcp'){
-    var tx=t.tx[v]||tfCached(v);if(!tx){toast('لم يُحمَّل التفسير بعد');return true}
-    var q2=String(v).split(':'),ref='\u2014 سورة '+QD().n[+q2[0]-1]+' \u00B7 آية '+q2[1]+' (التفسير الميسر)';
+    var tx=t.tx[v]||tfText(v);if(!tx){toast('لم يُحمَّل التفسير بعد');return true}
+    var q2=String(v).split(':'),ref='\u2014 سورة '+QD().n[+q2[0]-1]+' \u00B7 آية '+q2[1]+' (التفسير الميسر)',nt2=tfNote(v);if(nt2)ref+='\n'+nt2;
     try{navigator.clipboard.writeText(tx+'\n'+ref);toast('تم نسخ التفسير')}catch(e){toast('تعذّر النسخ')}
     return true}
   if(a==='qtfgo'){
     var q3=String(v).split(':'),c3=+q3[0],v3=+q3[1]||1;
     rd.tf=null;mpSel='';rd.sura=c3;rd.idx=false;rd.jump=false;
-    if(isW()){rd.cv=c3+':1';toast('ترقيم التفسير حسب حفص، فُتحت السورة من أولها')}else rd.cv=c3+':'+v3;
+    rd.cv=c3+':'+v3;
     rd._scrollCv=rd.cv;return false}
   return true;
 }
@@ -68,22 +76,22 @@ function mqTafsirHtml(){
   var t=rd.tf,D=QD(),tfs=tfSz();
   var back='<button class="mq-bk" data-a="qtfback" aria-label="رجوع">'+ic('chev')+'</button>';
   if(t.mode==='idx'){
-    var pos=S.quran.tfPos,n=0;for(var i=0;i<114;i++)n+=D.s[i].length;
-    var cont=pos&&pos.c>=1&&pos.c<=114?'<button class="mq-ixc" data-a="qtfsura" data-v="'+pos.c+':'+pos.v+'"><span class="mq-ixci">'+ic('book')+'</span><span class="t">متابعة التفسير<small>سورة '+esc(D.n[pos.c-1])+' \u00B7 آية '+ar(pos.v)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
+    var pos=S.quran.tfPos,n=0,AA=AD();for(var i=0;i<114;i++)n+=AA.s[i].length;if(pos&&!!pos.w!==isW())pos={c:pos.c,v:0};
+    var cont=pos&&pos.c>=1&&pos.c<=114?'<button class="mq-ixc" data-a="qtfsura" data-v="'+pos.c+(pos.v?':'+pos.v:'')+'"><span class="mq-ixci">'+ic('book')+'</span><span class="t">متابعة التفسير<small>سورة '+esc(D.n[pos.c-1])+(pos.v?' \u00B7 آية '+ar(pos.v):'')+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
     return '<div class="mq-ov mq-tf" id="mq-tf"><div class="mq-hd">'+back+'<b class="mq-tt">التفسير</b></div><div class="mq-ixs">'
       +'<div class="mq-tfh"><span class="mq-tfb">'+ic('book')+'</span><h2>التفسير الميسر</h2><p class="s">تفسير موجز لكل آية</p>'
       +'<p class="d">اضغط على أي آية لتفتح تفسيرها في مكانها. يُحمَّل التفسير من الإنترنت أول مرة لكل آية، ثم يبقى محفوظًا على جهازك للقراءة بلا إنترنت.</p>'
-      +'<div class="mq-tfst"><div><b>'+ar(114)+'</b><small>سورة</small></div><div><b>'+ar(n)+'</b><small>آية</small></div><div><b>'+ar(tfSavedCount())+'</b><small>تفسير محفوظ</small></div></div></div>'
+      +'<div class="mq-tfst"><div><b>'+ar(114)+'</b><small>سورة</small></div><div><b>'+ar(n)+'</b><small>آية</small></div><div><b>'+ar(tfSavedCount())+'</b><small>تفسير مضمَّن</small></div></div></div>'
       +cont+'<div class="mq-ixsb">'+ic('search')+'<input id="mptf-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="ابحث عن سورة بالاسم أو الرقم" aria-label="بحث في فهرس التفسير"></div>'
       +'<div class="mq-ixg">'+D.n.map(function(nm,i){return '<button class="mq-ixr" data-s="'+esc(mpIxNorm(nm)+'|'+(i+1))+'" data-a="qtfsura" data-v="'+(i+1)+'"><span class="mq-ixt"><b>'+esc(nm)+'</b><small>'+suraMeta(i+1)+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'}).join('')+'</div>'
       +'<p class="note" id="mptf-none" hidden>لا توجد سورة بهذا الاسم أو الرقم</p></div></div>';
   }
-  var c=t.c,vs=D.s[c-1],h='';
+  var c=t.c,vs=AD().s[c-1],h='';
   for(var v=1;v<=vs.length;v++){
-    var vv=c+':'+v,open=!!t.x[vv],tx=open?(t.tx[vv]||tfCached(vv)):'';
+    var vv=c+':'+v,open=!!t.x[vv],tx=open?(t.tx[vv]||tfText(vv)):'',nt=tfNote(vv);
     h+='<div class="mq-tc'+(open?' open':'')+'" data-tv="'+vv+'"><button class="mq-tch" data-a="qtfx" data-v="'+vv+'" aria-expanded="'+(open?'true':'false')+'"><span class="mq-tcm">'+ar(v)+'</span>'
       +'<span class="mq-tca" lang="ar" dir="rtl" style="font-size:'+(tfs+6)+'px">'+esc(tfAyah(c,v))+'</span>'+ic('chev').replace('class="i"','class="i mq-tcv"')+'</button>'
-      +'<div class="mq-tcb"><div class="mq-tci"><div class="mq-tx" lang="ar" dir="rtl" data-tv="'+vv+'"'+(tx?'':' data-ld="1"')+' style="font-size:'+tfs+'px">'+(tx?esc(tx):'جارٍ تحميل التفسير\u2026')+'</div>'
+      +'<div class="mq-tcb"><div class="mq-tci">'+(nt?'<div class="mq-tn">'+esc(nt)+'</div>':'')+'<div class="mq-tx" lang="ar" dir="rtl" data-tv="'+vv+'"'+(tx?'':' data-ld="1"')+' style="font-size:'+tfs+'px">'+(tx?esc(tx):'جارٍ تحميل التفسير\u2026')+'</div>'
       +'<div class="mq-tcact"><button data-a="qtfcp" data-v="'+vv+'">'+ic('pen')+'<span>نسخ التفسير</span></button><button data-a="qtfgo" data-v="'+vv+'">'+ic('book')+'<span>افتح في المصحف</span></button></div></div></div></div>';
   }
   return '<div class="mq-ov mq-tf" id="mq-tf"><div class="mq-hd">'+back+'<b class="mq-tt">تفسير سورة '+esc(D.n[c-1])+'</b>'
