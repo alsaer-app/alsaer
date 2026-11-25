@@ -193,7 +193,7 @@ document.addEventListener('click',async function(e){
   else if(a==='qpage'){if(rd){try{mpSel='';mpHap()}catch(e){}rd.dir=v==='1'?1:-1;rd.page=Math.max(1,Math.min(604,rd.page+(v==='1'?1:-1)))}}
   else if(a==='qjump'||a==='qjgo'||a==='qmt'){if(mpAct(a,v))return}
   else if(a==='qidx'||a==='qixgo'){if(mpIdxAct(a,v))return}
-  else if(/^(qsrch|qsclose|qsdo|qsgo|qimm|qms)$/.test(a)){if(mpAct2(a,v))return}
+  else if(/^(qsclose|qsdo|qsgo|qzoom|qms)$/.test(a)){if(mpAct2(a,v))return}
   else if(/^hdt[a-z]+$/.test(a)){if(typeof hdtAct==='function'&&hdtAct(a,v)===false)return}
   else if(/^hsn[a-z]+$/.test(a)){if(typeof hsnAct==='function'&&hsnAct(a,v)===false)return}
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}

@@ -50,3 +50,9 @@ html[data-theme="light"]{--mp-bg:#fbf6ea;--mp-ink:#1c140a;--mp-gold:#b98a2e;--mp
 #rd-ov .rd-b .rd-sn .ib{flex:1;height:30px;min-height:30px;padding:0 8px}
 
 body.rd #mp{padding:0}
+
+/* تكبير المستخدم داخل الإطار */
+#mp .mp-l{scrollbar-width:none}
+#mp .mp-l::-webkit-scrollbar{display:none}
+#mp .mp-f{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+#mp .pnz{border:1px solid var(--mp-gold,#c9a227);color:var(--mp-gold,#c9a227);background:transparent;border-radius:999px;padding:2px 10px;font-size:12px;font-family:inherit}

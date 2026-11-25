@@ -119,6 +119,7 @@ function mpAct2(a,v){
   if(a==='qms'){rd.mq=((document.getElementById('mq-q')||{}).value||'').trim();rd.mr=rd.mq?mpFind(rd.mq):[];return false}
   if(a==='qsclose'){rd.srch=false;return false}
   if(a==='qsdo'){rd.sq=((document.getElementById('mps-q')||{}).value||'').trim();rd.sr=rd.sq?mpFind(rd.sq):[];return false}
+  if(a==='qzoom'){S.quran.zoom=1;save();return false}
   if(a==='qsgo'){var t=parseInt(v,10);mpSel='';if(t>=1&&t<=604){rd.dir=t>rd.page?1:-1;rd.page=t}rd.srch=false;rd.jump=false;rd.mq='';rd.mr=null;rd.ui=false;window.scrollTo(0,0);return false}
   return false;
 }
@@ -334,6 +335,26 @@ function mpHap(){try{if(typeof hapGo==='function')hapGo([14]);else if(navigator.
   function nextSign(dx){return dx<0?1:-1} /* السحب يسارًا = التالية، يمينًا = السابقة (كالمصحف الورقي العربي) */
   function wordAt(x,y){var el=document.elementFromPoint(x,y),w=el&&el.closest?el.closest('.mw[data-v]'):null;return (w&&w.closest('#mp'))?w:null}
   function back(el){if(!el)return;el.style.transition='transform .26s cubic-bezier(.2,.9,.3,1.25),opacity .2s';el.style.transform='translateX(0)';el.style.opacity='1';setTimeout(function(){el.style.transition='';el.style.transform='';el.style.opacity=''},300)}
+  /* تكبير بإصبعين داخل إطار الصفحة فقط: لا يتعارض مع السحب (إصبع واحد) ولا الضغط ولا المطوّل */
+  var pz=null;
+  document.addEventListener('touchstart',function(e){
+    if(tab!=='reader'||!rd||!e.touches||e.touches.length!==2)return;
+    var t=e.target;if(!(t&&t.closest&&t.closest('#mp')))return;
+    var dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;
+    pz={d:Math.sqrt(dx*dx+dy*dy),z:(S.quran&&S.quran.zoom)||1};
+    st=null; /* يُلغي أي سحب بدأ بإصبع واحدة */
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!pz||!e.touches||e.touches.length!==2)return;
+    var dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;
+    var d=Math.sqrt(dx*dx+dy*dy);if(!pz.d)return;
+    var nz=Math.max(1,Math.min(2,Math.round(pz.z*d/pz.d*20)/20));
+    if(nz!==pz.z){pz.z=nz;S.quran.zoom=nz;save();try{fitReader(false)}catch(x){}}
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(!pz)return;if(e.touches&&e.touches.length>=2)return;
+    pz=null;render(); /* إعادة العرض لتثبيت الحجم وإظهار شارة النسبة */
+  },{passive:true});
   document.addEventListener('touchstart',function(e){
     st=null;if(tab!=='reader'||!rd||!window.MUSHAF||!e.touches||e.touches.length!==1||inCtl(e.target))return;
     var x=e.touches[0].clientX,y=e.touches[0].clientY,m=document.getElementById('mp');if(!m)return;

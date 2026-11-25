@@ -77,10 +77,16 @@ function _fitHafs(mp){
     if(cur.length)rows.push({t:cur,w:curW});
     return rows;
   }
+  var zoom=(S.quran&&S.quran.zoom)||1;
   var fs=19,cap=Math.max(1,Math.floor(H/(fs*1.9))),rows=layout(fs);
   while(rows.length>cap&&fs>13){fs--;cap=Math.max(1,Math.floor(H/(fs*1.9)));rows=layout(fs)}
+  if(zoom>1){ /* تكبير المستخدم: فوق حجم «احتواء الشاشة»، والصفحة تمرّر داخل الإطار دون خروج عنه */
+    fs=Math.min(44,Math.round(fs*zoom));rows=layout(fs);
+    L.style.display='block';L.style.overflowY='auto';L.style.justifyContent='';
+  }else{
+    L.style.display='flex';L.style.flexDirection='column';L.style.justifyContent='space-between';L.style.overflowY='hidden';
+  }
   L.style.fontSize=fs+'px';L.style.lineHeight='1.9';
-  L.style.display='flex';L.style.flexDirection='column';L.style.justifyContent='space-between';
   mpInit(rd.page);
   var html='';
   rows.forEach(function(r,ri){
