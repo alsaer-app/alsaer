@@ -27,7 +27,7 @@ function mpDrawerHtml(p){
   var ward='<section class="card rd-mwc"><h3>وردك اليومي</h3><div class="bar"><div style="width:'+Math.min(100,Math.round(pg/goal*100))+'%"></div></div><p class="note" style="text-align:center;margin:8px 0">'+(done?'أتممت وردك اليوم، بارك الله فيك ('+ar(pg)+' صفحة).':'قرأت اليوم '+ar(pg)+' من '+ar(goal)+' '+(goal<11?'صفحات':'صفحة')+'.')+'</p><button class="btn block" data-a="qstart">'+ic('book')+(done?'اقرأ المزيد':'ابدأ الورد')+'</button><div class="row" style="justify-content:center;margin-top:8px"><button class="btn ghost" data-a="qgoal" data-v="-1">'+ic('minus')+'الورد</button><button class="btn ghost" data-a="qgoal" data-v="1">'+ic('plus')+'الورد</button></div></section>';
   var grid='<div class="rd-mg">'
     +'<button type="button" data-a="qidx">'+ic('doc')+'<small>فهرس السور</small></button>'
-    +'<button type="button" data-a="qriw" data-v="'+(isW()?'hafs':'warsh')+'">'+ic('book')+'<small>الرواية: '+(isW()?'ورش':'حفص')+'</small></button>'
+    +'<button type="button" data-a="qriw" data-v="'+(isW()?'hafs':'warsh')+'">'+ic('book')+'<small>الرواية: '+(isW()?'ورش · غير متحقق منه بعد':'حفص')+'</small></button>'
     +(rd&&rd.flow?'<button type="button" data-a="umode" data-v="'+((typeof uiMode==='function'&&uiMode()==='dark')?'light':'dark')+'">'+((typeof uiMode==='function'&&uiMode()==='dark')?ic('sun'):ic('moon'))+'<small>المظهر</small></button>':'')
     +'</div>';
   var last=q.last?'<button class="lrow" data-a="qjgo" data-v="l">'+ic('book')+'<span class="t">تابع من حيث توقفت<small class="muted">صفحة '+ar(q.last)+' · سورة '+esc(pageSura(q.last))+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
@@ -462,7 +462,7 @@ function qwSheetHtml(){
   +'<h3 class="qws-t">الورد والرواية</h3>'
   +'<p class="qws-sub">كل ما كان في شاشة القرآن الوسيطة صار هنا داخل المصحف</p>'
   +'<div class="sg-card">'
-  +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>الرواية</b><small>التبديل يعيد تحميل المصحف بروايتك</small></div><div class="sg-ctl"><div class="sg-seg">'+seg(!w,'hafs','حفص')+seg(w,'warsh','ورش')+'</div></div></div>'
+  +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>الرواية</b><small>التبديل يعيد تحميل المصحف بروايتك. ورش: غير متحقق منه بعد</small></div><div class="sg-ctl"><div class="sg-seg">'+seg(!w,'hafs','حفص')+seg(w,'warsh','ورش')+'</div></div></div>'
   +'<div class="sg-row qws-col"><div class="qws-head"><span class="sg-ic">'+ic('check')+'</span><div class="sg-tx"><b>وردك اليومي</b><small>'+(done?'أتممت وردك اليوم، بارك الله فيك':'قرأت اليوم '+ar(pg)+' من '+ar(goal)+' '+(goal<11?'صفحات':'صفحة'))+' · '+(pos===to?'صفحة '+ar(pos):'من ص '+ar(pos)+' إلى '+ar(to))+' · '+esc(pageSura(pos))+'</small></div></div><div class="upd-bar qws-bar"><div style="width:'+pct+'%"></div></div><div class="step qws-step"><button class="ib" data-a="qgoal" data-v="-1" aria-label="إنقاص الورد">'+ic('minus')+'</button><b>'+ar(goal)+'</b><button class="ib" data-a="qgoal" data-v="1" aria-label="زيادة الورد">'+ic('plus')+'</button></div></div>'
   +'<button class="sg-row" data-a="qopen" data-v="'+last+'"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>تابع من حيث توقفت</b></div><div class="sg-ctl"><span class="sg-val">صفحة '+ar(last)+' · '+esc(pageSura(last))+'</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
   +'<button class="sg-row" data-a="tab" data-v="khatma"><span class="sg-ic">'+ic('flag')+'</span><div class="sg-tx"><b>تقدّم الختمة</b></div><div class="sg-ctl"><span class="sg-val">'+ar(prog)+'٪ · '+ar(total)+' صفحة</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
@@ -534,7 +534,7 @@ function mqReadSet(){
 function qwBanner(riw){
   var old=document.getElementById('riwbanner');if(old)old.remove();
   var d=document.createElement('div');d.id='riwbanner';d.className='riw-banner';
-  d.innerHTML=ic('sparkles')+' أنت الآن على رواية '+(riw==='warsh'?'ورش':'حفص');
+  d.innerHTML=ic('sparkles')+' أنت الآن على رواية '+(riw==='warsh'?'ورش (غير متحقق منه بعد)':'حفص');
   document.body.appendChild(d);
   setTimeout(function(){d.classList.add('out');setTimeout(function(){if(d.parentNode)d.remove()},420)},1600);
 }
