@@ -94,10 +94,15 @@ export default {
         } catch (e) { return 'error'; }
       };
       const out = {
-        prelive_noscope: await probe(PRELIVE, ''),
-        prelive_content: await probe(PRELIVE, 'content'),
-        prelive_fonts: await probe(PRELIVE, 'fonts'),
-        production_noscope: await probe(PROD, ''),
+        quran: await probe(PRELIVE, 'content.quran.read'),
+        translations: await probe(PRELIVE, 'content.translations.read'),
+        tafsirs: await probe(PRELIVE, 'content.tafsirs.read'),
+        audio: await probe(PRELIVE, 'content.audio.read'),
+        hadith: await probe(PRELIVE, 'content.hadith.read'),
+        metadata: await probe(PRELIVE, 'content.metadata.read'),
+        sync: await probe(PRELIVE, 'content.sync.read'),
+        reflections: await probe(PRELIVE, 'content.reflections.read'),
+        qa: await probe(PRELIVE, 'content.qa.read'),
       };
       return new Response(JSON.stringify(out), { headers: cors({ 'Content-Type': 'application/json' }) });
     }
