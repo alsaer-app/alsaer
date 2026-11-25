@@ -87,8 +87,9 @@ function hsnfEnsure(cb){
   sc.onload=sc.onerror=function(){hsnF.ld=0;if(window.HSNF)hsnfBuild();var ok=hsnF.ok;q.splice(0).forEach(function(f){try{f(!!ok)}catch(e){}})};
   document.head.appendChild(sc);
 }
+function hsnT(t){try{var r=typeof trS==='function'?trS(t):null;return r===null||r===undefined?t:r}catch(e){return t}}
 function hsnG(s){return HSN[s]||hsnF.reg[s]}
-function hsnAuStop(){if(hsnF.a){try{hsnF.a.pause()}catch(e){}hsnF.a=null;hsnF.ak=''}var b=document.querySelector('.hsn-au.on');if(b){b.classList.remove('on');b.textContent='▶ استماع'}}
+function hsnAuStop(){if(hsnF.a){try{hsnF.a.pause()}catch(e){}hsnF.a=null;hsnF.ak=''}var b=document.querySelector('.hsn-au.on');if(b){b.classList.remove('on');b.textContent=hsnT('▶ استماع')}}
 function hsnRows(q){
   var P=hsnP(),n=hsnNorm(q).trim(),h='';
   hsnF.idx.forEach(function(r){
@@ -120,13 +121,13 @@ function vHisn(){
     h+='<div class="hsn-top"><button class="btn ghost" data-a="hsnback">← الأذكار</button><b class="hsn-cn">'+cat.name+'</b><span class="hsn-fs"><button class="btn ghost" data-a="hsnfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hsnfs" data-v="2">أ+</button></span></div>'
      +'<div class="asm-bar"><i id="hsn-pb" style="width:'+Math.round(dn/cat.items.length*100)+'%"></i></div>'
      +cat.items.map(function(it,i){var r=hsnRem(P,hsnS.cat,i),dn=r<=0;
-       return '<div class="card hsn-z'+(dn?' done':'')+'" data-a="hsnz" data-v="'+hsnS.cat+':'+i+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+it.text+'</div><div class="hsn-b"><small>'+(it.virtue||'')+(it.s?' · ذكر '+ar(it.s):'')+(it.m?' · نص إضافي للتجربة':'')+'</small>'+(it.u?'<button class="btn ghost hsn-au" data-a="hsnau" data-v="'+hsnS.cat+':'+i+'">▶ استماع</button>':'')+'<span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}).join('');
+       return '<div class="card hsn-z'+(dn?' done':'')+'" data-a="hsnz" data-v="'+hsnS.cat+':'+i+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+it.text+'</div><div class="hsn-b"><small>'+(it.virtue||'')+(it.s?' · <span>ذكر</span> '+ar(it.s):'')+(it.m?' · <span>نص إضافي للتجربة</span>':'')+'</small>'+(it.u?'<button class="btn ghost hsn-au" data-a="hsnau" data-v="'+hsnS.cat+':'+i+'">▶ استماع</button>':'')+'<span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}).join('');
     return h+'</div>';
   }
   h+='<div class="asm-grid">'+Object.keys(HSN).map(function(s){var c=HSN[s],dn=hsnDone(P,s);return '<button class="asm-card" data-a="hsncat" data-v="'+s+'"><i class="asm-dot'+(dn===c.items.length?' on':'')+'"></i><div class="hsn-ic">'+c.icon+'</div><b>'+c.name+'</b><span>'+ar(dn)+' / '+ar(c.items.length)+'</span></button>'}).join('')+'</div>';
   h+='<p class="note">الأذكار من حصن المسلم وما ثبت من القرآن والسنة. يُحفظ تقدّمك اليومي على هذا الجهاز ويتجدد كل يوم.</p>';
   if(hsnF.ok){var tot=0;hsnF.idx.forEach(function(r){tot+=hsnF.reg[r.slug].items.length});
-    h+='<div class="hsn-sr"><input id="hsn-q" type="search" placeholder="ابحث في '+ar(tot)+' ذكرًا من حصن المسلم" value="'+hsnX(hsnF.q).replace(/"/g,'&quot;')+'"></div><h3 class="hsn-h">جميع الأبواب ('+ar(hsnF.idx.length)+')</h3><div id="hsn-l">'+hsnRows(hsnF.q)+'</div><p class="note hsn-src">النص والصوت: OpenDua (CC BY 4.0) عن كتاب «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني. عناوين الأبواب والتكرار والمراجع: asellam/HisnElMuslim (MIT).</p>';
+    h+='<div class="hsn-sr"><input id="hsn-q" type="search" placeholder="ابحث في أذكار حصن المسلم" value="'+hsnX(hsnF.q).replace(/"/g,'&quot;')+'"></div><h3 class="hsn-h"><span>جميع الأبواب</span> <span dir="ltr">('+ar(hsnF.idx.length)+' / '+ar(tot)+')</span></h3><div id="hsn-l">'+hsnRows(hsnF.q)+'</div><p class="note hsn-src">النص والصوت: OpenDua (CC BY 4.0) عن كتاب «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني. عناوين الأبواب والتكرار والمراجع: asellam/HisnElMuslim (MIT).</p>';
   }else hsnfEnsure(function(ok){if(ok&&tab==='hisn'&&!hsnS.cat)render()});
   return h+'</div>';
 }
@@ -165,7 +166,7 @@ function hsnAct(a,v){
     var k=0,A=new Audio();hsnF.a=A;hsnF.ak=v;A.preload='auto';
     var nx=function(){if(hsnF.a!==A)return;if(k>=it.u.length){hsnAuStop();return}A.src=it.u[k++];var pr=A.play();if(pr&&pr.catch)pr.catch(function(){if(hsnF.a===A){hsnAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')}})};
     A.onended=nx;A.onerror=function(){if(hsnF.a===A){hsnAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')}};
-    if(b){b.classList.add('on');b.textContent='⏸ إيقاف'}
+    if(b){b.classList.add('on');b.textContent=hsnT('⏸ إيقاف')}
     nx();return false;
   }
   if(a==='hsnz'){
