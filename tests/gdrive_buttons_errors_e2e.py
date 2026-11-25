@@ -25,8 +25,9 @@ async def main():
    await p.fill('#gd-backup-pw','long-password');await p.click('[data-a=gdpwsave]');assert 'بأمان' in await p.locator('#bk-msg').inner_text();await p.uncheck('[data-gd-encrypt]')
    await p.evaluate('window.__mode="auth"');await p.click('[data-a=gddown]');await p.wait_for_timeout(150);assert await p.locator('[data-a=gddisc]').count()==0;assert await p.locator('[data-a=gdconnect]').is_enabled()
    await p.click('[data-a=gdconnect]');await p.wait_for_timeout(150)
-   await p.evaluate('window.__mode="revoke-fail"');await p.click('[data-a=gddisc]');await p.wait_for_timeout(150);assert await p.locator('[data-a=gddisc]').is_enabled();assert await p.locator('.dm-email').inner_text()=='test@example.com'
-   await p.evaluate('window.__mode="ok"');await p.click('[data-a=gddisc]');await p.wait_for_timeout(150);assert await p.locator('[data-a=gddisc]').count()==0;assert await p.evaluate('__revoked')==2
+   # two-tap unlink: first tap arms, second confirms (Drive card v2)
+   await p.evaluate('window.__mode="revoke-fail"');await p.click('[data-a=gddisc]');await p.wait_for_timeout(150);assert 'تأكيد' in await p.locator('[data-a=gddisc]').inner_text();await p.click('[data-a=gddisc]');await p.wait_for_timeout(200);assert await p.locator('[data-a=gddisc]').is_enabled();assert await p.locator('.dm-email').inner_text()=='test@example.com'
+   await p.evaluate('window.__mode="ok"');await p.click('[data-a=gddisc]');await p.wait_for_timeout(120);assert 'تأكيد' in await p.locator('[data-a=gddisc]').inner_text();await p.click('[data-a=gddisc]');await p.wait_for_timeout(200);assert await p.locator('[data-a=gddisc]').count()==0;assert await p.evaluate('__revoked')==2
    await p.click('[data-a=gdauto]');assert json.loads(await p.evaluate('localStorage.alsaer_drive_prefs'))['auto']==True
    await p.click('[data-a=gdauto]');assert json.loads(await p.evaluate('localStorage.alsaer_drive_prefs'))['auto']==False
    await p.click('[data-a=gdfilein]');await p.wait_for_timeout(100);assert await p.locator('[data-a=gdfilein]').is_enabled();assert 'منتقي' in await p.locator('#bk-msg').inner_text()
