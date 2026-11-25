@@ -44,6 +44,7 @@ function mpDrawerHtml(p){
   var grid='<div class="rd-mg">'
     +'<button type="button" data-a="qidx">'+ic('doc')+'<small>فهرس السور</small></button>'
     +'<button type="button" data-a="qriw" data-v="'+(isW()?'hafs':'warsh')+'">'+ic('book')+'<small>الرواية: '+(isW()?'ورش · غير متحقق منه بعد':'حفص')+'</small></button>'
+    +(rd&&rd.flow?'<button type="button" data-a="qpgm">'+ic('doc')+'<small>العرض: '+(S.quran.pgm!==false?'صفحات':'تدفق')+'</small></button>':'')
     +(rd&&rd.flow?'<button type="button" data-a="umode" data-v="'+((typeof uiMode==='function'&&uiMode()==='dark')?'light':'dark')+'">'+((typeof uiMode==='function'&&uiMode()==='dark')?ic('sun'):ic('moon'))+'<small>المظهر</small></button>':'')
     +'</div>';
   var last=q.last?'<button class="lrow" data-a="qjgo" data-v="l">'+ic('book')+'<span class="t">تابع من حيث توقفت<small class="muted">صفحة '+ar(q.last)+' · سورة '+esc(pageSura(q.last))+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';

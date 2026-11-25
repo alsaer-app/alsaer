@@ -12,7 +12,7 @@ def fix(t):
     return re.sub('(^|[\\s\u00A0])ا[\u064B-\u0652]?\u06EA',lambda m:m.group(1)+'\u0671',t)
 def num(s): return int(s.translate({0x660+i:48+i for i in range(10)}))
 def base(**q):
-    Q={'pos':562,'fs':26,'hint1':1,'hint2':1};Q.update(q)
+    Q={'pos':562,'fs':26,'hint1':1,'hint2':1,'pgm':False};Q.update(q)
     return {'onboarded':True,'tour':1,'update109':1,'ui':{'lang':'ar','mode':'dark'},'quran':Q}
 def click(pg,a,v=''):
     pg.evaluate("([a,v])=>{var b=document.createElement('button');b.dataset.a=a;b.dataset.v=v;document.body.append(b);b.click();b.remove()}",[a,v])
