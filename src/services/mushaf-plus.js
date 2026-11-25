@@ -67,7 +67,7 @@ document.addEventListener('click',function(e){
 
 /* ---------- ملء الشاشة + البحث عن آية ---------- */
 var MP_SV='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></svg>',mpHint=false,mpIdx=null;
-function mpNorm(t){return String(t||'').replace(/[ً-ٰٟۖ-ۭـ-]/g,'').replace(/[آأإٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[ک]/g,'ك').replace(/[ی]/g,'ي').replace(/\s+/g,' ').trim()}
+function mpNorm(t){return String(t||'').replace(/[ً-ٰٟۖ-ۭـ-]/g,'').replace(/[آأإٱ]/g,'ا').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ء/g,'').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[ک]/g,'ك').replace(/[ی]/g,'ي').replace(/\s+/g,' ').trim()}
 function mpVerPage(c,v){var P=curP();for(var i=0;i<P.length;i++){var r=P[i];if((c>r[0]||(c===r[0]&&v>=r[1]))&&(c<r[2]||(c===r[2]&&v<=r[3])))return i+1}return 1}
 var mpIdxW=null;
 function mpBuild(){var w=isW();if(mpIdx&&mpIdxW===w)return mpIdx;var D=AD(),o=[];D.s.forEach(function(vs,ci){vs.forEach(function(t,vi){o.push({c:ci+1,v:vi+1,n:mpNorm(w?verseText(ci+1,vi+1):t)})})});mpIdxW=w;return mpIdx=o}
@@ -87,13 +87,15 @@ function mpSearchPanel(){
   else if(!rd.sq)h+='<p class="note">اكتب كلمة أو أكثر من الآية فتظهر الآيات المطابقة، أو رقم السورة والآية مثل ٢:٢٥٥، أو اسم السورة.</p>';
   R.forEach(function(x){
     if(x.sura)h+='<button class="rd-ri" data-a="qsgo" data-v="'+x.pg+'"><b>سورة '+esc(D.n[x.sura-1])+'</b><small>ص '+ar(x.pg)+'</small></button>';
-    else{var t=verseText(x.c,x.v);if(t.length>130)t=t.slice(0,130)+'…';h+='<button class="rd-ri" data-a="qsgo" data-v="'+x.pg+'"><span class="rd-rt">'+esc(t)+'</span><small>'+esc(D.n[x.c-1])+' · آية '+ar(x.v)+' · ص '+ar(x.pg)+'</small></button>'}
+    else{var t=verseText(x.c,x.v);if(t.length>130)t=t.slice(0,130)+'…';h+='<button class="rd-ri" data-a="'+(rd.flow?'qsgov':'qsgo')+'" data-v="'+(rd.flow?x.c+':'+x.v:x.pg)+'"><span class="rd-rt">'+esc(t)+'</span><small>'+esc(D.n[x.c-1])+' · آية '+ar(x.v)+' · ص '+ar(x.pg)+'</small></button>'}
   });
   return h+'</div></div>';
 }
 function mpAct2(a,v){
   if(!rd)return true;
   if(a==='qms'){rd.mq=((document.getElementById('mq-q')||{}).value||'').trim();rd.mr=rd.mq?mpFind(rd.mq):[];return false}
+  if(a==='qsrch'){rd.srch=true;rd.jump=false;rd.idx=false;return false}
+  if(a==='qsgov'){var q=String(v).split(':'),sc=+q[0],sv=+q[1];if(sc>=1&&sc<=114&&sv>=1){mpSel='';rd.sura=sc;rd.cv=sc+':'+sv;rd._scrollCv=rd.cv;rd.dir=1;rd.srch=false;rd.jump=false;rd.ui=false}return false}
   if(a==='qsclose'){rd.srch=false;return false}
   if(a==='qsdo'){rd.sq=((document.getElementById('mps-q')||{}).value||'').trim();rd.sr=rd.sq?mpFind(rd.sq):[];return false}
   if(a==='qsgo'){var t=parseInt(v,10);mpSel='';if(t>=1&&t<=604){rd.dir=t>rd.page?1:-1;rd.page=t;rd.pscr=0;if(rd.flow){var fr2=curP()[t-1];if(fr2){rd.sura=fr2[0];rd.cv=fr2[0]+':'+fr2[1]}}}rd.srch=false;rd.jump=false;rd.mq='';rd.mr=null;rd.ui=false;window.scrollTo(0,0);return false}

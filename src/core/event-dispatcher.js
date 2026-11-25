@@ -193,7 +193,7 @@ document.addEventListener('click',async function(e){
 
   else if(a==='qjump'||a==='qjgo'||a==='qmt'){if(mpAct(a,v))return}
   else if(a==='qidx'||a==='qixgo'||a==='qbmsgo'){if(mpIdxAct(a,v))return}
-  else if(/^(qsclose|qsdo|qsgo|qms)$/.test(a)){if(mpAct2(a,v))return}
+  else if(/^(qsclose|qsdo|qsgo|qms|qsrch|qsgov)$/.test(a)){if(mpAct2(a,v))return}
   else if(/^hdt[a-z]+$/.test(a)){if(typeof hdtAct==='function'&&hdtAct(a,v)===false)return}
   else if(/^hsn[a-z]+$/.test(a)){if(typeof hsnAct==='function'&&hsnAct(a,v)===false)return}
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}

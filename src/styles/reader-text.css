@@ -198,3 +198,5 @@ body.rd #mp{padding:0}
 
 /* رواية ورش: الخط الرسمي لورش (KFGQPC Warsh v10) للنص فقط، والتخطيط كما في حفص */
 html[data-riw="w"] .mq-t,html[data-riw="w"] .mq-tca,html[data-riw="w"] .fwp,html[data-riw="w"] .rd-rt{font-family:"KFGQPCWarsh","KFGQPC",var(--font-text)}
+@media(max-width:400px){.mq-ta{gap:3px}.mq-cb{width:30px;height:30px;min-width:30px}.mq-stp{gap:2px}.mq-stp .mq-fsz{min-width:22px}}
+.mq-ov~.rd-sp{top:0;left:0;width:100vw;height:100dvh;inset:auto;top:0;left:0}.mq-ov~.rd-sp>:not(.rd-sh){overflow-y:auto}
