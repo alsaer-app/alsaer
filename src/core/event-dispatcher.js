@@ -47,10 +47,18 @@ function handlePhotoInput(input){
   };
   reader.readAsDataURL(file);
 }
+document.addEventListener('focusout',function(e){var i=e.target;if(i&&(i.id==='profile-name'||i.id==='profile-age')){clearTimeout(profAutoT);profAutoSave()}});
 document.addEventListener('change',function(e){var i=e.target;if(i&&(i.id==='profile-photo'||i.id==='ob-photo'))handlePhotoInput(i)});
 
+var profAutoT=0;
+function profAutoSave(){
+  var pn=document.getElementById('profile-name'),pa=document.getElementById('profile-age');if(!pn&&!pa)return;
+  var a2=pa?parseInt(pa.value,10):0;S.profile=S.profile||{name:'',age:'',photo:''};
+  S.profile.name=(pn?pn.value.trim():'').slice(0,40);S.profile.age=a2>=1&&a2<=120?String(a2):'';save();
+}
 document.addEventListener('input',function(e){
   if(!e.target)return;
+  if(e.target.id==='profile-name'||e.target.id==='profile-age'){clearTimeout(profAutoT);profAutoT=setTimeout(profAutoSave,700)}
   if(e.target.id==='profile-name'||e.target.id==='profile-age'){
     var nm=document.getElementById('profile-preview-name'),ag=document.getElementById('profile-preview-age');
     if(nm)nm.textContent=e.target.id==='profile-name'?(e.target.value.trim()||'ملفك الشخصي'):(document.getElementById('profile-name')?.value.trim()||'ملفك الشخصي');
