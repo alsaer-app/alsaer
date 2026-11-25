@@ -433,8 +433,8 @@ body.rd .rbar.rdim{opacity:.15;transform:translateY(10px);pointer-events:none}
 
 /* achievements */
 .astats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 12px}
-.astat{padding:14px 8px;text-align:center;border-radius:20px}
-.astat small{font-size:.9rem;font-weight:500;color:var(--muted);display:block}
+.astat{padding:14px 8px;text-align:center;min-width:0;border-radius:20px}
+.astat small{font-size:.9rem;font-weight:500;color:var(--muted);display:block;overflow-wrap:anywhere;hyphens:auto;min-width:0}
 .astat b{font-size:1.9rem;font-weight:700;display:block;margin-top:2px;font-variant-numeric:tabular-nums}
 .badges{gap:12px}
 .bd{border-radius:20px;padding:16px 8px 12px;gap:8px}
