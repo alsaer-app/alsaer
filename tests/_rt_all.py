@@ -45,6 +45,7 @@ def main():
                 if lang!='ar':
                     for s in pg.evaluate(JS):
                         if s in ASMA_NAMES:continue
+                        if lang in ('fa','ur') and (not _re.search('[\u0643\u064A\u0629\u0649]',s) or '«' in s or s in ('الفاتحة','بطاقة السورة','ریاض\u200cالصالحین','رياض\u200cالصالحین')):continue   # Persian/Urdu script is Arabic-range: only Arabic-only letters (ك ي ة ى) mean untranslated; duas in «» stay Arabic
                         if len(_re.findall(r'[\u064B-\u0652]',s))>=4:kept.add(s);continue   # vowelled Quran/hadith/dhikr text stays Arabic by design
                         bad.setdefault(lang,{}).setdefault(s,[]).append(key)
                     txt=pg.evaluate('document.getElementById("app")?document.getElementById("app").innerText:""')

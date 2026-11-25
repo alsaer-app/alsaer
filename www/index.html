@@ -3306,15 +3306,15 @@ function _frBuild(l){
 function trFrag(t){
   var l=lang();if(l==='ar'||!_AR.test(t))return null;
   var ck=l+'|'+t;if(_frC[ck]!==undefined)return _frC[ck];
-  var idx=_frIdx[l]||(_frIdx[l]=_frBuild(l)),out='',i=0,n=0,L=t.length;
+  var idx=_frIdx[l]||(_frIdx[l]=_frBuild(l)),out='',i=0,n=0,L=t.length,miss=false,_FAR=(l==='fa'||l==='ur');
   while(i<L){
     var c=t.charAt(i),L2=idx[c],hit=null;
     if(L2&&(i===0||!_AR.test(t.charAt(i-1)))){
       for(var j=0;j<L2.length;j++){var k=L2[j][0];if(t.substr(i,k.length)===k){var nx=t.charAt(i+k.length);if(!_AR.test(k.charAt(k.length-1))||!nx||!_AR.test(nx)){hit=L2[j];break}}}
     }
-    if(hit){out+=hit[1];i+=hit[0].length;n++}else{out+=c;i++}
+    if(hit){out+=hit[1];i+=hit[0].length;n++}else{out+=c;i++;if(_FAR&&_AR.test(c)&&!/[\u064B-\u0652\u0640\u0660-\u0669\u061B\u060C\u061F]/.test(c))miss=true}
   }
-  var r=(n&&!_AR.test(out.replace(/[\u0660-\u0669\u061B\u060C\u061F]/g,'')))?out:null;if(Object.keys(_frC).length>4000)_frC={};_frC[ck]=r;return r;
+  var r=(n&&(_FAR?!miss:!_AR.test(out.replace(/[\u0660-\u0669\u061B\u060C\u061F]/g,''))))?out:null;if(Object.keys(_frC).length>4000)_frC={};_frC[ck]=r;return r;
 }
 function trWalk(root){
   var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null),n,list=[];
