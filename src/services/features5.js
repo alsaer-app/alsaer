@@ -115,12 +115,6 @@ function featAct(a,v,d){
   if(a==='ntadd'){var el=document.getElementById('nt-in'),t=(el?el.value:ntDraft).trim();if(!t){toast('اكتب نصًا أولًا');return true}
     var L=ntList();L.push({id:'n'+Date.now().toString(36),k:ntKind,t:t.slice(0,600),d:dk()});if(L.length>200)L.shift();ntDraft='';save();return false}
   if(a==='ntdel'){S.notes=ntList().filter(function(x){return x.id!==v});save();return false}
-  if(a==='adkall'){var gg=(typeof ADHKAR!=='undefined'?ADHKAR:[]).filter(function(x){return x.id===v})[0];if(gg){var kk=dk();S.counters[kk]=S.counters[kk]||{};var mx=0;gg.items.forEach(function(it){var lf=lockLeft('c:'+kk+':'+it.id);if(lf>0){mx=Math.max(mx,lf)}else delete S.counters[kk][it.id]});save();hapGo([20]);if(mx>0){lockBlock(mx);return false}}return false}
-  if(a==='adkcopy'||a==='adkshare'){var tx='';(typeof ADHKAR!=='undefined'?ADHKAR:[]).forEach(function(gx){gx.items.forEach(function(it){if(it.id===(d&&d.id))tx=it.t})});
-    if(tx){tx+='\n\n— السائر إلى الله';
-      if(a==='adkshare'&&navigator.share){navigator.share({text:tx}).catch(function(){})}
-      else{var okc=false;try{navigator.clipboard.writeText(tx);okc=true}catch(e){}if(!okc){try{var ta=document.createElement('textarea');ta.value=tx;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();okc=true}catch(e){}}toast(okc?'نُسخ الذكر':'تعذّر النسخ')}}
-    return true}
   if(a==='adkfav'){var id=d&&d.id,F=ntFavs(),i=F.indexOf(id);if(id){if(i>=0)F.splice(i,1);else F.push(id);save();hapGo([30])}return false}
   if(a==='zkbase'){zkGet().nisab=v==='silver'?'silver':'gold';save();return false}
   if(a==='zkhawl'){var z=zkGet();if(v==='set')z.hawl=dk();else delete z.hawl;save();return false}

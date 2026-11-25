@@ -116,12 +116,10 @@ function mpSearchPanel(){
 }
 function mpAct2(a,v){
   if(!rd)return true;
-  if(a==='qsrch'){rd.srch=true;return false}
   if(a==='qms'){rd.mq=((document.getElementById('mq-q')||{}).value||'').trim();rd.mr=rd.mq?mpFind(rd.mq):[];return false}
   if(a==='qsclose'){rd.srch=false;return false}
   if(a==='qsdo'){rd.sq=((document.getElementById('mps-q')||{}).value||'').trim();rd.sr=rd.sq?mpFind(rd.sq):[];return false}
   if(a==='qsgo'){var t=parseInt(v,10);mpSel='';if(t>=1&&t<=604){rd.dir=t>rd.page?1:-1;rd.page=t}rd.srch=false;rd.jump=false;rd.mq='';rd.mr=null;rd.ui=false;window.scrollTo(0,0);return false}
-  if(a==='qimm'){if(rd)rd.ui=true;return false} /* Retired action cannot hide tools. */
   return false;
 }
 document.addEventListener('click',function(e){

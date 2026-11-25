@@ -4659,7 +4659,7 @@ function qdPaint(){var q=qdGet(),t=document.getElementById('qd-tot');if(t)t.text
 document.addEventListener('change',function(e){var t=e.target;if(t&&t.getAttribute&&t.hasAttribute('data-qd')){var k=t.getAttribute('data-qd'),q=qdGet(),n=Math.max(0,Math.min(99999,parseInt(t.value,10)||0));q[k]=n;save();qdPaint()}});
 
 /* ----- النسخ الاحتياطي ----- */
-var BK_KEEP=['pin','security','biometric','lockDelay','lockType'],bkText='',bkMsg='',bkConfirm=false,bkIn='',bkMode='';
+var BK_KEEP=['pin','security','biometric','lockDelay','lockType'],bkMsg='';
 function bkBuild(){
   var c=JSON.parse(JSON.stringify(S));BK_KEEP.forEach(function(k){delete c[k]});
   var rem=null;try{rem=JSON.parse(localStorage.getItem('alsaer_daily_reminders_v1')||'null')}catch(e){}
@@ -4734,45 +4734,11 @@ function vBackup(){
  h+='<section class="sg-card gd-dest"><b>نسخة الأمان داخل التطبيق</b><p class="note">تساعد عند خطأ الاستعادة، لكنها تُحذف مع التطبيق. لا نعدّها بديلًا للملف المستقل.</p></section><p class="note bk-msg" id="bk-msg"'+(bkMsg?'':' hidden')+'>'+esc(bkMsg)+'</p>'+gdPickerPanel()+gdRestorePanel()+'</div>';return h;
 }
 function bkSay(t){bkMsg=t;var msg=document.querySelector('.gd-dialog-msg');if(msg)msg.textContent=t;var q=document.getElementById('bk-msg');if(q){q.textContent=t;q.hidden=!t}else try{render()}catch(e){}}
-document.addEventListener('input',function(e){var t=e.target;if(t&&t.id==='bk-in')bkIn=t.value});
-document.addEventListener('change',function(e){var t=e.target;if(t&&t.id==='bk-file'&&t.files&&t.files[0]){var r=new FileReader();r.onload=function(){var ta=document.getElementById('bk-in');if(ta){ta.value=bkIn=String(r.result||'');bkConfirm=false;bkSay('قُرئ الملف. اضغط «استيراد» ثم «تأكيد».')}};r.onerror=function(){bkSay('تعذّرت قراءة الملف.')};r.readAsText(t.files[0])}});
 function extraAct(a,v){
   if(a.indexOf('gd')===0){return gdAct(a,v)}
   if(a==='qdchg'){var p=String(v).split(':'),k=p[0],d=parseInt(p[1],10)||0,q=qdGet();
     if(d<0&&q[k]>0){q[k]--;q.done=(parseInt(q.done,10)||0)+1;hapGo([40])}else if(d>0&&q[k]<99999)q[k]++;
     save();qdPaint();return true}
-  if(a==='bkmode'){bkMode=(bkMode===v)?'':v;bkMsg='';bkConfirm=false;return false}
-  if(a==='bkexenc'){
-    var pw=(document.getElementById('bk-pw')||{}).value||'';
-    if(pw.length<6){bkSay('كلمة مرور النسخة يجب ألا تقل عن ٦ أحرف. احفظها جيدًا؛ لا يمكن استرجاع النسخة بدونها.');return true}
-    bkEncrypt(bkBuild(),pw).then(function(et){
-      bkText=et;S.bkAt=Date.now();save();
-      var done=false;
-      try{var f=new File([et],'alsaer-backup-'+dk()+'.txt',{type:'text/plain'});
-        if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'نسخة السائر المشفّرة'}).then(function(){bkSay('تمت المشاركة. احفظ الملف وكلمة المرور في مكان آمن.')},function(){});done=true}}catch(e){}
-      if(!done)bkCopy(et).then(function(ok){bkSay(ok?'نُسخت النسخة المشفّرة — احفظها مع كلمة المرور في مكان آمن.':'انسخ النص من الصندوق واحفظه مع كلمة المرور في مكان آمن.')});
-      try{render()}catch(e){}
-    },function(){bkSay('تعذّر التشفير على هذا الجهاز')});
-    return true}
-  if(a==='bkcopy'){bkCopy(bkText).then(function(ok){bkSay(ok?'تم نسخ النص.':'تعذّر النسخ التلقائي؛ حدّد النص في الصندوق وانسخه.')});return true}
-  if(a==='bkimport'){
-    var ta=document.getElementById('bk-in'),raw=ta?ta.value:bkIn;bkIn=raw;
-    if(!raw.trim()){bkSay('الصق النص أو اختر ملفًا أولًا.');return true}
-    var bb=document.querySelector('[data-a=bkimport]');
-    if(!bkConfirm){bkConfirm=true;bkSay('سيحلّ هذا محلّ بياناتك الحالية. اضغط «تأكيد الاستبدال الآن» للمتابعة.');
-      if(bb){bb.classList.add('bad');bb.textContent='تأكيد الاستبدال الآن'}
-      return true} /* بلا إعادة عرض حتى لا يُمحى حقل كلمة المرور */
-    bkConfirm=false;
-    var bkResetBtn=function(){var b2=document.querySelector('[data-a=bkimport]');if(b2){b2.classList.remove('bad');b2.textContent='استيراد'}};
-    var pw2=(document.getElementById('bk-pw')||{}).value||'';
-    if(raw.trim().indexOf('ALSAER-ENC1:')===0){
-      bkDecrypt(raw.trim(),pw2).then(function(dec){
-        var er2=bkApply(dec);if(er2){bkSay(er2);bkResetBtn();return}
-        bkIn='';bkSay('تم الاستيراد، جارٍ إعادة التشغيل…');
-      },function(){bkSay('كلمة المرور غير صحيحة أو النسخة تالفة؛ لم تتغير بياناتك');bkResetBtn()});
-      return true}
-    var er=bkApply(raw);if(er){bkSay(er);bkResetBtn();return true}bkIn='';
-    bkSay('تم الاستيراد، جارٍ إعادة التشغيل…');return true}
   return false;
 }
 /* ===== نسخ احتياطي اختياري إلى Google Drive =====
@@ -5043,7 +5009,6 @@ function gdAct(a,v){
   }
 
   if(a==='gdauto'){if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending)return true;var p=gdPrefs();p.auto=!p.auto;gdSetPrefs(p);render();return true}
-  if(a==='gdstore'){if(gdBusy)return true;var p=gdPrefs();p.storage=v==='drive'?'drive':'both';gdSetPrefs(p);render();return true}
   if(a==='gdpwsave'){
     var pw=(document.getElementById('gd-backup-pw')||{}).value||'';
     if(pw.length<6){bkSay('استخدم كلمة مرور من ٦ أحرف فأكثر واحفظها؛ لا يمكن استعادة النسخة بدونها.');return true}
@@ -5051,11 +5016,6 @@ function gdAct(a,v){
     return true;
   }
   if(a==='gdcancel'){if(gdBusy)return true;gdRestoreRaw='';gdVerified='';gdChosen=null;bkSay('أُلغيت الاستعادة؛ لم تتغير بياناتك.');render();return true}
-  if(a==='gdsafety'){
-    if(gdBusy)return true;
-    try{gdRestoreRaw=localStorage.getItem(GD_SAFETY_KEY)||''}catch(e){gdRestoreRaw=''}
-    gdRestoreSource='safety';bkSay(gdRestoreRaw?'راجع تأكيد استرجاع نسخة الأمان.':'لا توجد نسخة أمان محلية.');render();return true;
-  }
   if(a==='gdrestore'){
     if(gdBusy||!gdVerified)return true;
     gdBusy=true;try{gdRestoreApply(gdVerified);gdFlashDone('down')}catch(e){bkSay(e.message==='safety-failed'?'تعذّر حفظ نسخة الأمان؛ أُوقفت الاستعادة.':e.message)}finally{gdBusy=false;render()}return true;
@@ -5318,12 +5278,6 @@ function featAct(a,v,d){
   if(a==='ntadd'){var el=document.getElementById('nt-in'),t=(el?el.value:ntDraft).trim();if(!t){toast('اكتب نصًا أولًا');return true}
     var L=ntList();L.push({id:'n'+Date.now().toString(36),k:ntKind,t:t.slice(0,600),d:dk()});if(L.length>200)L.shift();ntDraft='';save();return false}
   if(a==='ntdel'){S.notes=ntList().filter(function(x){return x.id!==v});save();return false}
-  if(a==='adkall'){var gg=(typeof ADHKAR!=='undefined'?ADHKAR:[]).filter(function(x){return x.id===v})[0];if(gg){var kk=dk();S.counters[kk]=S.counters[kk]||{};var mx=0;gg.items.forEach(function(it){var lf=lockLeft('c:'+kk+':'+it.id);if(lf>0){mx=Math.max(mx,lf)}else delete S.counters[kk][it.id]});save();hapGo([20]);if(mx>0){lockBlock(mx);return false}}return false}
-  if(a==='adkcopy'||a==='adkshare'){var tx='';(typeof ADHKAR!=='undefined'?ADHKAR:[]).forEach(function(gx){gx.items.forEach(function(it){if(it.id===(d&&d.id))tx=it.t})});
-    if(tx){tx+='\n\n— السائر إلى الله';
-      if(a==='adkshare'&&navigator.share){navigator.share({text:tx}).catch(function(){})}
-      else{var okc=false;try{navigator.clipboard.writeText(tx);okc=true}catch(e){}if(!okc){try{var ta=document.createElement('textarea');ta.value=tx;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();okc=true}catch(e){}}toast(okc?'نُسخ الذكر':'تعذّر النسخ')}}
-    return true}
   if(a==='adkfav'){var id=d&&d.id,F=ntFavs(),i=F.indexOf(id);if(id){if(i>=0)F.splice(i,1);else F.push(id);save();hapGo([30])}return false}
   if(a==='zkbase'){zkGet().nisab=v==='silver'?'silver':'gold';save();return false}
   if(a==='zkhawl'){var z=zkGet();if(v==='set')z.hawl=dk();else delete z.hawl;save();return false}
@@ -6181,12 +6135,10 @@ function mpSearchPanel(){
 }
 function mpAct2(a,v){
   if(!rd)return true;
-  if(a==='qsrch'){rd.srch=true;return false}
   if(a==='qms'){rd.mq=((document.getElementById('mq-q')||{}).value||'').trim();rd.mr=rd.mq?mpFind(rd.mq):[];return false}
   if(a==='qsclose'){rd.srch=false;return false}
   if(a==='qsdo'){rd.sq=((document.getElementById('mps-q')||{}).value||'').trim();rd.sr=rd.sq?mpFind(rd.sq):[];return false}
   if(a==='qsgo'){var t=parseInt(v,10);mpSel='';if(t>=1&&t<=604){rd.dir=t>rd.page?1:-1;rd.page=t}rd.srch=false;rd.jump=false;rd.mq='';rd.mr=null;rd.ui=false;window.scrollTo(0,0);return false}
-  if(a==='qimm'){if(rd)rd.ui=true;return false} /* Retired action cannot hide tools. */
   return false;
 }
 document.addEventListener('click',function(e){
@@ -7521,7 +7473,7 @@ document.addEventListener('click',async function(e){
   else if(a==='savereview'){var rv=document.getElementById('review-note');S.reviews=S.reviews||[];S.reviews.push({date:dk(),note:rv?rv.value.slice(0,2000):''});save();toast('تم حفظ مراجعتك على هذا الجهاز')}
   else if(a==='lockdelay'){S.lockDelay=parseInt(v,10);save();toast('تم حفظ مهلة القفل')}
   else if(/^(bmtog|bmdel|frz|cdsrc|cdmake|cdshare|cddl|hfadd|hfrev|hfdel|ktdur|ktstart|ktstop)$/.test(a)){if(f7Act(a,v,d))return}
-  else if(/^(ramtog|khset|khgoal|khreset|ntkind|ntadd|ntdel|adkfav|adkall|adkcopy|adkshare|zkbase|zkhawl)$/.test(a)){if(featAct(a,v,d))return}
+  else if(/^(ramtog|khset|khgoal|khreset|ntkind|ntadd|ntdel|adkfav|zkbase|zkhawl)$/.test(a)){if(featAct(a,v,d))return}
   else if(/^(qdchg|bkmode|bkexenc|bkcopy|bkimport|gdconnect|gdup|gddown|gddisc|gdrestore|gdcancel|gdsafety|gdauto|gdstore|gdpwsave|gdfileout|gdfilein|gddelete|gdverify|gdpickcancel|gddeleteback|gddeletego|gdpickgo)$/.test(a)){if(extraAct(a,v))return}
   else if(/^(nsf|nsw|nsfreset|nswreset|nsfen|nsftest|nsfpause)$/.test(a)){if(nsAct(a,v))return}
   else if(/^(ffset|fftype|ffday|ffsave|ffadd|ffdel|ffct|ffctdel|ffrefresh)$/.test(a)){if(ffAct(a,v))return}
@@ -7656,7 +7608,6 @@ document.addEventListener('click',async function(e){
   else if(a==='next'){calD=new Date(calD.getFullYear(),calD.getMonth()+1,1)}
   else if(a==='sel'){calSel=d.k}
   else if(a==='setday'){if(v)S.days[calSel]={status:v,note:(S.days[calSel]&&S.days[calSel].note)||''};else delete S.days[calSel];save();checkNew()}
-  else if(a==='tap'){var k=dk();S.counters[k]=S.counters[k]||{};if(!S.counters[k][d.id])lockSet('c:'+k+':'+d.id);S.counters[k][d.id]=Math.min(+d.n,(S.counters[k][d.id]||0)+1);save();checkNew()}
   else if(a==='rst'){var k2=dk();if(lockLeft('c:'+k2+':'+d.id)>0){lockBlock(lockLeft('c:'+k2+':'+d.id));return}S.counters[k2]=S.counters[k2]||{};S.counters[k2][d.id]=0;save()}
   else if(a==='nextq'){qi++}
   else if(a==='tstart'){timerDeadline=Date.now()+300000;secs=300;startTimerTick()}

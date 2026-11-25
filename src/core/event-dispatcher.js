@@ -116,7 +116,7 @@ document.addEventListener('click',async function(e){
   else if(a==='savereview'){var rv=document.getElementById('review-note');S.reviews=S.reviews||[];S.reviews.push({date:dk(),note:rv?rv.value.slice(0,2000):''});save();toast('تم حفظ مراجعتك على هذا الجهاز')}
   else if(a==='lockdelay'){S.lockDelay=parseInt(v,10);save();toast('تم حفظ مهلة القفل')}
   else if(/^(bmtog|bmdel|frz|cdsrc|cdmake|cdshare|cddl|hfadd|hfrev|hfdel|ktdur|ktstart|ktstop)$/.test(a)){if(f7Act(a,v,d))return}
-  else if(/^(ramtog|khset|khgoal|khreset|ntkind|ntadd|ntdel|adkfav|adkall|adkcopy|adkshare|zkbase|zkhawl)$/.test(a)){if(featAct(a,v,d))return}
+  else if(/^(ramtog|khset|khgoal|khreset|ntkind|ntadd|ntdel|adkfav|zkbase|zkhawl)$/.test(a)){if(featAct(a,v,d))return}
   else if(/^(qdchg|bkmode|bkexenc|bkcopy|bkimport|gdconnect|gdup|gddown|gddisc|gdrestore|gdcancel|gdsafety|gdauto|gdstore|gdpwsave|gdfileout|gdfilein|gddelete|gdverify|gdpickcancel|gddeleteback|gddeletego|gdpickgo)$/.test(a)){if(extraAct(a,v))return}
   else if(/^(nsf|nsw|nsfreset|nswreset|nsfen|nsftest|nsfpause)$/.test(a)){if(nsAct(a,v))return}
   else if(/^(ffset|fftype|ffday|ffsave|ffadd|ffdel|ffct|ffctdel|ffrefresh)$/.test(a)){if(ffAct(a,v))return}
@@ -251,7 +251,6 @@ document.addEventListener('click',async function(e){
   else if(a==='next'){calD=new Date(calD.getFullYear(),calD.getMonth()+1,1)}
   else if(a==='sel'){calSel=d.k}
   else if(a==='setday'){if(v)S.days[calSel]={status:v,note:(S.days[calSel]&&S.days[calSel].note)||''};else delete S.days[calSel];save();checkNew()}
-  else if(a==='tap'){var k=dk();S.counters[k]=S.counters[k]||{};if(!S.counters[k][d.id])lockSet('c:'+k+':'+d.id);S.counters[k][d.id]=Math.min(+d.n,(S.counters[k][d.id]||0)+1);save();checkNew()}
   else if(a==='rst'){var k2=dk();if(lockLeft('c:'+k2+':'+d.id)>0){lockBlock(lockLeft('c:'+k2+':'+d.id));return}S.counters[k2]=S.counters[k2]||{};S.counters[k2][d.id]=0;save()}
   else if(a==='nextq'){qi++}
   else if(a==='tstart'){timerDeadline=Date.now()+300000;secs=300;startTimerTick()}

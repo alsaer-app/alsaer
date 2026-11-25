@@ -18,7 +18,7 @@ function qdPaint(){var q=qdGet(),t=document.getElementById('qd-tot');if(t)t.text
 document.addEventListener('change',function(e){var t=e.target;if(t&&t.getAttribute&&t.hasAttribute('data-qd')){var k=t.getAttribute('data-qd'),q=qdGet(),n=Math.max(0,Math.min(99999,parseInt(t.value,10)||0));q[k]=n;save();qdPaint()}});
 
 /* ----- النسخ الاحتياطي ----- */
-var BK_KEEP=['pin','security','biometric','lockDelay','lockType'],bkText='',bkMsg='',bkConfirm=false,bkIn='',bkMode='';
+var BK_KEEP=['pin','security','biometric','lockDelay','lockType'],bkMsg='';
 function bkBuild(){
   var c=JSON.parse(JSON.stringify(S));BK_KEEP.forEach(function(k){delete c[k]});
   var rem=null;try{rem=JSON.parse(localStorage.getItem('alsaer_daily_reminders_v1')||'null')}catch(e){}
@@ -93,44 +93,10 @@ function vBackup(){
  h+='<section class="sg-card gd-dest"><b>نسخة الأمان داخل التطبيق</b><p class="note">تساعد عند خطأ الاستعادة، لكنها تُحذف مع التطبيق. لا نعدّها بديلًا للملف المستقل.</p></section><p class="note bk-msg" id="bk-msg"'+(bkMsg?'':' hidden')+'>'+esc(bkMsg)+'</p>'+gdPickerPanel()+gdRestorePanel()+'</div>';return h;
 }
 function bkSay(t){bkMsg=t;var msg=document.querySelector('.gd-dialog-msg');if(msg)msg.textContent=t;var q=document.getElementById('bk-msg');if(q){q.textContent=t;q.hidden=!t}else try{render()}catch(e){}}
-document.addEventListener('input',function(e){var t=e.target;if(t&&t.id==='bk-in')bkIn=t.value});
-document.addEventListener('change',function(e){var t=e.target;if(t&&t.id==='bk-file'&&t.files&&t.files[0]){var r=new FileReader();r.onload=function(){var ta=document.getElementById('bk-in');if(ta){ta.value=bkIn=String(r.result||'');bkConfirm=false;bkSay('قُرئ الملف. اضغط «استيراد» ثم «تأكيد».')}};r.onerror=function(){bkSay('تعذّرت قراءة الملف.')};r.readAsText(t.files[0])}});
 function extraAct(a,v){
   if(a.indexOf('gd')===0){return gdAct(a,v)}
   if(a==='qdchg'){var p=String(v).split(':'),k=p[0],d=parseInt(p[1],10)||0,q=qdGet();
     if(d<0&&q[k]>0){q[k]--;q.done=(parseInt(q.done,10)||0)+1;hapGo([40])}else if(d>0&&q[k]<99999)q[k]++;
     save();qdPaint();return true}
-  if(a==='bkmode'){bkMode=(bkMode===v)?'':v;bkMsg='';bkConfirm=false;return false}
-  if(a==='bkexenc'){
-    var pw=(document.getElementById('bk-pw')||{}).value||'';
-    if(pw.length<6){bkSay('كلمة مرور النسخة يجب ألا تقل عن ٦ أحرف. احفظها جيدًا؛ لا يمكن استرجاع النسخة بدونها.');return true}
-    bkEncrypt(bkBuild(),pw).then(function(et){
-      bkText=et;S.bkAt=Date.now();save();
-      var done=false;
-      try{var f=new File([et],'alsaer-backup-'+dk()+'.txt',{type:'text/plain'});
-        if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'نسخة السائر المشفّرة'}).then(function(){bkSay('تمت المشاركة. احفظ الملف وكلمة المرور في مكان آمن.')},function(){});done=true}}catch(e){}
-      if(!done)bkCopy(et).then(function(ok){bkSay(ok?'نُسخت النسخة المشفّرة — احفظها مع كلمة المرور في مكان آمن.':'انسخ النص من الصندوق واحفظه مع كلمة المرور في مكان آمن.')});
-      try{render()}catch(e){}
-    },function(){bkSay('تعذّر التشفير على هذا الجهاز')});
-    return true}
-  if(a==='bkcopy'){bkCopy(bkText).then(function(ok){bkSay(ok?'تم نسخ النص.':'تعذّر النسخ التلقائي؛ حدّد النص في الصندوق وانسخه.')});return true}
-  if(a==='bkimport'){
-    var ta=document.getElementById('bk-in'),raw=ta?ta.value:bkIn;bkIn=raw;
-    if(!raw.trim()){bkSay('الصق النص أو اختر ملفًا أولًا.');return true}
-    var bb=document.querySelector('[data-a=bkimport]');
-    if(!bkConfirm){bkConfirm=true;bkSay('سيحلّ هذا محلّ بياناتك الحالية. اضغط «تأكيد الاستبدال الآن» للمتابعة.');
-      if(bb){bb.classList.add('bad');bb.textContent='تأكيد الاستبدال الآن'}
-      return true} /* بلا إعادة عرض حتى لا يُمحى حقل كلمة المرور */
-    bkConfirm=false;
-    var bkResetBtn=function(){var b2=document.querySelector('[data-a=bkimport]');if(b2){b2.classList.remove('bad');b2.textContent='استيراد'}};
-    var pw2=(document.getElementById('bk-pw')||{}).value||'';
-    if(raw.trim().indexOf('ALSAER-ENC1:')===0){
-      bkDecrypt(raw.trim(),pw2).then(function(dec){
-        var er2=bkApply(dec);if(er2){bkSay(er2);bkResetBtn();return}
-        bkIn='';bkSay('تم الاستيراد، جارٍ إعادة التشغيل…');
-      },function(){bkSay('كلمة المرور غير صحيحة أو النسخة تالفة؛ لم تتغير بياناتك');bkResetBtn()});
-      return true}
-    var er=bkApply(raw);if(er){bkSay(er);bkResetBtn();return true}bkIn='';
-    bkSay('تم الاستيراد، جارٍ إعادة التشغيل…');return true}
   return false;
 }

@@ -266,7 +266,6 @@ function gdAct(a,v){
   }
 
   if(a==='gdauto'){if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending)return true;var p=gdPrefs();p.auto=!p.auto;gdSetPrefs(p);render();return true}
-  if(a==='gdstore'){if(gdBusy)return true;var p=gdPrefs();p.storage=v==='drive'?'drive':'both';gdSetPrefs(p);render();return true}
   if(a==='gdpwsave'){
     var pw=(document.getElementById('gd-backup-pw')||{}).value||'';
     if(pw.length<6){bkSay('استخدم كلمة مرور من ٦ أحرف فأكثر واحفظها؛ لا يمكن استعادة النسخة بدونها.');return true}
@@ -274,11 +273,6 @@ function gdAct(a,v){
     return true;
   }
   if(a==='gdcancel'){if(gdBusy)return true;gdRestoreRaw='';gdVerified='';gdChosen=null;bkSay('أُلغيت الاستعادة؛ لم تتغير بياناتك.');render();return true}
-  if(a==='gdsafety'){
-    if(gdBusy)return true;
-    try{gdRestoreRaw=localStorage.getItem(GD_SAFETY_KEY)||''}catch(e){gdRestoreRaw=''}
-    gdRestoreSource='safety';bkSay(gdRestoreRaw?'راجع تأكيد استرجاع نسخة الأمان.':'لا توجد نسخة أمان محلية.');render();return true;
-  }
   if(a==='gdrestore'){
     if(gdBusy||!gdVerified)return true;
     gdBusy=true;try{gdRestoreApply(gdVerified);gdFlashDone('down')}catch(e){bkSay(e.message==='safety-failed'?'تعذّر حفظ نسخة الأمان؛ أُوقفت الاستعادة.':e.message)}finally{gdBusy=false;render()}return true;
