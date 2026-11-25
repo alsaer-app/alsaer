@@ -141,9 +141,11 @@ export default {
     }
 
     const upstream = hosts.api + url.pathname.slice(3) + url.search;
+    // QCF Content API v4 expects the access token in x-auth-token (not Bearer);
+    // Bearer is rejected as "missing required headers" (verified).
     const res = await fetch(upstream, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'x-auth-token': token,
         'x-client-id': env.QCF_CLIENT_ID,
         'Accept': 'application/json',
       },
