@@ -28,15 +28,15 @@ function mpDrawerHtml(p){
   var grid='<div class="rd-mg">'
     +'<button type="button" data-a="qidx">'+ic('doc')+'<small>فهرس السور</small></button>'
     +'<button type="button" data-a="qriw" data-v="'+(isW()?'hafs':'warsh')+'">'+ic('book')+'<small>الرواية: '+(isW()?'ورش':'حفص')+'</small></button>'
-    +'<button type="button" class="'+(q.tj!==false?'on':'')+'" data-a="qtj">'+ic('sparkles')+'<small>التجويد: '+(q.tj!==false?'تشغيل':'إيقاف')+'</small></button>'
-    +'<button type="button" class="'+(bmHas(p)?'on':'')+'" data-a="bmtog">'+(bmHas(p)?'★':'☆')+'<small>علامة الصفحة</small></button></div>';
+    +(rd&&rd.flow?'':'<button type="button" class="'+(q.tj!==false?'on':'')+'" data-a="qtj">'+ic('sparkles')+'<small>التجويد: '+(q.tj!==false?'تشغيل':'إيقاف')+'</small></button>'
+    +'<button type="button" class="'+(bmHas(p)?'on':'')+'" data-a="bmtog">'+(bmHas(p)?'★':'☆')+'<small>علامة الصفحة</small></button>')+'</div>';
   var last=q.last?'<button class="lrow" data-a="qjgo" data-v="l">'+ic('book')+'<span class="t">تابع من حيث توقفت<small class="muted">صفحة '+ar(q.last)+' · سورة '+esc(pageSura(q.last))+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
   return '<div class="rd-menb" data-a="qjump" aria-hidden="true"></div><aside class="rd-menu" role="dialog" aria-modal="true" aria-label="قائمة المصحف">'
     +'<div class="rd-mh"><b>المصحف</b><button class="rd-mx" data-a="qjump" aria-label="إغلاق">'+ic('x')+'</button></div>'
     +'<button class="lrow" data-a="qwird">'+ic('flag')+'<span class="t">الورد والرواية<small class="muted">وردك اليومي، الرواية، وتقدّم الختمة</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'
     +'<div class="rd-mq"><input id="mq-q" class="qd-i" type="search" enterkeyhint="search" autocomplete="off" placeholder="كلمة من آية، أو ٢:٢٥٥، أو اسم سورة" value="'+esc(rd.mq||'')+'"><button class="btn" data-a="qms">بحث</button></div>'
     +res+tabs+'<div class="rd-mtb">'+ctl+'</div>'
-    +'<section class="card rd-tajweed-key"><h3>ألوان التجويد</h3><div class="tjl">'+TJL.map(function(x){return '<span><i class="t'+x[1]+'"></i>'+x[0]+'</span>'}).join('')+'</div></section>'+ward+grid+mpMarksHtml()+last
+    +((rd&&rd.flow)?'':'<section class="card rd-tajweed-key"><h3>ألوان التجويد</h3><div class="tjl">'+TJL.map(function(x){return '<span><i class="t'+x[1]+'"></i>'+x[0]+'</span>'}).join('')+'</div></section>')+ward+grid+mpMarksHtml()+last
     +'<button class="btn block" data-a="qjump" style="margin-top:10px">تم</button></aside>';
 }
 function mpAct(a,v){
@@ -47,7 +47,7 @@ function mpAct(a,v){
     var t=0,g=function(i){return parseInt((document.getElementById(i)||{}).value,10)};
     if(v==='p')t=g('mpj-p');else if(v==='s')t=suraPage(g('mpj-s'));else if(v==='j')t=mpJuzPage(g('mpj-j'));else if(v==='q'){var qi=g('mpj-q');t=(typeof RUBP!=='undefined'&&RUBP[qi])||1}else if(v==='l')t=S.quran.last;
     if(!(t>=1&&t<=604)){toast('اكتب رقم صفحة بين ١ و٦٠٤');return true}
-    mpSel='';rd.dir=t>rd.page?1:-1;rd.page=t;rd.pscr=0;rd.jump=false;window.scrollTo(0,0);return false;
+    mpSel='';rd.dir=t>rd.page?1:-1;rd.page=t;rd.pscr=0;if(rd.flow){var fr=curP()[t-1];if(fr){rd.sura=fr[0];rd.cv=fr[0]+':'+fr[1]}}rd.jump=false;window.scrollTo(0,0);return false;
   }
   return false;
 }
@@ -115,25 +115,17 @@ function mpSearchPanel(){
   });
   return h+'</div></div>';
 }
-/* التنقل بالسحب والأسهم: يمرّ على شاشات الصفحة الواحدة أولًا ثم ينتقل للصفحة المجاورة (ورش: صفحة كاملة دائمًا) */
+/* التنقل بالسحب والأسهم في وضع ورش (صفحة كاملة) — قارئ حفص المتدفق يتنقل بالتمرير وأزرار السور */
 function mpStep(ns){
   if(!rd)return;
-  if(isW()||!window.MUSHAF){var np0=Math.max(1,Math.min(604,rd.page+ns));if(np0!==rd.page){rd.dir=ns;rd.page=np0;rd.pscr=0}return}
-  var scr=rd.pscr||0,n=mpScreensN(rd.page);
-  if(ns>0){
-    if(scr<n-1){rd.pscr=scr+1;rd.dir=1}
-    else if(rd.page<604){rd.page++;rd.pscr=0;rd.dir=1}
-  }else{
-    if(scr>0){rd.pscr=scr-1;rd.dir=-1}
-    else if(rd.page>1){rd.page--;rd.pscr=mpScreensN(rd.page)-1;rd.dir=-1}
-  }
+  var np0=Math.max(1,Math.min(604,rd.page+ns));if(np0!==rd.page){rd.dir=ns;rd.page=np0;rd.pscr=0}
 }
 function mpAct2(a,v){
   if(!rd)return true;
   if(a==='qms'){rd.mq=((document.getElementById('mq-q')||{}).value||'').trim();rd.mr=rd.mq?mpFind(rd.mq):[];return false}
   if(a==='qsclose'){rd.srch=false;return false}
   if(a==='qsdo'){rd.sq=((document.getElementById('mps-q')||{}).value||'').trim();rd.sr=rd.sq?mpFind(rd.sq):[];return false}
-  if(a==='qsgo'){var t=parseInt(v,10);mpSel='';if(t>=1&&t<=604){rd.dir=t>rd.page?1:-1;rd.page=t;rd.pscr=0}rd.srch=false;rd.jump=false;rd.mq='';rd.mr=null;rd.ui=false;window.scrollTo(0,0);return false}
+  if(a==='qsgo'){var t=parseInt(v,10);mpSel='';if(t>=1&&t<=604){rd.dir=t>rd.page?1:-1;rd.page=t;rd.pscr=0;if(rd.flow){var fr2=curP()[t-1];if(fr2){rd.sura=fr2[0];rd.cv=fr2[0]+':'+fr2[1]}}}rd.srch=false;rd.jump=false;rd.mq='';rd.mr=null;rd.ui=false;window.scrollTo(0,0);return false}
   return false;
 }
 document.addEventListener('click',function(e){
@@ -167,13 +159,7 @@ document.addEventListener('input',function(e){
 document.addEventListener('change',function(e){var t=e.target;if(!t||t.id!=='rd-rg'||!rd)return;clearTimeout(rdRgT);rdRgGo(t.value)});
 
 /* ---------- تظليل الآية بتوهج يتبع الإصبع + علامات الحفظ ---------- */
-var mpSt={c:1,v:1},mpSel='',mpHlLast='';
-function mpInit(p){var r=QD().p[p-1];mpSt.c=r?r[0]:1;mpSt.v=r?r[1]:1}
-function mpVAttr(t){
-  var a=' data-v="'+mpSt.c+':'+mpSt.v+'"';
-  if(t.charCodeAt(0)===0xE0F0){mpSt.v++;var D=QD();if(D.s[mpSt.c-1]&&mpSt.v>D.s[mpSt.c-1].length){mpSt.c++;mpSt.v=1}}
-  return a;
-}
+var mpSel='',mpHlLast='';
 function mpVm(){if(!S.quran.vm||typeof S.quran.vm!=='object')S.quran.vm={};return S.quran.vm}
 function mpHl(v){
   mpHlLast=v;var L=document.querySelectorAll('#mp .mw.vhl');for(var i=0;i<L.length;i++)L[i].classList.remove('vhl','vhl-ls','vhl-le');
@@ -186,7 +172,7 @@ function mpVName(v){var q=String(v).split(':');return 'سورة '+QD().n[(+q[0])
 var mpTf={k:'',t:''},mpMk={k:'',t:''};
 function mpApplySel(){
   var bar=document.getElementById('mp-vb');
-  if(tab!=='reader'||!rd||!document.getElementById('mp')){if(bar)mpDismissBar(bar);mpSel='';return}
+  if(tab!=='reader'||!rd||(!document.getElementById('mp')&&!document.getElementById('mq-ov'))){if(bar)mpDismissBar(bar);mpSel='';return}
   var vm=mpVm(),W=document.querySelectorAll('#mp .mw[data-v]');
   for(var i=0;i<W.length;i++)W[i].classList.toggle('vmk',!!vm[W[i].getAttribute('data-v')]);
   mpHl(mpSel);
@@ -194,13 +180,19 @@ function mpApplySel(){
   if(!mpSel){if(bar)mpDismissBar(bar);return}
   if(!bar){bar=document.createElement('div');bar.id='mp-vb';bar.className='mp-vb';document.body.appendChild(bar)}else if(bar._closing){bar._closing=0;bar.classList.remove('mp-closing')}
   var mk=!!vm[mpSel];
+  var flow=!!(rd&&rd.flow),bm2=S.quran.bm2,onB=bm2&&(bm2.c+':'+bm2.v)===mpSel;
   bar.innerHTML='<i class="mp-grip" aria-hidden="true"></i><div class="mp-vbh"><b>'+esc(mpVName(mpSel))+'</b><button data-mp2="x" class="mp-vx" aria-label="إغلاق">✕</button></div>'+((mpTf.k===mpSel&&mpTf.t)?'<div class="mp-tf" dir="rtl">'+esc(mpTf.t)+'</div>':'')+((mpMk.k===mpSel&&mpMk.t)?'<div class="mp-tf" dir="rtl">'+esc(mpMk.t)+'</div><div class="mp-src"><span>المختصر في التفسير · مركز تفسير للدراسات القرآنية</span><button data-mp2="mkre">تحديث</button></div>':'')+((mpImg.k===mpSel&&mpImg.loading)?'<div class="mp-tf">جارٍ تجهيز الصورة…</div>':'')+((mpImg.k===mpSel&&mpImg.url)?'<img class="mp-shi" src="'+mpImg.url+'" alt="بطاقة الآية"><span class="mp-shb"><button data-mp2="imgsh">مشاركة الصورة</button><button data-mp2="imgdl">حفظ</button></span>':'')+'<div class="mp-vbb">'
-  +'<button data-mp2="mark" class="'+(mk?'on':'')+'">'+ic('star')+'<span>'+(mk?'إزالة علامة الحفظ':'علامة حفظ على الآية')+'</span></button>'
-  +'<button data-mp2="tf" class="'+(mpTf.k===mpSel?'on':'')+'">'+ic('book')+'<span>التفسير الميسّر</span></button>'
-  +'<button data-mp2="mk" class="'+(mpMk.k===mpSel?'on':'')+'">'+ic('report')+'<span>المختصر في التفسير</span></button>'
-  +'<button data-mp2="img" class="'+(mpImg.k===mpSel?'on':'')+'">'+ic('doc')+'<span>بطاقة الآية (صورة)</span></button>'
-  +'<button data-mp2="copy">'+ic('pen')+'<span>نسخ الآية</span></button>'
-  +'<button data-mp2="share">'+ic('clup')+'<span>مشاركة الآية</span></button>'
+  +(flow
+    ?'<button data-mp2="bmrk" class="'+(onB?'on':'')+'">'+ic('star')+'<span>حفظ علامة مرجعية</span></button>'
+     +'<button data-mp2="tf" class="'+(mpTf.k===mpSel?'on':'')+'">'+ic('book')+'<span>التفسير</span></button>'
+     +'<button data-mp2="copy">'+ic('pen')+'<span>نسخ الآية</span></button>'
+     +'<button data-mp2="share">'+ic('clup')+'<span>مشاركة</span></button>'
+    :'<button data-mp2="mark" class="'+(mk?'on':'')+'">'+ic('star')+'<span>'+(mk?'إزالة علامة الحفظ':'علامة حفظ على الآية')+'</span></button>'
+     +'<button data-mp2="tf" class="'+(mpTf.k===mpSel?'on':'')+'">'+ic('book')+'<span>التفسير الميسّر</span></button>'
+     +'<button data-mp2="mk" class="'+(mpMk.k===mpSel?'on':'')+'">'+ic('report')+'<span>المختصر في التفسير</span></button>'
+     +'<button data-mp2="img" class="'+(mpImg.k===mpSel?'on':'')+'">'+ic('doc')+'<span>بطاقة الآية (صورة)</span></button>'
+     +'<button data-mp2="copy">'+ic('pen')+'<span>نسخ الآية</span></button>'
+     +'<button data-mp2="share">'+ic('clup')+'<span>مشاركة الآية</span></button>')
   +'</div>';
   mpPlaceBar(bar);
   var im=bar.querySelector('img.mp-shi');if(im)im.addEventListener('load',function(){mpPlaceBar(bar)},{once:true});
@@ -214,7 +206,19 @@ function mpDismissBar(bar){
 /* يثبّت الشريط فوق الآية المحددة أو تحتها (أيهما أوسع) ولا يغطيها؛ وإن طال بمحتوى مفتوح يقلّص مساحة النص/الصورة داخله لتتّسع */
 function mpPlaceBar(bar){
   bar.style.top='';bar.style.bottom='';
-  var ws=document.querySelectorAll('#mp .mw.vhl');if(!ws||!ws.length)return;
+  var ws=document.querySelectorAll('#mp .mw.vhl');
+  if((!ws||!ws.length)&&rd&&rd.flow){ /* القارئ المتدفق: الشريط يثبّت قرب الآية الحالية */
+    var cur=document.querySelector('.mq-v.cur')||document.querySelector('.mq-v[data-v="'+(mpSel||'')+'"]');
+    if(!cur)return;
+    var cr=cur.getBoundingClientRect(),vh2=window.innerHeight,gap2=8;
+    var below=(vh2-10)-(cr.bottom+gap2),above=(cr.top-gap2)-70;
+    var tt;
+    if(below>=bar.offsetHeight||below>=above)tt=cr.bottom+gap2;
+    else tt=Math.max(60,(cr.top-gap2)-bar.offsetHeight);
+    bar.style.top=Math.max(56,Math.min(tt,vh2-10-bar.offsetHeight))+'px';
+    return;
+  }
+  if(!ws||!ws.length)return;
   var top=1e9,bot=-1e9;
   for(var i=0;i<ws.length;i++){var r=ws[i].getBoundingClientRect();if(!(r.height>0))continue;if(r.top<top)top=r.top;if(r.bottom>bot)bot=r.bottom}
   if(top>1e8)return;
@@ -329,7 +333,8 @@ document.addEventListener('click',function(e){
       }).catch(function(){if(mpTf.k===kk){mpTf.t='تعذّر تحميل التفسير. يحتاج إنترنتًا أول مرة لكل آية.';mpApplySel()}});
     }
     return}
-  if(k==='copy'){try{navigator.clipboard.writeText(mpVerseText(mpSel));toast('نُسخت الآية')}catch(x){toast('تعذّر النسخ')}return}
+  if(k==='bmrk'){var q3=mpSel.split(':');S.quran.bm2={c:+q3[0],v:+q3[1]};save();toast('تم حفظ العلامة المرجعية');mpApplySel();return}
+  if(k==='copy'){try{navigator.clipboard.writeText(mpVerseText(mpSel));toast('تم نسخ الآية')}catch(x){toast('تعذّر النسخ')}return}
   if(k==='share'){var t=mpVerseText(mpSel);if(navigator.share){navigator.share({text:t}).catch(function(){})}else{try{navigator.clipboard.writeText(t);toast('نُسخت الآية للمشاركة')}catch(x){}}return}
   if(k==='mark'){var vm=mpVm();if(vm[mpSel]){delete vm[mpSel];toast('أُزيلت العلامة')}else{vm[mpSel]=Date.now();toast('وُضعت علامة حفظ')}S.quran.vm=vm;save();mpApplySel()}
 },true);
@@ -346,10 +351,10 @@ function mpHap(){try{if(typeof hapGo==='function')hapGo([14]);else if(navigator.
   var st=null;
   function inCtl(t){return t.closest&&t.closest('.rd-b,.rd-t,.rd-sp,.rd-js,.rd-menu,.rd-menb,.mp-vb,.mps-wrap')}
   function nextSign(dx){return dx<0?1:-1} /* السحب يسارًا = التالية، يمينًا = السابقة (كالمصحف الورقي العربي) */
-  function wordAt(x,y){var el=document.elementFromPoint(x,y),w=el&&el.closest?el.closest('.mw[data-v]'):null;return (w&&w.closest('#mp'))?w:null}
+  function wordAt(x,y){var el=document.elementFromPoint(x,y),w=el&&el.closest?el.closest('.mw[data-v],.mq-v[data-v]'):null;return (w&&(w.closest('#mp')||w.closest('#mq-ov')))?w:null}
   function back(el){if(!el)return;el.style.transition='transform .26s cubic-bezier(.2,.9,.3,1.25),opacity .2s';el.style.transform='translateX(0)';el.style.opacity='1';setTimeout(function(){el.style.transition='';el.style.transform='';el.style.opacity=''},300)}
   document.addEventListener('touchstart',function(e){
-    st=null;if(tab!=='reader'||!rd||!window.MUSHAF||!e.touches||e.touches.length!==1||inCtl(e.target))return;
+    st=null;if(tab!=='reader'||!rd||rd.flow||!window.MUSHAF||!e.touches||e.touches.length!==1||inCtl(e.target))return;
     var x=e.touches[0].clientX,y=e.touches[0].clientY,m=document.getElementById('mp');if(!m)return;
     st={x:x,y:y,t:Date.now(),lock:'',lx:x,lt:Date.now(),v:0,el:m.querySelector('.mp-in'),w:m.clientWidth||360};
     mpHl('');
@@ -389,6 +394,49 @@ function mpHap(){try{if(typeof hapGo==='function')hapGo([14]);else if(navigator.
     }
   },{passive:true});
   document.addEventListener('touchcancel',function(){if(st&&st.lp)clearTimeout(st.lp);st=null;if(!mpSel)mpHl('')},{passive:true});
+})();
+
+/* قارئ حفص المتدفق: ضغطة = آية حالية (بمهلة ٣٠٠ms ضد الضغطة المزدوجة) · مزدوجة = تفسير · مطوّلة = قائمة الآية · تتبع تلقائي عند ٤٥٪ */
+var mqTapT=null;
+document.addEventListener('click',function(e){
+  if(tab!=='reader'||!rd||!rd.flow)return;
+  var v=e.target&&e.target.closest&&e.target.closest('.mq-v[data-v]');if(!v)return;
+  var vv=v.getAttribute('data-v');
+  if(mqTapT){clearTimeout(mqTapT);mqTapT=null;mqOpenTf(vv);return}
+  mqTapT=setTimeout(function(){mqTapT=null;mqSetCur(vv,true)},300);
+});
+function mqSetCur(vv,hap){
+  if(!rd||!rd.flow)return;rd.cv=vv;
+  var old=document.querySelector('.mq-v.cur');if(old)old.classList.remove('cur');
+  var el=document.querySelector('.mq-v[data-v="'+vv+'"]');if(el)el.classList.add('cur');
+  var pos=document.getElementById('mq-pos');if(pos){var q=vv.split(':');pos.textContent='آية '+ar(+q[1])}
+  if(hap)mpHap();
+}
+function mqOpenTf(vv){
+  mqSetCur(vv,false);mpSel=vv;mpApplySel();
+  setTimeout(function(){var b=document.querySelector('#mp-vb [data-mp2=tf]');if(b)b.click()},30);
+}
+(function(){
+  var lp=null,lpt=null;
+  document.addEventListener('touchstart',function(e){
+    if(tab!=='reader'||!rd||!rd.flow||!e.touches||e.touches.length!==1)return;
+    var el=e.target&&e.target.closest&&e.target.closest('.mq-v[data-v]');if(!el)return;
+    lp=el.getAttribute('data-v');
+    lpt=setTimeout(function(){if(!lp)return;mqSetCur(lp,false);mpSel=lp;mpHap();mpApplySel();lp=null},430);
+  },{passive:true});
+  document.addEventListener('touchmove',function(){if(lpt){clearTimeout(lpt);lpt=null}lp=null},{passive:true});
+  document.addEventListener('touchend',function(){if(lpt){clearTimeout(lpt);lpt=null}lp=null},{passive:true});
+  /* التتبع التلقائي: الآية الأقرب إلى ٤٥٪ من ارتفاع الشاشة تصبح الحالية (لا تُحفظ) */
+  var sct=null;
+  document.addEventListener('scroll',function(e){
+    if(tab!=='reader'||!rd||!rd.flow)return;
+    if(sct)return;sct=setTimeout(function(){
+      sct=null;
+      var vs=document.querySelectorAll('.mq-v[data-v]'),target=window.innerHeight*.45,best=null,bd=1e9;
+      for(var i=0;i<vs.length;i++){var r=vs[i].getBoundingClientRect();if(r.bottom<0||r.top>window.innerHeight)continue;var d=Math.abs((r.top+r.bottom)/2-target);if(d<bd){bd=d;best=vs[i]}}
+      if(best)mqSetCur(best.getAttribute('data-v'),false);
+    },150);
+  },true);
 })();
 
 /* إخفاء رأس القارئ تلقائيًا بعد فترة قصيرة؛ يُجدَّد بعد كل تنقّل. يتوقف إن كانت النوافذ أو القوائم مفتوحة */

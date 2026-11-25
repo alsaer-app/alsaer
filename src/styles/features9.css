@@ -73,7 +73,7 @@ body.rdi #mp{touch-action:pan-y}
 /* توهج الآية + علامات الحفظ + شريط الآية */
 #mp .mw{transition:background-color .12s,box-shadow .12s}
 #mp .mw.vmk{border-bottom:2px dotted var(--gold)}
-.mp-vb{position:fixed;left:12px;right:12px;bottom:max(14px,env(safe-area-inset-bottom));z-index:46;display:flex;flex-direction:column;gap:8px;align-items:center;padding:12px;border-radius:20px;background:color-mix(in srgb,var(--bg) 94%,transparent);border:1px solid color-mix(in srgb,#43d9a0 50%,transparent);box-shadow:0 10px 30px rgba(0,0,0,.45),0 0 18px color-mix(in srgb,#43d9a0 25%,transparent);max-width:520px;margin:0 auto;animation:mpSheetIn .19s cubic-bezier(.2,.9,.3,1.12);transition:top .18s ease}
+.mp-vb{position:fixed;left:12px;right:12px;bottom:max(14px,env(safe-area-inset-bottom));z-index:66;display:flex;flex-direction:column;gap:8px;align-items:center;padding:12px;border-radius:20px;background:color-mix(in srgb,var(--bg) 94%,transparent);border:1px solid color-mix(in srgb,#43d9a0 50%,transparent);box-shadow:0 10px 30px rgba(0,0,0,.45),0 0 18px color-mix(in srgb,#43d9a0 25%,transparent);max-width:520px;margin:0 auto;animation:mpSheetIn .19s cubic-bezier(.2,.9,.3,1.12);transition:top .18s ease}
 .mp-vb.mp-closing{animation:mpSheetOut .16s ease-in forwards}
 @keyframes mpSheetIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
 @keyframes mpSheetOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(10px) scale(.98)}}
@@ -205,8 +205,8 @@ body.orn .mp-fa{background:#f9f5ee;border-color:#b98a2e;color:#8a5a36}body.orn .
 .rd-ix .rd-ri[hidden]{display:none}
 
 /* قائمة المصحف الجانبية */
-.rd-menb{position:fixed;inset:0;z-index:57;background:rgba(0,0,0,.5)}
-.rd-menu{position:fixed;top:0;bottom:0;right:0;width:min(88vw,360px);z-index:58;background:var(--bg);border-inline-start:1px solid var(--line);box-shadow:-14px 0 34px rgba(0,0,0,.35);padding:max(12px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom));overflow:auto;animation:rdMenuIn .22s ease-out}
+.rd-menb{position:fixed;top:0;left:0;width:100vw;height:100dvh;z-index:67;background:rgba(0,0,0,.5)}
+.rd-menu{position:fixed;top:0;right:0;height:100dvh;width:min(88vw,360px);z-index:68;background:var(--bg);border-inline-start:1px solid var(--line);box-shadow:-14px 0 34px rgba(0,0,0,.35);padding:max(12px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom));overflow:auto;animation:rdMenuIn .22s ease-out}
 @keyframes rdMenuIn{from{transform:translateX(48px);opacity:0}to{transform:none;opacity:1}}
 .rd-mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.rd-mh b{font-size:17px}
 .rd-mx{border:0;background:var(--surface-2);color:inherit;width:34px;height:34px;border-radius:12px;display:grid;place-items:center}

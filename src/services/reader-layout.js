@@ -50,88 +50,6 @@ function sizeMp(mp){
 }
 /* نص متدفق بحجم خط يختاره المستخدم: تُقاس الكلمات وتُلفّ على عرض الصفحة لفًّا طبيعيًّا */
 function mpTokPlain(t){var o='';for(var i=0;i<t.length;i++){var c=t.charCodeAt(i);if(c>=0xE000&&c<=0xE005)continue;if(c===0xE0FF||c===0xE0F0)continue;o+=t.charAt(i)}return o}
-function fitHafs(mp){try{window.__fitErr='';_fitHafs(mp)}catch(e){window.__fitErr=String(e&&e.stack||e)}}
-/* تخطيط حفص النصي على نمط التقوى (إعادة تنفيذ من الأرقام، بلا نسخ كود): عمود النص = الشاشة إلا ٣٢ بكسل
-   حاشية + ٤ بكسل حشو من كل جانب، حجم الخط يختاره المستخدم بمؤقت −/+ (٢٦ افتراضيًا، ١٨–٤٠ بخطوة ٢، محفوظ)،
-   ارتفاع السطر ٢٫٠٥، سطر مضبوط، بلا إطار وبلا تصغير تلقائي وبلا تمرير رأسي: تُقسَّم صفحة المدينة إلى
-   شاشات بعدد ما يتسع له الحجم المختار، والسحب/السهم يمرّ على شاشات الصفحة ثم ينتقل للصفحة التالية،
-   مع شارة «١ / ٣» صغيرة داخل الصفحة. */
-var mpChCache={};
-function mpPageRows(pg,W,fs){
-  var rows=[],cur=[],curW=0;
-  pg.forEach(function(l){
-    if(l[0]==='h'||l[0]==='b'){
-      if(cur.length){rows.push({t:cur,w:curW});cur=[];curW=0}
-      rows.push(l[0]==='h'?{h:l[1]}:{b:1});return;
-    }
-    l[1].split(' ').forEach(function(t){
-      var w=wMeasure(mpTokPlain(t))*fs/100+(t.charCodeAt(0)===0xE0F0?.36*fs:0);
-      var gap=cur.length?.14*fs:0;
-      if(cur.length&&curW+gap+w>W){rows.push({t:cur,w:curW});cur=[t];curW=w}
-      else{cur.push(t);curW+=gap+w}
-    });
-  });
-  if(cur.length)rows.push({t:cur,w:curW});
-  return rows;
-}
-function mpChunkRows(rows,cap){
-  var chunks=[],i=0;
-  while(i<rows.length){
-    var end=Math.min(i+cap,rows.length);
-    /* لا تُترك ترويسة سورة أو بسملة وحدها في ذيل شاشة — تُنقل إلى الشاشة التالية */
-    while(end>i+1&&end<rows.length&&(rows[end-1].h!==undefined||rows[end-1].b))end--;
-    chunks.push(rows.slice(i,end));i=end;
-  }
-  return chunks;
-}
-/* أبعاد التخطيط: تُحسب بارتفاع «الرأس ظاهر» دائمًا حتى لا يتغير تقسيم الشاشات عند إخفاء الرأس تلقائيًا */
-function mpDims(){
-  var L=document.querySelector('#mp .mp-l');if(!L)return null;
-  var fs=Math.max(18,Math.min(40,S.quran.fs||26));
-  var W=L.clientWidth-72;if(!W||W<180)return null; /* ٣٢ حاشية + ٤ حشو من كل جانب */
-  var hh=0,ov=document.getElementById('rd-ov');
-  if(ov&&ov.classList.contains('hd-hide')){var hd=ov.querySelector('.rd-t');if(hd)hh=Math.max(0,Math.ceil(hd.getBoundingClientRect().height)-4)}
-  var H=(L.clientHeight||0)-hh-20; /* حشو ١٠ بكسل أعلى وأسفل */
-  return {fs:fs,W:W,cap:Math.max(1,Math.floor(H/(fs*2.05)))};
-}
-function mpScreensN(p){
-  var d=mpDims();if(!d||!window.MUSHAF)return 1;
-  var key=p+':'+d.fs+':'+d.W+':'+d.cap;
-  if(mpChCache[key])return mpChCache[key];
-  var pg=window.MUSHAF.p[p-1];if(!pg)return 1;
-  var n=mpChunkRows(mpPageRows(pg,d.W,d.fs),d.cap).length;
-  mpChCache[key]=n;return n;
-}
-function _fitHafs(mp){
-  var L=mp.querySelector('.mp-l');if(!L||!rd)return;
-  var MU=window.MUSHAF,pg=MU&&MU.p[rd.page-1];if(!pg)return;
-  var d=mpDims();if(!d)return;
-  var chunks=mpChunkRows(mpPageRows(pg,d.W,d.fs),d.cap);
-  var scr=Math.min(rd.pscr||0,chunks.length-1);rd.pscr=scr;
-  var vis=chunks[scr];
-  L.style.fontSize=d.fs+'px';L.style.lineHeight='2.05';
-  L.style.display='flex';L.style.flexDirection='column';L.style.justifyContent='flex-start';L.style.overflowY='hidden';
-  mpInit(rd.page);
-  var html='';
-  vis.forEach(function(r,ri){
-    if(r.h!==undefined){html+='<div class="ml hd"><span>سورة '+esc(QD().n[r.h-1])+'</span></div>';return}
-    if(r.b){html+='<div class="ml bs"><span>'+esc(QD().s[0][0])+'</span></div>';return}
-    var last=ri===vis.length-1||(vis[ri+1]&&(vis[ri+1].h!==undefined||vis[ri+1].b));
-    var full=!last&&r.w>d.W*.62;
-    html+='<div class="ml"><div class="mi '+(full?'fj':'fl')+'">'
-      +r.t.map(function(t){
-        var a=mpVAttr(t);
-        if(t.charCodeAt(0)===0xE0F0)return '<span class="mw aym"'+a+'><span class="ayo">\u06DD<b>'+esc(mpTokPlain(t))+'</b></span></span>';
-        return '<span class="mw"'+a+'>'+mTok(t)+'</span>';
-      }).join('')
-      +'</div></div>';
-  });
-  L.innerHTML=html;
-  /* شارة الشاشة داخل الصفحة: «٢ / ٣» بجانب رقم صفحة المدينة، تظهر فقط حين تتعدد الشاشات */
-  var f=mp.querySelector('.mp-f');
-  if(f){var old=f.querySelector('.psc');if(old)old.remove();
-    if(chunks.length>1){var c=document.createElement('span');c.className='psc';c.textContent=ar(scr+1)+' / '+ar(chunks.length);f.appendChild(c)}}
-}
 /* الرسم الشرقي/* الرسم الشرقي: خط الحفص المشرقي لا يملك شكل الياء المغربية (U+06D2)، فتُكتب ياءً عادية */
 function warshFix(t){
   return String(t).replace(/\u06D2/g,'\u064A')
@@ -235,7 +153,7 @@ function fitReader(force){
   var mp=document.getElementById('mp');if(!mp)return;
   readerShellInsets();
   if(mp.classList.contains('mpi')){try{sizeMpi(mp);mpiAfter(mp)}catch(e){}return}
-  try{sizeMp(mp);if(isW())fitWarsh(mp);else fitHafs(mp)}
+  try{sizeMp(mp);if(isW())fitWarsh(mp)}
   finally{var L=mp.querySelector('.mp-l');if(L&&(force||fontReady()))L.style.visibility='visible';try{mpApplySel()}catch(e){}}
 }
 function fitSoon(){
