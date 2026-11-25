@@ -40,19 +40,30 @@ async function getToken(env, hosts) {
   // Standard OAuth2 client auth: both QCF oauth hosts (prelive and prod) reject
   // x-auth-token/x-client-id headers (HTTP 400 invalid_request) and accept
   // HTTP Basic or POST-body credentials (verified 2026-11-25).
+  // Scope: new QCF clients get the nine granular content.*.read scopes, not the
+  // deprecated `content` umbrella (invalid_scope if requested). Try the full
+  // set, fall back to quran-only, then no scope - first success wins.
+  const SCOPE_CANDIDATES = [
+    'content.quran.read content.translations.read content.tafsirs.read content.audio.read content.hadith.read content.metadata.read content.sync.read content.reflections.read content.qa.read',
+    'content.quran.read',
+    '',
+  ];
   const basic = btoa(`${encodeURIComponent(env.QCF_CLIENT_ID)}:${encodeURIComponent(env.QCF_CLIENT_SECRET)}`);
-  const res = await fetch(hosts.oauth, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': `Basic ${basic}`,
-    },
-    // No scope parameter: this QCF client rejects explicit scopes (invalid_scope);
-    // omitting it makes Hydra issue the app's granted scopes (verified /debug-auth).
-    body: 'grant_type=client_credentials',
-  });
-  if (!res.ok) {
-    throw new Error(`QCF token request failed: ${res.status} ${await res.text()}`);
+  let res = null, lastErr = '';
+  for (const scope of SCOPE_CANDIDATES) {
+    res = await fetch(hosts.oauth, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${basic}`,
+      },
+      body: 'grant_type=client_credentials' + (scope ? `&scope=${encodeURIComponent(scope)}` : ''),
+    });
+    if (res.ok) break;
+    lastErr = `${res.status} ${await res.text()}`;
+  }
+  if (!res || !res.ok) {
+    throw new Error(`QCF token request failed: ${lastErr}`);
   }
   const data = await res.json();
   cachedToken = {
