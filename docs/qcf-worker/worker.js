@@ -7,8 +7,8 @@
  * requests so the Android app never sees the secret.
  *
  * Token flow (per api-docs.quran.foundation):
- *   POST https://oauth2.quran.foundation/oauth2/token
- *   headers: x-auth-token: <client_secret>, x-client-id: <client_id>
+ *   POST https://oauth2.quran.foundation/oauth2/token (or the prelive host)
+ *   headers: Authorization: Basic base64(client_id:client_secret)
  *   body:    grant_type=client_credentials&scope=content
  *   -> { access_token, token_type, expires_in, scope }
  * The client_secret is one-time (shown at app creation); rotating it requires
@@ -37,12 +37,15 @@ async function getToken(env, hosts) {
   const now = Date.now();
   if (cachedToken && cachedToken.expiresAt > now + 30_000) return cachedToken.value;
 
+  // Standard OAuth2 client auth: both QCF oauth hosts (prelive and prod) reject
+  // x-auth-token/x-client-id headers (HTTP 400 invalid_request) and accept
+  // HTTP Basic or POST-body credentials (verified 2026-11-25).
+  const basic = btoa(`${encodeURIComponent(env.QCF_CLIENT_ID)}:${encodeURIComponent(env.QCF_CLIENT_SECRET)}`);
   const res = await fetch(hosts.oauth, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'x-auth-token': env.QCF_CLIENT_SECRET,
-      'x-client-id': env.QCF_CLIENT_ID,
+      'Authorization': `Basic ${basic}`,
     },
     body: 'grant_type=client_credentials&scope=content',
   });
