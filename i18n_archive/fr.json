@@ -1563,5 +1563,8 @@
  "قائمة": "Menu",
  "جارٍ إنهاء فك الربط السابق ثم نفتح اختيار الحساب…": "Fin de la déconnexion précédente, puis ouverture du choix de compte…",
  "أُلغي الإذن فور منحه (غالبًا من فك الربط السابق). انتظر لحظات ثم اضغط ربط حساب جديد.": "L’autorisation a été révoquée juste après son octroi (sans doute par la déconnexion précédente). Attendez un instant puis touchez « Lier un nouveau compte ».",
- "انتهى ربط Google Drive على هذا الجهاز. اضغط «ربط Google Drive» لإعادة الربط.": "La liaison Google Drive sur cet appareil a expiré. Touchez « Lier Google Drive » pour la refaire."
+ "انتهى ربط Google Drive على هذا الجهاز. اضغط «ربط Google Drive» لإعادة الربط.": "La liaison Google Drive sur cet appareil a expiré. Touchez « Lier Google Drive » pour la refaire.",
+ "العرض: صفحات": "Affichage : pages",
+ "العرض: تدفق": "Affichage : flux",
+ "تدفق": "Flux"
 }
