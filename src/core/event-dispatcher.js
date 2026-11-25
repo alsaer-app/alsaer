@@ -206,6 +206,7 @@ document.addEventListener('click',async function(e){
   else if(a==='qidx'||a==='qixgo'||a==='qbmsgo'){if(mpIdxAct(a,v))return}
   else if(/^(qsclose|qsdo|qsgo|qms|qsrch|qsgov)$/.test(a)){if(mpAct2(a,v))return}
   else if(/^hdt[a-z]+$/.test(a)){if(typeof hdtAct==='function'&&hdtAct(a,v)===false)return}
+  else if(/^ftw[a-z]+$/.test(a)){if(typeof ftwAct==='function'&&ftwAct(a,v)===false)return}
   else if(/^rct[a-z]+$/.test(a)){if(typeof rctAct==='function'&&rctAct(a,v)===false)return}
   else if(/^rdo[a-z]+$/.test(a)){if(typeof rdoAct==='function'&&rdoAct(a,v)===false)return}
   else if(/^hsn[a-z]+$/.test(a)){if(typeof hsnAct==='function'&&hsnAct(a,v)===false)return}

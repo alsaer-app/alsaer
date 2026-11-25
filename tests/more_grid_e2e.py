@@ -32,20 +32,20 @@ async def main():
       await p.evaluate('([a,v])=>{let b=document.createElement("button");b.dataset.a=a;b.dataset.v=v;document.body.append(b);b.click();b.remove()}',[a,v]);await p.wait_for_timeout(800)
      await act('tab','more');await p.screenshot(path=str(OUT/f'more-{mode}-{stage}.png'),full_page=True)
      if stage=='after':
-      assert await p.locator('.mtile').count()==26
+      assert await p.locator('.mtile').count()==27
       assert await p.locator('#mr-list [data-v=backup],#mr-list [data-v=recite]').count()==0
       assert await p.locator('.mtile small,.mtile .sg-val').count()==0
       anim=await p.locator('.mtile').first.evaluate('(e)=>({name:getComputedStyle(e).animationName,duration:getComputedStyle(e).animationDuration,columns:getComputedStyle(e.parentElement).gridTemplateColumns})')
       assert anim['name']=='mtpop' and anim['duration']=='0.42s' and len(anim['columns'].split())==3,anim
       await p.fill('#mr-q','عدّاد تسبيح');assert await p.locator('.mtile:visible').count()==1
       await p.fill('#mr-q','zzzz');assert await p.locator('#mr-none').is_visible()
-      await p.fill('#mr-q','');assert await p.locator('.mtile:visible').count()==26
+      await p.fill('#mr-q','');assert await p.locator('.mtile:visible').count()==27
       await p.locator('.mtile[data-v=settings]').click();await p.wait_for_timeout(300);await act('scat','account');await act('ssub','account-sec');assert await p.locator('[data-v=backup]').count()==1
       await p.locator('[data-v=backup]').click();await p.wait_for_timeout(300);assert await p.locator('.bk').count()==1
       for width in [320,412]:
        await p.set_viewport_size({'width':width,'height':780});await act('tab','more');assert await p.evaluate('document.documentElement.scrollWidth<=innerWidth')
       await p.emulate_media(reduced_motion='reduce');assert await p.locator('.mtile').first.evaluate('(e)=>getComputedStyle(e).animationName')=='none'
-      print('PASS',mode,'exact historical grid/CSS, 26 tiles, search/empty/reset, Settings backup route, reduced motion, widths 320/360/412')
+      print('PASS',mode,'exact historical grid/CSS, 27 tiles, search/empty/reset, Settings backup route, reduced motion, widths 320/360/412')
      assert not errors,errors;await p.close()
    await b.close()
   srv.shutdown()
