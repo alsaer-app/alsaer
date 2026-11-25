@@ -35,7 +35,7 @@ function vReader(){
   var fsz=S.quran.fs||26;
   var mainH='<div class="mp'+(tj?'':' notj')+'" id="mp"><div class="mp-in'+(dir?' pt'+(dir>0?'n':'p'):'')+'">'
   +'<div class="mp-l" style="visibility:hidden;font-size:'+fsz+'px">'+(mpInit(p),pg.map(mLine).join(''))+'</div>'
-  +'<div class="mp-f"><span class="pn">'+ar(p)+'</span>'+((S.quran&&S.quran.zoom>1)?'<button class="pnz" data-a="qzoom" aria-label="إعادة الحجم الافتراضي">'+ar(Math.round(S.quran.zoom*100))+'٪ ×</button>':'')+'</div></div></div>';
+  +'<div class="mp-f"><span class="pn">'+ar(p)+'</span></div></div></div>';
   var ctlH='<div class="rbar"><button class="ib bm" data-a="bmtog" aria-label="علامة" aria-pressed="'+bmHas(rd&&rd.page)+'">'+(bmHas(rd&&rd.page)?'★':'☆')+'</button><button class="ib" data-a="qpage" data-v="-1" aria-label="الصفحة السابقة"'+(p<=1?' disabled':'')+'>'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'</button>'
   +'<div class="rmid"><b>'+(inR?ar(n)+' / '+ar(rd.to-rd.from+1):'ص '+ar(p))+'</b><small>'+(inR?'من وردك':'تصفّح حر')+'</small></div>'
   +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button>'
