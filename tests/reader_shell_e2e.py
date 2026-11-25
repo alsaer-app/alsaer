@@ -12,13 +12,13 @@ async def main():
   hook='window.__shell={page:function(n){rd.page=n;render()},home:function(){tab="home";render()}};'
   html=html.replace('})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */',hook+'})(); /* إغلاق الغلاف الخارجي المفتوح في core/bootstrap.js */')
   (out/'index.html').write_text(html)
-  for f in ['fonts','quran.js','warsh.js']:(out/f).symlink_to(ROOT/'www'/f)
+  for f in ['fonts','quran.js']:(out/f).symlink_to(ROOT/'www'/f)
   class Quiet(SimpleHTTPRequestHandler):
    def log_message(self,*args):pass
   srv=ThreadingHTTPServer(('127.0.0.1',0),partial(Quiet,directory=tmp));threading.Thread(target=srv.serve_forever,daemon=True).start()
   async with async_playwright() as w:
    b=await w.chromium.launch(channel='chrome',args=['--no-sandbox'])
-   for riw in ['hafs','warsh']:
+   for riw in ['hafs']:
     for mode in ['dark','light']:
      p=await b.new_page(viewport={'width':360,'height':780});errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
      seed={'onboarded':True,'tour':{'done':1},'ui':{'mode':mode,'accent':'green','digits':'east','press':'glow','trans':'slide'},'quran':{'pos':8,'last':8,'riwaya':riw,'log':{},'hint1':1,'sw':1,'imm':True,'ui':True}}

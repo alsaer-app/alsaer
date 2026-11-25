@@ -9,19 +9,11 @@ function tfEnsure(cb){
 }
 function tfRaw(c,h){var D=window.TFDATA;return D&&D[c-1]&&D[c-1][h-1]||''}
 function tfSavedCount(){return 6236}
-function tfAyah(c,v){return isW()?verseShow(c,v):hafsVerse(c,v)} /* حفص كما في قارئ التدفق: البسملة المُلحقة في المخزَّن تُعرض في الترويسة لا في الآية */
-function tfCv(vv){var q=String(vv).split(':'),c=+q[0],v=+q[1];return isW()?tfCover(c,v):{a:v,b:v,f:0}}
+function tfAyah(c,v){return hafsVerse(c,v)} /* حفص كما في قارئ التدفق: البسملة المُلحقة في المخزَّن تُعرض في الترويسة لا في الآية */
+function tfCv(vv){var q=String(vv).split(':'),c=+q[0],v=+q[1];return {a:v,b:v,f:0}}
 function tfText(vv){var q=String(vv).split(':'),k=tfCv(vv),o=[];if(!k)return '';for(var h=k.a;h<=k.b;h++){var t=tfRaw(+q[0],h);if(!t)return '';o.push(k.b>k.a?'\u00AB\u0622\u064A\u0629 '+ar(h)+' \u0628\u062A\u0631\u0642\u064A\u0645 \u062D\u0641\u0635\u00BB\n'+t:t)}return o.join('\n\n')}
 function tfT(t,a,b){var r=(typeof lang==='function'&&lang()!=='ar'&&typeof trS==='function')?trS(t):null;return String(r||t).replace('{a}',ar(a)).replace('{b}',ar(b))}
-function tfNote(vv){
-  if(!isW())return '';
-  var q=String(vv).split(':'),v=+q[1],k=tfCv(vv);
-  if(!k)return 'التفسير غير متاح لهذه الآية.';
-  if(k.f)return k.b>k.a?tfT('حدّ هذه الآية في رواية ورش يقع داخل الآيات {a} إلى {b} من ترقيم حفص، فالتفسير أدناه لآيات حفص كاملة.',k.a,k.b):tfT('حدّ هذه الآية في رواية ورش يقع داخل آية حفص {a}، فالتفسير أدناه لآية حفص كاملة.',k.a);
-  if(k.b>k.a)return tfT('هذه الآية في ترقيم ورش تشمل الآيات {a} إلى {b} من ترقيم حفص، وتفسيرها أدناه مجموع تفسيريهما.',k.a,k.b);
-  if(k.a!==v)return tfT('تقابل الآية {a} في ترقيم حفص الذي رُقِّم به التفسير.',k.a);
-  return '';
-}
+function tfNote(vv){return ''}
 function tfFill(vv,t){
   if(rd&&rd.tf&&t)rd.tf.tx[vv]=t;
   var el=document.querySelector('.mq-tx[data-tv="'+vv+'"]');if(!el)return;

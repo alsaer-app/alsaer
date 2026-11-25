@@ -11,14 +11,13 @@
 .pat i::after{content:"";position:absolute;inset:22px;border-radius:50%;background:var(--muted);opacity:.7}
 .pat i.on{border-color:var(--gold);background:var(--gold-soft);transform:scale(1.08)}
 .pat i.on::after{background:var(--gold);opacity:1}
-@font-face{font-family:"KFGQPCWarsh";src:url(fonts/warsh.woff2) format("woff2");font-display:block}
 .riw{display:flex;gap:6px;padding:4px;margin:0 0 10px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .riw button{flex:1;border:0;border-radius:10px;padding:9px 6px;font:inherit;font-weight:800;color:var(--muted);background:transparent;cursor:pointer}
 .riw button.on{background:var(--gold);color:var(--on-gold)}
 .mp.wr .wp{
   flex:1 1 0;min-height:0;width:100%;box-sizing:border-box;overflow:hidden;
   display:flex;flex-direction:column;justify-content:space-evenly;
-  font-family:"KFGQPCWarsh","KFGQPC",var(--font-text);color:var(--fg);
+  font-family:"KFGQPC",var(--font-text);color:var(--fg);
   direction:rtl;text-align:justify;text-align-last:center;
   font-size:clamp(20px,5.7vw,30px);line-height:1.5;word-spacing:.02em;
   padding:5px 6px 3px;

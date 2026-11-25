@@ -4,7 +4,6 @@ function vQuran(){
   Object.keys(S.quran.log).forEach(function(d){total+=S.quran.log[d]||0});
   var khatmas=Math.floor(total/QURAN_PAGES),prog=Math.round((total%QURAN_PAGES)/QURAN_PAGES*100),done=pg>=goal;
   return '<div class="qhero">'+sceneBook()+'</div>'
-  +riwSwitch()
   +(S.quran.last?'<button class="lrow" data-a="qopen" data-v="'+S.quran.last+'">'+ic('book')+'<span class="t">تابع من حيث توقفت<small class="muted">صفحة '+ar(S.quran.last)+' · سورة '+esc(pageSura(S.quran.last))+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'')
     +'<section class="card"><h3>وردك اليومي</h3>'
   +'<p class="note" style="text-align:center;margin-bottom:4px">'+(pos===to?'صفحة '+ar(pos):'من صفحة '+ar(pos)+' إلى '+ar(to))+' · سورة '+esc(pageSura(pos))+'</p>'

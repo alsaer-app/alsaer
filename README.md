@@ -115,7 +115,7 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 
 A private, **offline-first** Android companion for worship and self-improvement. Data is stored locally, with optional Google Drive authorization and dated backup uploads. Content and update checks use external services. See the privacy policy draft in PRIVACY.md.
 
-**Features:** full mushaf reader (15-line pages, Uthmanic font, Hafs & Warsh riwayas, color-coded tajweed), prayer times and local reminders, a floating reminder overlay, a home-screen widget, habit and repentance tracking (streaks, relapses, triggers, urges), fasting schedule (Mondays/Thursdays, white days, Ashura, Arafah, Shawwal, Dawud, custom), adhkar with counters, weekly/monthly self-review, PIN/password/pattern lock with biometrics, backups with optional password encryption (AES-GCM + PBKDF2), Arabic RTL UI with light/dark themes, Hijri (Umm al-Qura) and Gregorian dates.
+**Features:** full mushaf reader (15-line pages, Uthmanic font, Hafs riwaya, color-coded tajweed), prayer times and local reminders, a floating reminder overlay, a home-screen widget, habit and repentance tracking (streaks, relapses, triggers, urges), fasting schedule (Mondays/Thursdays, white days, Ashura, Arafah, Shawwal, Dawud, custom), adhkar with counters, weekly/monthly self-review, PIN/password/pattern lock with biometrics, backups with optional password encryption (AES-GCM + PBKDF2), Arabic RTL UI with light/dark themes, Hijri (Umm al-Qura) and Gregorian dates.
 
 **Install:** download the latest APK from [Releases](https://github.com/alsaer-app/alsaer/releases/latest) and install it over any previous officially-signed build; your data is preserved.
 

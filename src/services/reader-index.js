@@ -28,14 +28,13 @@ function mpIdxAct(a,v){
   if(a==='qidx'){rd.idx=!rd.idx;rd.srch=false;rd.jump=false;return false}
   if(a==='qbmsgo'||a==='qixgo'){
     if(!rd.flow)return true;
-    var p=String(v).split(':'),c=parseInt(p[0],10),vv=p[1]?parseInt(p[1],10):1,rw=p[2]==='w'?'warsh':(p[2]==='h'?'hafs':null);
+    var p=String(v).split(':'),c=parseInt(p[0],10),vv=p[1]?parseInt(p[1],10):1,rw=null;
     if(!(c>=1&&c<=114))return true;
     var go=function(){
       var n=AD().s[c-1].length,v2=Math.max(1,Math.min(n,vv>=1?vv:1));
       mpSel='';rd.sura=c;rd.cv=c+':'+v2;if(p[1]||a==='qbmsgo')rd._scrollCv=rd.cv;rd.idx=false;rd.jump=false;
     };
     /* علامة من رواية أخرى: تُفتح برواياتها وبآيتها المحفوظة هي لا برقم الصفحة */
-    if(rw&&rw!==(S.quran.riwaya||'hafs')){mqUseRiw(rw,function(){go();render()});return true}
     go();return false;
   }
   return false;

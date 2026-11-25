@@ -27,7 +27,6 @@ function mpDrawerHtml(p){
   var ward='<section class="card rd-mwc"><h3>وردك اليومي</h3><div class="bar"><div style="width:'+Math.min(100,Math.round(pg/goal*100))+'%"></div></div><p class="note" style="text-align:center;margin:8px 0">'+(done?'أتممت وردك اليوم، بارك الله فيك ('+ar(pg)+' صفحة).':'قرأت اليوم '+ar(pg)+' من '+ar(goal)+' '+(goal<11?'صفحات':'صفحة')+'.')+'</p><button class="btn block" data-a="qstart">'+ic('book')+(done?'اقرأ المزيد':'ابدأ الورد')+'</button><div class="row" style="justify-content:center;margin-top:8px"><button class="btn ghost" data-a="qgoal" data-v="-1">'+ic('minus')+'الورد</button><button class="btn ghost" data-a="qgoal" data-v="1">'+ic('plus')+'الورد</button></div></section>';
   var grid='<div class="rd-mg">'
     +'<button type="button" data-a="qidx">'+ic('doc')+'<small>فهرس السور</small></button>'
-    +'<button type="button" data-a="qriw" data-v="'+(isW()?'hafs':'warsh')+'">'+ic('book')+'<small>الرواية: '+(isW()?'ورش':'حفص')+'</small></button>'
     +(rd&&rd.flow?'<button type="button" data-a="umode" data-v="'+((typeof uiMode==='function'&&uiMode()==='dark')?'light':'dark')+'">'+((typeof uiMode==='function'&&uiMode()==='dark')?ic('sun'):ic('moon'))+'<small>المظهر</small></button>':'')
     +'</div>';
   var last=q.last?'<button class="lrow" data-a="qjgo" data-v="l">'+ic('book')+'<span class="t">تابع من حيث توقفت<small class="muted">صفحة '+ar(q.last)+' · سورة '+esc(pageSura(q.last))+'</small></span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>':'';
@@ -373,12 +372,10 @@ function qwSheetHtml(){
   var done=pg>=goal,pct=Math.min(100,Math.round(pg/goal*100));
   var total=0;Object.keys(S.quran.log).forEach(function(d){total+=S.quran.log[d]||0});
   var prog=Math.round((total%QURAN_PAGES)/QURAN_PAGES*100),w=isW();
-  var seg=function(on,v,label){return '<button class="'+(on?'on':'')+'" data-a="qriw" data-v="'+v+'">'+label+'</button>'};
   return '<div class="ups-back" data-a="qwclose"></div><div class="ups-card qws"><div class="ups-grab"></div>'
   +'<h3 class="qws-t">الورد والرواية</h3>'
   +'<p class="qws-sub">كل ما كان في شاشة القرآن الوسيطة صار هنا داخل المصحف</p>'
   +'<div class="sg-card">'
-  +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>الرواية</b><small>التبديل يعيد تحميل المصحف بروايتك</small></div><div class="sg-ctl"><div class="sg-seg">'+seg(!w,'hafs','حفص')+seg(w,'warsh','ورش')+'</div></div></div>'
   +'<div class="sg-row qws-col"><div class="qws-head"><span class="sg-ic">'+ic('check')+'</span><div class="sg-tx"><b>وردك اليومي</b><small>'+(done?'أتممت وردك اليوم، بارك الله فيك':'قرأت اليوم '+ar(pg)+' من '+ar(goal)+' '+(goal<11?'صفحات':'صفحة'))+' · '+(pos===to?'صفحة '+ar(pos):'من ص '+ar(pos)+' إلى '+ar(to))+' · '+esc(pageSura(pos))+'</small></div></div><div class="upd-bar qws-bar"><div style="width:'+pct+'%"></div></div><div class="step qws-step"><button class="ib" data-a="qgoal" data-v="-1" aria-label="إنقاص الورد">'+ic('minus')+'</button><b>'+ar(goal)+'</b><button class="ib" data-a="qgoal" data-v="1" aria-label="زيادة الورد">'+ic('plus')+'</button></div></div>'
   +'<button class="sg-row" data-a="qopen" data-v="'+last+'"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>تابع من حيث توقفت</b></div><div class="sg-ctl"><span class="sg-val">صفحة '+ar(last)+' · '+esc(pageSura(last))+'</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
   +'<button class="sg-row" data-a="tab" data-v="khatma"><span class="sg-ic">'+ic('flag')+'</span><div class="sg-tx"><b>تقدّم الختمة</b></div><div class="sg-ctl"><span class="sg-val">'+ar(prog)+'٪ · '+ar(total)+' صفحة</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
@@ -395,17 +392,6 @@ function qwSheetPaint(){var d=document.getElementById('qwirdsheet');if(d)d.inner
 function mqRw(){return isW()?'w':'h'}
 function mqBmSet(c,v){S.quran.bm2={c:c,v:v,w:mqRw()}}
 function mqBmOn(c,v){var b=S.quran.bm2;return !!(b&&((b.w==='w')===isW())&&b.c===c&&(v===undefined||b.v===v))}
-/* يبدّل الرواية (يحمّل ورش عند الحاجة) ويحوّل موضع القارئ المفتوح إلى أول آية في الصفحة نفسها، لأن ترقيم الآيات يختلف بين الروايتين */
-function mqUseRiw(nr,cb){
-  var go=function(){
-    var oldP=null;
-    if(rd&&rd.flow&&rd.cv){var q=String(rd.cv).split(':');oldP=mpVerPage(+q[0],+q[1])}
-    S.quran.riwaya=nr;save();mpIdx=null;mpSel='';
-    if(oldP){var r=curP()[oldP-1]||[1,1];rd.sura=r[0];rd.cv=r[0]+':'+r[1];rd._scrollCv=rd.cv}
-    cb()
-  };
-  if(nr==='warsh'&&!window.WDATA)loadHeavy(go);else go();
-}
 /* ترحيل علامات الصفحات القديمة إلى (سورة،آية أول الصفحة) — تُحفظ الأصلية S.bm دون مساس.
    حفص: عند أول فتح. ورش: تمرّ علامات الصفحات (S.bm) على صفحات ورش مرة واحدة عند أول فتح بروايته */
 function bmMigrate(){
@@ -413,7 +399,6 @@ function bmMigrate(){
   L.forEach(function(x){seen[x.c+':'+x.v+':'+(x.w==='w'?'w':'h')]=1});
   var add=function(w,P){bmList().forEach(function(p){p=+p;if(!(p>=1&&p<=604))return;var r=P[p-1];if(!r)return;var k=r[0]+':'+r[1]+':'+w;if(seen[k])return;seen[k]=1;var o={c:r[0],v:r[1],p:p};if(w==='w')o.w='w';L.push(o);ch=true})};
   if(!q.bmMig){add(isW()?'w':'h',curP());q.bmMig=1;ch=true}
-  if(isW()&&!q.bmMigW){add('w',WD().p);q.bmMigW=1;ch=true}
   if(ch)save();
 }
 function mqBmsHtml(){
