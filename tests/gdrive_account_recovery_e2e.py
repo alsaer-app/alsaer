@@ -11,6 +11,7 @@ async def main():
    b=await w.chromium.launch(channel='chrome',args=['--no-sandbox'])
    for lang in ['ar','en','fr']:
     p=await b.new_page(viewport={'width':320,'height':800});seed={'onboarded':True,'tour':{'done':1},'ui':{'lang':lang,'mode':'dark'}}
+    await p.route('**/www.googleapis.com/drive/v3/about*',lambda r:r.fulfill(status=200,content_type='application/json',body='{"user":{"emailAddress":"selected@example.com"}}'))  # token check before declaring success (ce91490)
     await p.add_init_script('localStorage.alsaer_seen_update_200="1";localStorage.tawba_v1='+json.dumps(json.dumps(seed))+';localStorage.alsaer_drive_prefs=JSON.stringify({auto:false});window.__authCalls=[];window.AlsaerNative={gdriveAuthorize(v){__authCalls.push(v)}};')
     await p.goto(f.as_uri()+'?alsaertest');await p.wait_for_timeout(1700)
     async def draw():
