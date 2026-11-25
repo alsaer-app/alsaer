@@ -876,6 +876,13 @@ body.rd .rbar .reader-done{min-height:44px}
 <body>
 <div class="top" id="top"></div>
 <div id="app"></div>
+<script>/* سبلاش ثابت: يُرسم فور تحليل الصفحة قبل تحميل السكربت الكبير. للإعداد الافتراضي فقط (عربي، نمط هادئ)، وغير ذلك يرسمه render() كما كان */
+(function(){try{var s=JSON.parse(localStorage.getItem('tawba_v1')||'{}'),u=(s&&s.ui)||{};
+if((u.lang&&u.lang!=='ar')||(u.style&&u.style!=='calm')||(u.look&&u.look!=='classic')||(u.font&&u.font!=='plex')||u.fontW==='bold'||u.accent)return;
+var m=u.mode;if(m!=='light'&&m!=='dark'&&m!=='system')m=localStorage.getItem('tawba_theme')==='light'?'light':'dark';
+var th=m==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m;
+document.documentElement.setAttribute('data-theme',th);
+document.getElementById('app').innerHTML='<div class="splash" data-pre="1"><div class="sp-tile"><img src="icon.png" alt=""></div><div class="t">السائر إلى الله</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div></div>'}catch(e){}})();</script>
 <nav class="tabbar" id="tabs" hidden></nav>
 <div class="toast" id="toast" hidden></div>
 
@@ -4419,15 +4426,17 @@ function worshipToggle(id,val){var k=dk(),cur=((S.worship||{})[k]||{})[id],lk='w
   if(cur===undefined||inGrace(lk))lockSet(lk);else if(S.locks)delete S.locks[lk];
 S.worship=S.worship||{};S.worship[k]=S.worship[k]||{};S.worship[k][id]=val;save();checkNew()}
 
+var _hjF=null,_hjF2=null;
+/* المنسّق يُنشأ مرة واحدة (إنشاؤه هو الجزء الغالي)؛ النتيجة تُحسب لكل تاريخ كما كانت */
 function hijriNumeric(d){
   try{
-    var f=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'});
-    var p=f.formatToParts(d),o={};p.forEach(function(x){if(x.type==='day'||x.type==='month'||x.type==='year')o[x.type]=parseInt(x.value,10)});
+    if(!_hjF)_hjF=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'});
+    var p=_hjF.formatToParts(d),o={};p.forEach(function(x){if(x.type==='day'||x.type==='month'||x.type==='year')o[x.type]=parseInt(x.value,10)});
     if(o.day&&o.month&&o.year)return o;
   }catch(e){}
   try{
-    var f2=new Intl.DateTimeFormat('en-u-ca-islamic-nu-latn',{day:'numeric',month:'numeric',year:'numeric'});
-    var p2=f2.formatToParts(d),o2={};p2.forEach(function(x){if(x.type==='day'||x.type==='month'||x.type==='year')o2[x.type]=parseInt(x.value,10)});
+    if(!_hjF2)_hjF2=new Intl.DateTimeFormat('en-u-ca-islamic-nu-latn',{day:'numeric',month:'numeric',year:'numeric'});
+    var p2=_hjF2.formatToParts(d),o2={};p2.forEach(function(x){if(x.type==='day'||x.type==='month'||x.type==='year')o2[x.type]=parseInt(x.value,10)});
     return o2;
   }catch(e){return null}
 }
@@ -7518,7 +7527,7 @@ function render(){
   var popping=backPopHandling;backPopHandling=false;
   applyUI();
   if(splash||!unlocked||!S.onboarded||covered){var qf=document.getElementById('qfab');if(qf)qf.hidden=true}
-  if(splash){tabs.hidden=true;top.innerHTML='';app.innerHTML=vSplash();if(lang()!=='ar')trWalk(app);return}
+  if(splash){tabs.hidden=true;top.innerHTML='';var pre=app.firstElementChild;if(pre&&pre.getAttribute('data-pre')==='1'&&lang()==='ar')return;app.innerHTML=vSplash();if(lang()!=='ar')trWalk(app);return}
   if(!unlocked){tabs.hidden=true;top.innerHTML='';app.innerHTML=vLock();if(lang()!=='ar')trWalk(app);bioAuto();return}
   if(!S.onboarded){tabs.hidden=true;top.innerHTML='';app.innerHTML=vOb();if(lang()!=='ar')trWalk(app);return}
   if(covered){tabs.hidden=true;top.innerHTML='';app.innerHTML='<button class="cover" data-a="uncover">اضغط للمتابعة</button>';if(lang()!=='ar')trWalk(app);return}
