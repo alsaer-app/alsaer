@@ -129,7 +129,7 @@ function vAsma(){
   if(asmS.cur){
     var x=ASM.filter(function(y){return y.id===asmS.cur})[0],i=x.o-1,done=!!P.learned[x.id];
     return h+'<div class="asm-crumb"><button class="btn ghost" data-a="asmback">← الأسماء</button></div>'
-      +'<section class="card asm-head"><small>الاسم رقم '+ar(x.o)+' من ٩٩</small><h2>'+x.n+'</h2><p>'+asmEsc(x.m)+'</p>'
+      +'<section class="card asm-head"><small><span>الاسم رقم</span> '+ar(x.o)+' <span>من ٩٩</span></small><h2>'+x.n+'</h2><p>'+asmEsc(x.m)+'</p>'
       +'<div class="acts"><button class="btn'+(done?'':' ghost')+'" data-a="asmmark" data-v="'+x.id+'">'+(done?'★ مُعلَّمة كمحفوظة':'☆ وضع علامة «حفظتها»')+'</button><button class="btn ghost" data-a="asmshare" data-v="'+x.id+'">مشاركة</button></div></section>'
       +'<section class="card"><h3>شرح الاسم</h3><p class="asm-txt">'+asmEsc(x.e)+'</p></section>'
       +asmEvHtml(x)
