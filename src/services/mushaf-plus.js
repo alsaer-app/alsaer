@@ -1,3 +1,28 @@
+/* مقابلة آية بين الروايتين عبر جدول التفسير (ترقيم حفص ↔ ورش)؛ ترجع null إن لم توجد مقابلة */
+function mqMapVerse(c,v,toW){
+  try{
+    if(!toW){var k=tfCover(c,v);return k?c+':'+k.a:null}
+    var n=WD().s[c-1].length;
+    for(var w=1;w<=n;w++){var k2=tfCover(c,w);if(k2&&k2.a<=v&&v<=k2.b)return c+':'+w}
+  }catch(e){}
+  return null;
+}
+function mqUseRiw(nr,cb){
+  var go=function(){
+    var oldP=null,oldV=null,wasPlaying=!!(mqAu.a&&!mqAu.a.paused&&!mqAu.pa);
+    if(rd&&rd.flow&&rd.cv){var q=String(rd.cv).split(':');oldP=mpVerPage(+q[0],+q[1]);oldV=[+q[0],+q[1]]}
+    var pk=wasPlaying&&mqAu.k?String(mqAu.k).split(':'):null;
+    try{mqAuStop()}catch(e){}
+    S.quran.riwaya=nr;save();mpIdx=null;mpSel='';
+    var toW=nr==='warsh',nv=oldV&&mqMapVerse(oldV[0],oldV[1],toW);
+    if(nv){var r0=nv.split(':');rd.sura=+r0[0];rd.cv=nv;rd._scrollCv=nv}
+    else if(oldP){var r=curP()[oldP-1]||[1,1];rd.sura=r[0];rd.cv=r[0]+':'+r[1];rd._scrollCv=rd.cv}
+    cb();
+    /* تشغيل جارٍ: يُستأنف من مصدر الرواية الجديدة (ورش: السورة كاملة من أولها لعدم وجود توقيت آيات) */
+    if(pk&&rd&&rd.cv){var pv=mqMapVerse(+pk[0],+pk[1],toW);if(pv)setTimeout(function(){try{mqAuPlay(pv)}catch(e){}},400)}
+  };
+  if(nr==='warsh'&&!window.WDATA)loadHeavy(go);else go();
+}
 /* ---------- المصحف: انتقال سريع · تقليب بالسحب · متابعة من حيث توقفت ---------- */
 function mpJuzPage(j){var P=curP();for(var i=0;i<P.length;i++)if(P[i][4]===j)return i+1;return 1}
 function mpJump(p){
@@ -486,17 +511,6 @@ function mqRw(){return isW()?'w':'h'}
 function mqBmSet(c,v){S.quran.bm2={c:c,v:v,w:mqRw()}}
 function mqBmOn(c,v){var b=S.quran.bm2;return !!(b&&((b.w==='w')===isW())&&b.c===c&&(v===undefined||b.v===v))}
 /* يبدّل الرواية (يحمّل ورش عند الحاجة) ويحوّل موضع القارئ المفتوح إلى أول آية في الصفحة نفسها، لأن ترقيم الآيات يختلف بين الروايتين */
-function mqUseRiw(nr,cb){
-  var go=function(){
-    var oldP=null;
-    if(rd&&rd.flow&&rd.cv){var q=String(rd.cv).split(':');oldP=mpVerPage(+q[0],+q[1])}
-    try{mqAuStop()}catch(e){}
-    S.quran.riwaya=nr;save();mpIdx=null;mpSel='';
-    if(oldP){var r=curP()[oldP-1]||[1,1];rd.sura=r[0];rd.cv=r[0]+':'+r[1];rd._scrollCv=rd.cv}
-    cb()
-  };
-  if(nr==='warsh'&&!window.WDATA)loadHeavy(go);else go();
-}
 /* ترحيل علامات الصفحات القديمة إلى (سورة،آية أول الصفحة) — تُحفظ الأصلية S.bm دون مساس.
    حفص: عند أول فتح. ورش: تمرّ علامات الصفحات (S.bm) على صفحات ورش مرة واحدة عند أول فتح بروايته */
 function bmMigrate(){
