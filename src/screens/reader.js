@@ -22,7 +22,7 @@ function mLine(l){
   if(l[0]==='h'){mpSt.c=+l[1];mpSt.v=1}
   if(l[0]==='h')return '<div class="ml hd"><span>سورة '+esc(QD().n[l[1]-1])+'</span></div>';
   if(l[0]==='b')return '<div class="ml bs"><span>'+esc(QD().s[0][0])+'</span></div>';
-  return '<div class="ml"><div class="mi">'+l[1].split(' ').map(function(t){var a=mpVAttr(t);return '<span class="mw"'+a+'>'+mTok(t)+'</span>'}).join('')+'</div></div>';
+  return '<div class="ml"><div class="mi">'+l[1].split(' ').map(function(t){var a=mpVAttr(t),mk=t.charCodeAt(0)===0xE0F0;return '<span class="mw'+(mk?' aym':'')+'"'+a+'>'+mTok(t)+'</span>'}).join('')+'</div></div>';
 }
 function vReader(){
   var MU=window.MUSHAF;
@@ -32,15 +32,14 @@ function vReader(){
   var p=rd.page,pg=MU.p[p-1],m=MU.m[p-1],atEnd=p>=rd.to,n=p-rd.from+1,tj=S.quran.tj!==false;
   var dir=rd.dir;rd.dir=0;S.quran.last=p;
   var inR=(p>=rd.from&&p<=rd.to);
-  var useImg=mpiOnFor(p);
-  var mainH=useImg?mpiMain(p,m):'<div class="mp'+(tj?'':' notj')+'" id="mp"><div class="mp-in'+(dir?' pt'+(dir>0?'n':'p'):'')+'">'
-  +'<div class="mp-h"><span>الجزء '+ar(m[0])+' · حزب '+ar(m[1])+'</span><span class="sb">'+esc(QD().n[m[2]-1])+'</span></div>'
-  +'<div class="mp-l" style="visibility:hidden">'+(useImg?'':(mpInit(p),pg.map(mLine).join('')))+'</div>'
+  var fsz=S.quran.fs||26;
+  var mainH='<div class="mp'+(tj?'':' notj')+'" id="mp"><div class="mp-in'+(dir?' pt'+(dir>0?'n':'p'):'')+'">'
+  +'<div class="mp-l" style="visibility:hidden;font-size:'+fsz+'px">'+(mpInit(p),pg.map(mLine).join(''))+'</div>'
   +'<div class="mp-f"><span class="pn">'+ar(p)+'</span></div></div></div>';
   var ctlH='<div class="rbar"><button class="ib bm" data-a="bmtog" aria-label="علامة" aria-pressed="'+bmHas(rd&&rd.page)+'">'+(bmHas(rd&&rd.page)?'★':'☆')+'</button><button class="ib" data-a="qpage" data-v="-1" aria-label="الصفحة السابقة"'+(p<=1?' disabled':'')+'>'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'</button>'
   +'<div class="rmid"><b>'+(inR?ar(n)+' / '+ar(rd.to-rd.from+1):'ص '+ar(p))+'</b><small>'+(inR?'من وردك':'تصفّح حر')+'</small></div>'
   +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button>'
   +'<button class="ib" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+ic('chev')+'</button></div>'
-  +'<div class="fsz"><button class="ib" data-a="mpset">'+ic('gear')+'المصحف</button><button class="ib" data-a="qjump" aria-pressed="'+!!rd.jump+'">'+ic('search')+'انتقال</button><button class="ib" data-a="qtj" aria-pressed="'+tj+'">التجويد</button><button class="ib" data-a="qwird">'+ic('flag')+'الورد والرواية</button>'+'</div>'+(rd.jump?mpJump(p):'');
+  +'<div class="fsz"><button class="ib" data-a="qjump" aria-pressed="'+!!rd.jump+'">'+ic('search')+'انتقال</button><button class="ib" data-a="qtj" aria-pressed="'+tj+'">التجويد</button><button class="ib" data-a="qwird">'+ic('flag')+'الورد والرواية</button>'+'</div>'+(rd.jump?mpJump(p):'');
   return mpWrap(mainH,ctlH,p,m);
 }

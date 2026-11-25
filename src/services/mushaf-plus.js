@@ -27,7 +27,6 @@ function mpDrawerHtml(p){
   var ward='<section class="card rd-mwc"><h3>وردك اليومي</h3><div class="bar"><div style="width:'+Math.min(100,Math.round(pg/goal*100))+'%"></div></div><p class="note" style="text-align:center;margin:8px 0">'+(done?'أتممت وردك اليوم، بارك الله فيك ('+ar(pg)+' صفحة).':'قرأت اليوم '+ar(pg)+' من '+ar(goal)+' '+(goal<11?'صفحات':'صفحة')+'.')+'</p><button class="btn block" data-a="qstart">'+ic('book')+(done?'اقرأ المزيد':'ابدأ الورد')+'</button><div class="row" style="justify-content:center;margin-top:8px"><button class="btn ghost" data-a="qgoal" data-v="-1">'+ic('minus')+'الورد</button><button class="btn ghost" data-a="qgoal" data-v="1">'+ic('plus')+'الورد</button></div></section>';
   var grid='<div class="rd-mg">'
     +'<button type="button" data-a="qidx">'+ic('doc')+'<small>فهرس السور</small></button>'
-    +'<button type="button" data-a="mpset">'+ic('gear')+'<small>خيارات المصحف</small></button>'
     +'<button type="button" data-a="qriw" data-v="'+(isW()?'hafs':'warsh')+'">'+ic('book')+'<small>الرواية: '+(isW()?'ورش':'حفص')+'</small></button>'
     +'<button type="button" class="'+(q.tj!==false?'on':'')+'" data-a="qtj">'+ic('sparkles')+'<small>التجويد: '+(q.tj!==false?'تشغيل':'إيقاف')+'</small></button>'
     +'<button type="button" class="'+(bmHas(p)?'on':'')+'" data-a="bmtog">'+(bmHas(p)?'★':'☆')+'<small>علامة الصفحة</small></button></div>';
@@ -80,16 +79,18 @@ function mpWrap(main,ctl,p,m){
   }
   if(!mpHint&&!S.quran.hint1){mpHint=true;S.quran.hint1=1;save();setTimeout(function(){toast('اضغط مطوّلًا على آية لخياراتها (تفسير · نسخ · علامة)؛ البحث والفهرس والخيارات داخل القائمة')},500)}
   var CH=ic('chev'),CHL=CH.replace('class="i"','class="i" style="transform:scaleX(-1)"');
-  main=main.replace(/<div class="mp-f"><span class="pn">([^<]*)<\/span><\/div>/,function(_,n){return '<div class="mp-f"><button class="mp-fa" data-a="qpage" data-v="-1" aria-label="الصفحة السابقة"'+(p<=1?' disabled':'')+'>'+CHL+'</button><span class="pn">'+n+'</span><button class="mp-fa" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+CH+'</button></div>'})
-   .replace('<div class="mp-h">','<div class="mp-h"><button class="mp-x" data-a="goback" data-v="home" aria-label="خروج من المصحف">✕</button>');
   var D=QD(),mu=isW()?[(WD().p[p-1]||[])[4]||1,0,(WD().p[p-1]||[1])[0]]:window.MUSHAF.m[p-1],inR=(p>=rd.from&&p<=rd.to),bm=bmHas(p),n=p-rd.from+1;
   var mid=inR?'<span class="rd-pn"><b>'+ar(n)+' / '+ar(rd.to-rd.from+1)+'</b><small>من وردك</small></span>':'<span class="rd-pn"><b>ص '+ar(p)+'</b><small>تصفّح حر</small></span>';
-  return main+'<div class="rd-ov on" id="rd-ov"><div class="rd-t"><button class="ib" data-a="goback" data-v="home" aria-label="رجوع">'+ic('chev')+'</button>'
+  var _fs=(S.quran&&S.quran.fs)||26,_oth=(typeof uiMode==='function'&&uiMode()==='dark')?'light':'dark';
+  return main+'<div class="rd-ov on" id="rd-ov"><div class="rd-t"><div class="rd-t1"><button class="ib" data-a="goback" data-v="home" aria-label="رجوع">'+ic('chev')+'</button>'
    +'<div class="rd-ti"><b>سورة '+esc(D.n[mu[2]-1])+'</b><small>الجزء '+ar(mu[0])+' · الحزب '+ar(mu[1])+' · صفحة '+ar(p)+'</small></div>'
    +'<span class="rd-ta"><button class="ib" data-a="qjump" aria-label="قائمة المصحف">'+ic('menu')+'<small>القائمة</small></button></span></div>'
+   +'<div class="rd-t2"><button class="ib rd-th" data-a="umode" data-v="'+_oth+'" aria-label="تبديل المظهر">'+(_oth==='light'?ic('sun'):ic('moon'))+'</button>'
+   +'<div class="rd-fs"><button class="ib" data-a="mpfs" data-v="-2" aria-label="تصغير الخط"><span class="ar" style="font-size:13px">ا</span>−</button><b>'+ar(_fs)+'</b><button class="ib" data-a="mpfs" data-v="2" aria-label="تكبير الخط"><span class="ar" style="font-size:17px">ا</span>+</button></div></div></div>'
    +'<div class="rd-b"><div class="rd-sl"><small>١</small><input type="range" id="rd-rg" min="1" max="604" value="'+p+'" aria-label="الانتقال بين الصفحات"><small>٦٠٤</small></div>'
    +'<div class="rd-r"><button class="ib bm" data-a="bmtog" aria-pressed="'+bm+'" aria-label="علامة">'+(bm?'★':'☆')+'</button><button class="ib" data-a="qpage" data-v="-1" aria-label="الصفحة السابقة"'+(p<=1?' disabled':'')+'>'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'</button>'+mid
-   +'<button class="ib" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+ic('chev')+'</button><button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button></div></div></div>'
+   +'<button class="ib" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+ic('chev')+'</button><button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button></div>'
+   +'<div class="rd-sn"><button class="ib" data-a="qsurnav" data-v="-1"'+(mu[2]<=1?' disabled':'')+' aria-label="السورة السابقة">'+ic('chev').replace('class="i"','class="i" style="transform:scaleX(-1)"')+'<small>'+(mu[2]>1?esc(D.n[mu[2]-2]):'')+'</small></button><button class="ib" data-a="qsurnav" data-v="1"'+(mu[2]>=114?' disabled':'')+' aria-label="السورة التالية"><small>'+(mu[2]<114?esc(D.n[mu[2]]):'')+'</small>'+ic('chev')+'</button></div></div></div>'
    +(rd.jump?mpDrawerHtml(p):'')+mpSearchPanel()+mpIndexPanel();
 }
 function mpNorm(t){return String(t||'').replace(/[ً-ٰٟۖ-ۭـ-]/g,'').replace(/[آأإٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/[ک]/g,'ك').replace(/[ی]/g,'ي').replace(/\s+/g,' ').trim()}
@@ -128,7 +129,7 @@ function mpAct2(a,v){
 document.addEventListener('click',function(e){
   if(tab!=='reader'||!rd||!mpImm())return;var t=e.target;
   if(mpSel&&t.closest&&t.closest('#mp')&&!t.closest('[data-a],[data-mp2]')){mpSel='';mpApplySel();return}
-  if(t.closest&&t.closest('#mp')&&!(t.closest('[data-a]'))&&!(t.closest('.pgi')&&mpiHit(e.clientX,e.clientY))){var o=document.getElementById('rd-ov');if(o){rd.ui=true;o.classList.add('on')}}
+  if(t.closest&&t.closest('#mp')&&!(t.closest('[data-a]'))){var o=document.getElementById('rd-ov');if(o){rd.ui=true;o.classList.add('on')}}
 });
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&(e.target.id==='mps-q'||e.target.id==='mq-q')){var qid=e.target.id;e.preventDefault();if(!mpAct2(qid==='mq-q'?'qms':'qsdo')){render();setTimeout(function(){var i=document.getElementById(qid);if(i)i.blur()},50)}}});
 
@@ -153,7 +154,6 @@ function mpVAttr(t){
 }
 function mpVm(){if(!S.quran.vm||typeof S.quran.vm!=='object')S.quran.vm={};return S.quran.vm}
 function mpHl(v){
-  if(document.querySelector('#mp.mpi')){mpHlLast=v;try{mpiPaint(v)}catch(e){}return}
   mpHlLast=v;var L=document.querySelectorAll('#mp .mw.vhl');for(var i=0;i<L.length;i++)L[i].classList.remove('vhl','vhl-ls','vhl-le');
   if(!v)return;var W=document.querySelectorAll('#mp .mw[data-v="'+v+'"]');for(var j=0;j<W.length;j++)W[j].classList.add('vhl');
   /* شريط متصل لكل سطر: الحواف الدائرية عند أول كلمة وآخر كلمة في السطر فقط */
@@ -317,7 +317,7 @@ function mpHap(){try{if(typeof hapGo==='function')hapGo([14]);else if(navigator.
   var st=null;
   function inCtl(t){return t.closest&&t.closest('.rd-b,.rd-t,.rd-sp,.rd-js,.rd-menu,.rd-menb,.mp-vb,.mps-wrap')}
   function nextSign(dx){return ((S.quran&&S.quran.dr)==='ltr')?(dx<0?1:-1):(dx>0?1:-1)}
-  function wordAt(x,y){if(document.querySelector('#mp.mpi')){var kv=mpiHit(x,y);return kv?{getAttribute:function(){return kv}}:null}var el=document.elementFromPoint(x,y),w=el&&el.closest?el.closest('.mw[data-v]'):null;return (w&&w.closest('#mp'))?w:null}
+  function wordAt(x,y){var el=document.elementFromPoint(x,y),w=el&&el.closest?el.closest('.mw[data-v]'):null;return (w&&w.closest('#mp'))?w:null}
   function back(el){if(!el)return;el.style.transition='transform .26s cubic-bezier(.2,.9,.3,1.25),opacity .2s';el.style.transform='translateX(0)';el.style.opacity='1';setTimeout(function(){el.style.transition='';el.style.transform='';el.style.opacity=''},300)}
   document.addEventListener('touchstart',function(e){
     st=null;if(tab!=='reader'||!rd||!window.MUSHAF||!e.touches||e.touches.length!==1||inCtl(e.target))return;
@@ -351,6 +351,10 @@ function mpHap(){try{if(typeof hapGo==='function')hapGo([14]);else if(navigator.
         mpSel='';rd.dir=ns;rd.page=np;rd.ui=false;render();window.scrollTo(0,0);
       }else if(far||fast){mpHap()}
       return;
+    }
+    if(!s.lock&&!s.fired){
+      var w2=wordAt(x,ct?ct.clientY:s.y);
+      if(w2){var vv=w2.getAttribute('data-v');mpHl(mpHlLast===vv?'':vv)}
     }
   },{passive:true});
   document.addEventListener('touchcancel',function(){if(st&&st.lp)clearTimeout(st.lp);st=null;if(!mpSel)mpHl('')},{passive:true});

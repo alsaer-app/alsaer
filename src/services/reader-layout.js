@@ -46,25 +46,44 @@ function sizeMp(mp){
   var maxW=Math.min(app.clientWidth||window.innerWidth,640);
   var w=imm?Math.max(240,maxW):Math.max(240,Math.min(maxW,Math.floor(avail*.80)));
   var h=Math.max(300,Math.min(avail,Math.floor(w*(imm?2.1:1.75))));
-  mp.style.width=w+'px';mp.style.height=h+'px';
+  mp.style.width=w+'px';mp.style.height=isW()?h+'px':'auto';
 }
-function fitHafs(mp){
-  var L=mp.querySelector('.mp-l');if(!L)return;
-  var kids=[].slice.call(L.children),rows=kids.filter(function(k){return !k.classList.contains('hd')&&!k.classList.contains('bs')});
-  var W=L.clientWidth,H=L.clientHeight;if(!W||!H||!rows.length)return;
-  var tot=kids.length,rowH=H/tot,REF=40,GAP=.14;
-  L.style.display='flex';L.style.flexDirection='column';L.style.justifyContent='flex-start';
-  kids.forEach(function(k){k.style.flex='0 0 '+rowH+'px';k.style.height=rowH+'px';k.style.minHeight='0';k.style.lineHeight='1.1'});
-  L.style.fontSize=REF+'px';
-  rows.forEach(function(r){var mi=r.firstChild;if(!mi)return;mi.style.cssText='display:flex;flex:none;width:max-content;max-width:none;gap:'+GAP+'em;justify-content:flex-start;transform:none'});
-  var maxW=0;rows.forEach(function(r){if(r.firstChild)maxW=Math.max(maxW,r.firstChild.scrollWidth)});
-  var size=Math.min(rowH/1.2,REF*W/(maxW||W)*.995);size=Math.max(11,Math.floor(size*10)/10);
-  L.style.fontSize=size+'px';
-  rows.forEach(function(r){var mi=r.firstChild;if(!mi)return;var nat=mi.scrollWidth,n=mi.children.length;
-    if(nat>=W*.80&&n>1&&nat<=W+1){mi.style.width='100%';mi.style.justifyContent='space-between'}
-    else{mi.style.width='max-content';mi.style.justifyContent='center'}
-    mi.style.transformOrigin='50% 50%';
-    if(nat>W+1)mi.style.transform='scaleX('+(W/nat).toFixed(4)+')'});
+/* نص متدفق بحجم خط يختاره المستخدم: تُقاس الكلمات وتُلفّ على عرض الصفحة لفًّا طبيعيًّا */
+function mpTokPlain(t){var o='';for(var i=0;i<t.length;i++){var c=t.charCodeAt(i);if(c>=0xE000&&c<=0xE005)continue;if(c===0xE0FF||c===0xE0F0)continue;o+=t.charAt(i)}return o}
+function fitHafs(mp){try{window.__fitErr='';_fitHafs(mp)}catch(e){window.__fitErr=String(e&&e.stack||e)}}
+function _fitHafs(mp){
+  var L=mp.querySelector('.mp-l');if(!L||!rd)return;
+  var MU=window.MUSHAF,pg=MU&&MU.p[rd.page-1];if(!pg)return;
+  var fs=(S.quran&&S.quran.fs)||26;
+  var W=L.clientWidth;if(!W)return;
+  L.style.fontSize=fs+'px';L.style.display='';L.style.flexDirection='';L.style.justifyContent='';
+  var items=[],words=[];
+  function flush(){if(words.length){items.push(words);words=[]}}
+  mpInit(rd.page);
+  pg.forEach(function(l){
+    if(l[0]==='h'){flush();items.push({h:l[1]})}
+    else if(l[0]==='b'){flush();items.push({b:1})}
+    else l[1].split(' ').forEach(function(t){words.push(t)});
+  });
+  flush();
+  var GAP=.14,html='';
+  items.forEach(function(it){
+    if(it.h!==undefined){html+='<div class="ml hd"><span>سورة '+esc(QD().n[it.h-1])+'</span></div>';return}
+    if(it.b){html+='<div class="ml bs"><span>'+esc(QD().s[0][0])+'</span></div>';return}
+    var toks=it.map(function(t){return {t:t,w:wMeasure(mpTokPlain(t))*fs/100}});
+    var lines=[],cur=[],curW=0,gapW=GAP*fs,lim=W*.985;
+    toks.forEach(function(tk){
+      var add=(cur.length?gapW:0)+tk.w;
+      if(cur.length&&curW+add>lim){lines.push(cur);cur=[];curW=0;add=tk.w}
+      cur.push(tk);curW+=add;
+    });
+    if(cur.length)lines.push(cur);
+    lines.forEach(function(ln,idx){
+      var last=idx===lines.length-1;
+      html+='<div class="ml"><div class="mi '+(last?'fl':'fj')+'">'+ln.map(function(tk){var a=mpVAttr(tk.t),mk=tk.t.charCodeAt(0)===0xE0F0;return '<span class="mw'+(mk?' aym':'')+'"'+a+'>'+mTok(tk.t)+'</span>'}).join('')+'</div></div>';
+    });
+  });
+  L.innerHTML=html;
 }
 /* الرسم الشرقي: خط الحفص المشرقي لا يملك شكل الياء المغربية (U+06D2)، فتُكتب ياءً عادية */
 function warshFix(t){
@@ -93,8 +112,12 @@ function warshUnits(tokens,tj){
   var units=[];
   tokens.forEach(function(o){
     if(!o||!o.t)return;var f=warshFixK(o.t,tj?o.k:null),t=f.t;
-    if(/^[٠-٩]+$/.test(t)&&units.length){var u=units[units.length-1];u.txt+=' '+t;u.html+=' '+t}
-    else units.push({txt:t,html:tj?wtjHtml(t,f.k):esc(t),cv:o.cv});
+    var m=/^(.*)\xa0([٠-٩]+)$/.exec(t);
+    if(m&&units.length){
+      var w={txt:m[1],html:tj?wtjHtml(m[1],f.k?f.k.slice(0,m[1].length):null):esc(m[1]),cv:o.cv};
+      units.push(w);w.txt+=' '+m[2];w.html+=' <i class="aym">'+esc(m[2])+'</i>';return;
+    }
+    units.push({txt:t,html:tj?wtjHtml(t,f.k):esc(t),cv:o.cv});
   });
   return units;
 }

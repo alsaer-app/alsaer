@@ -89,12 +89,15 @@ document.addEventListener('click',async function(e){
   else if(a==='updchecknow'){updCheckNow()}
   else if(a==='notifFix'){if(window.alsaerNotifFix)window.alsaerNotifFix();tab='reminders';window.scrollTo(0,0)}
   else if(/^he[a-z]+$/.test(a)){if(heAct(a,v)===false)return}
-  else if(a==='mpset'){mpOpen()}
+  else if(a==='mpfs'){var d=parseInt(v,10)||0,f=Math.min(44,Math.max(18,(S.quran.fs||26)+d));if(f!==(S.quran.fs||26)){S.quran.fs=f;save();render()}}
+  else if(a==='qsurnav'){if(rd&&window.MUSHAF){var _d=parseInt(v,10)||0,_P=isW()?WD().p:window.MUSHAF.m,_c=isW()?(_P[rd.page-1]||[1])[0]:window.MUSHAF.m[rd.page-1][2],_t=_c+_d;if(_t>=1&&_t<=114){for(var _i=0;_i<_P.length;_i++){var _sc=isW()?(_P[_i]||[1])[0]:window.MUSHAF.m[_i][2];if(_sc===_t){rd.page=_i+1;rd.dir=_d>0?1:-1;render();window.scrollTo(0,0);break}}}}}
   else if(a==='wkedit'){wkOpen('sec',v)}
   else if(a==='wkper'){wkOpen('per')}
   else if(a==='umode'){setUI('mode',v)}
   else if(a==='clkset'){setClockMode(v)}
-  else if(a==='ulang'){U().lang=(v==='en'||v==='fr')?v:'ar';saveNow();try{_lcKey=null;applyUI()}catch(x){}render()}
+  else if(a==='ulang'){if(typeof LANG_CHOICES!=='undefined'&&LANG_CHOICES.indexOf(v)>=0&&(typeof langAvail!=='function'||langAvail(v)))U().lang=v;saveNow();try{_lcKey=null;applyUI()}catch(x){}var lw=document.getElementById('lang-wrap');if(lw)lw.remove();render()}
+  else if(a==='ulangsheet'){try{langSheetOpen()}catch(x){}}
+  else if(a==='ulangclose'){var lc=document.getElementById('lang-wrap');if(lc)lc.remove()}
   else if(a==='udigits'){U().digits=v==='west'?'west':'east';saveNow();try{digitsApply(true)}catch(x){}}
   else if(a==='ptauto'){S.loc=S.loc||{};S.loc.auto=(v==='1');if(S.loc.auto){if(locOk())autoPtimes();else msg='اختر مدينتك أو حدّد موقعك أولًا ليعمل الوضع التلقائي'}save()}
   else if(a==='ustyle'){setUI('style',v)}

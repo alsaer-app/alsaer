@@ -18,7 +18,7 @@
     if(tab==='reader'&&rdBar&&rdBar.isConnected)rdBar.classList.remove('rdim');
   },{passive:true});
 })();
-(function(){var _r=render;render=function(){var x=_r.apply(this,arguments);try{applyMp();femizeDom(document.getElementById('app'));femizeDom(document.getElementById('top'))}catch(e){}return x}})();
+(function(){var _r=render;render=function(){var x=_r.apply(this,arguments);try{femizeDom(document.getElementById('app'));femizeDom(document.getElementById('top'))}catch(e){}return x}})();
 (function(){var _t=toast;toast=function(t){return _t(isFem()?femStr(t):t)}})();
 render();
 setTimeout(function(){splash=false;render();checkNew();try{var _w=Math.round(performance.now()),_t=-1;if(window.AlsaerNative&&AlsaerNative.bootDone)_t=AlsaerNative.bootDone(_w);window.__alsaerBoot={webMs:_w,totalMs:typeof _t==='number'?_t:-1}}catch(e){}},window.__NOSPLASH?0:1000);

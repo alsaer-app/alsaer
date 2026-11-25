@@ -1,12 +1,12 @@
 {
- "src/services/gdrive-backup.js": "8f736d40e744e7d59d61b135ace4eeabfc995b6df4d0e248379d379633228f56",
- "src/services/extras.js": "c526ba2b50a9af1affa3106a8dd821db44421a8181ff3f2bf260c67badb9c144",
  "src/screens/more.js": "6166cc6d129964ba68ac1d47fe46c60106edc123f3b6bce9bb80a3025dac8bff",
+ "src/screens/reader.js": "1fb2e8362d4ee0dcee27fc82895bc493bfbaf85d395f8e92316f26531da2ae2d",
+ "src/services/extras.js": "c526ba2b50a9af1affa3106a8dd821db44421a8181ff3f2bf260c67badb9c144",
+ "src/services/gdrive-backup.js": "4dde4078fdea7aef6938fb7b0cdb350e39ce4d5ab3895874b7250311b003c6c0",
+ "src/services/reader-layout.js": "503a65ccc464c05c1422024acc49c14530609d32b490befd32368b6f07b3f507",
  "src/styles/inputs.css": "f88bf78a7df10bfed7d4f3aa351fa58504cc94177c1eabe24f82ed05631e55c7",
- "src/screens/reader.js": "a5099cfa41834a0e9fc45de832d98c4d5a27cce2551f3f0bbb7b8c4e731af1f1",
- "src/services/reader-layout.js": "f4e06389a07db2f9aeb5543fc897563745b858e0fdb430d85a60a1a07f3ebe57",
  "www/mushaf.js": "b7afa2888fa9f8e3be3c710df7c67f6d8f32b03b78e43091660bf0d9c3312a30",
  "www/quran.js": "f1b5529cc349ca38115c39af2745717853f2166731d282dea4b91b0445d4de4a",
- "www/warsh.js": "96978b093d9dafa672d45c23ce56a651dc6d08ad2a6b2ac21a01bdcf7f7cf014",
- "www/tajweed_warsh.js": "a31ad1fe9f2c5a176a805df0c14237e1433a11491fcff98d1faed3a2a81515a4"
+ "www/tajweed_warsh.js": "a31ad1fe9f2c5a176a805df0c14237e1433a11491fcff98d1faed3a2a81515a4",
+ "www/warsh.js": "96978b093d9dafa672d45c23ce56a651dc6d08ad2a6b2ac21a01bdcf7f7cf014"
 }

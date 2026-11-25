@@ -39,8 +39,7 @@ function riwSwitch(){
 
 function vWarshReader(){
   var p=rd.page,W=WD(),r=W.p[p-1],n=p-rd.from+1,tj=S.quran.tj!==false,mu=[r[4],0,r[0]];S.quran.last=p;
-  var useImg=mpiOnFor(p);
-  var mainH=useImg?mpiMain(p,mu):'<div class="mp wr'+(tj?'':' notj')+'" id="mp"><div class="mp-in">'
+  var mainH='<div class="mp wr'+(tj?'':' notj')+'" id="mp"><div class="mp-in">'
   +'<div class="mp-h"><span>الجزء '+ar(r[4])+'</span><span class="sb">'+esc(QD().n[r[0]-1])+'</span></div>'
   +'<div class="mp-l wl" lang="ar" dir="rtl" style="visibility:hidden"></div>'
   +'<div class="mp-f"><span class="pn">'+ar(p)+'</span></div></div></div>';
@@ -48,7 +47,7 @@ function vWarshReader(){
   +'<div class="rmid"><b>'+ar(n)+' / '+ar(rd.to-rd.from+1)+'</b><small>من وردك</small></div>'
   +'<button class="btn good reader-done" data-a="qdone">'+ic('check')+'تم</button>'
   +'<button class="ib" data-a="qpage" data-v="1" aria-label="الصفحة التالية"'+(p>=604?' disabled':'')+'>'+ic('chev')+'</button></div>'
-  +'<div class="fsz"><button class="ib" data-a="mpset">'+ic('gear')+'المصحف</button><button class="ib" data-a="qtj" aria-pressed="'+tj+'">التجويد</button><button class="ib" data-a="qwird">'+ic('flag')+'الورد والرواية</button></div>';
+  +'<div class="fsz"><button class="ib" data-a="qtj" aria-pressed="'+tj+'">التجويد</button><button class="ib" data-a="qwird">'+ic('flag')+'الورد والرواية</button></div>';
   return mpWrap(mainH,ctlH,p,mu);
 }
 function QD(){return window.QDATA||{n:[],s:[],p:[]}}
