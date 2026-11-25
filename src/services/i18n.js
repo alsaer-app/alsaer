@@ -174,8 +174,8 @@ function langLogMissing(list){
     list.forEach(function(c){if(!o[c]){o[c]={first:Date.now(),n:0};ch=true}o[c].n++;o[c].last=Date.now()});
     localStorage.setItem(k,JSON.stringify(o))}catch(e){}
 }
-/* المرحلة 1: العربية افتراضية دائمًا؛ English/Français فقط باختيار صريح من الإعدادات (لا اكتشاف تلقائي للغة الهاتف) */
-var LANG_CHOICES=['ar','en','fr'];
+/* المرحلة 1: العربية افتراضية دائمًا؛ English/Français فقط باختيار صريح من الإعدادات (لا اكتشاف تلقائي للغة الهاتف). المرحلة 2: حزم tr/de/fa/ur متاحة هنا وتُجرَّب عبر خطاف الاختبار __I18N.setLang قبل إضافتها إلى منتقي اللغة في الإعدادات (يحتاج اعتماد نموذج بصري) */
+var LANG_CHOICES=['ar','en','fr','tr','de','fa','ur'];
 function langResolve(){var p=(typeof U==='function'&&U().lang)||'ar';return (LANG_CHOICES.indexOf(p)>=0&&langAvail(p))?p:'ar'}
 function lang(){return langResolve()}
 function langDir(){return I18N_RTL.indexOf(lang())>=0?'rtl':'ltr'}
