@@ -6,6 +6,8 @@ from functools import partial
 from playwright.async_api import async_playwright
 ROOT=Path(__file__).resolve().parents[1]
 async def main():
+ if not any('id="mp"' in f.read_text() or "id='mp'" in f.read_text() for f in (ROOT/'src').rglob('*.js')):
+  print('SKIP: the old page-image reader (#mp) was removed in 2.0.0 (commit 2a1e0f4); page view is covered by tests/reader_pages_e2e.py');return
  with tempfile.TemporaryDirectory() as tmp:
   out=Path(tmp);html=(ROOT/'www/index.html').read_text()
   hook='window.__toolbarTest={hide:function(){rd.ui=false;render()},legacy:function(){return mpAct2("qimm")}};'

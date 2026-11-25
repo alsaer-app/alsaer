@@ -9,7 +9,7 @@ assert not missing, 'Missing @JavascriptInterface bridge methods: '+', '.join(so
 print('PASS:',len(required),'native bridge methods present and exposed')
 
 # Direct calls and bridge aliases used in current source. Ignore ordinary JS methods.
-ordinary=set('forEach getDate getDay getFullYear getHours getMinutes getMonth getTime indexOf localeCompare map setHours split'.split())
+ordinary=set('focus setSelectionRange forEach getDate getDay getFullYear getHours getMinutes getMonth getTime indexOf localeCompare map setHours split'.split())
 called=set()
 for path in (root/'src').rglob('*.js'):
     text=path.read_text()

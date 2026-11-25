@@ -6,6 +6,8 @@ from http.server import ThreadingHTTPServer,SimpleHTTPRequestHandler
 from playwright.async_api import async_playwright
 ROOT=Path(__file__).resolve().parents[1]
 async def main():
+ if not any('id="mp"' in f.read_text() or "id='mp'" in f.read_text() for f in (ROOT/'src').rglob('*.js')):
+  print('SKIP: the old page-image reader shell (#mp/.rd-t) was removed in 2.0.0 (commit 2a1e0f4); page view is covered by tests/reader_pages_e2e.py');return
  with tempfile.TemporaryDirectory() as tmp:
   out=Path(tmp);manifest=json.loads((ROOT/'src/manifest.json').read_text())
   html=''.join(x['lit'] if 'lit' in x else (ROOT/'src'/x['file']).read_text() for x in manifest)
