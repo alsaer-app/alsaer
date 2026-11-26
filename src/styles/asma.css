@@ -125,4 +125,9 @@ button.rdo-back[data-a=rctback]{border-color:var(--accent,#4c9a8f);animation:rbp
 .new-day-card .new-day-kicker,.new-day-card .new-day-source{font-size:11.5px}
 .rb span{font-size:11px;height:14px}
 .wd{font-size:11px}
-small{font-size:max(1em,11px)}
+small{font-size:max(.8333em,11px)}
+
+/* الصلوات: بطاقة الموقع تلتف في اللغات الأطول بدل أن يخرج الزر من البطاقة */
+.pt-sum-h{flex-wrap:wrap}
+.pt-sum-h>div{flex:1 1 0;min-width:120px}
+.pt-sum-h .btn{flex:0 1 auto;max-width:100%}
