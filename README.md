@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%A5%D8%B5%D8%AF%D8%A7%D8%B1-1.0.13-0F6F63" alt="الإصدار 1.0.13">
   <img src="https://img.shields.io/badge/minSdk-24-0F6F63?logo=android&logoColor=white" alt="minSdk 24">
   <a href="LICENSE"><img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AA%D8%B1%D8%AE%D9%8A%D8%B5-MIT-0F6F63" alt="الترخيص MIT"></a>
-  <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AE%D8%B5%D9%88%D8%B5%D9%8A%D8%A9-%D8%AF%D9%88%D9%86%20%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA-0F6F63" alt="دون إنترنت">
+  <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AE%D8%B5%D9%88%D8%B5%D9%8A%D8%A9-%D8%A7%D9%84%D8%A3%D8%B3%D8%A7%D8%B3%20%D9%85%D8%AD%D9%84%D9%8A-0F6F63" alt="الأساس يعمل دون إنترنت؛ الراديو والقراء وأول فتح للفتاوى تحتاج إنترنت">
 </p>
 
 <p align="center"><b>تطبيق أندرويد إيماني شخصي، يعمل أساسًا ببيانات محلية مع خدمات إنترنت اختيارية.</b><br>
