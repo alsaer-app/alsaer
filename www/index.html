@@ -4884,12 +4884,17 @@ function gdResetAuthState(){
   /* Keep local backups, encryption choice/password and per-destination history. */
 }
 /* إثبات الرمز قبل إعلان الربط: خدمات Play قد تعيد رمزًا مخزَّنًا أُلغي للتو. 401 وحده = موت مؤكد فيُرفض (403 يعني نقص صلاحية أو حصة وليس رمزًا ميتًا، فلا يُرفض به ربط جديد)؛ أي خطأ آخر = لا نستطيع إثبات الموت فنقبل كما كان */
+var gdLast401='';
+function gdDiagClean(x){return String(x||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,40)}
 function gdValidateToken(t){
   return Promise.resolve().then(function(){
     return gdFetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)',{headers:{'Authorization':'Bearer '+t}},15000);
   }).then(function(r){
     try{localStorage.setItem('alsaer_gd_lastcheck',String(r&&r.status)+'@'+Date.now())}catch(e){}
-    if(r&&r.status===401)return null;
+    if(r&&r.status===401){
+      /* سبب الرفض للتشخيص فقط: رمز الحالة ونص الـreason من رد Drive، بلا الرمز ولا أي بيانات شخصية */
+      return Promise.resolve().then(function(){return r.json()}).then(function(o){var e=(o&&o.error)||{};var rs=(e.errors&&e.errors[0]&&e.errors[0].reason)||'';gdLast401=gdDiagClean(String(e.status||'')+(rs?'-'+rs:''));return null},function(){gdLast401='nobody';return null});
+    }
     if(r&&r.status===403)return {forbidden:true,code:'http-403'};
     if(!r||!r.ok)throw new Error('http-'+(r&&r.status));
     return r.json().then(function(o){return o||{}});
@@ -4943,7 +4948,8 @@ function gdRetryFresh(p,token,em){
     var timer=setTimeout(function(){gdNativePending=null;reject(new Error('timeout'));try{render()}catch(e){}},60000);
     var reject=p.reject;
     gdNativePending={resolve:p.resolve,reject:p.reject,timer:timer,interactive:p.interactive,retried:true};
-    try{AlsaerNative.gdriveAuthorizeAccount(false,em)}catch(e){clearTimeout(timer);gdNativePending=null;p.reject(e)}
+    /* بلا بريد (أول ربط): لا يمكن طلب صامت لحساب مجهول، فنعيد شاشة اختيار الحساب مرة واحدة بعد مسح الرمز القديم */
+    try{if(em)AlsaerNative.gdriveAuthorizeAccount(false,em);else AlsaerNative.gdriveAuthorize(true)}catch(e){clearTimeout(timer);gdNativePending=null;p.reject(e)}
   };
   gdClearWait=go;
   try{AlsaerNative.gdriveClearToken(token)}catch(e){go();return}
@@ -4972,7 +4978,7 @@ window.gdriveOnNativeToken=function(token,error,email){
     if(!o){
       /* 401 على رمز سلّمه Play: غالبًا رمز قديم مخزّن بعد فك الربط. امسحه من ذاكرة Play واطلب رمزًا جديدًا بصمت مرة واحدة فقط */
       var em=email||gdEmail();
-      if(!p.retried&&em&&window.AlsaerNative&&typeof AlsaerNative.gdriveClearToken==='function'){gdRetryFresh(p,token,em);return}
+      if(!p.retried&&(em||p.interactive)&&window.AlsaerNative&&typeof AlsaerNative.gdriveClearToken==='function'){gdRetryFresh(p,token,em);return}
       gdResetAuthState();p.reject(new Error('auth'));try{render()}catch(e){}return}
     gdNativeLinkOk(p,token,email||String((o.user&&o.user.emailAddress)||''),o.forbidden?o.code:'');
     p.resolve(token);
@@ -4993,7 +4999,7 @@ function gdAuthFailMsg(m){
   if(m==='busy')return 'محاولة ربط أخرى جارية. انتظر لحظة ثم أعد المحاولة.';
   if(m==='authorization-failed'||m==='consent-required'||m==='resolution-failed'||m==='scope-not-granted')return 'رفضت Google الربط. إن كان الحساب مربوطًا سابقًا فافتح myaccount.google.com/permissions وألغِ إذن «السائر» ثم أعد المحاولة.';
   /* رمز السبب بجانب الرسالة للتشخيص: auth = رد 401 من فحص الرمز */
-  var code=m==='auth'?'http-401':(String(m||'unknown').replace(/[^A-Za-z0-9_-]/g,'').slice(0,30)||'unknown');
+  var code=m==='auth'?('http-401'+(gdLast401?'-'+gdLast401:'')):(String(m||'unknown').replace(/[^A-Za-z0-9_-]/g,'').slice(0,30)||'unknown');
   return 'تعذّر الربط. اضغط ربط حساب جديد للمحاولة مجددًا.'+' ('+code+')';
 }
 function gdStartAuth(){
