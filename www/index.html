@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; worker-src 'self' blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.jsdelivr.net https://raw.githubusercontent.com; media-src 'self' blob: https://files.zadapps.info https://qurango.net https://*.mp3quran.net https://verses.quran.com https://cdn.islamic.network https://everyayah.com https://cdn.mp3quran.net https://audio.opendua.org https://archive.org https://*.archive.org; font-src 'self' data:; connect-src 'self' blob: data: https://files.zadapps.info https://bayan.alwa7i.com https://cdn.jsdelivr.net https://raw.githubusercontent.com https://oauth2.googleapis.com https://www.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; worker-src 'self' blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.jsdelivr.net https://raw.githubusercontent.com; media-src 'self' blob: https://files.zadapps.info https://qurango.net https://*.mp3quran.net https://verses.quran.com https://cdn.islamic.network https://everyayah.com https://cdn.mp3quran.net https://audio.opendua.org https://archive.org https://*.archive.org; font-src 'self' data:; connect-src 'self' blob: data: https://files.zadapps.info https://bayan.alwa7i.com https://cdn.jsdelivr.net https://raw.githubusercontent.com https://oauth2.googleapis.com https://www.googleapis.com https://service.webvideocore.net https://cdnvideo.webvideocore.net; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="author" content="أحمد العجمي">
 <meta name="theme-color" content="#061d1a">
@@ -7431,6 +7431,12 @@ function rdoEnsure(cb){
   var sc=document.createElement('script');sc.src='radio-stations.js';
   sc.onload=function(){rdoS.ok=true;cb()};sc.onerror=function(){rdoS.ok=false;try{toast('تعذّر تحميل قائمة الإذاعات')}catch(e){}};
   document.head.appendChild(sc)}
+/* بث HLS (مثل إذاعة القاهرة الرسمية): مكتبة hls.js (Apache-2.0) تُحمَّل عند الحاجة فقط عبر MediaSource، والبث كله https */
+function rdoHlsEnsure(cb){
+  if(window.Hls){cb(true);return}
+  var sc=document.createElement('script');sc.src='hls.light.min.js';
+  sc.onload=function(){cb(!!window.Hls)};sc.onerror=function(){cb(false)};
+  document.head.appendChild(sc)}
 function rdoRows(){
   var n=rdoNorm(rdoS.q).trim(),h='';
   window.RDO.forEach(function(r){
@@ -7448,17 +7454,30 @@ function vRadio(){
   h+='<div id="rdo-l">'+rdoRows()+'</div>';
   h+='<p class="note rdo-src">قائمة الإذاعات من تطبيق التقوى (Altaqwaa). البث يحتاج اتصالًا بالإنترنت.</p></div>';
   return h}
-function rdoStop(){if(rdoS.a){try{rdoS.a.pause();rdoS.a.removeAttribute('src');rdoS.a.load()}catch(e){}rdoS.a=null}rdoS.id=0;rdoS.st=''}
+function rdoStop(){if(rdoS.h){try{rdoS.h.destroy()}catch(e){}rdoS.h=null}if(rdoS.a){try{rdoS.a.pause();rdoS.a.removeAttribute('src');rdoS.a.load()}catch(e){}rdoS.a=null}rdoS.id=0;rdoS.st=''}
 function rdoRefresh(){var l=document.getElementById('rdo-l');if(l&&window.RDO)l.innerHTML=rdoRows()}
 function rdoAct(a,v){
   if(a==='rdocat'){rdoS.cat=v;if(typeof render==='function')render();return false}
   if(a==='rdoplay'){var id=+v;if(rdoS.id===id){rdoStop();rdoRefresh();return false}
     var r=window.RDO.filter(function(x){return x[0]===id})[0];if(!r)return false;
     rdoStop();try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}try{if(typeof hsnAuStop==='function')hsnAuStop()}catch(e){}
-    var A=new Audio();rdoS.a=A;rdoS.id=id;rdoS.st='load';A.preload='none';A.src=r[2];
+    var A=new Audio();rdoS.a=A;rdoS.id=id;rdoS.st='load';A.preload='none';
     A.onplaying=function(){if(rdoS.a===A){rdoS.st='play';rdoRefresh()}};
     var bad=function(){if(rdoS.a===A){rdoStop();rdoRefresh();toast('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت')}};
-    A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad);rdoRefresh();return false}
+    A.onerror=bad;
+    if(/\.m3u8(\?|$)/.test(r[2])){
+      rdoRefresh();
+      rdoHlsEnsure(function(ok){
+        if(rdoS.a!==A)return;
+        if(ok&&window.Hls&&Hls.isSupported()){
+          var H=new Hls();rdoS.h=H;
+          H.on(Hls.Events.ERROR,function(ev,d){if(d&&d.fatal)bad()});
+          H.loadSource(r[2]);H.attachMedia(A);
+          var p2=A.play();if(p2&&p2.catch)p2.catch(bad)
+        }else if(A.canPlayType('application/vnd.apple.mpegurl')){A.src=r[2];var p3=A.play();if(p3&&p3.catch)p3.catch(bad)}
+        else bad()});
+      return false}
+    A.src=r[2];var pr=A.play();if(pr&&pr.catch)pr.catch(bad);rdoRefresh();return false}
   return true}
 (function(){var tm;document.addEventListener('input',function(e){
   if(e.target&&e.target.id==='rdo-q'){var val=e.target.value;clearTimeout(tm);tm=setTimeout(function(){rdoS.q=val;rdoRefresh()},150)}})})();
