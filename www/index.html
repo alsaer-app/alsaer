@@ -7885,6 +7885,17 @@ function mcTrack(A){
   MC.list.push(A);
   ['play','playing','pause','ended','emptied','error','waiting'].forEach(function(ev){A.addEventListener(ev,mcQueue)});
   ['play','pause','ended','emptied','error','waiting','stalled'].forEach(function(ev){A.addEventListener(ev,function(){mcDiag('audio '+mcSrc(A)+' '+ev+(ev==='error'&&A.error?' code'+A.error.code:'')+' vis='+document.visibilityState)})});
+  /* إيقاف غير مطلوب والصفحة مخفية (لا أمر من البطاقة ولا ضغط مستخدم): نعيد التشغيل حتى ٣ مرات ونسجّل النتيجة */
+  var rs=0;
+  A.addEventListener('pause',function(){
+    if(!document.hidden||A.ended||!A.src&&!A.currentSrc)return;
+    if(Date.now()-(MC.cmdAt||0)<3000)return;
+    if(!mcTitle(A)||rs>=3)return;
+    rs++;mcDiag('unexpected pause while hidden -> resume #'+rs+' '+mcSrc(A));
+    setTimeout(function(){
+      if(!A.paused||!mcTitle(A)||Date.now()-(MC.cmdAt||0)<3000)return;
+      var p=A.play();if(p&&p.then)p.then(function(){mcDiag('resume ok '+mcSrc(A))},function(e){mcDiag('resume rejected '+(e&&e.name))})},300)});
+  A.addEventListener('playing',function(){rs=0});
   mcQueue()}
 (function(){
   var NA=window.Audio;if(!NA||NA.__mc)return;
@@ -7895,6 +7906,7 @@ window.alsaerMediaCmd=function(c){
   MC.list=MC.list.filter(function(A){return !!mcTitle(A)});
   var A=MC.list[MC.list.length-1];
   mcDiag('cmd '+c+' '+(A?mcSrc(A):'no-audio'));
+  MC.cmdAt=Date.now();
   try{
     if(c==='stop'){
       /* الإيقاف يوقف كل المصادر دائمًا، قبل أي فرع آخر */
