@@ -12,7 +12,7 @@ function applyUI(){
   pr('data-look',pick(LOOKS,u.look,'classic'),'classic');pr('data-font',pick(FONTS,u.font,'plex'),'plex');
   pr('data-press',pick(PRESSES,u.press,'bounce'),'bounce');pr('data-trans',pick(TRANSES,u.trans,'rise'),'rise');
   if(u.fontW==='bold')r.setAttribute('data-fw','bold');else r.removeAttribute('data-fw');
-  var L=lang();r.setAttribute('lang',L);r.setAttribute('dir',langDir());try{document.title=(lang()==='ar')?'السائر إلى الله':(trS('السائر إلى الله')||'Al-Sa\'ir ila Allah')}catch(e){}
+  var L=lang();r.setAttribute('lang',L);r.setAttribute('dir',langDir());try{document.title=(lang()==='ar')?'السائر':(trS('السائر')||'Al-Sa\'ir ila Allah')}catch(e){}
 }
 
 applyUI();

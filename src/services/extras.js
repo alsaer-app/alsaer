@@ -39,7 +39,7 @@ function bkApply(raw){
       S=n0;mem=n0;setTimeout(function(){location.reload()},400);
       return '';
     }
-    return 'هذا ليس ملف نسخة احتياطية من «السائر إلى الله».';
+    return 'هذا ليس ملف نسخة احتياطية من «السائر».';
   }
   if(!validBackup(o.S))return 'النسخة غير صالحة أو ناقصة؛ لم تتغير بياناتك';
   var keep={};BK_KEEP.forEach(function(k){if(S[k]!==undefined)keep[k]=S[k]});

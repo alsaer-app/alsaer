@@ -20,6 +20,6 @@ var APP_VERSION='2.0.0',APP_BUILD=200,COPY='';
 try{if(window.AlsaerNative&&typeof AlsaerNative.appBuildInfo==='function'){var bi=AlsaerNative.appBuildInfo().split('|');if(bi.length===2&&parseInt(bi[1],10)>0){APP_VERSION=bi[0];APP_BUILD=parseInt(bi[1],10)}}}catch(e){}
 function devBtn(){
   var ch=ic('chev').replace('class="i"','class="i dev-chev"');
-  return '<button class="dev-btn" data-a="tab" data-v="developer" aria-label="مطوّر السائر إلى الله — Dr. Ahmed Elagamy"><span class="dev-av"><i>Æ</i></span><span class="dev-tx"><span class="dev-role">مطوّر السائر إلى الله · Developer</span><b>أحمد العجمي</b><span class="dev-en">Dr. Ahmed Elagamy</span><span class="dev-free">'+ic('check')+'تطبيق السائر إلى الله مجاني بالكامل · Completely free</span></span><span class="dev-side"><span class="dev-ver">v'+APP_VERSION+'</span>'+ch+'</span></button>'}
+  return '<button class="dev-btn" data-a="tab" data-v="developer" aria-label="مطوّر السائر — Dr. Ahmed Elagamy"><span class="dev-av"><i>Æ</i></span><span class="dev-tx"><span class="dev-role">مطوّر السائر · Developer</span><b>أحمد العجمي</b><span class="dev-en">Dr. Ahmed Elagamy</span><span class="dev-free">'+ic('check')+'تطبيق السائر مجاني بالكامل · Completely free</span></span><span class="dev-side"><span class="dev-ver">v'+APP_VERSION+'</span>'+ch+'</span></button>'}
 
 /* ---------- views ---------- */

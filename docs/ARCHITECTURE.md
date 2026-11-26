@@ -1,4 +1,4 @@
-# هيكلية تطبيق «السائر إلى الله»
+# هيكلية تطبيق «السائر»
 
 المصدر الفعلي للتطبيق صار في `src/` مقسّمًا على نمط مشاريع الواجهات الحديثة (screens / components / services / constants / styles)،
 وأداة البناء `tools/build_web.py` تجمعه حسب `src/manifest.json` في الملف الجاهز `www/index.html`

@@ -28,7 +28,7 @@ function bioPrompt(auto){
   var b=bPlug();
   if(!b||bioBusy||unlocked||!bioUsable())return;
   bioBusy=true;
-  b.authenticate({reason:'مصادقة بصمة السائر إلى الله'}).then(function(r){
+  b.authenticate({reason:'مصادقة بصمة السائر'}).then(function(r){
     bioBusy=false;
     if(r&&r.success)bioUnlockNow();
   }).catch(function(){

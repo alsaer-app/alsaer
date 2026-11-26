@@ -16,7 +16,7 @@
         android:orientation="vertical"
         android:gravity="center"
         android:padding="10dp">
-        <TextView android:id="@+id/wg_next" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#E8C873" android:textSize="13sp" android:maxLines="1" android:text="السائر إلى الله" />
+        <TextView android:id="@+id/wg_next" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#E8C873" android:textSize="13sp" android:maxLines="1" android:text="السائر" />
         <TextView android:id="@+id/wg_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:textSize="26sp" android:textStyle="bold" android:maxLines="1" android:text="--:--" />
         <LinearLayout android:id="@+id/wg_row" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center">
             <TextView android:id="@+id/wg_lbl" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#9FB3AE" android:textSize="12sp" android:text="متبقٍ " />

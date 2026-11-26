@@ -1,7 +1,7 @@
 <div dir="rtl">
 
 <p align="center">
-  <img src="branding/banner.png" alt="السائر إلى الله" width="100%">
+  <img src="branding/banner.png" alt="السائر" width="100%">
 </p>
 
 <p align="center">
@@ -136,7 +136,7 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 
 ---
 
-# Alsaer (السائر إلى الله) — English
+# Alsaer (السائر) — English
 
 A private, **offline-first** Android companion for worship and self-improvement. Data is stored locally, with optional Google Drive authorization and dated backup uploads. Content and update checks use external services. See the privacy policy draft in PRIVACY.md.
 

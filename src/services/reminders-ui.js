@@ -188,7 +188,7 @@
   function remNativeTest(){
     if(!('Notification' in window)){remStatus('هذا الإصدار من WebView لا يوفّر واجهة إشعارات النظام؛ الاختبار الخلفي غير متاح بعد.');return}
     if(Notification.permission==='granted'){
-      try{new Notification('السائر إلى الله',{body:'هذا إشعار تجريبي للتأكد من وصول الإشعارات.'});remStatus('تم إرسال إشعار تجريبي عبر النظام.')}
+      try{new Notification('السائر',{body:'هذا إشعار تجريبي للتأكد من وصول الإشعارات.'});remStatus('تم إرسال إشعار تجريبي عبر النظام.')}
       catch(e){remStatus('تعذر إرسال الإشعار التجريبي: '+e.message)}
     }else remStatus('لم تُمنح صلاحية الإشعارات بعد. اضغط «موافقة وتفعيل الإشعارات».');
   }

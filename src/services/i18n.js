@@ -42,7 +42,7 @@ var ENP2=[
 [/^اتجاه القبلة: (\d+)°$/,'Qibla direction: $1°'],
 [/^تنتهي ختمتك بإذن الله في (.+)$/,function(m,d){var r=trS(d);return 'Your khatmah ends, God willing, on '+(r||d)}],
 [/^متبقٍ (\d+) صفحة · نحو (\d+) يومًا بوردك الحالي \((\d+) (?:صفحات|صفحة) يوميًا\)$/,'$1 pages left · about $2 days at your current portion ($3 pages daily)'],
-[/^مطوّر تطبيق السائر إلى الله · Developer of Al-Sa'ir ila Allah$/,"Developer of Al-Sa'ir ila Allah"]
+[/^مطوّر تطبيق السائر · Developer of Al-Sa'ir ila Allah$/,"Developer of Al-Sa'ir ila Allah"]
 ];
 ENP=ENP.concat(ENP2);
 ENP=ENP.concat([

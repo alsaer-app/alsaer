@@ -85,7 +85,7 @@ function vFloatSet(){
 }
 function vWidgetSet(){
   var c=nsGet('w');
-  return '<div class="ns">'+nsNote()+'<section class="card"><h3>معاينة</h3>'+nsPrev('w',c)+'<p class="note">أضف الودجت من قائمة ودجت هاتفك (السائر إلى الله). سطر «كتابي» يعرض كتابك الحالي ونسبة تقدّمه.</p></section>'
+  return '<div class="ns">'+nsNote()+'<section class="card"><h3>معاينة</h3>'+nsPrev('w',c)+'<p class="note">أضف الودجت من قائمة ودجت هاتفك (السائر). سطر «كتابي» يعرض كتابك الحالي ونسبة تقدّمه.</p></section>'
    +'<section class="card"><h3>الشكل والمحتوى</h3>'+NS_WOPTS.map(function(o){return nsGroup('w',o,c)}).join('')+'<div class="acts"><button class="btn ghost" data-a="nswreset">استعادة الافتراضي</button></div></section></div>';
 }
 function nsAct(a,v){
