@@ -99,3 +99,15 @@ button.rdo-back[data-a=rctback]{border-color:var(--accent,#4c9a8f);animation:rbp
 /* كل أزرار الرجوع مضيئة بنفس أسلوب «← الأذكار»: تعبئة بلون التمييز + توهج، تتبع الثيم (بلا حركة) */
 .top .ib[data-a="goback"],.mq-bk,.sc-back,.rdo-back,.btn.ghost[data-a="hdtback"],.btn.ghost[data-a="asmback"],.btn[data-a="goback"]{border:0;color:var(--on-gold,#fff);background:linear-gradient(135deg,var(--brand),var(--brand-2));box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 55%,transparent),0 0 16px 3px color-mix(in srgb,var(--gold) 40%,transparent);font-weight:700;animation:none}
 :root[data-theme="light"] .top .ib[data-a="goback"],:root[data-theme="light"] .mq-bk,:root[data-theme="light"] .sc-back,:root[data-theme="light"] .rdo-back,:root[data-theme="light"] .btn.ghost[data-a="hdtback"],:root[data-theme="light"] .btn.ghost[data-a="asmback"],:root[data-theme="light"] .btn[data-a="goback"]{color:#fff;box-shadow:0 0 0 1px color-mix(in srgb,var(--brand) 50%,transparent),0 0 14px 3px color-mix(in srgb,var(--brand) 32%,transparent)}
+
+/* ما الجديد: نافذة مدمجة، قائمة داخل لوح داخلي بارتفاع محدود */
+.update109-backdrop{padding:24px}
+.update109-card{width:min(100%,340px);max-height:none;overflow:visible;padding:18px 16px 14px;border-radius:22px;text-align:center}
+.update109-card h2{font-size:18px;margin:0 0 2px}
+.update109-card .ver{font-size:12px;margin-bottom:10px}
+.update109-card ul{margin:0;padding:10px 12px;list-style:none;text-align:start;font-size:13px;line-height:1.6;max-height:30vh;overflow-y:auto;border-radius:14px;background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.update109-card li{margin:0;padding:5px 0}
+.update109-card li+li{border-top:1px solid color-mix(in srgb,var(--fg) 8%,transparent)}
+.update109-card .free-note{font-size:12.5px;margin:10px 0 2px}
+.update109-card .btn{margin-top:8px;min-height:42px;font-size:14.5px}
+.update109-card .btn.ghost.block{background:none;border:0;box-shadow:none;color:var(--muted);font-size:12.5px;font-weight:600;text-decoration:underline;min-height:34px;margin-top:2px!important}
