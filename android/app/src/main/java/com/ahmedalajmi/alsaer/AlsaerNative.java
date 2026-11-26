@@ -115,6 +115,8 @@ public class AlsaerNative {
         act.runOnUiThread(() -> act.moveTaskToBack(true));
     }
     @JavascriptInterface public boolean openUrl(String url) {
+        // https only: the page must never be able to launch other URI schemes (intent:, file:, content:, market:, tel: ...)
+        if (url == null || !url.startsWith("https://")) return false;
         try {
             Intent i = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url));
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
