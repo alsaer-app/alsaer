@@ -16,7 +16,7 @@ function topTrig(){
   return best;
 }
 
-var APP_VERSION='2.0.0',APP_BUILD=200,COPY='';
+var APP_VERSION='2.0.1',APP_BUILD=10201,COPY='';
 try{if(window.AlsaerNative&&typeof AlsaerNative.appBuildInfo==='function'){var bi=AlsaerNative.appBuildInfo().split('|');if(bi.length===2&&parseInt(bi[1],10)>0){APP_VERSION=bi[0];APP_BUILD=parseInt(bi[1],10)}}}catch(e){}
 function devBtn(){
   var ch=ic('chev').replace('class="i"','class="i dev-chev"');
