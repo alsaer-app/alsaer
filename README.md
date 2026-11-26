@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://github.com/alsaer-app/alsaer/actions/workflows/build.yml"><img src="https://github.com/alsaer-app/alsaer/actions/workflows/build.yml/badge.svg" alt="حالة البناء"></a>
   <a href="https://github.com/alsaer-app/alsaer/releases/latest"><img src="https://img.shields.io/github/v/release/alsaer-app/alsaer?color=0F6F63&label=%D8%A3%D8%AD%D8%AF%D8%AB%20%D8%A5%D8%B5%D8%AF%D8%A7%D8%B1" alt="أحدث إصدار"></a>
-  <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%A5%D8%B5%D8%AF%D8%A7%D8%B1-1.0.13-0F6F63" alt="الإصدار 1.0.13">
+  <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%A5%D8%B5%D8%AF%D8%A7%D8%B1-2.0.0%20%D9%82%D9%8A%D8%AF%20%D8%A7%D9%84%D8%AA%D8%AC%D8%B1%D8%A8%D8%A9%D8%8C%20%D9%84%D9%85%20%D9%8A%D9%8F%D9%86%D8%B4%D8%B1%20%D8%A8%D8%B9%D8%AF-C9A227" alt="الإصدار 2.0.0 قيد التجربة ولم يُنشر بعد">
   <img src="https://img.shields.io/badge/minSdk-24-0F6F63?logo=android&logoColor=white" alt="minSdk 24">
   <a href="LICENSE"><img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AA%D8%B1%D8%AE%D9%8A%D8%B5-MIT-0F6F63" alt="الترخيص MIT"></a>
   <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AE%D8%B5%D9%88%D8%B5%D9%8A%D8%A9-%D8%A7%D9%84%D8%A3%D8%B3%D8%A7%D8%B3%20%D9%85%D8%AD%D9%84%D9%8A-0F6F63" alt="الأساس يعمل دون إنترنت؛ الراديو والقراء وأول فتح للفتاوى تحتاج إنترنت">
@@ -102,11 +102,21 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 
 ## خارطة الطريق
 
-- استكمال ترجمة كل الشاشات للغات إضافية.
-- نسخ احتياطي تلقائي مشفر إلى Google Drive الخاص بالمستخدم (التشفير على الجهاز قبل الرفع).
+الإصدار 2.0.0 قيد التجربة على فرع `exp/drive-account-recovery` ولم يُنشر بعد.
+
+**أُنجز في هذا الفرع (غير منشور):**
+
+- نسخ احتياطي مؤرخ إلى Google Drive الخاص بالمستخدم، مع تشفير اختياري على الجهاز.
+- واجهة بسبع لغات (العربية وست إضافية، الترجمات مراجعة ذاتية).
+- استماع للقرّاء والفتاوى، وراديو القرآن، وحصن المسلم الكامل.
+- تنبيه محلي بالإصدار الجديد، وإشعارات مجمّعة بأزرار وتوقيت دقيق للورد.
+
+**قيد العمل أو مخطط له:**
+
+- مراجعة الترجمات بمراجع متخصص بدل المراجعة الذاتية.
+- تجربة التطبيق على أجهزة حقيقية قبل أي إصدار (الإشعارات والموقع والتنبيه بالتحديث لم تُجرَّب على جهاز بعد).
 - ودجت محسّن: مواقيت الصلاة ومتابعة ورد اليوم.
 - خطة ختمة ذكية بأهداف قابلة للتعديل التلقائي.
-- فاحص تحديثات داخل التطبيق: قراءة update.json ومقارنة رقم الإصدار والتنزيل مع تحقق sha256.
 - لوحة إنجازات وإحصاءات أعمق.
 
 ## الحقوق والمصادر
