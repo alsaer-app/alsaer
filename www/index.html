@@ -3286,6 +3286,7 @@ var HJ_EN={'محرم':'Muharram','صفر':'Safar','ربيع الأول':'Rabi al
 function _tm(s){return s.replace(/(\d+):(\d+)\s*ص/g,'$1:$2 AM').replace(/(\d+):(\d+)\s*م/g,'$1:$2 PM')}
 function _en(s){return ENPK()[s]!==undefined?ENPK()[s]:s}
 var ENP2=[
+[/^✗ (رمز PIN|النمط|كلمة المرور) (غير صحيح|غير صحيحة)(?:؛ تم إيقاف المحاولة مؤقتاً|، حاول مرة أخرى(?: \(المتبقي ([\d٠-٩]+) محاولات قبل الإيقاف المؤقت\))?)$/,function(m,k,g,n){var K={'رمز PIN':'PIN','النمط':'Pattern','كلمة المرور':'Password'}[k];if(m.indexOf('تم إيقاف')>-1)return '✗ Incorrect '+K+'; attempts paused temporarily';return '✗ Incorrect '+K+', try again'+(n?' ('+n+' attempts left before a temporary pause)':'')}],
 [/^(\d+:\d+) ([صم])$/,function(m,t,a){return t+(a==='ص'?' AM':' PM')}],
 [/^(\d+) (\S+(?: \S+)?) (\d{4}) هـ$/,function(m,d,mo,y){return HJ_EN[mo]?d+' '+HJ_EN[mo]+' '+y+' AH':null}],
 [/^(\d+) (يناير|فبراير|مارس|أبريل|مايو|يونيو|يوليو|أغسطس|سبتمبر|أكتوبر|نوفمبر|ديسمبر) (\d{4})$/,function(m,d,mo,y){return _en(mo)+' '+d+', '+y}],
