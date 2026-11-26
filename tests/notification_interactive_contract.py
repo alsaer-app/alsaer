@@ -12,7 +12,7 @@ def chk(n,c):
 chk('children grouped','.setGroup(GROUP_KEY)' in A)
 chk('summary is group summary, children alert','setGroupSummary(true)' in A and 'GROUP_ALERT_CHILDREN' in A)
 chk('summary channel low importance','IMPORTANCE_LOW' in A and 'alsaer_summary_v1' in A)
-chk('start button when no act','NativeStrings.get(c, "start"), content' in A)
+chk('start button when no act','firstLabel = NativeStrings.get(c, "start")' in A and 'firstIntent = content' in A and 'b.addAction(0, firstLabel, firstIntent)' in A)
 chk('wird exact','id.startsWith("wird")' in A.split('static boolean needsExact')[1][:300])
 chk('prayer actions kept','ACTION_SNOOZE' in A and 'ACTION_SNOOZE_STOP' in A and 'ACTION_DONE' in A)
 chk('update worker https only','"https".equals(u.getProtocol())' in U and U.count('http://')==0)

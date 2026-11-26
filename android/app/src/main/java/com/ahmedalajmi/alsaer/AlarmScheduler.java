@@ -420,15 +420,17 @@ public final class AlarmScheduler {
         }
 
         JSONObject act = it.optJSONObject("act");
+        String firstLabel = NativeStrings.get(c, "start");
+        PendingIntent firstIntent = content;
         if (act != null) {
             Intent done = new Intent(c, ActionReceiver.class).setAction(ACTION_DONE);
             done.putExtra("key", act.optString("k"));
             done.putExtra("nid", nid);
             PendingIntent dpi = PendingIntent.getBroadcast(c, code(c,id,"done"), done, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
-            b.addAction(0, act.optString("l", NativeStrings.get(c, "done")), dpi);
-        } else {
-            b.addAction(0, NativeStrings.get(c, "start"), content);
+            firstLabel = act.optString("l", NativeStrings.get(c, "done"));
+            firstIntent = dpi;
         }
+        b.addAction(0, firstLabel, firstIntent);
         Intent snz = new Intent(c, ActionReceiver.class).setAction(ACTION_SNOOZE);
         snz.putExtra("item", it.toString());
         snz.putExtra("nid", nid);

@@ -30,7 +30,7 @@
  "android/app/src/main/java/com/ahmedalajmi/alsaer/ActionReceiver.java": "f23850c3d09f1e36efffdd745d5283b1215f6ee5cce6e736d7387ddd2c5fda0e",
  "android/app/src/main/java/com/ahmedalajmi/alsaer/AlarmReceiver.java": "601481061ceb9e3d6e2129b512cb0ae64fa274db7cfb526fbe52ff835d187b63",
  "android/app/src/main/java/com/ahmedalajmi/alsaer/AlarmRequestIds.java": "8237dd5dc9cd575a34275ff7d4b790f4c328b73a0f2a6eb813372e88906ed118",
- "android/app/src/main/java/com/ahmedalajmi/alsaer/AlarmScheduler.java": "6cb52ec369466e96a9884cde407a035f45bfd5a1ff9c3950bb8260e2eec80c88",
+ "android/app/src/main/java/com/ahmedalajmi/alsaer/AlarmScheduler.java": "ac3daef33c30bc1bf54c8710d10c918dea9f10295bedb604688db62f681dfc5e",
  "android/app/src/main/java/com/ahmedalajmi/alsaer/AlsaerNative.java": "e2217a2db3903938fa2290384f22b262fdc2812c0d921a0eccc45b5720913162",
  "android/app/src/main/java/com/ahmedalajmi/alsaer/AlsaerWidget.java": "adf8b3b718c0aad534289b03008306e440bc19457dfc14f4e8b3a0a0036b6deb",
  "android/app/src/main/java/com/ahmedalajmi/alsaer/BackupDocuments.java": "29961168e1782d10556d5d0fe39dca96094f30687c98f62ee0ce61c2cc678c32",
