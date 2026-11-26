@@ -7858,8 +7858,10 @@ function mcTrack(A){
 window.alsaerMediaCmd=function(c){
   var A=MC.list[MC.list.length-1];
   try{
+    if((c==='pause'||c==='play')&&A&&typeof mqAu!=='undefined'&&mqAu.a===A){mqAu.pa=(c==='pause')}
     if(c==='pause'&&A)A.pause();
     else if(c==='play'&&A){var p=A.play();if(p&&p.catch)p.catch(function(){})}
+    if((c==='pause'||c==='play')&&A&&typeof mqAu!=='undefined'&&mqAu.a===A&&typeof mqAuBar==='function')mqAuBar();
     else if(c==='stop'){
       try{if(typeof rdoStop==='function'){rdoStop();if(typeof rdoRefresh==='function')rdoRefresh()}}catch(e){}
       try{if(typeof rctStop==='function'){rctStop();if(typeof rctRefresh==='function')rctRefresh()}}catch(e){}
