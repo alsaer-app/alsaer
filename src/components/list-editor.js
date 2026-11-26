@@ -37,7 +37,7 @@ function wkSaveOrder(){
 }
 document.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('[data-wk]');if(!b||b.tagName==='INPUT')return;var k=b.getAttribute('data-wk'),id=b.getAttribute('data-id'),w=wkS();
-  if(k==='close'){mpClose();return}
+  if(k==='close'){var mw=document.getElementById('mps-wrap');if(mw)mw.remove();return}
   if(k==='pin'){if(w.pin[id])delete w.pin[id];else w.pin[id]=1}
   else if(k==='eye'){var H=wkMode==='bn'?w.bnh:w.hid;if(H[id])delete H[id];else H[id]=1}
   else if(k==='del'){var c=w.cus[wkEdSec]||[];w.cus[wkEdSec]=c.filter(function(x){return x!==id});w.ord[wkEdSec]=(w.ord[wkEdSec]||WK_DEF[wkEdSec]).filter(function(x){return x!==id})}
