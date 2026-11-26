@@ -166,3 +166,4 @@ jobs:
 # trigger: fatwas online test build, R8 off
 # rerun after pin refresh
 # rerun for 2.0.0 test build r17 (comment only)
+# trigger: 2.0.1 (10201) test build r18, fatwas from alsaer-fatwas

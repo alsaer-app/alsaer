@@ -16,7 +16,7 @@ def ck(c,m):
 
 def remote(hits,tamper):
     def h(r):
-        n=r.request.url.split('/www/fatwas/')[1];hits.append(n)
+        n=r.request.url.split('/alsaer-fatwas/main/')[1];hits.append(n)
         body=(WWW/'fatwas'/n).read_text(encoding='utf-8')
         if tamper and n.startswith('f0'):body=body.replace('"','"',1)[:-2]+',["x","x","x","x","x"]]'
         r.fulfill(body=body,content_type='application/json',headers={'access-control-allow-origin':'*'})
