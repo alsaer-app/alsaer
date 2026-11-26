@@ -91,3 +91,7 @@ button.rdo-back[data-a=rctback]{border-color:var(--accent,#4c9a8f);animation:rbp
 
 .hsn-fv{font-size:16px;line-height:1}.hsn-fv.on{color:var(--gold)}.hsn-lb{margin:12px 2px 4px}.hsn-lbb{background:none;border:0;color:var(--gold);font:inherit;font-size:12px;padding:2px 0;cursor:pointer}.hsn-gh{margin:14px 2px 6px;font-size:13px;color:var(--muted)}.hsn-clamp .hsn-t{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.hsn mark{background:color-mix(in srgb,var(--gold) 38%,transparent);color:inherit;border-radius:4px;padding:0 1px}.hsn-ff{margin:6px 0 8px}
 .hsn-b{flex-wrap:wrap}.hsn-b small{flex:1 1 100%}.hsn-b .hsn-c{margin-inline-start:auto}
+
+/* زر «← الأذكار» مضيء: تعبئة بلون التمييز + توهج، يتبع الثيم (بلا حركة) */
+.hsn-top .btn.hsn-back{border:0;box-shadow:0 0 14px 3px rgba(95,207,193,.4);color:var(--on-gold,#fff);background:linear-gradient(135deg,var(--brand),var(--brand-2));box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 55%,transparent),0 0 16px 3px color-mix(in srgb,var(--gold) 40%,transparent);font-weight:700}
+:root[data-theme="light"] .hsn-top .btn.hsn-back{color:#fff;box-shadow:0 0 0 1px color-mix(in srgb,var(--brand) 50%,transparent),0 0 14px 3px color-mix(in srgb,var(--brand) 32%,transparent)}

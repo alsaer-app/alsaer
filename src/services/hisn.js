@@ -217,11 +217,11 @@ function vHisn(){
   var P=hsnP(),h='<div class="hsn">';
   if(hsnS.cat==='__fav'){
     hsnFav(P);if(!hsnF.ok)hsnfEnsure(function(ok){if(ok&&tab==='hisn'&&hsnS.cat==='__fav')render()});
-    return h+'<div class="hsn-top"><button class="btn ghost" data-a="hsnback">← الأذكار</button><b class="hsn-cn">★ المفضلة</b></div><div class="hsn-sr hsn-sr-top"><input id="hsn-fq" type="search" placeholder="ابحث في مفضلتي" value="'+hsnX(hsnS.fq||'').replace(/"/g,'&quot;')+'"></div>'+(hsnF.ok?'':'<p class="note">يجري التحميل…</p>')+hsnFavView(P)+'</div>';
+    return h+'<div class="hsn-top"><button class="btn ghost hsn-back" data-a="hsnback">← الأذكار</button><b class="hsn-cn">★ المفضلة</b></div><div class="hsn-sr hsn-sr-top"><input id="hsn-fq" type="search" placeholder="ابحث في مفضلتي" value="'+hsnX(hsnS.fq||'').replace(/"/g,'&quot;')+'"></div>'+(hsnF.ok?'':'<p class="note">يجري التحميل…</p>')+hsnFavView(P)+'</div>';
   }
   if(hsnS.cat){
     var cat=hsnG(hsnS.cat),dn=hsnDone(P,hsnS.cat);
-    h+='<div class="hsn-top"><button class="btn ghost" data-a="hsnback">← الأذكار</button><b class="hsn-cn">'+cat.name+'</b><span class="hsn-fs">'+hsnStar(hsnFav(P).favb.indexOf(hsnS.cat)>=0,'hsnfb',hsnS.cat)+'<button class="btn ghost" data-a="hsnfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hsnfs" data-v="2">أ+</button></span></div>'
+    h+='<div class="hsn-top"><button class="btn ghost hsn-back" data-a="hsnback">← الأذكار</button><b class="hsn-cn">'+cat.name+'</b><span class="hsn-fs">'+hsnStar(hsnFav(P).favb.indexOf(hsnS.cat)>=0,'hsnfb',hsnS.cat)+'<button class="btn ghost" data-a="hsnfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hsnfs" data-v="2">أ+</button></span></div>'
      +'<div class="asm-bar"><i id="hsn-pb" style="width:'+Math.round(dn/cat.items.length*100)+'%"></i></div>'
      +cat.items.map(function(it,i){return hsnCard(P,hsnS.cat,i,it)}).join('');
     return h+'</div>';
