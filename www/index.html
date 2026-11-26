@@ -2175,6 +2175,8 @@ body.orn .mp-fa{background:#f9f5ee;border-color:#b98a2e;color:#8a5a36}body.orn .
 .rct-s .rdo-n{align-self:center}
 .rct-s .rdo-n{grid-row:1/3;align-self:center}.rct-no{opacity:.6;font-weight:600;margin-inline-end:6px}
 .ftw-n{font-size:12px;opacity:.8}.ftw-d{display:flex;flex-direction:column;gap:12px}.ftw-t{font-size:18px;line-height:1.7}.ftw-q,.ftw-a{line-height:2}.ftw-q small,.ftw-a small,.ftw-h{display:block;opacity:.6;margin:8px 0 4px}.ftw-q p,.ftw-a p{margin:0 0 10px}.ftw-act{display:flex;gap:8px;margin:12px 0}.ftw-act .btn{flex:1}.ftw-more{width:100%;margin:10px 0}
+
+.hsn-top{flex-wrap:wrap}.hsn-top .hsn-cn{white-space:normal;min-width:0;flex:1 1 100%;order:3;text-align:center;line-height:1.6;margin:2px 0 0}
 /* لمسات الشكل والسرعة */
 html{-webkit-tap-highlight-color:transparent;scroll-behavior:auto}
 .mr-g{content-visibility:auto;contain-intrinsic-size:auto 90px}
@@ -7283,7 +7285,7 @@ function vHisn(){
     h+='<div class="hsn-top"><button class="btn ghost" data-a="hsnback">← الأذكار</button><b class="hsn-cn">'+cat.name+'</b><span class="hsn-fs"><button class="btn ghost" data-a="hsnfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hsnfs" data-v="2">أ+</button></span></div>'
      +'<div class="asm-bar"><i id="hsn-pb" style="width:'+Math.round(dn/cat.items.length*100)+'%"></i></div>'
      +cat.items.map(function(it,i){var r=hsnRem(P,hsnS.cat,i),dn=r<=0;
-       return '<div class="card hsn-z'+(dn?' done':'')+'" data-a="hsnz" data-v="'+hsnS.cat+':'+i+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+it.text+'</div><div class="hsn-b"><small>'+(it.virtue||'')+(it.s?' · <span>ذكر</span> '+ar(it.s):'')+(it.m?' · <span>نص إضافي للتجربة</span>':'')+'</small>'+(it.u?'<button class="btn ghost hsn-au" data-a="hsnau" data-v="'+hsnS.cat+':'+i+'">▶ استماع</button>':'')+'<button class="btn ghost hsn-au hsn-sh" data-a="hsnsh" data-v="'+hsnS.cat+':'+i+'">مشاركة</button>'+'<span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}).join('');
+       return '<div class="card hsn-z'+(dn?' done':'')+'" data-a="hsnz" data-v="'+hsnS.cat+':'+i+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+it.text+'</div><div class="hsn-b"><small>'+[it.virtue||'',it.s?'<span>ذكر</span> '+ar(it.s):'',it.m?'<span>نص إضافي للتجربة</span>':''].filter(Boolean).join(' · ')+'</small>'+(it.u?'<button class="btn ghost hsn-au" data-a="hsnau" data-v="'+hsnS.cat+':'+i+'">▶ استماع</button>':'')+'<button class="btn ghost hsn-au hsn-sh" data-a="hsnsh" data-v="'+hsnS.cat+':'+i+'">مشاركة</button>'+'<span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}).join('');
     return h+'</div>';
   }
   h+='<div class="asm-grid">'+Object.keys(HSN).map(function(s){var c=HSN[s],dn=hsnDone(P,s);return '<button class="asm-card" data-a="hsncat" data-v="'+s+'"><i class="asm-dot'+(dn===c.items.length?' on':'')+'"></i><div class="hsn-ic">'+c.icon+'</div><b>'+c.name+'</b><span>'+ar(dn)+' / '+ar(c.items.length)+'</span></button>'}).join('')+'</div>';
