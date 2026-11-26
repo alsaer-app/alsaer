@@ -2221,6 +2221,21 @@ button.rdo-back[data-a=rctback]{border-color:var(--accent,#4c9a8f);animation:rbp
 .update109-card .free-note{font-size:12.5px;margin:10px 0 2px}
 .update109-card .btn{margin-top:8px;min-height:42px;font-size:14.5px}
 .update109-card .btn.ghost.block{background:none;border:0;box-shadow:none;color:var(--muted);font-size:12.5px;font-weight:600;text-decoration:underline;min-height:34px;margin-top:2px!important}
+
+/* الزكاة: الحقل بعرضه المحدد، فتأخذ التسمية بقية السطر */
+.zk-l .zk-i{width:130px;flex:none}
+
+/* أهداف اللمس: منطقة لمس 44×44 على الأقل دون تغيير الشكل المرئي */
+.top .ib[data-a="goback"],.mq-bk,.mq-cb,.mq-pill,.ck[data-a="pray"],.ck[data-a="hab"],.count-btn,.bo-col,.bo-ico,.icon[data-a="prev"],.icon[data-a="next"],.trk-gear,.qd-b.add,.chip[data-a="settarget"],.rm-sw{position:relative}
+.top .ib[data-a="goback"]::after,.mq-bk::after,.mq-cb::after,.mq-pill::after,.ck[data-a="pray"]::after,.ck[data-a="hab"]::after,.count-btn::after,.bo-col::after,.bo-ico::after,.icon[data-a="prev"]::after,.icon[data-a="next"]::after,.trk-gear::after,.qd-b.add::after,.chip[data-a="settarget"]::after,.rm-sw::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;min-width:100%;min-height:100%;transform:translate(-50%,-50%)}
+
+/* خطوط صغيرة: حد أدنى مقروء */
+.dm-last{font-size:11px!important}
+.worship-score small,.wk5-d small,.mq-ti small,.mq-rs-row>b,.rd-ta .ib small,.mq-ta .mq-pill{font-size:11px}
+.new-day-card .new-day-kicker,.new-day-card .new-day-source{font-size:11.5px}
+.rb span{font-size:11px;height:14px}
+.wd{font-size:11px}
+small{font-size:max(1em,11px)}
 /* لمسات الشكل والسرعة */
 html{-webkit-tap-highlight-color:transparent;scroll-behavior:auto}
 .mr-g{content-visibility:auto;contain-intrinsic-size:auto 90px}
