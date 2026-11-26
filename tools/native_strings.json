@@ -120,12 +120,12 @@
   ],
   "app_name": [
    "السائر إلى الله",
-   "السائر",
-   "السائر",
-   "السائر",
-   "السائر",
-   "السائر",
-   "السائر"
+   "Alsaer",
+   "Alsaer",
+   "Alsaer",
+   "Alsaer",
+   "Alsaer",
+   "Alsaer"
   ],
   "brand": [
    "السائر إلى الله",
@@ -133,8 +133,8 @@
    "Alsaer",
    "Alsaer",
    "Alsaer",
-   "السائر",
-   "السائر"
+   "Alsaer",
+   "Alsaer"
   ],
   "ch_chime_name": [
    "السائر إلى الله — تذكيرات بصوت هادئ",
@@ -142,8 +142,8 @@
    "Alsaer — rappels à son doux",
    "Alsaer — yumuşak sesli hatırlatmalar",
    "Alsaer — Erinnerungen mit sanftem Ton",
-   "السائر — یادآورهای با صدای آرام",
-   "السائر — نرم آواز والی یاد دہانیاں"
+   "Alsaer — یادآورهای با صدای آرام",
+   "Alsaer — نرم آواز والی یاد دہانیاں"
   ],
   "ch_silent_name": [
    "السائر إلى الله — تذكيرات بلا صوت",
@@ -151,8 +151,8 @@
    "Alsaer — rappels silencieux",
    "Alsaer — sessiz hatırlatmalar",
    "Alsaer — stumme Erinnerungen",
-   "السائر — یادآورهای بی‌صدا",
-   "السائر — خاموش یاد دہانیاں"
+   "Alsaer — یادآورهای بی‌صدا",
+   "Alsaer — خاموش یاد دہانیاں"
   ],
   "ch_float_name": [
    "السائر إلى الله — تنبيهات النوافذ العائمة",
@@ -160,8 +160,8 @@
    "Alsaer — alertes des fenêtres flottantes",
    "Alsaer — yüzen pencere uyarıları",
    "Alsaer — Hinweise schwebender Fenster",
-   "السائر — هشدارهای پنجره شناور",
-   "السائر — فلوٹنگ ونڈو الرٹس"
+   "Alsaer — هشدارهای پنجره شناور",
+   "Alsaer — فلوٹنگ ونڈو الرٹس"
   ],
   "ch_service_name": [
    "السائر إلى الله — خدمة النافذة العائمة",
@@ -169,8 +169,8 @@
    "Alsaer — service de fenêtre flottante",
    "Alsaer — yüzen pencere hizmeti",
    "Alsaer — Dienst für schwebendes Fenster",
-   "السائر — سرویس پنجره شناور",
-   "السائر — فلوٹنگ ونڈو سروس"
+   "Alsaer — سرویس پنجره شناور",
+   "Alsaer — فلوٹنگ ونڈو سروس"
   ],
   "ch_system_name": [
    "السائر إلى الله — صوت النظام",
@@ -178,8 +178,8 @@
    "Alsaer — son système",
    "Alsaer — sistem sesi",
    "Alsaer — Systemton",
-   "السائر — صدای سیستم",
-   "السائر — سسٹم ساؤنڈ"
+   "Alsaer — صدای سیستم",
+   "Alsaer — سسٹم ساؤنڈ"
   ],
   "next_prayer": [
    "الصلاة القادمة:",
@@ -246,12 +246,12 @@
   ],
   "biometric_confirm_open": [
    "تأكيد هويتك لفتح تطبيق السائر إلى الله",
-   "Confirm your identity to open السائر",
-   "Confirmez votre identité pour ouvrir السائر",
-   "السائر uygulamasını açmak için kimliğinizi doğrulayın",
-   "Bestätigen Sie Ihre Identität, um السائر zu öffnen",
-   "برای باز کردن برنامه السائر هویت خود را تأیید کنید",
-   "السائر ایپ کھولنے کے لیے اپنی شناخت کی تصدیق کریں"
+   "Confirm your identity to open Alsaer",
+   "Confirmez votre identité pour ouvrir Alsaer",
+   "Alsaer uygulamasını açmak için kimliğinizi doğrulayın",
+   "Bestätigen Sie Ihre Identität, um Alsaer zu öffnen",
+   "برای باز کردن برنامه Alsaer هویت خود را تأیید کنید",
+   "Alsaer ایپ کھولنے کے لیے اپنی شناخت کی تصدیق کریں"
   ],
   "reminder": [
    "تذكير",
@@ -466,8 +466,8 @@
    "Ceci est un test du rappel planifié ; les notifications Alsaer fonctionnent.",
    "Bu, zamanlanmış hatırlatmanın denemesidir; Alsaer bildirimleri çalışıyor.",
    "Dies ist ein Test der geplanten Erinnerung; Alsaer-Benachrichtigungen funktionieren.",
-   "این آزمایشی برای یادآور زمان‌بندی‌شده است؛ اعلان‌های السائر به درستی کار می‌کنند.",
-   "یہ شیڈول یاد دہانی کا امتحان ہے؛ السائر کی اطلاعات کامیابی سے کام کر رہی ہیں۔"
+   "این آزمایشی برای یادآور زمان‌بندی‌شده است؛ اعلان‌های Alsaer به درستی کار می‌کنند.",
+   "یہ شیڈول یاد دہانی کا امتحان ہے؛ Alsaer کی اطلاعات کامیابی سے کام کر رہی ہیں۔"
   ],
   "cat_pray": [
    "الصلاة",
