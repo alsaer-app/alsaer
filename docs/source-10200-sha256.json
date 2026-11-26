@@ -11,7 +11,7 @@
  ".github/workflows/ex-redesign-a-notif.yml": "12e8971202f7ea515f1a957437376a6700166c91375bd6fecb416e7d35b08320",
  ".github/workflows/ex-redesign-a.yml": "727a1ce3c216a711c1cd335a2c593442915edf4bd1931506d1b740ab6fd551e7",
  ".github/workflows/nr-test.yml": "bb85580a670c9c6f1df67a2f6e3b42c3a0e5148ba7db2a15c741c33a7cc2309c",
- ".github/workflows/release.yml": "120cf5ba5874e676a5204d26a00036f7521c2f79e2480b1bec7b662151d37d0f",
+ ".github/workflows/release.yml": "9373ffe0c32b0679376e38f9180351f7bbc689c7e5bdda577cbfc585b6dfd3ec",
  ".gitignore": "8a414e6af58ed809a03781a82a987cf23f99bcafb59556f0cee49b4d0ee13516",
  "ANDROID-SETUP-AR.md": "428085e010f021416abd2c6b9e39ac32c35ab8b923254c15865375e783dcedb5",
  "BUILD-AR.md": "f28670ee958b13fcd0fea2dc879ad929a07cc55f73e43ea0c47ca45de5ac1674",
