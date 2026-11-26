@@ -1492,5 +1492,21 @@
 "الإذاعة": "Radio",
 "التلاوة": "Recitation",
 "الفتاوى الصوتية": "Audio fatwas",
-"تلاوة": "Recitation"
+"تلاوة": "Recitation",
+"★ المفضلة": "★ Favorites",
+"ابحث في مفضلتي": "Search my favorites",
+"يجري التحميل…": "Loading…",
+"لم تحفظ شيئًا بعد. اضغط ☆ على أي ذكر أو بجانب اسم الباب.": "Nothing saved yet. Tap ☆ on any dhikr or next to a chapter name.",
+"لا نتائج في مفضلتك": "No results in your favorites",
+"أذكاري المحفوظة سابقًا": "My previously saved adhkar",
+"الأذكار المطابقة (": "Matching adhkar (",
+"الكل ": "All ",
+"أذكار ": "Adhkar ",
+"أبواب ": "Chapters ",
+"أُضيف إلى المفضلة": "Added to favorites",
+"أُزيل من المفضلة": "Removed from favorites",
+"أُضيف الباب إلى المفضلة": "Chapter added to favorites",
+"أُزيل الباب من المفضلة": "Chapter removed from favorites",
+"حفظ في المفضلة": "Save to favorites",
+"يظهر أول ٤٠ نتيجة، ضيّق البحث لتصل لغيرها.": "Showing the first 40 results; narrow your search to see more."
 }

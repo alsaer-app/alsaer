@@ -66,6 +66,7 @@ var HSN={
 
 /* أيقونات أبواب حصن المسلم: رسم خاص بالتطبيق (SVG خطي 24x24) */
 var HSN_SV={
+ star:'<path d="M12 3.500l2.600 5.400 5.900.8-4.300 4.100 1 5.800L12 16.800 6.800 19.600l1-5.800L3.500 9.700l5.900-.8z"/>',
  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/>',
  moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/><path d="M17 3v3M15.5 4.5h3"/>',
  dress:'<path d="M8 4l-5 3 2.2 3.5L8 9v11h8V9l2.8 1.5L21 7l-5-3c-.6 1.6-2 2.5-4 2.5S8.6 5.6 8 4z"/>',
@@ -119,15 +120,15 @@ function hsnfBuild(){
     var items=[];
     c.e.forEach(function(e){
       var nr=e.x.filter(function(z){return z[0]!=='i'}).length;
-      var mk=function(parts,u){
+      var mk=function(parts,u,j){
         var tx=parts.map(function(z){return z[0]==='i'?'<small class="hsn-ins">'+hsnX(z[1])+'</small>':'<p>'+hsnX(z[1]).replace(/\n/g,'<br>')+'</p>'}).join('');
-        items.push({text:tx,repeat:e.c||1,virtue:e.r||'',u:u,s:e.s,m:e.m||0})};
-      if(nr<2){mk(e.x,e.u||null);return}
+        items.push({text:tx,repeat:e.c||1,virtue:e.r||'',u:u,s:e.s,m:e.m||0,k:'f'+c.n+':'+e.s+(j?'.'+j:'')})};
+      if(nr<2){mk(e.x,e.u||null,0);return}
       /* ذكر فيه أكثر من دعاء: كل دعاء بطاقة مستقلة بعدّادها، ونصه كما هو، وتقدَّم له عبارة التمهيد التي تسبقه */
       var g=[],k=0,pend=[];
       e.x.forEach(function(z){pend.push(z);if(z[0]!=='i'){g.push(pend);pend=[]}});
       if(pend.length)g[g.length-1]=g[g.length-1].concat(pend);
-      g.forEach(function(parts,j){mk(parts,e.u&&e.u.length===g.length?[e.u[j]]:(j===0?e.u||null:null))});
+      g.forEach(function(parts,j){mk(parts,e.u&&e.u.length===g.length?[e.u[j]]:(j===0?e.u||null:null),j)});
     });
     hsnF.reg[slug]={name:c.t,icon:'',n:c.n,items:items};
     hsnF.idx.push({slug:slug,k:hsnNorm(c.t+' '+c.e.map(function(e){return e.x.map(function(z){return z[1]}).join(' ')}).join(' '))});
@@ -151,8 +152,52 @@ function hsnRows(q){
     var c=hsnF.reg[r.slug],dn=hsnDone(P,r.slug);
     h+='<button class="asm-card hsn-cd" data-a="hsncat" data-v="'+r.slug+'"><i class="asm-dot'+(dn===c.items.length?' on':'')+'"></i><div class="hsn-ic">'+hsnSv(hsnChSv(c.n))+'</div><b>'+hsnX(c.name)+'</b><span>'+ar(dn)+' / '+ar(c.items.length)+'</span></button>';
   });
-  return h?'<div class="asm-grid">'+h+'</div>':'<p class="note">لا نتائج</p>';
+  var ir=n?hsnItemRes(q,P):'';
+  return (h?'<div class="asm-grid">'+h+'</div>':'')+ir+((!h&&!ir)?'<p class="note">لا نتائج</p>':'');
 }
+
+/* ===== المفضلة والبحث الشامل: مفتاح الذكر ثابت (باب:ذكر:جزء) فلا يتغير بتغيّر ترتيب البطاقات ===== */
+function hsnItK(slug,i){var c=hsnG(slug),it=c&&c.items[i];return it?(it.k||(slug+'#'+i)):''}
+function hsnKMap(){var m={};Object.keys(HSN).forEach(function(sl){HSN[sl].items.forEach(function(it,i){m[it.k||(sl+'#'+i)]=[sl,i]})});
+  if(hsnF.ok)Object.keys(hsnF.reg).forEach(function(sl){hsnF.reg[sl].items.forEach(function(it,i){m[it.k]=[sl,i]})});return m}
+function hsnFav(P){if(!Array.isArray(P.fav))P.fav=[];if(!Array.isArray(P.favb))P.favb=[];return P}
+function hsnIsFav(P,slug,i){hsnFav(P);return P.fav.indexOf(hsnItK(slug,i))>=0}
+function hsnStar(on,act,v,extra){return '<button class="btn ghost hsn-au hsn-fv'+(on?' on':'')+'" data-a="'+act+'" data-v="'+v+'" aria-pressed="'+(!!on)+'" aria-label="'+(on?'إزالة من المفضلة':'حفظ في المفضلة')+'">'+(on?'★':'☆')+(extra||'')+'</button>'}
+function hsnPlain(t){return String(t).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()}
+function hsnHl(txt,q){
+  var out=hsnX(txt),n=hsnNorm(q).trim();if(!n)return out;
+  var cls={'ا':'[اإأآٱ]','ي':'[يى]','ه':'[هة]'},D='[\\u064b-\\u065f\\u0670\\u06d6-\\u06ed\\u0640]*';
+  var re=n.split(/\s+/).filter(Boolean).map(function(w){return w.split('').map(function(ch){return (cls[ch]||ch.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))+D}).join('')}).join('|');
+  try{return out.replace(new RegExp('('+re+')','g'),'<mark>$1</mark>')}catch(e){return out}}
+function hsnCard(P,slug,i,it,lbl,q){
+  var r=hsnRem(P,slug,i),dn=r<=0,v=slug+':'+i,body=q?hsnHl(hsnPlain(it.text),q):it.text;
+  return (lbl?'<div class="hsn-lb"><button class="hsn-lbb" data-a="hsnopen" data-v="'+v+'">'+hsnX(lbl)+'</button></div>':'')
+   +'<div class="card hsn-z'+(dn?' done':'')+(q?' hsn-clamp':'')+'" data-a="hsnz" data-v="'+v+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+body+'</div><div class="hsn-b"><small>'+[it.virtue||'',it.s?'<span>ذكر</span> '+ar(it.s):''].filter(Boolean).join(' · ')+'</small>'+(it.u?'<button class="btn ghost hsn-au" data-a="hsnau" data-v="'+v+'">▶ استماع</button>':'')+'<button class="btn ghost hsn-au hsn-sh" data-a="hsnsh" data-v="'+v+'">مشاركة</button>'+hsnStar(hsnIsFav(P,slug,i),'hsnfv',v)+'<span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}
+function hsnAllItems(q){
+  var n=hsnNorm(q).trim(),out=[];if(!n)return out;
+  var scan=function(sl,c){c.items.forEach(function(it,i){if(it._n===undefined)it._n=hsnNorm(hsnPlain(it.text));if(it._n.indexOf(n)>=0)out.push([sl,i,it,c.name,c.n])})};
+  Object.keys(HSN).forEach(function(sl){scan(sl,HSN[sl])});
+  if(hsnF.ok)hsnF.idx.forEach(function(r){scan(r.slug,hsnF.reg[r.slug])});
+  return out}
+function hsnItemRes(q,P){
+  var L=hsnAllItems(q);if(!L.length)return '';
+  return '<h4 class="hsn-gh">الأذكار المطابقة ('+ar(L.length)+')</h4>'+L.slice(0,40).map(function(r){return hsnCard(P,r[0],r[1],r[2],r[3]+(r[4]?' · '+ar(r[4]):''),q)}).join('')+(L.length>40?'<p class="note">يظهر أول ٤٠ نتيجة، ضيّق البحث لتصل لغيرها.</p>':'')}
+function hsnFavView(P){
+  hsnFav(P);var q=hsnS.fq||'',n=hsnNorm(q).trim(),f=hsnS.ff||'all',km=hsnKMap(),h='',cnt=0;
+  var zs=P.fav.map(function(k){return km[k]}).filter(Boolean).map(function(r){return [r[0],r[1],hsnG(r[0]).items[r[1]],hsnG(r[0])]});
+  var bs=P.favb.filter(function(sl){return hsnG(sl)}).map(function(sl){return [sl,hsnG(sl)]});
+  var old=(typeof ntFavs==='function'&&typeof adkFind==='function')?ntFavs().map(adkFind).filter(Boolean):[];
+  var zsF=zs.filter(function(r){return !n||hsnNorm(hsnPlain(r[2].text)+' '+r[3].name).indexOf(n)>=0});
+  var bsF=bs.filter(function(r){return !n||hsnNorm(r[1].name).indexOf(n)>=0});
+  var oldF=old.filter(function(it){return !n||hsnNorm(it.t).indexOf(n)>=0});
+  var tot=zs.length+bs.length+old.length;
+  h+='<div class="chips hsn-ff">'+[['all','الكل '+ar(tot)],['z','أذكار '+ar(zs.length+old.length)],['b','أبواب '+ar(bs.length)]].map(function(c){return '<button class="chip'+(f===c[0]?' on':'')+'" data-a="hsnff" data-v="'+c[0]+'">'+c[1]+'</button>'}).join('')+'</div>';
+  if(f!=='z'&&bsF.length){h+='<div class="asm-grid">'+bsF.map(function(r){var c=r[1],dn=hsnDone(P,r[0]);return '<button class="asm-card hsn-cd" data-a="hsncat" data-v="'+r[0]+'"><i class="asm-dot'+(dn===c.items.length?' on':'')+'"></i><div class="hsn-ic">'+hsnSv(c.n?hsnChSv(c.n):HSN_CORE_SV[r[0]])+'</div><b>'+hsnX(c.name)+'</b><span>'+ar(dn)+' / '+ar(c.items.length)+'</span></button>'}).join('')+'</div>';cnt+=bsF.length}
+  if(f!=='b'){
+    zsF.forEach(function(r){h+=hsnCard(P,r[0],r[1],r[2],r[3].name+(r[3].n?' · '+ar(r[3].n):''),q);cnt++});
+    if(oldF.length){h+='<h4 class="hsn-gh">أذكاري المحفوظة سابقًا</h4>'+oldF.map(function(it){cnt++;return '<div class="card"><div class="hsn-t keepar">'+(q?hsnHl(it.t,q):hsnX(it.t))+'</div><div class="hsn-b"><small></small>'+hsnStar(true,'hsnfold',it.id)+'</div></div>'}).join('')}}
+  if(!cnt)h+='<p class="note">'+(tot?'لا نتائج في مفضلتك':'لم تحفظ شيئًا بعد. اضغط ☆ على أي ذكر أو بجانب اسم الباب.')+'</p>';
+  return '<div id="hsn-fl">'+h+'</div>'}
 var HSN_PRE=['سُبْحَانَ اللَّهِ','الْحَمْدُ لِلَّهِ','اللَّهُ أَكْبَرُ','لَا إِلَٰهَ إِلَّا اللَّهُ','أَسْتَغْفِرُ اللَّهَ'];
 function hsnP(){
   var P=S.hisn;if(!P||typeof P!=='object')P=S.hisn={fs:22,d:'سُبْحَانَ اللَّهِ',t:99,c:0,tt:0,tn:0,all:0,prog:{}};
@@ -170,18 +215,22 @@ function hsnRem(P,slug,i){var k=slug+':'+i,v=P.prog[k];return v===undefined?hsnG
 function hsnDone(P,slug){var c=0;hsnG(slug).items.forEach(function(it,i){if(hsnRem(P,slug,i)<=0)c++});return c}
 function vHisn(){
   var P=hsnP(),h='<div class="hsn">';
+  if(hsnS.cat==='__fav'){
+    hsnFav(P);if(!hsnF.ok)hsnfEnsure(function(ok){if(ok&&tab==='hisn'&&hsnS.cat==='__fav')render()});
+    return h+'<div class="hsn-top"><button class="btn ghost" data-a="hsnback">← الأذكار</button><b class="hsn-cn">★ المفضلة</b></div><div class="hsn-sr hsn-sr-top"><input id="hsn-fq" type="search" placeholder="ابحث في مفضلتي" value="'+hsnX(hsnS.fq||'').replace(/"/g,'&quot;')+'"></div>'+(hsnF.ok?'':'<p class="note">يجري التحميل…</p>')+hsnFavView(P)+'</div>';
+  }
   if(hsnS.cat){
     var cat=hsnG(hsnS.cat),dn=hsnDone(P,hsnS.cat);
-    h+='<div class="hsn-top"><button class="btn ghost" data-a="hsnback">← الأذكار</button><b class="hsn-cn">'+cat.name+'</b><span class="hsn-fs"><button class="btn ghost" data-a="hsnfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hsnfs" data-v="2">أ+</button></span></div>'
+    h+='<div class="hsn-top"><button class="btn ghost" data-a="hsnback">← الأذكار</button><b class="hsn-cn">'+cat.name+'</b><span class="hsn-fs">'+hsnStar(hsnFav(P).favb.indexOf(hsnS.cat)>=0,'hsnfb',hsnS.cat)+'<button class="btn ghost" data-a="hsnfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hsnfs" data-v="2">أ+</button></span></div>'
      +'<div class="asm-bar"><i id="hsn-pb" style="width:'+Math.round(dn/cat.items.length*100)+'%"></i></div>'
-     +cat.items.map(function(it,i){var r=hsnRem(P,hsnS.cat,i),dn=r<=0;
-       return '<div class="card hsn-z'+(dn?' done':'')+'" data-a="hsnz" data-v="'+hsnS.cat+':'+i+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+it.text+'</div><div class="hsn-b"><small>'+[it.virtue||'',it.s?'<span>ذكر</span> '+ar(it.s):''].filter(Boolean).join(' · ')+'</small>'+(it.u?'<button class="btn ghost hsn-au" data-a="hsnau" data-v="'+hsnS.cat+':'+i+'">▶ استماع</button>':'')+'<button class="btn ghost hsn-au hsn-sh" data-a="hsnsh" data-v="'+hsnS.cat+':'+i+'">مشاركة</button>'+'<span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}).join('');
+     +cat.items.map(function(it,i){return hsnCard(P,hsnS.cat,i,it)}).join('');
     return h+'</div>';
   }
   var qv=hsnF.q||'';
   h+='<div class="hsn-sr hsn-sr-top"><input id="hsn-q" type="search" placeholder="ابحث في أذكار حصن المسلم" value="'+hsnX(qv).replace(/"/g,'&quot;')+'"></div>';
   var nq=hsnNorm(qv).trim(),core='';
   Object.keys(HSN).forEach(function(s){var c=HSN[s];if(nq&&hsnNorm(c.name).indexOf(nq)<0)return;var dn=hsnDone(P,s);core+='<button class="asm-card" data-a="hsncat" data-v="'+s+'"><i class="asm-dot'+(dn===c.items.length?' on':'')+'"></i><div class="hsn-ic">'+hsnSv(HSN_CORE_SV[s])+'</div><b>'+c.name+'</b><span>'+ar(dn)+' / '+ar(c.items.length)+'</span></button>'});
+  if(!nq)core='<button class="asm-card" data-a="hsncat" data-v="__fav"><i class="asm-dot"></i><div class="hsn-ic">'+hsnSv('star')+'</div><b>★ المفضلة</b><span>'+ar(hsnFav(P).fav.length+P.favb.length)+'</span></button>'+core;
   if(core)h+='<div id="hsn-c" class="asm-grid">'+core+'</div>';
   if(hsnF.ok){var tot=0;hsnF.idx.forEach(function(r){tot+=hsnF.reg[r.slug].items.length});
     h+='<div id="hsn-l">'+hsnRows(qv)+'</div>';
@@ -211,10 +260,19 @@ function hsnRing(P){
   set('hsn-n',ar(P.c));set('hsn-tt',ar(P.tt));set('hsn-al',ar(P.all));
   var r=document.getElementById('hsn-rp');if(r){var pct=P.t>=1000?(P.c%100)/100:Math.min(1,P.c/P.t);r.style.strokeDashoffset=(653.4*(1-pct)).toFixed(1)}
 }
+function hapGoSafe(){try{navigator.vibrate&&navigator.vibrate(20)}catch(e){}}
 function hsnAct(a,v){
   var P=hsnP();
   if(a==='hsncat'){hsnS.cat=v;try{window.scrollTo(0,0)}catch(e){}return true}
   if(a==='hsnback'){hsnAuStop();hsnS.cat=null;return true}
+  if(a==='hsnfv'){var q3=v.split(':'),k3=hsnItK(q3[0],+q3[1]);if(!k3)return false;hsnFav(P);var x3=P.fav.indexOf(k3);if(x3>=0)P.fav.splice(x3,1);else P.fav.push(k3);save();hapGoSafe();toast(x3>=0?'أُزيل من المفضلة':'أُضيف إلى المفضلة');
+    if(hsnS.cat==='__fav')return true;
+    document.querySelectorAll('[data-a=hsnfv][data-v="'+v+'"]').forEach(function(b){var on=x3<0;b.classList.toggle('on',on);b.textContent=on?'★':'☆';b.setAttribute('aria-pressed',on)});return false}
+  if(a==='hsnfb'){hsnFav(P);var x4=P.favb.indexOf(v);if(x4>=0)P.favb.splice(x4,1);else P.favb.push(v);save();hapGoSafe();toast(x4>=0?'أُزيل الباب من المفضلة':'أُضيف الباب إلى المفضلة');
+    document.querySelectorAll('[data-a=hsnfb]').forEach(function(b){var on=x4<0;b.classList.toggle('on',on);b.textContent=on?'★':'☆';b.setAttribute('aria-pressed',on)});return false}
+  if(a==='hsnfold'){if(typeof ntFavs==='function'){var F=ntFavs(),i5=F.indexOf(v);if(i5>=0)F.splice(i5,1);save();toast('أُزيل من المفضلة')}return true}
+  if(a==='hsnff'){hsnS.ff=v;return true}
+  if(a==='hsnopen'){var q6=v.split(':');hsnAuStop();hsnS.cat=q6[0];setTimeout(function(){var c=document.querySelector('[data-a=hsnz][data-v="'+v+'"]');if(c&&c.scrollIntoView){try{c.scrollIntoView({block:'center'})}catch(e){}}},120);return true}
   if(a==='hsnfs'){P.fs=Math.max(16,Math.min(32,P.fs+(+v)));save();return true}
   if(a==='hsnsh'){var q2=v.split(':'),it2=hsnG(q2[0]).items[+q2[1]];if(!it2)return false;var tx=String(it2.text).replace(/<[^>]*>/g,'')+(it2.virtue?'\n\n'+it2.virtue:'');
     try{if(navigator.share){navigator.share({text:tx});return false}}catch(e){}
@@ -261,4 +319,5 @@ function msbAct(a,v){
 }
 
 (function(){var tm;document.addEventListener('input',function(e){
+  if(e.target&&e.target.id==='hsn-fq'){var fv=e.target.value;clearTimeout(tm);tm=setTimeout(function(){hsnS.fq=fv;var fl=document.getElementById('hsn-fl');if(fl)fl.outerHTML=hsnFavView(hsnP())},180)}
   if(e.target&&e.target.id==='hsn-q'){var val=e.target.value;clearTimeout(tm);tm=setTimeout(function(){hsnF.q=val;var l=document.getElementById('hsn-l');if(l&&hsnF.ok)l.innerHTML=hsnRows(val)},180)}})})();

@@ -88,3 +88,6 @@ button.rdo-back[data-a=rctback]{border-color:var(--accent,#4c9a8f);animation:rbp
 #hsn-c .hsn-row,#hsn-l .hsn-row{margin:6px 0}
 .hsn-no{font-weight:700;color:var(--gold);font-size:22px}.hsn-cd b{font-size:15px;line-height:1.7}
 .hsn-sv{width:34px;height:34px;color:var(--gold)}#hsn-l{margin-top:10px}
+
+.hsn-fv{font-size:16px;line-height:1}.hsn-fv.on{color:var(--gold)}.hsn-lb{margin:12px 2px 4px}.hsn-lbb{background:none;border:0;color:var(--gold);font:inherit;font-size:12px;padding:2px 0;cursor:pointer}.hsn-gh{margin:14px 2px 6px;font-size:13px;color:var(--muted)}.hsn-clamp .hsn-t{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.hsn mark{background:color-mix(in srgb,var(--gold) 38%,transparent);color:inherit;border-radius:4px;padding:0 1px}.hsn-ff{margin:6px 0 8px}
+.hsn-b{flex-wrap:wrap}.hsn-b small{flex:1 1 100%}.hsn-b .hsn-c{margin-inline-start:auto}
