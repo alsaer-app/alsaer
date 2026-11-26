@@ -11,7 +11,7 @@ async def main():
     f=Path(td)/'index.html';f.write_text(html)
     p=await b.new_page(viewport={'width':360,'height':800});seed={'onboarded':True,'tour':{'done':1},'loc':{'lat':30.0444,'lng':31.2357,'auto':True,'method':'egypt','asr':1}}
     res={'ok':"gpsOnNative(30.78,31.0,20,'')",'denied':"gpsOnNative(0,0,0,'denied')",'off':"gpsOnNative(0,0,0,'off')",'fail-then-web':"gpsOnNative(0,0,0,'timeout')"}[case]
-    await p.add_init_script('localStorage.alsaer_seen_update_200="1";localStorage.tawba_v1='+json.dumps(json.dumps(seed))+';window.__n=0;window.__web=0;window.AlsaerNative={locHasPermission(){return false},locGet(){window.__n++;setTimeout(()=>'+res+',30)},openLocationSettings(){}};Object.defineProperty(navigator,"geolocation",{value:{getCurrentPosition(ok,er){window.__web++;er({code:3})},watchPosition(ok,er){er({code:3});return 1},clearWatch(){}}});')
+    await p.add_init_script('localStorage.alsaer_wn_build="999999";localStorage.alsaer_seen_update_200="1";localStorage.tawba_v1='+json.dumps(json.dumps(seed))+';window.__n=0;window.__web=0;window.AlsaerNative={locHasPermission(){return false},locGet(){window.__n++;setTimeout(()=>'+res+',30)},openLocationSettings(){}};Object.defineProperty(navigator,"geolocation",{value:{getCurrentPosition(ok,er){window.__web++;er({code:3})},watchPosition(ok,er){er({code:3});return 1},clearWatch(){}}});')
     await p.goto(f.as_uri()+'?alsaertest');await p.wait_for_timeout(1700)
     await p.evaluate('__T.go("ptloc")');await p.wait_for_timeout(300)
     await p.click('[data-a=gps]');await p.wait_for_timeout(250)

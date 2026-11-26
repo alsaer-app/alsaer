@@ -31,6 +31,8 @@ for tamper in (False,True):
     pg.route('**/index.html',lambda r:r.fulfill(body='<html></html>',content_type='text/html'),times=1)
     pg.goto(U);pg.evaluate("s=>localStorage.setItem('tawba_v1',s)",json.dumps({'onboarded':True,'tour':1,'update109':1,'ui':{'lang':'ar','mode':'dark'}}))
     pg.goto(U);pg.wait_for_timeout(1200)
+    try:pg.wait_for_selector('#update109-notice',timeout=4000)
+    except Exception:pass
     try:pg.click('[data-a=update109Done]',timeout=500)
     except Exception:pass
     ok=pg.evaluate("new Promise(function(res){ftIdx(function(){ftChunk(0,function(k){res([k,!!(window.FTW&&window.FTW[0]),window.FTW&&window.FTW[0]?window.FTW[0].length:0])})})})") if False else None

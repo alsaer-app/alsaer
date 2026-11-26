@@ -11,7 +11,7 @@ async def main():
   async with async_playwright() as w:
    b=await w.chromium.launch(channel='chrome',args=['--no-sandbox']);p=await b.new_page(viewport={'width':360,'height':780});errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
    seed={'onboarded':True,'tour':{'done':1},'ui':{'mode':'dark'}}
-   await p.add_init_script('localStorage.alsaer_seen_update_200="1";localStorage.tawba_v1='+json.dumps(json.dumps(seed))+';localStorage.alsaer_drive_prefs=JSON.stringify({auto:false});window.__calls=[];window.AlsaerNative={gdriveAuthorize(v){__calls.push(v);setTimeout(()=>gdriveOnNativeToken("token","","test@example.com"),0)},gdriveSaveBackup(){return true},gdriveSeal(){return ""},backupImport(){throw Error("picker-unavailable")}};')
+   await p.add_init_script('localStorage.alsaer_wn_build="999999";localStorage.alsaer_seen_update_200="1";localStorage.tawba_v1='+json.dumps(json.dumps(seed))+';localStorage.alsaer_drive_prefs=JSON.stringify({auto:false});window.__calls=[];window.AlsaerNative={gdriveAuthorize(v){__calls.push(v);setTimeout(()=>gdriveOnNativeToken("token","","test@example.com"),0)},gdriveSaveBackup(){return true},gdriveSeal(){return ""},backupImport(){throw Error("picker-unavailable")}};')
    await p.goto(f.as_uri()+'?alsaertest');await p.wait_for_timeout(1700)
    await p.evaluate('let b=document.createElement("button");b.dataset.a="tab";b.dataset.v="backup";document.body.append(b);b.click();b.remove()');await p.wait_for_timeout(100)
    await p.click('[data-a=gdconnect]');await p.wait_for_timeout(150)

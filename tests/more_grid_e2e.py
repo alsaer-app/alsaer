@@ -25,6 +25,8 @@ async def main():
      seed={'onboarded':True,'tour':{'done':1},'ui':{'mode':mode,'accent':'maleem','digits':'east','press':'glow','trans':'slide'}}
      await p.add_init_script('localStorage.tawba_v1='+json.dumps(json.dumps(seed))+';localStorage.alsaer_drive_prefs=JSON.stringify({auto:false})')
      await p.goto(f'http://127.0.0.1:{srv.server_port}/{stage}.html');await p.wait_for_timeout(1500)
+     try:await p.wait_for_selector('#update109-notice',timeout=4000)
+     except Exception:pass
      for sel in ['[data-a=update109Done]','text=تخطي']:
       try:await p.click(sel,timeout=300)
       except:pass

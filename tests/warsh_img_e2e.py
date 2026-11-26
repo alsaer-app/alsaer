@@ -23,6 +23,8 @@ with sync_playwright() as p:
         pg.route('**/*',route)
         pg.route('**/index.html*',lambda r:r.fulfill(body='<html></html>',content_type='text/html'),times=1)
         pg.goto(URL);pg.evaluate("([s,b])=>{localStorage.setItem('tawba_v1',s);if(b)localStorage.setItem('alsaer_warsh_img_base',b)}",[json.dumps(seed(pos)),base]);pg.goto(URL);pg.wait_for_timeout(1500)
+        try:pg.wait_for_selector('#update109-notice',timeout=4000)
+        except Exception:pass
         try:pg.click('[data-a=update109Done]',timeout=500)
         except Exception:pass
         pg.evaluate("()=>new Promise(r=>{if(window.WDATA)return r();var s=document.createElement('script');s.src='warsh.js';s.onload=r;document.head.appendChild(s)})")

@@ -9,6 +9,8 @@ def page(b,lang):
     pg=b.new_page(viewport={'width':360,'height':780});errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     pg.route('**/index.html',lambda r:r.fulfill(body='<html></html>',content_type='text/html'),times=1)
     pg.goto(URL);pg.evaluate("s=>localStorage.setItem('tawba_v1',s)",json.dumps({'onboarded':True,'tour':1,'update109':1,'ui':{'lang':lang,'mode':'dark'}}));pg.goto(URL);pg.wait_for_timeout(1200)
+    try:pg.wait_for_selector('#update109-notice',timeout=4000)
+    except Exception:pass
     try:pg.click('[data-a=update109Done]',timeout=500)
     except Exception:pass
     return pg,errs

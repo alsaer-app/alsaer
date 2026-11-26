@@ -19,8 +19,10 @@ async def main():
    for mode in ['dark','light']:
     for width in [320,360,412]:
      p=await b.new_page(viewport={'width':width,'height':844});errors=[];p.on('pageerror',lambda e:errors.append(str(e)))
-     await p.add_init_script('localStorage.tawba_v1='+json.dumps(json.dumps({'onboarded':True,'tour':{'done':1},'ui':{'mode':mode,'accent':'maleem','digits':'east','trans':'none'}})))
+     await p.add_init_script('localStorage.alsaer_wn_build="999999";localStorage.tawba_v1='+json.dumps(json.dumps({'onboarded':True,'tour':{'done':1},'ui':{'mode':mode,'accent':'maleem','digits':'east','trans':'none'}})))
      await p.goto(f'http://127.0.0.1:{srv.server_port}/index.html');await p.wait_for_timeout(1000)
+     try:await p.wait_for_selector('#update109-notice',timeout=4000)
+     except Exception:pass
      for sel in ['[data-a=update109Done]','text=تخطي']:
       try:await p.click(sel,timeout=250)
       except:pass

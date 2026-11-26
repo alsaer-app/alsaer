@@ -8,7 +8,7 @@ async def main():
   f=Path(td)/'index.html';f.write_text((R/'www/index.html').read_text())
   async with async_playwright() as w:
    b=await w.chromium.launch(channel='chrome',args=['--no-sandbox']);p=await b.new_page(viewport={'width':360,'height':780})
-   await p.add_init_script('localStorage.alsaer_seen_update_200="1";localStorage.tawba_v1='+json.dumps(json.dumps({'onboarded':True,'tour':{'done':1},'loc':{'lat':30.0444,'lng':31.2357,'auto':True,'method':'egypt','asr':1}}))+';Object.defineProperty(navigator,"geolocation",{value:{getCurrentPosition(ok,fail){window.__gpsOK=ok;window.__gpsFail=fail}}});')
+   await p.add_init_script('localStorage.alsaer_wn_build="999999";localStorage.alsaer_seen_update_200="1";localStorage.tawba_v1='+json.dumps(json.dumps({'onboarded':True,'tour':{'done':1},'loc':{'lat':30.0444,'lng':31.2357,'auto':True,'method':'egypt','asr':1}}))+';Object.defineProperty(navigator,"geolocation",{value:{getCurrentPosition(ok,fail){window.__gpsOK=ok;window.__gpsFail=fail}}});')
    await p.goto(f.as_uri()+'?alsaertest');await p.wait_for_timeout(1700);await p.evaluate('__T.go("ptloc")')
    await p.select_option('[data-loc=method]','karachi');assert await p.evaluate('__T.S().ptimes.fajr===__T.ptCompute(new Date(),30.0444,31.2357,"karachi",1).fajr')
    await p.check('[data-loc=asr][value="2"]');assert await p.evaluate('__T.S().ptimes.asr===__T.ptCompute(new Date(),30.0444,31.2357,"karachi",2).asr')
