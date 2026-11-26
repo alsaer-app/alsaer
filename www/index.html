@@ -2951,7 +2951,7 @@ function fixShape(o){
   if(!isO(o.prayers))o.prayers={};if(!isO(o.ptimes))o.ptimes={};
   if(!isO(o.quran))o.quran={goal:2,log:{},pos:1,fs:26};if(!isO(o.quran.log))o.quran.log={};
   var g=parseInt(o.quran.goal,10);o.quran.goal=(g>=1&&g<=30)?g:2;var ps=parseInt(o.quran.pos,10);o.quran.pos=(ps>=1&&ps<=604)?ps:1;var fz=parseInt(o.quran.fs,10);o.quran.fs=(fz>=18&&fz<=44)?fz:26;
-  if(!isO(o.profile))o.profile={name:'',age:'',photo:''};o.profile.name=String(o.profile.name||'').slice(0,40);var rawAge=String(o.profile.age||'').trim(),ageN=/^\d{1,3}$/.test(rawAge)?Number(rawAge):0;o.profile.age=ageN>=1&&ageN<=120?String(ageN):'';o.profile.photo=typeof o.profile.photo==='string'&&o.profile.photo.indexOf('data:image/')===0&&o.profile.photo.length<200000?o.profile.photo:'';
+  if(!isO(o.profile))o.profile={name:'',age:'',photo:''};o.profile.name=String(o.profile.name||'').slice(0,40);var rawAge=String(o.profile.age||'').trim(),ageN=/^\d{1,3}$/.test(rawAge)?Number(rawAge):0;o.profile.age=ageN>=1&&ageN<=120?String(ageN):'';o.profile.photo=typeof o.profile.photo==='string'&&/^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(o.profile.photo)&&o.profile.photo.length<200000?o.profile.photo:'';
   if(!isO(o.ui))o.ui={};
   if(o.lockType!=='pattern'||!o.pin)delete o.lockType;
   if(!o.security||typeof o.security!=='object')o.security={method:'pin'};if(!['pin','password'].includes(o.security.method))o.security.method='pin';
@@ -3512,7 +3512,7 @@ function topTrig(){
   return best;
 }
 
-var APP_VERSION='2.0.0',APP_BUILD=200,COPY='';
+var APP_VERSION='2.0.1',APP_BUILD=10201,COPY='';
 try{if(window.AlsaerNative&&typeof AlsaerNative.appBuildInfo==='function'){var bi=AlsaerNative.appBuildInfo().split('|');if(bi.length===2&&parseInt(bi[1],10)>0){APP_VERSION=bi[0];APP_BUILD=parseInt(bi[1],10)}}}catch(e){}
 function devBtn(){
   var ch=ic('chev').replace('class="i"','class="i dev-chev"');
@@ -7720,7 +7720,7 @@ function rctAct(a,v){
 var ftS={view:'cats',cat:'',q:'',id:0,lim:60,menu:0};
 function ftEsc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function ftNorm(t){return String(t).normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase()}
-var FT_REMOTE='https://raw.githubusercontent.com/alsaer-app/alsaer/exp/drive-account-recovery/www/fatwas/',FT_CACHE='alsaer-fatwas';
+var FT_REMOTE='https://raw.githubusercontent.com/alsaer-app/alsaer/main/www/fatwas/',FT_CACHE='alsaer-fatwas';
 /* بصمة sha256 لكل ملف تأتي من index.json (حقل h). أي ملف لا يطابق بصمته يُرفض ولا يُخزَّن (تلف أو تبديل أو تحميل ناقص). index.json نفسه هو الجذر: تثبيت الفرع/الوسم FT_REMOTE هو ما يحمي الجذر */
 function ftSha(txt,cb){
   try{crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt)).then(function(b){var a=new Uint8Array(b),s='',i;for(i=0;i<a.length;i++)s+=('0'+a[i].toString(16)).slice(-2);cb(s)},function(){cb('')})}catch(e){cb('')}
@@ -8301,7 +8301,7 @@ function vSettings(){
    +'</div>';
 
   /* ===== ملفي الشخصي (كما هو) ===== */
-  var PROF=''+srow('prof','user','الملف الشخصي',(S.profile&&S.profile.name)||'إضافة الاسم والصورة')
+  var PROF=''+srow('prof','user','الملف الشخصي',esc((S.profile&&S.profile.name)||'إضافة الاسم والصورة'))
   +P('prof','<section class="card profile-edit"><div class="profile-preview" id="profile-preview"><div class="profile-photo-line"><div class="profile-edit-head"><button type="button" class="profile-photo-open" data-a="viewprofilephoto" aria-label="عرض الصورة بالحجم الكامل">'+profileAvatar(76)+'</button><div><h3 id="profile-preview-name" class="keepar">'+esc((S.profile&&S.profile.name)||'ملفك الشخصي')+'</h3><p class="note" id="profile-preview-age">'+((S.profile&&S.profile.age)?'العمر · '+esc(S.profile.age)+' سنة':'بياناتك الخاصة تظهر هنا بشكل أنيق')+'</p></div></div><button type="button" class="profile-photo-pencil" data-a="editprofilephoto" aria-label="تعديل الصورة">'+ic('pencil')+'</button></div></div><input id="profile-photo" type="file" accept="image/*" class="profile-file" style="display:none"><label class="profile-label" for="profile-name">الاسم</label><input id="profile-name" type="text" maxlength="40" value="'+esc(S.profile&&S.profile.name||'')+'" placeholder="اكتب اسمك"><label class="profile-label" for="profile-age">السن</label><input id="profile-age" type="number" inputmode="numeric" min="1" max="120" value="'+esc(S.profile&&S.profile.age||'')+'" placeholder="عمرك بالسنوات"><p class="note">يمكنك ترك السن أو الصورة دون إضافة.</p><p class="note">طريقة المخاطبة</p><div class="row"><button class="btn ghost" data-a="gender" data-v="male">ذكر</button><button class="btn ghost" data-a="gender" data-v="female">أنثى</button></div><button class="btn block" data-a="saveprofile" style="margin-top:10px">حفظ الملف الشخصي</button></section>');
 
   /* ===== المساعدة والمعلومات ===== */
@@ -8321,7 +8321,7 @@ function vSettings(){
    +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>الإصدار '+esc(APP_VERSION)+' · التحقق من وجود تحديث</small></div>'+sgCtlV('')+'</button>'
    +'<a class="sg-row sg-btn" href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer"><span class="sg-ic">'+ic('mail')+'</span><div class="sg-tx"><b>اقتراحات وملاحظات</b><small>شارك فكرة أو أبلغ عن مشكلة</small></div>'+sgCtlV('')+'</a></div>'+sgDeveloperCard();
 
-  var ACCOUNT='<div class="sg-card">'+sgNavSub('account-prof','user','الملف الشخصي','الاسم والصورة وطريقة المخاطبة',(S.profile&&S.profile.name)||'')+sgNavSub('account-sec','shield','الأمان والبيانات','القفل والبصمة والنسخ الاحتياطي','')+sgNavSub('account-about','info','المساعدة والمعلومات','حالة النظام والجولة وعن التطبيق','')+'</div>'+APPBOTTOM;
+  var ACCOUNT='<div class="sg-card">'+sgNavSub('account-prof','user','الملف الشخصي','الاسم والصورة وطريقة المخاطبة',esc((S.profile&&S.profile.name)||''))+sgNavSub('account-sec','shield','الأمان والبيانات','القفل والبصمة والنسخ الاحتياطي','')+sgNavSub('account-about','info','المساعدة والمعلومات','حالة النظام والجولة وعن التطبيق','')+'</div>'+APPBOTTOM;
   var views={look:LOOK,notif:NOTIF,loc:LOC,account:ACCOUNT};
   var subs={
    'look-adv':['look','خيارات متقدمة',ADV],

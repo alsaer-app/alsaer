@@ -148,7 +148,7 @@ function vSettings(){
    +'</div>';
 
   /* ===== ملفي الشخصي (كما هو) ===== */
-  var PROF=''+srow('prof','user','الملف الشخصي',(S.profile&&S.profile.name)||'إضافة الاسم والصورة')
+  var PROF=''+srow('prof','user','الملف الشخصي',esc((S.profile&&S.profile.name)||'إضافة الاسم والصورة'))
   +P('prof','<section class="card profile-edit"><div class="profile-preview" id="profile-preview"><div class="profile-photo-line"><div class="profile-edit-head"><button type="button" class="profile-photo-open" data-a="viewprofilephoto" aria-label="عرض الصورة بالحجم الكامل">'+profileAvatar(76)+'</button><div><h3 id="profile-preview-name" class="keepar">'+esc((S.profile&&S.profile.name)||'ملفك الشخصي')+'</h3><p class="note" id="profile-preview-age">'+((S.profile&&S.profile.age)?'العمر · '+esc(S.profile.age)+' سنة':'بياناتك الخاصة تظهر هنا بشكل أنيق')+'</p></div></div><button type="button" class="profile-photo-pencil" data-a="editprofilephoto" aria-label="تعديل الصورة">'+ic('pencil')+'</button></div></div><input id="profile-photo" type="file" accept="image/*" class="profile-file" style="display:none"><label class="profile-label" for="profile-name">الاسم</label><input id="profile-name" type="text" maxlength="40" value="'+esc(S.profile&&S.profile.name||'')+'" placeholder="اكتب اسمك"><label class="profile-label" for="profile-age">السن</label><input id="profile-age" type="number" inputmode="numeric" min="1" max="120" value="'+esc(S.profile&&S.profile.age||'')+'" placeholder="عمرك بالسنوات"><p class="note">يمكنك ترك السن أو الصورة دون إضافة.</p><p class="note">طريقة المخاطبة</p><div class="row"><button class="btn ghost" data-a="gender" data-v="male">ذكر</button><button class="btn ghost" data-a="gender" data-v="female">أنثى</button></div><button class="btn block" data-a="saveprofile" style="margin-top:10px">حفظ الملف الشخصي</button></section>');
 
   /* ===== المساعدة والمعلومات ===== */
@@ -168,7 +168,7 @@ function vSettings(){
    +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>الإصدار '+esc(APP_VERSION)+' · التحقق من وجود تحديث</small></div>'+sgCtlV('')+'</button>'
    +'<a class="sg-row sg-btn" href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer"><span class="sg-ic">'+ic('mail')+'</span><div class="sg-tx"><b>اقتراحات وملاحظات</b><small>شارك فكرة أو أبلغ عن مشكلة</small></div>'+sgCtlV('')+'</a></div>'+sgDeveloperCard();
 
-  var ACCOUNT='<div class="sg-card">'+sgNavSub('account-prof','user','الملف الشخصي','الاسم والصورة وطريقة المخاطبة',(S.profile&&S.profile.name)||'')+sgNavSub('account-sec','shield','الأمان والبيانات','القفل والبصمة والنسخ الاحتياطي','')+sgNavSub('account-about','info','المساعدة والمعلومات','حالة النظام والجولة وعن التطبيق','')+'</div>'+APPBOTTOM;
+  var ACCOUNT='<div class="sg-card">'+sgNavSub('account-prof','user','الملف الشخصي','الاسم والصورة وطريقة المخاطبة',esc((S.profile&&S.profile.name)||''))+sgNavSub('account-sec','shield','الأمان والبيانات','القفل والبصمة والنسخ الاحتياطي','')+sgNavSub('account-about','info','المساعدة والمعلومات','حالة النظام والجولة وعن التطبيق','')+'</div>'+APPBOTTOM;
   var views={look:LOOK,notif:NOTIF,loc:LOC,account:ACCOUNT};
   var subs={
    'look-adv':['look','خيارات متقدمة',ADV],

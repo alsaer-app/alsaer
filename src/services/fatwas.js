@@ -2,7 +2,7 @@
 var ftS={view:'cats',cat:'',q:'',id:0,lim:60,menu:0};
 function ftEsc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function ftNorm(t){return String(t).normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase()}
-var FT_REMOTE='https://raw.githubusercontent.com/alsaer-app/alsaer/exp/drive-account-recovery/www/fatwas/',FT_CACHE='alsaer-fatwas';
+var FT_REMOTE='https://raw.githubusercontent.com/alsaer-app/alsaer/main/www/fatwas/',FT_CACHE='alsaer-fatwas';
 /* بصمة sha256 لكل ملف تأتي من index.json (حقل h). أي ملف لا يطابق بصمته يُرفض ولا يُخزَّن (تلف أو تبديل أو تحميل ناقص). index.json نفسه هو الجذر: تثبيت الفرع/الوسم FT_REMOTE هو ما يحمي الجذر */
 function ftSha(txt,cb){
   try{crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt)).then(function(b){var a=new Uint8Array(b),s='',i;for(i=0;i<a.length;i++)s+=('0'+a[i].toString(16)).slice(-2);cb(s)},function(){cb('')})}catch(e){cb('')}
