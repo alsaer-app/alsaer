@@ -11,8 +11,19 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context c, Intent i) {
         try {
             if ("float".equals(i.getStringExtra("kind"))) { FloatFeed.fire(c); return; }
+            if ("rebuild".equals(i.getStringExtra("kind"))) { AlarmScheduler.scheduleAll(c); FloatFeed.schedule(c); return; }
             JSONObject it = new JSONObject(i.getStringExtra("item"));
             boolean snooze = i.getBooleanExtra("snooze", false);
+            /* الموعد المقرر مقابل وقت الاستلام: متأخر جدًا (جهاز مطفأ/نائم) يُسقط ولا يُعرض، ونفس الموعد لا يُعالَج مرتين */
+            final long due = i.getLongExtra("due", 0), nowMs = System.currentTimeMillis();
+            final String itemId = it.optString("id");
+            final boolean stale = ReminderPlan.isStale(due, nowMs, snooze || AlarmScheduler.needsExact(itemId));
+            final String dueKey = "fired-due:" + itemId + (snooze ? "#snooze" : "");
+            if (due > 0) {
+                if (ReminderPlan.isDuplicate(AlarmScheduler.prefs(c).getLong(dueKey, 0), due)) return;
+                if (!AlarmScheduler.prefs(c).edit().putLong(dueKey, due).commit()) return;
+            }
+            if (snooze && stale) { AlarmScheduler.snoozeChainSet(c, itemId, 0); return; }
             long once=it.optLong("at",0);
             String onceKey="fired-once:"+it.optString("id");
             if(once>0&&!snooze){
@@ -30,9 +41,9 @@ public class AlarmReceiver extends BroadcastReceiver {
             }
             if (!snooze && it.optLong("at", 0) <= 0) { // جدولة الموعد التالي للتنبيه المتكرر
                 long at = AlarmScheduler.nextTrigger(it, System.currentTimeMillis() + 1000L);
-                if (at > 0) AlarmScheduler.scheduleAt(c, it, at, false);
+                if (at > 0 && ReminderPlan.inHorizon(at, System.currentTimeMillis())) AlarmScheduler.scheduleAt(c, it, at, false);
             }
-            AlarmScheduler.show(c, it);
+            if (!stale) AlarmScheduler.show(c, it);
         } catch (Exception e) {
             FloatLog.err(c, NativeStrings.get(c, "receive_alert"), String.valueOf(e));
         }

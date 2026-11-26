@@ -58,9 +58,6 @@ public final class AlarmScheduler {
             if(k.startsWith("snz-chain:"))cancelSnooze(c,k.substring("snz-chain:".length()));
         }
     }
-    /* مهلة لحاق للتنبيهات المفردة الفائتة (إغلاق/إعادة تشغيل): تُطلق خلال ١٠ ثوانٍ بدل أن تضيع */
-    static final long GRACE_MS = 45L * 60L * 1000L;
-
     private AlarmScheduler() {}
 
     static SharedPreferences prefs(Context c) {
@@ -102,11 +99,28 @@ public final class AlarmScheduler {
             long once=it.optLong("at",0);
             if(once>0&&prefs(c).getLong("fired-once:"+it.optString("id"),0)==once)continue;
             long at = nextTrigger(it, now);
-            if (at <= 0) continue;
+            /* أفق متحرك يومان: ما بعده يُجدوَل عند إعادة البناء التالية */
+            if (at <= 0 || !ReminderPlan.inHorizon(at, now)) continue;
             scheduleAt(c, it, at, false);
             ids.put(code(c,it.optString("id"),"alarm"));
         }
         prefs(c).edit().putString(K_IDS, ids.toString()).apply();
+        scheduleRebuild(c);
+    }
+
+    /** منبّه إعادة بناء غير دقيق بعد ٣٦ ساعة: يمدّ الأفق حتى لو لم يُفتح التطبيق ولم يعمل WorkManager. لا يُلغى مع cancelAll. */
+    static void scheduleRebuild(Context c) {
+        try {
+            AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) return;
+            Uri identity = new Uri.Builder().scheme("alsaer-alarm").authority("rebuild").appendPath("next").build();
+            Intent in = new Intent(c, AlarmReceiver.class).setAction(ACTION_ALARM).setData(identity);
+            in.putExtra("kind", "rebuild");
+            PendingIntent pi = PendingIntent.getBroadcast(c, code(c, "__rebuild__", "alarm"), in, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
+            long at = System.currentTimeMillis() + ReminderPlan.REBUILD_AFTER_MS;
+            if (Build.VERSION.SDK_INT >= 23) am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
+            else am.set(AlarmManager.RTC_WAKEUP, at, pi);
+        } catch (Throwable ignored) { }
     }
 
     static void cancelAll(Context c) {
@@ -165,8 +179,8 @@ public final class AlarmScheduler {
     static long nextTrigger(JSONObject it, long now) {
         long at = it.optLong("at", 0);
         if (at > 0) {
-            if (at > now) return at;
-            return now - at <= GRACE_MS ? now + 10000L : 0;
+            /* الفائت لا يُطلق أبدًا (لا مهلة لحاق): يُسقط */
+            return at > now ? at : 0;
         }
         int h = it.optInt("h", -1), m = it.optInt("m", 0);
         if (h < 0) return 0;
@@ -211,6 +225,7 @@ public final class AlarmScheduler {
         rememberAlarm(c,rc,identity);
         in.putExtra("item", it.toString());
         in.putExtra("snooze", snooze);
+        in.putExtra("due", at); // الموعد المقرر: يُسقط الاستلام المتأخر جدًا ويمنع تكرار نفس الموعد
         PendingIntent pi = PendingIntent.getBroadcast(c, rc, in, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
         boolean exact = snooze || needsExact(id);
         boolean canExact = Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms();
