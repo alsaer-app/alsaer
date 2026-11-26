@@ -76,6 +76,7 @@ function vPageMode(){
     +'<button class="mq-pill" data-a="qtafsir" aria-label="تفسير الآية الحالية">'+ic('book')+'<span>التفسير</span></button>'
     +'<button class="mq-pill" data-a="tab" data-v="cards" aria-label="تعريف السورة">'+ic('doc')+'<span>تعريف السورة</span></button>'
     +'<div class="mq-stp"><button class="mq-cb" data-a="qfs" data-v="-2" aria-label="تصغير الخط"'+(fs<=18?' disabled':'')+'>'+ic('minus')+'</button><b class="mq-fsz">'+ar(fs)+'</b><button class="mq-cb" data-a="qfs" data-v="2" aria-label="تكبير الخط"'+(fs>=40?' disabled':'')+'>'+ic('plus')+'</button></div>'
+    +(S.quran.pgfit===false?'<button class="mq-pill pg-fitb" data-a="qfit" aria-label="ملاءمة الصفحة"><span>ملاءمة</span></button>':'')
     +'<button class="mq-cb mq-bm'+(onBm?' on':'')+'" data-a="qbm2" aria-label="العلامة المرجعية" aria-pressed="'+!!onBm+'">'+(onBm?'★':'☆')+'</button>'
     +'<button class="mq-cb" data-a="qsrch" aria-label="بحث في الآيات">'+ic('search')+'</button>'
     +'<button class="mq-pill" data-a="qjump" aria-label="القائمة">'+ic('menu')+'<span>قائمة</span></button></div></div>';
@@ -92,6 +93,8 @@ function pgFit(){
   f.style.height=avail+'px';
   var inner=function(){return t.scrollHeight<=f.clientHeight-4};
   t.style.fontSize=cap+'px';
+  if(S.quran.pgfit===false){f.style.overflowY='auto';return}
+  f.style.overflowY='hidden';
   if(inner())return;
   var lo=12,hi=cap;for(var i=0;i<9;i++){var m=(lo+hi)/2;t.style.fontSize=m+'px';if(inner())lo=m;else hi=m}
   t.style.fontSize=lo+'px';
