@@ -24,7 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
-/** Local update notice: reads the public update.json over https once a day and notifies once per new version. No Firebase, no account, nothing is sent about the user. */
+/** Local update notice: reads the public update.json over https once a day and notifies once per new version. No push service, no account, nothing is sent about the user. */
 public class UpdateWorker extends Worker {
     static final String NAME = "alsaer-update-check";
     static final String URL_JSON = "https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json";
