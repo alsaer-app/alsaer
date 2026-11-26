@@ -9,6 +9,7 @@ function render(){
   var backupDialog=document.getElementById('gd-dialog-host');if(backupDialog)backupDialog.remove();
   var popping=backPopHandling;backPopHandling=false;
   applyUI();
+  if(typeof wnInit==='function')wnInit();
   if(splash||!unlocked||!S.onboarded||covered){var qf=document.getElementById('qfab');if(qf)qf.hidden=true}
   if(splash){tabs.hidden=true;top.innerHTML='';var pre=app.firstElementChild;if(pre&&pre.getAttribute('data-pre')==='1'&&lang()==='ar')return;app.innerHTML=vSplash();if(lang()!=='ar')trWalk(app);return}
   if(!unlocked){tabs.hidden=true;top.innerHTML='';app.innerHTML=vLock();if(lang()!=='ar')trWalk(app);bioAuto();return}

@@ -250,7 +250,8 @@ document.addEventListener('click',async function(e){
   else if(a==='snzstop'){try{if(window.AlsaerNative&&AlsaerNative.snoozeStopAll)AlsaerNative.snoozeStopAll()}catch(e){}toast('توقف التأجيل الحالي');render()}
   else if(a==='per'){per=v==='month'?'month':'week'}
   else if(a==='showlog'){showLog=!showLog}
-  else if(a==='update109Done'){try{localStorage.setItem(updateSeenKey(),'1')}catch(e){}var up=document.getElementById('update109-notice');if(up)up.remove();tourAuto()}
+  else if(a==='wnlog'){wnMarkSeen();var wn=document.getElementById('update109-notice');if(wn)wn.remove();showLog=true;tab='developer';setSub='';window.scrollTo(0,0)}
+  else if(a==='update109Done'){wnMarkSeen();var up=document.getElementById('update109-notice');if(up)up.remove();tourAuto()}
   else if(a==='showprivacy'){showPrivacy=!showPrivacy}
   else if(a==='urge'){S.urges=S.urges||[];S.urges.push(Date.now());save();checkNew();toast('أحسنت، سُجّل تجاوزك لهذه الرغبة')}
   else if(a==='cover'){covered=true}

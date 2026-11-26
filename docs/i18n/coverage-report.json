@@ -1,5 +1,5 @@
 {
- "total": 2701,
+ "total": 2696,
  "protected_files_skipped": {
   "src/constants/adhkar.js": "adhkar text (stays Arabic)",
   "src/services/hisn.js": "Hisn al-Muslim supplications (stays Arabic)",
@@ -15,7 +15,7 @@
   "widget_res/res/layout/alsaer_widget.xml": "widget source layout defaults (same as above)"
  },
  "en": {
-  "missing": 18,
+  "missing": 19,
   "items": [
    {
     "ar": "(ينتظر انتهاء تنزيل آخر)",
@@ -113,6 +113,13 @@
     "got": null,
     "files": [
      "src/services/fatwas.js"
+    ]
+   },
+   {
+    "ar": "عرض سجل الإصدارات كاملًا",
+    "got": null,
+    "files": [
+     "src/services/hadith-update.js"
     ]
    },
    {
@@ -146,7 +153,7 @@
   ]
  },
  "fr": {
-  "missing": 18,
+  "missing": 19,
   "items": [
    {
     "ar": "(ينتظر انتهاء تنزيل آخر)",
@@ -244,6 +251,13 @@
     "got": null,
     "files": [
      "src/services/fatwas.js"
+    ]
+   },
+   {
+    "ar": "عرض سجل الإصدارات كاملًا",
+    "got": null,
+    "files": [
+     "src/services/hadith-update.js"
     ]
    },
    {
