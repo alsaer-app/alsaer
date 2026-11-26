@@ -213,7 +213,7 @@ public final class AlarmScheduler {
 
     /** تنبيهات مرتبطة بدخول وقت الصلاة (والسحور والإفطار) تبقى دقيقة؛ غيرها نافذة مرنة توفّر البطارية. */
     static boolean needsExact(String id) {
-        return id != null && (id.startsWith("pray_") || id.startsWith("prep_") || id.startsWith("fs_") || id.startsWith("fi_"));
+        return id != null && (id.startsWith("pray_") || id.startsWith("prep_") || id.startsWith("fs_") || id.startsWith("fi_") || id.startsWith("wird"));
     }
 
     static void scheduleAt(Context c, JSONObject it, long at, boolean snooze) {
@@ -355,6 +355,41 @@ public final class AlarmScheduler {
         }
     }
 
+    static final String GROUP_KEY = "alsaer_reminders_group";
+    static final String CH_SUMMARY = "alsaer_summary_v1";
+    static final int SUMMARY_ID = 7100;
+
+    /** ملخص المجموعة: قناة هادئة، والتنبيه للإشعارات الفرعية فقط. */
+    static void postSummary(Context c) {
+        try {
+            if (Build.VERSION.SDK_INT >= 26) {
+                NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+                if (nm.getNotificationChannel(CH_SUMMARY) == null) {
+                    NotificationChannel ch = new NotificationChannel(CH_SUMMARY, NativeStrings.get(c, "chan_summary"), NotificationManager.IMPORTANCE_LOW);
+                    ch.setSound(null, null);
+                    nm.createNotificationChannel(ch);
+                }
+            }
+            int n = 1;
+            if (Build.VERSION.SDK_INT >= 23) {
+                n = 0;
+                for (android.service.notification.StatusBarNotification sn : ((NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications())
+                    if (GROUP_KEY.equals(sn.getNotification().getGroup()) && sn.getId() != SUMMARY_ID) n++;
+            }
+            Intent open = new Intent(c, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent pi = PendingIntent.getActivity(c, SUMMARY_ID, open, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
+            Notification sum = new NotificationCompat.Builder(c, CH_SUMMARY)
+                    .setSmallIcon(R.drawable.ic_stat_alsaer)
+                    .setContentTitle(NativeStrings.get(c, "app_name"))
+                    .setContentText(String.format(NativeStrings.get(c, "notif_summary"), n))
+                    .setGroup(GROUP_KEY).setGroupSummary(true)
+                    .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
+                    .setContentIntent(pi).setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_LOW).build();
+            NotificationManagerCompat.from(c).notify(SUMMARY_ID, sum);
+        } catch (Throwable ignored) { }
+    }
+
     static void show(Context c, JSONObject it) {
         ensureChannel(c);
         String id = it.optString("id");
@@ -376,7 +411,8 @@ public final class AlarmScheduler {
                 .setContentIntent(content)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_REMINDER);
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setGroup(GROUP_KEY);
         if (Build.VERSION.SDK_INT < 26) {
             String sound=soundMode(c);
             b.setSound("silent".equals(sound)?null:"system".equals(sound)?Settings.System.DEFAULT_NOTIFICATION_URI:rawUri(c, prayerKey(id) != null ? "alsaer_pray_" + prayerKey(id) : "alsaer_tone"));
@@ -390,6 +426,8 @@ public final class AlarmScheduler {
             done.putExtra("nid", nid);
             PendingIntent dpi = PendingIntent.getBroadcast(c, code(c,id,"done"), done, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
             b.addAction(0, act.optString("l", NativeStrings.get(c, "done")), dpi);
+        } else {
+            b.addAction(0, NativeStrings.get(c, "start"), content);
         }
         Intent snz = new Intent(c, ActionReceiver.class).setAction(ACTION_SNOOZE);
         snz.putExtra("item", it.toString());
@@ -403,6 +441,7 @@ public final class AlarmScheduler {
         b.addAction(0, NativeStrings.get(c, "stop"), stpi);
 
         try { NotificationManagerCompat.from(c).notify(nid, b.build()); } catch (SecurityException ignored) {}
+        postSummary(c);
         if (FloatFeed.linked(c)) FloatingReminderService.showIfEnabled(c, title, body, it.optString("route", ""), it, nid);
     }
     /* ---------- ما يحتاجه التطبيق عند فتحه ---------- */

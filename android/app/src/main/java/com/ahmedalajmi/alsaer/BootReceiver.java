@@ -24,7 +24,7 @@ public class BootReceiver extends BroadcastReceiver {
                 if (Intent.ACTION_BOOT_COMPLETED.equals(action) || "android.intent.action.QUICKBOOT_POWERON".equals(action)) AlarmScheduler.snoozeStopAll(app);
                 AlarmScheduler.scheduleAll(app);
                 FloatFeed.schedule(app);
-                RebuildWorker.enqueue(app);
+                RebuildWorker.enqueue(app); UpdateWorker.enqueue(app);
             } finally {
                 pr.finish();
             }

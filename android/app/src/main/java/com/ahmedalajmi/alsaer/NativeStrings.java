@@ -28,6 +28,8 @@ public class NativeStrings {
         T.put("ch_service_name", new String[]{"السائر — خدمة النافذة العائمة", "Alsaer — floating window service", "Alsaer — service de fenêtre flottante", "Alsaer — yüzen pencere hizmeti", "Alsaer — Dienst für schwebendes Fenster", "السائر — سرویس پنجره شناور", "السائر — فلوٹنگ ونڈو سروس"});
         T.put("ch_silent_name", new String[]{"السائر — تذكيرات بلا صوت", "Alsaer — silent reminders", "Alsaer — rappels silencieux", "Alsaer — sessiz hatırlatmalar", "Alsaer — stumme Erinnerungen", "السائر — یادآورهای بی‌صدا", "السائر — خاموش یاد دہانیاں"});
         T.put("ch_system_name", new String[]{"السائر — صوت النظام", "Alsaer — system sound", "Alsaer — son système", "Alsaer — sistem sesi", "Alsaer — Systemton", "السائر — صدای سیستم", "السائر — سسٹم ساؤنڈ"});
+        T.put("chan_summary", new String[]{"ملخص التذكيرات", "Reminders summary", "Résumé des rappels", "Hatırlatma özeti", "Erinnerungsübersicht", "خلاصه یادآوری‌ها", "یاد دہانیوں کا خلاصہ"});
+        T.put("chan_update", new String[]{"التحديثات", "Updates", "Mises à jour", "Güncellemeler", "Updates", "به‌روزرسانی‌ها", "اپ ڈیٹس"});
         T.put("chime_tone_desc", new String[]{"نغمة تغريد العصافير — نغمة إسلامية هادئة مخصصة للتطبيق", "Birdsong tone — a calm Islamic tone made for the app", "Sonnerie chant d'oiseaux — une sonnerie islamique douce conçue pour l'application", "Kuş sesi tonu — uygulamaya özel sakin bir İslami ton", "Vogelgezwitscher-Ton — ein ruhiger islamischer Ton für die App", "آهنگ آواز پرندگان — آهنگ آرام اسلامی مخصوص برنامه", "پرندوں کی آواز — ایپ کے لیے بنائی گئی پرسکون اسلامی ٹون"});
         T.put("close", new String[]{"إغلاق", "Close", "Fermer", "Kapat", "Schließen", "بستن", "بند کریں"});
         T.put("connection_lost", new String[]{"انقطع الاتصال", "Connection lost", "Connexion perdue", "Bağlantı kesildi", "Verbindung unterbrochen", "اتصال قطع شد", "رابطہ منقطع ہو گیا"});
@@ -49,6 +51,7 @@ public class NativeStrings {
         T.put("mode_system", new String[]{"صوت النظام", "System sound", "Son système", "Sistem sesi", "Systemton", "صدای سیستم", "سسٹم ساؤنڈ"});
         T.put("next", new String[]{"التالي", "Next", "Suivant", "Sonraki", "Weiter", "بعدی", "اگلا"});
         T.put("next_prayer", new String[]{"الصلاة القادمة:", "Next prayer:", "Prochaine prière :", "Sonraki namaz:", "Nächstes Gebet:", "نماز بعدی:", "اگلی نماز:"});
+        T.put("notif_summary", new String[]{"%d تذكيرات", "%d reminders", "%d rappels", "%d hatırlatma", "%d Erinnerungen", "%d یادآوری", "%d یاد دہانیاں"});
         T.put("open_app", new String[]{"افتح التطبيق", "Open the app", "Ouvrir l'application", "Uygulamayı aç", "App öffnen", "برنامه را باز کنید", "ایپ کھولیں"});
         T.put("open_app_action", new String[]{"فتح التطبيق", "Open app", "Ouvrir l'application", "Uygulamayı aç", "App öffnen", "باز کردن برنامه", "ایپ کھولیں"});
         T.put("open_window", new String[]{"فتح النافذة", "Open the window", "Ouvrir la fenêtre", "Pencereyi aç", "Fenster öffnen", "باز کردن پنجره", "ونڈو کھولیں"});
@@ -71,9 +74,12 @@ public class NativeStrings {
         T.put("show_window_with_reminder", new String[]{"عرض النافذة مع التذكير", "Show the window with the reminder", "Afficher la fenêtre avec le rappel", "Pencereyi hatırlatmayla göster", "Fenster mit der Erinnerung anzeigen", "نمایش پنجره همراه یادآور", "یاد دہانی کے ساتھ ونڈو دکھائیں"});
         T.put("silent_notif_desc", new String[]{"إشعارات صامتة؛ التذكير يظهر دون نغمة", "Silent notifications; the reminder appears without a sound", "Notifications silencieuses ; le rappel apparaît sans sonnerie", "Sessiz bildirimler; hatırlatma ses olmadan görünür", "Stumme Benachrichtigungen; die Erinnerung erscheint ohne Ton", "اعلان‌های بی‌صدا؛ یادآور بدون آهنگ نمایش داده می‌شود", "خاموش اطلاعات؛ یاد دہانی بغیر ٹون کے ظاہر ہوتی ہے"});
         T.put("snooze_float", new String[]{"تأجيل النافذة العائمة", "Snooze the floating window", "Reporter la fenêtre flottante", "Yüzen pencereyi ertele", "Schwebendes Fenster zurückstellen", "به تعویق انداختن پنجره شناور", "فلوٹنگ ونڈو ملتوی کریں"});
+        T.put("start", new String[]{"ابدأ", "Start", "Commencer", "Başla", "Starten", "شروع", "شروع کریں"});
         T.put("stop", new String[]{"إيقاف", "Stop", "Arrêter", "Durdur", "Stopp", "توقف", "روکیں"});
         T.put("system_tone_desc", new String[]{"استخدام نغمة إشعارات الهاتف الافتراضية", "Use the phone default notification sound", "Utiliser la sonnerie de notification par défaut du téléphone", "Telefonun varsayılan bildirim sesini kullan", "Standard-Benachrichtigungston des Telefons verwenden", "استفاده از آهنگ پیش‌فرض اعلان گوشی", "فون کی ڈیفالٹ نوٹیفکیشن ٹون استعمال کریں"});
         T.put("test_reminder", new String[]{"تذكير تجريبي", "Test reminder", "Rappel de test", "Deneme hatırlatması", "Test-Erinnerung", "یادآور آزمایشی", "آزمائشی یاد دہانی"});
+        T.put("update_body", new String[]{"الإصدار %s متاح. اضغط للفتح.", "Version %s is available. Tap to open.", "La version %s est disponible. Touchez pour ouvrir.", "%s sürümü hazır. Açmak için dokunun.", "Version %s ist verfügbar. Zum Öffnen tippen.", "نسخهٔ %s آماده است. برای باز کردن بزنید.", "ورژن %s دستیاب ہے۔ کھولنے کے لیے ٹیپ کریں۔"});
+        T.put("update_title", new String[]{"تحديث جديد لتطبيق السائر", "A new alsaer update", "Nouvelle mise à jour d'alsaer", "alsaer için yeni güncelleme", "Neues alsaer-Update", "به‌روزرسانی جدید alsaer", "alsaer کی نئی اپ ڈیٹ"});
         T.put("wake_device", new String[]{"إيقاظ الجهاز", "Wake the device", "Réveiller l'appareil", "Cihazı uyandır", "Gerät aufwecken", "بیدار کردن دستگاه", "ڈیوائس بیدار کریں"});
     }
 

@@ -58,7 +58,7 @@ public class MainActivity extends BridgeActivity {
         handleGdriveRedirect(getIntent()); // ALSAER
         // ALSAER: الجدولة خارج الخيط الرئيسي حتى لا تؤخّر الإقلاع
         final android.content.Context app = getApplicationContext();
-        new Thread(() -> { AlarmScheduler.scheduleAll(app); RebuildWorker.enqueue(app); }).start();
+        new Thread(() -> { AlarmScheduler.scheduleAll(app); RebuildWorker.enqueue(app); UpdateWorker.enqueue(app); }).start();
     }
 
     // ALSAER: بعد ردّ المستخدم على طلب إذن الإشعارات نوقظ الواجهة فورًا بدل انتظار دورة الاستطلاع
