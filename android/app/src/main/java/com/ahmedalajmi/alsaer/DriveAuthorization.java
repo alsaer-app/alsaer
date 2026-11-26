@@ -46,6 +46,14 @@ final class DriveAuthorization {
                     .build());
         } catch (Exception ignored) { }
     }
+    /** Clears one cached access token in Play services (GoogleAuthUtil.clearToken blocks, so it runs off the UI thread) and tells the page when done, success or not. */
+    void clearToken(String token) {
+        new Thread(() -> {
+            try { com.google.android.gms.auth.GoogleAuthUtil.clearToken(activity, token); } catch (Exception ignored) { }
+            WebView view = activity.getBridge() == null ? null : activity.getBridge().getWebView();
+            if (view != null) view.post(() -> view.evaluateJavascript("window.gdriveOnTokenCleared&&window.gdriveOnTokenCleared()", null));
+        }, "alsaer-clear-token").start();
+    }
     private void accept(AuthorizationResult result) {
         if (result.hasResolution()) {
             if (!interactive) { deliver("", "consent-required"); return; }

@@ -46,6 +46,10 @@ public class AlsaerNative {
         act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).authorizeDrive(interactive, accountEmail); });
     }
     /* ALSAER: مسح تخزين تفويض Google Drive على الجهاز (يرافق فك الربط وإعادة الضبط بعد رمز ميت) */
+    /* ALSAER: يمسح رمز وصول قديم (401) من ذاكرة Play ثم يُعلم الصفحة لتطلب رمزًا جديدًا */
+    @JavascriptInterface public void gdriveClearToken(String token) {
+        act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).clearDriveToken(token); });
+    }
     @JavascriptInterface public void gdriveRevoke() {
         act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).revokeDrive(); });
     }

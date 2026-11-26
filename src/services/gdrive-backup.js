@@ -73,6 +73,22 @@ function gdPendingNotice(){
   }catch(e){}
   return false;
 }
+/* مسح الرمز القديم من Play ثم إعادة الطلب الصامت مرة واحدة (p.retried يمنع الحلقة) */
+var gdClearWait=null;
+window.gdriveOnTokenCleared=function(){var f=gdClearWait;gdClearWait=null;if(f)f()};
+function gdRetryFresh(p,token,em){
+  var done=false;
+  var go=function(){
+    if(done)return;done=true;gdClearWait=null;
+    var timer=setTimeout(function(){gdNativePending=null;reject(new Error('timeout'));try{render()}catch(e){}},60000);
+    var reject=p.reject;
+    gdNativePending={resolve:p.resolve,reject:p.reject,timer:timer,interactive:p.interactive,retried:true};
+    try{AlsaerNative.gdriveAuthorizeAccount(false,em)}catch(e){clearTimeout(timer);gdNativePending=null;p.reject(e)}
+  };
+  gdClearWait=go;
+  try{AlsaerNative.gdriveClearToken(token)}catch(e){go();return}
+  setTimeout(go,5000);
+}
 window.gdriveOnNativeToken=function(token,error,email){
   var p=gdNativePending;
   if(!p){
@@ -93,7 +109,11 @@ window.gdriveOnNativeToken=function(token,error,email){
   try{localStorage.removeItem(GD_PENDING_KEY)}catch(e){}
   if(error||!token){if(gdAuthError(error||'no-auth')&&!(!p.interactive&&Date.now()-gdLinkAt<120000&&gdHasRt())){gdResetAuthState();if(!p.interactive)bkSay('انتهى ربط Google Drive على هذا الجهاز. اضغط «ربط Google Drive» لإعادة الربط.')}p.reject(new Error(error||'no-auth'));try{render()}catch(e){}return}
   gdValidateToken(token).then(function(o){
-    if(!o){gdResetAuthState();p.reject(new Error('auth'));try{render()}catch(e){}return}
+    if(!o){
+      /* 401 على رمز سلّمه Play: غالبًا رمز قديم مخزّن بعد فك الربط. امسحه من ذاكرة Play واطلب رمزًا جديدًا بصمت مرة واحدة فقط */
+      var em=email||gdEmail();
+      if(!p.retried&&em&&window.AlsaerNative&&typeof AlsaerNative.gdriveClearToken==='function'){gdRetryFresh(p,token,em);return}
+      gdResetAuthState();p.reject(new Error('auth'));try{render()}catch(e){}return}
     gdNativeLinkOk(p,token,email||String((o.user&&o.user.emailAddress)||''),o.forbidden?o.code:'');
     p.resolve(token);
   },function(){gdNativeLinkOk(p,token,email,'unverified');p.resolve(token)});
