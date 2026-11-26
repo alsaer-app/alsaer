@@ -3,12 +3,22 @@ var ftS={view:'cats',cat:'',q:'',id:0,lim:60};
 function ftEsc(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function ftNorm(t){return String(t).normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').toLowerCase()}
 var FT_REMOTE='https://raw.githubusercontent.com/alsaer-app/alsaer/exp/drive-account-recovery/www/fatwas/',FT_CACHE='alsaer-fatwas';
+/* بصمة sha256 لكل ملف تأتي من index.json (حقل h). أي ملف لا يطابق بصمته يُرفض ولا يُخزَّن (تلف أو تبديل أو تحميل ناقص). index.json نفسه هو الجذر: تثبيت الفرع/الوسم FT_REMOTE هو ما يحمي الجذر */
+function ftSha(txt,cb){
+  try{crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt)).then(function(b){var a=new Uint8Array(b),s='',i;for(i=0;i<a.length;i++)s+=('0'+a[i].toString(16)).slice(-2);cb(s)},function(){cb('')})}catch(e){cb('')}
+}
+function ftVerified(name,txt,cb){
+  var want=window.FTI&&FTI.h&&FTI.h[name];
+  if(!want){cb(name==='index.json'||!(window.FTI&&FTI.h)?txt:null);return}
+  ftSha(txt,function(h){cb(h===want?txt:null)})
+}
 function ftJson(name,opt,cb){
-  /* الترتيب: ذاكرة Cache API ثم الشبكة (وتُحفظ) ثم الملف المحلي (للتطوير فقط) */
+  /* الترتيب: ذاكرة Cache API ثم الشبكة (وتُحفظ) ثم الملف المحلي (للتطوير فقط). كل ملف غير index يُتحقق من بصمته قبل الاستعمال */
   var url=FT_REMOTE+name,C=window.caches;
-  var net=function(){fetch(url,opt.fresh?{cache:'no-store'}:{}).then(function(r){if(!r.ok)throw 0;var c=r.clone();return r.json().then(function(j){if(C)C.open(FT_CACHE).then(function(ch){ch.put(url,c)}).catch(function(){});cb(j)})}).catch(function(){
-    fetch('fatwas/'+name).then(function(r){if(!r.ok)throw 0;return r.json()}).then(cb,function(){cb(null)})})};
-  if(C&&!opt.fresh)C.open(FT_CACHE).then(function(ch){return ch.match(url)}).then(function(m){if(m)m.json().then(cb,net);else net()},net);else net()}
+  var parse=function(txt,ok,bad){ftVerified(name,txt,function(t){if(t===null){bad();return}try{ok(JSON.parse(t))}catch(e){bad()}})};
+  var local=function(){fetch('fatwas/'+name).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){parse(t,cb,function(){cb(null)})},function(){cb(null)})};
+  var net=function(){fetch(url,opt.fresh?{cache:'no-store'}:{}).then(function(r){if(!r.ok)throw 0;var c=r.clone();return r.text().then(function(t){parse(t,function(j){if(C)C.open(FT_CACHE).then(function(ch){ch.put(url,c)}).catch(function(){});cb(j)},local)})}).catch(local)};
+  if(C&&!opt.fresh)C.open(FT_CACHE).then(function(ch){return ch.match(url)}).then(function(m){if(m)m.text().then(function(t){parse(t,cb,net)},net);else net()},net);else net()}
 function ftIdx(cb){
   if(window.FTI){cb(true);return}
   var now=Date.now(),last=+localStorage.getItem('ftw_chk')||0,fresh=now-last>864e5;
