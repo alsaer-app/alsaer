@@ -23,14 +23,15 @@
 ### العبادة اليومية
 
 - **المصحف الكامل**: صفحات المصحف (١٥ سطرًا) بخط عثماني، بروايتي حفص وورش، مع إبراز أحكام التجويد بالألوان؛ نص ٦٢٣٦ آية من مشروع تنزيل.
-- **مواقيت الصلاة والتنبيهات**: إشعارات محلية مجدولة بنغمة مخصصة، تعمل بعد إعادة تشغيل الهاتف.
-- **الأذكار والأدعية**: محتوى من الكتاب والسنة مع عدّادات.
+- **مواقيت الصلاة والتنبيهات**: إشعارات محلية مجدولة تعمل بعد إعادة تشغيل الهاتف، بنغمة خاصة لكل صلاة ونغمة موحدة للتذكيرات الأخرى. تُجمَّع التذكيرات في مجموعة واحدة مع ملخص هادئ، وفي كل تذكير أزرار «ابدأ» و«ذكّرني بعد ١٠ دقائق» و«إيقاف». ورد القرآن يُنبَّه في وقته بدقة.
+- **تنبيه التحديث**: إشعار محلي واحد لكل إصدار جديد، يقرأ ملف `update.json` العام عبر https مرة يوميًا دون حساب ولا خدمات دفع، ولا يرسل شيئًا عنك.
+- **الأذكار والأدعية**: محتوى من الكتاب والسنة مع عدّاد لكل ذكر؛ المعوذات (الإخلاص والفلق والناس) بندٌ لكل سورة، وتقدّمك المحفوظ ينتقل تلقائيًا دون فقد.
 - **جدول الصيام**: الاثنين والخميس، الأيام البيض، عاشوراء وعرفة، ستة شوال، صيام داود، وأيام مخصصة، مع تذكيرات السحور والإفطار.
 - **أسماء الله الحسنى**: ٩٩ اسمًا مع الدليل من الآيات، وحفظ ومسبحة واختبار، وشرح المعنى بالعربية.
 - **حصن المسلم**: أذكار الصباح والمساء وبعد الصلاة وغيرها بعدّاد تكرار ومشاركة نص الذكر وتشغيل الصوت (الصوت يحتاج إنترنت).
 - **راديو قرآن**: بث مباشر لإذاعات القرآن والبرامج الإسلامية (يحتاج إنترنت؛ قائمة المحطات في `www/radio-stations.js`).
 - **استمع لقارئ**: سور المصحف الـ١١٤ بأصوات ١٥٨ قارئًا مع تصفية بالرواية والبحث وتشغيل متتابع (يحتاج إنترنت؛ القائمة في `www/reciters.js`).
-- **فتاوى ابن باز رحمه الله**: ١٩٬٧٢٧ فتوى مكتوبة في ٢١٥ فئة مع بحث بالعنوان ونسخ ومشاركة ورابط المصدر. تُحمَّل الشرائح عند الحاجة من مجلد `www/fatwas/` على الإنترنت وتُحفظ في ذاكرة التطبيق لتُقرأ بلا اتصال بعد أول فتح.
+- **فتاوى ابن باز رحمه الله**: ١٩٬٧٢٧ فتوى مكتوبة في ٢١٥ فئة مع بحث بالعنوان ونسخ ومشاركة ورابط المصدر، والاستماع للفتوى حيث يتوفر صوتها (بث مباشر أو تنزيل اختياري لكل ملف، ويحتاج إنترنت). تُحمَّل الشرائح عند الحاجة من مجلد `www/fatwas/` على الإنترنت وتُحفظ في ذاكرة التطبيق لتُقرأ بلا اتصال بعد أول فتح.
 - **الأحاديث النبوية**: تسعة كتب مع البحث والمفضلة وحديث اليوم (يحتاج إنترنت).
 - **أدوات الاستعداد**: ختمة القرآن، متابعة الحفظ بمراجعة متباعدة، المسبحة، قضاء ما فات، المناسبات الهجرية، وضع رمضان، حاسبة الزكاة، والأوقات المستحبة والمنهي عنها.
 - **ست لغات إضافية للواجهة**: الإنجليزية والفرنسية والألمانية والتركية والفارسية والأردية إلى جانب العربية. النصوص الدينية (القرآن والأذكار والأدعية والأحاديث والفتاوى وأسماء الله) تبقى بالعربية. الترجمات راجعناها بأنفسنا وليست من مترجم متخصص.
@@ -51,13 +52,17 @@
 ## لقطات الشاشة
 
 <p align="center">
-  <img src="screenshots/home.jpg" width="150" alt="الشاشة الرئيسية: حديث اليوم وخطوتك التالية">
-  <img src="screenshots/quran.jpg" width="150" alt="المصحف: سورة الفاتحة بالتجويد الملون">
-  <img src="screenshots/onboarding.jpg" width="150" alt="شاشة الترحيب">
+  <img src="screenshots/home.jpg" width="150" alt="الشاشة الرئيسية: بطاقة الورد وخطوتك التالية">
+  <img src="screenshots/quran.jpg" width="150" alt="المصحف: سورة الفاتحة">
+  <img src="screenshots/adhkar.jpg" width="150" alt="الأذكار بعدّاد لكل ذكر">
+  <img src="screenshots/fatwas.jpg" width="150" alt="فتاوى ابن باز: شريط الاستماع تحت العنوان">
+  <img src="screenshots/more.jpg" width="150" alt="شاشة المزيد">
   <img src="screenshots/progress.jpg" width="150" alt="التقدم والتقييم">
   <img src="screenshots/calendar.jpg" width="150" alt="التقويم والمتابعة">
-  <img src="screenshots/more.jpg" width="150" alt="شاشة المزيد">
+  <img src="screenshots/onboarding.jpg" width="150" alt="شاشة الترحيب">
 </p>
+
+<p align="center"><sub>الصور مُولَّدة من واجهة الويب في متصفح (محاكاة بحجم الهاتف) وليست لقطات من جهاز حقيقي.</sub></p>
 
 ## التثبيت
 
@@ -125,7 +130,7 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 
 A private, **offline-first** Android companion for worship and self-improvement. Data is stored locally, with optional Google Drive authorization and dated backup uploads. Content and update checks use external services. See the privacy policy draft in PRIVACY.md.
 
-**Features:** Names of Allah (99 names with memorisation, rosary and quiz), Hisn al-Muslim adhkar with counters, sharing and audio, Quran radio stations, 158 reciters (full surahs, riwaya filter, search), 19,727 written fatwas of Ibn Baz in 215 categories (loaded on demand from `www/fatwas/` and cached for offline reading), hadith books with search and favourites, Khatma, memorisation review, zakat calculator, Hijri occasions, Ramadan mode; UI in Arabic plus English, French, German, Turkish, Persian and Urdu (religious texts stay Arabic; translations are self-reviewed, not by a professional translator); radio, reciters, audio, hadith and first-time fatwa loading need internet. Also: full mushaf reader (15-line pages, Uthmanic font, Hafs & Warsh riwayas, color-coded tajweed), prayer times and local reminders, a floating reminder overlay, a home-screen widget, habit and repentance tracking (streaks, relapses, triggers, urges), fasting schedule (Mondays/Thursdays, white days, Ashura, Arafah, Shawwal, Dawud, custom), adhkar with counters, weekly/monthly self-review, PIN/password/pattern lock with biometrics, backups with optional password encryption (AES-GCM + PBKDF2), Arabic RTL UI with light/dark themes, Hijri (Umm al-Qura) and Gregorian dates.
+**Features:** per-prayer notification tones, grouped reminders with a quiet summary and Start / Remind in 10 min / Stop buttons, a local once-per-version update notice (no account, no push service), Names of Allah (99 names with memorisation, rosary and quiz), Hisn al-Muslim adhkar with counters, sharing and audio, Quran radio stations, 158 reciters (full surahs, riwaya filter, search), 19,727 written fatwas of Ibn Baz in 215 categories (loaded on demand from `www/fatwas/` and cached for offline reading; audio where available, streamed or optionally downloaded per file, needs internet), hadith books with search and favourites, Khatma, memorisation review, zakat calculator, Hijri occasions, Ramadan mode; UI in Arabic plus English, French, German, Turkish, Persian and Urdu (religious texts stay Arabic; translations are self-reviewed, not by a professional translator); radio, reciters, audio, hadith and first-time fatwa loading need internet. Also: full mushaf reader (15-line pages, Uthmanic font, Hafs & Warsh riwayas, color-coded tajweed), prayer times and local reminders, a floating reminder overlay, a home-screen widget, habit and repentance tracking (streaks, relapses, triggers, urges), fasting schedule (Mondays/Thursdays, white days, Ashura, Arafah, Shawwal, Dawud, custom), adhkar with counters, weekly/monthly self-review, PIN/password/pattern lock with biometrics, backups with optional password encryption (AES-GCM + PBKDF2), Arabic RTL UI with light/dark themes, Hijri (Umm al-Qura) and Gregorian dates.
 
 **Install:** download the latest APK from [Releases](https://github.com/alsaer-app/alsaer/releases/latest) and install it over any previous officially-signed build; your data is preserved.
 
