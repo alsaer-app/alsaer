@@ -13,6 +13,7 @@ import android.media.session.PlaybackState;
 import android.os.Build;
 import android.os.IBinder;
 import android.webkit.WebView;
+import android.graphics.Color;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -46,6 +47,40 @@ public class MediaPlaybackService extends Service {
     private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
     private android.os.PowerManager.WakeLock wakeLock;
     private android.net.wifi.WifiManager.WifiLock wifiLock;
+
+    private static MediaPlaybackService inst;
+    private static final String TPREF = "alsaer_mc_theme";
+
+    /* ألوان البطاقة من ثيم التطبيق (تُرسلها الصفحة عند كل تغيير مظهر) */
+    static void setTheme(Context c, String bg, String fg, String accent, String on) {
+        try {
+            Color.parseColor(bg); Color.parseColor(fg); Color.parseColor(accent); Color.parseColor(on);
+            c.getSharedPreferences(TPREF, Context.MODE_PRIVATE).edit().putString("bg", bg).putString("fg", fg)
+                .putString("ac", accent).putString("on", on).apply();
+            final MediaPlaybackService s = inst;
+            if (s != null) s.main.post(new Runnable() { public void run() { if (inst != null && inst.title != null) inst.show(); } });
+        } catch (Exception e) { DiagLog.add("theme ignored"); }
+    }
+
+    private int tcol(String k, int def) {
+        try { String v = getSharedPreferences(TPREF, Context.MODE_PRIVATE).getString(k, null); return v == null ? def : Color.parseColor(v); }
+        catch (Exception e) { return def; }
+    }
+
+    /* صورة غلاف من تصميمنا: مربع بلون الخلفية، حلقة بلون التمييز، وهلال */
+    private android.graphics.Bitmap art(int bg, int ac) {
+        int n = 192;
+        android.graphics.Bitmap bm = android.graphics.Bitmap.createBitmap(n, n, android.graphics.Bitmap.Config.ARGB_8888);
+        android.graphics.Canvas cv = new android.graphics.Canvas(bm);
+        android.graphics.Paint p = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        p.setColor(bg); cv.drawRoundRect(0, 0, n, n, 40, 40, p);
+        p.setStyle(android.graphics.Paint.Style.STROKE); p.setStrokeWidth(8); p.setColor(ac);
+        cv.drawRoundRect(8, 8, n - 8, n - 8, 34, 34, p);
+        p.setStyle(android.graphics.Paint.Style.FILL);
+        cv.drawCircle(n / 2f, n / 2f, 46, p);
+        p.setColor(bg); cv.drawCircle(n / 2f + 20, n / 2f - 8, 40, p);
+        return bm;
+    }
 
     static void bind(WebView w) { web = new WeakReference<>(w); }
 
@@ -172,6 +207,8 @@ public class MediaPlaybackService extends Service {
 
     @Override public IBinder onBind(Intent i) { return null; }
 
+    @Override public void onCreate() { super.onCreate(); inst = this; }
+
     @Override public int onStartCommand(Intent in, int flags, int startId) {
         String a = in == null ? null : in.getAction();
         if (ACT_RADIO.equals(a)) { startRadio(in.getStringExtra("u"), in.getStringExtra("t")); return START_NOT_STICKY; }
@@ -233,21 +270,24 @@ public class MediaPlaybackService extends Service {
         PendingIntent content = PendingIntent.getActivity(this, 0, open,
             PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0));
         String tt = (title == null || title.isEmpty()) ? getString(R.string.app_name) : title;
+        final int cbg = tcol("bg", 0xFF0F3D2E), cfg = tcol("fg", 0xFFF4EFE2), cac = tcol("ac", 0xFFDCB871);
         Notification.Action toggle = new Notification.Action.Builder(
-            Icon.createWithResource(this, playing ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play),
+            Icon.createWithResource(this, playing ? R.drawable.ic_mc_pause : R.drawable.ic_mc_play).setTint(cac),
             NativeStrings.get(this, playing ? "media_pause" : "media_play"),
             pi(playing ? ACT_PAUSE : ACT_PLAY, 1)).build();
         Notification.Action stopA = new Notification.Action.Builder(
-            Icon.createWithResource(this, android.R.drawable.ic_menu_close_clear_cancel),
+            Icon.createWithResource(this, R.drawable.ic_mc_close).setTint(cac),
             NativeStrings.get(this, "media_stop"), pi(ACT_STOP, 2)).build();
         b.setSmallIcon(R.drawable.ic_stat_alsaer)
             .setContentTitle(tt).setContentText(sub)
             .setSubText(getString(R.string.app_name))
             .setContentIntent(content)
+            .setColor(cbg).setLargeIcon(art(cbg, cac))
             .setOngoing(playing).setShowWhen(false)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .addAction(toggle).addAction(stopA)
             .setStyle(new Notification.MediaStyle().setMediaSession(session.getSessionToken()).setShowActionsInCompactView(0, 1));
+        if (Build.VERSION.SDK_INT >= 26) b.setColorized(true);
         Notification n = b.build();
         if (Build.VERSION.SDK_INT >= 29) startForeground(NID, n, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
         else startForeground(NID, n);
@@ -255,6 +295,7 @@ public class MediaPlaybackService extends Service {
     }
 
     @Override public void onDestroy() {
+        if (inst == this) inst = null;
         DiagLog.add("svc destroy");
         releasePlayer();
         holdLocks(false);

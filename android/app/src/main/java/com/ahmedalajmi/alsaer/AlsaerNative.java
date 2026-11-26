@@ -322,6 +322,7 @@ public class AlsaerNative {
     }
     @JavascriptInterface public void radioPlay(String url, String title) { MediaPlaybackService.radioPlay(act.getApplicationContext(), url, title); }
     @JavascriptInterface public boolean radioNative() { return true; }
+    @JavascriptInterface public void mediaTheme(String bg, String fg, String accent, String on) { MediaPlaybackService.setTheme(act.getApplicationContext(), bg, fg, accent, on); }
     @JavascriptInterface public String diagGet() { return DiagLog.get(); }
     @JavascriptInterface public void diagClear() { DiagLog.clear(); }
     @JavascriptInterface public void diagLog(String line) { DiagLog.add("js " + line); }
