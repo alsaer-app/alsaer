@@ -1,7 +1,23 @@
 function dk(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function parse(k){var p=k.split('-').map(Number);return new Date(p[0],p[1]-1,p[2])}
 function def(){return{startDate:dk(),days:{},reasons:[],pin:null,security:{method:'pin'},counters:{},seen:[],gender:null,profile:{name:'',age:'',photo:''},prayers:{},ptimes:{},quran:{goal:2,log:{},pos:1,fs:26},ui:{},worship:{},customWorship:[],myHabits:[],extraHabits:[],habitCounts:{},fasting:{prefs:{monThu:true,whiteDays:true,ashura:false,arafa:false,shawwal:false,dawud:false},records:{},customDates:[],reminders:{enabled:true,beforeDay:true,suhoor:true,suhoorTime:'03:30',iftar:false,iftarTime:'17:00'},dawudAnchor:dk()},updatedAt:Date.now()}}
+/* تقسيم أذكار مجمّعة إلى بنود: عدّاد البند القديم يُنسخ لكل بند جديد بحد أقصى n البند، ولا يُحذف القديم ولا يُكتب فوق بند موجود (آمن للتكرار) */
+var ADHKAR_SPLIT={m6:['m6a','m6b','m6c'],e6:['e6a','e6b','e6c'],p9:['p9a','p9b','p9c'],s2:['s2a','s2b','s2c'],e4:['e4a','e4b']};
+function migrateAdhkarSplit(o){
+  try{
+    if(!o||!o.counters||typeof o.counters!=='object'||typeof ADHKAR==='undefined')return;
+    var nOf={};ADHKAR.forEach(function(g){g.items.forEach(function(it){nOf[it.id]=it.n})});
+    Object.keys(o.counters).forEach(function(day){
+      var c=o.counters[day];if(!c||typeof c!=='object'||Array.isArray(c))return;
+      Object.keys(ADHKAR_SPLIT).forEach(function(old){
+        var v=parseInt(c[old],10);if(!(v>0))return;
+        ADHKAR_SPLIT[old].forEach(function(nid){if(c[nid]===undefined&&nOf[nid])c[nid]=Math.min(v,nOf[nid])});
+      });
+    });
+  }catch(e){}
+}
 function fixShape(o){
+  migrateAdhkarSplit(o);
   var isO=function(v){return !!v&&typeof v==='object'&&!Array.isArray(v)};
   if(!isO(o.prayers))o.prayers={};if(!isO(o.ptimes))o.ptimes={};
   if(!isO(o.quran))o.quran={goal:2,log:{},pos:1,fs:26};if(!isO(o.quran.log))o.quran.log={};
