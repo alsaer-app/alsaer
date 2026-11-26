@@ -40,8 +40,9 @@ public static void main(String[] a)throws Exception{
  r=subprocess.run(compiler+['-cp',cp,'-d',td]+[str(x) for x in p.glob('*.java')],capture_output=True,text=True);assert r.returncode==0,r.stdout+r.stderr
  print(subprocess.check_output(['java','-cp',td+':'+cp,'com.ahmedalajmi.alsaer.T'],text=True).strip())
 # compile check of changed android classes: report only errors that are not missing androidx/capacitor/R symbols
-out=subprocess.run(['java','-jar',os.environ.get('ECJ_JAR','/tmp/alsaer-java/ecj.jar'),'-11','-proc:none','-cp',cp,'-d','none']+[str(J/f) for f in ('AlarmReceiver.java','BootReceiver.java','ReminderPlan.java','RebuildWorker.java','AlarmScheduler.java','PrayerClock.java','FloatFeed.java','FloatLog.java','NativeStrings.java')],capture_output=True,text=True)
+out=subprocess.run(['java','-jar',os.environ.get('ECJ_JAR','/tmp/alsaer-java/ecj.jar'),'-11','-proc:none','-cp',cp,'-d','none']+[str(J/f) for f in ('AlarmReceiver.java','BootReceiver.java','ReminderPlan.java','RebuildWorker.java','AlarmScheduler.java','PrayerClock.java','FloatFeed.java','FloatLog.java','NativeStrings.java','MainActivity.java','LocationBridge.java','AlsaerNative.java')],capture_output=True,text=True)
 errs=[l for l in (out.stdout+out.stderr).split('ERROR in ')[1:]]
 real=[e for e in errs if not re.search(r'androidx|NotificationCompat|NotificationManagerCompat|R cannot be resolved|R\.|BitmapDrawable|WorkManager|Worker|PeriodicWork|NonNull|FloatingReminderService|MainActivity|AlsaerNative|ActionReceiver|ExistingPeriodicWorkPolicy|cannot be resolved to a type|cannot be resolved|getApplicationContext|must override or implement a supertype',e)]
+assert not [e for e in errs if re.search(r'Duplicate (method|field|local variable|nested type)|already defined|Syntax error|Unreachable|missing return|might not have been',e)],'duplicate/syntax errors:\n'+'\n'.join(e[:300] for e in errs if re.search(r'Duplicate|already defined|Syntax error',e))
 assert not real,'\n'.join(real)[:2000]
 print('PASS compile check (%d errors are only missing androidx/app classes)'%len(errs))

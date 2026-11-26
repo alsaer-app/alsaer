@@ -30,6 +30,11 @@ final class LocationBridge {
             || activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
+    /** منح «الموقع التقريبي» فقط (أندرويد 12+) يسمح بمزوّد الشبكة والسلبي ولا يسمح بمزوّد GPS: طلبه يرمي SecurityException */
+    boolean hasFine() {
+        return activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
     void request() {
         activity.runOnUiThread(() -> {
             if (waitingPermission || active) { deliver(0, 0, 0, "busy"); return; }
@@ -57,7 +62,9 @@ final class LocationBridge {
         try {
             // A recent known fix answers at once.
             Location best = null;
+            final boolean fine = hasFine();
             for (String p : new String[]{LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER}) {
+                if (!fine && LocationManager.GPS_PROVIDER.equals(p)) continue;
                 try {
                     Location l = lm.getLastKnownLocation(p);
                     if (l != null && System.currentTimeMillis() - l.getTime() < 3600000L && (best == null || l.getTime() > best.getTime())) best = l;
@@ -67,7 +74,10 @@ final class LocationBridge {
             boolean gps = false, net = false;
             try { gps = lm.isProviderEnabled(LocationManager.GPS_PROVIDER); } catch (Exception ignored) { }
             try { net = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER); } catch (Exception ignored) { }
-            if (!gps && !net) { deliver(0, 0, 0, "off"); return; }
+            boolean anyOn = gps || net;
+            if (!fine) gps = false;
+            if (!anyOn) { deliver(0, 0, 0, "off"); return; }
+            if (!gps && !net) { deliver(0, 0, 0, "nofine"); return; }
             active = true;
             final LocationManager mgr = lm;
             LocationListener l = new LocationListener() {
@@ -77,12 +87,16 @@ final class LocationBridge {
                 @Override public void onProviderDisabled(String provider) { }
             };
             listeners.add(l);
-            if (net) lm.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, l, Looper.getMainLooper());
-            if (gps) lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, l, Looper.getMainLooper());
+            int reg = 0;
+            if (net) { try { lm.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, l, Looper.getMainLooper()); reg++; } catch (Exception ignored) { } }
+            if (gps) { try { lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, l, Looper.getMainLooper()); reg++; } catch (Exception ignored) { } }
+            if (reg == 0) { active = false; listeners.clear(); deliver(0, 0, 0, "error"); return; }
             timeout = () -> finish(mgr, 0, 0, 0, "timeout");
             main.postDelayed(timeout, 30000);
         } catch (SecurityException e) {
-            deliver(0, 0, 0, "denied");
+            for (LocationListener x : listeners) { try { lm.removeUpdates(x); } catch (Exception ignored) { } }
+            listeners.clear(); active = false;
+            deliver(0, 0, 0, hasPermission() ? "error" : "denied");
         } catch (Exception e) {
             active = false;
             deliver(0, 0, 0, "error");

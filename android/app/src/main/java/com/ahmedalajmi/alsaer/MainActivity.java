@@ -14,10 +14,6 @@ public class MainActivity extends BridgeActivity {
     private BackupDocuments backupDocuments;
     private LocationBridge locationBridge;
     LocationBridge location() { if (locationBridge == null) locationBridge = new LocationBridge(this); return locationBridge; }
-    @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (locationBridge != null && locationBridge.onPermission(requestCode, grantResults)) return;
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
     void backupDocument(boolean save,String content,String name){
         if(backupDocuments==null)backupDocuments=new BackupDocuments(this);
         backupDocuments.launch(save,content,name);
@@ -68,6 +64,8 @@ public class MainActivity extends BridgeActivity {
     // ALSAER: بعد ردّ المستخدم على طلب إذن الإشعارات نوقظ الواجهة فورًا بدل انتظار دورة الاستطلاع
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        // نتيجة إذن الموقع الأصلي (LocationBridge) تُعالَج هنا ولا تصل إلى Capacitor
+        if (locationBridge != null && locationBridge.onPermission(requestCode, grantResults)) return;
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         final WebView wv = getBridge() != null ? getBridge().getWebView() : null;
         if (wv != null) {
