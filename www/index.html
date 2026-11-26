@@ -7520,7 +7520,7 @@ function ftCat(name){var c=window.FTI.cats;for(var i=0;i<c.length;i++)if(c[i][0]
 var FT_AU='https://files.zadapps.info/binbaz.org.sa/',FT_ACACHE='alsaer-fatwa-audio';
 var ftA={a:null,id:0,st:'',dl:0,pct:0,err:0,ctl:null,have:{},url:''};
 function ftAuPath(f){var p=f&&f[5];return(typeof p==='string'&&p&&p.indexOf('..')<0&&!/[?#\\:]|^\//.test(p)&&/\.mp3$/i.test(p))?p:''}
-function ftAuUrl(f){var p=ftAuPath(f);return p?FT_AU+p.split('/').map(encodeURIComponent).join('/'):''}
+function ftAuUrl(f){var p=ftAuPath(f);return p?FT_AU+p.split('/').map(function(x){try{x=decodeURIComponent(x)}catch(e){}return encodeURIComponent(x)}).join('/'):''}
 function ftAuStop(){if(ftA.a){try{ftA.a.pause();ftA.a.removeAttribute('src');ftA.a.load()}catch(e){}ftA.a=null}if(ftA.url){try{URL.revokeObjectURL(ftA.url)}catch(e){}ftA.url=''}ftA.id=0;ftA.st=''}
 function ftAuAbort(){if(ftA.ctl){try{ftA.ctl.abort()}catch(e){}ftA.ctl=null}ftA.dl=0;ftA.pct=0}
 function ftAuHave(id,u){var C=window.caches;if(!C||!u){ftA.have[id]=false;return}C.open(FT_ACACHE).then(function(c){return c.match(u)}).then(function(m){ftA.have[id]=!!m;ftAuUi()},function(){ftA.have[id]=false})}

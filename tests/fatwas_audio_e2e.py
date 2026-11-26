@@ -67,7 +67,7 @@ with sync_playwright() as p:
 import subprocess
 js=open(WWW.parent/'src'/'services'/'fatwas.js',encoding='utf-8').read()
 m=re.search(r"function ftAuPath.*?\nfunction ftAuUrl[^\n]*",js,re.S)
-t=subprocess.run(['node','-e',"var FT_AU='https://files.zadapps.info/binbaz.org.sa/';"+m.group(0)+";console.log(JSON.stringify([ftAuUrl([1,0,0,0,0,'../x.mp3']),ftAuUrl([1,0,0,0,0,'a/b?x.mp3']),ftAuUrl([1,0,0,0,0,'a/b c.mp3']),ftAuUrl([1,0,0,0,0,'']),ftAuUrl([1,0,0,0,0,'http://evil/x.mp3'])]))"],capture_output=True,text=True).stdout.strip()
-ck(t=='["","","https://files.zadapps.info/binbaz.org.sa/a/b%20c.mp3","",""]','url builder %s'%t)
+t=subprocess.run(['node','-e',"var FT_AU='https://files.zadapps.info/binbaz.org.sa/';"+m.group(0)+";console.log(JSON.stringify([ftAuUrl([1,0,0,0,0,'../x.mp3']),ftAuUrl([1,0,0,0,0,'a/b?x.mp3']),ftAuUrl([1,0,0,0,0,'a/b c.mp3']),ftAuUrl([1,0,0,0,0,'']),ftAuUrl([1,0,0,0,0,'a/%D9%87 b.MP3']),ftAuUrl([1,0,0,0,0,'http://evil/x.mp3'])]))"],capture_output=True,text=True).stdout.strip()
+ck(t=='["","","https://files.zadapps.info/binbaz.org.sa/a/b%20c.mp3","","https://files.zadapps.info/binbaz.org.sa/a/%D9%87%20b.MP3",""]','url builder %s'%t)
 print('FAIL',F) if F else print('fatwas audio e2e OK')
 sys.exit(1 if F else 0)
