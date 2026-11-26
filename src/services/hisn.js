@@ -116,9 +116,20 @@ function hsnfBuild(){
   hsnF.reg={};hsnF.idx=[];
   (window.HSNF&&HSNF.ch||[]).forEach(function(c){
     var slug='f'+c.n;
-    hsnF.reg[slug]={name:c.t,icon:'',n:c.n,items:c.e.map(function(e){
-      var tx=e.x.map(function(z){return z[0]==='i'?'<small class="hsn-ins">'+hsnX(z[1])+'</small>':'<p>'+hsnX(z[1]).replace(/\n/g,'<br>')+'</p>'}).join('');
-      return {text:tx,repeat:e.c||1,virtue:e.r||'',u:e.u||null,s:e.s,m:e.m||0}})};
+    var items=[];
+    c.e.forEach(function(e){
+      var nr=e.x.filter(function(z){return z[0]!=='i'}).length;
+      var mk=function(parts,u){
+        var tx=parts.map(function(z){return z[0]==='i'?'<small class="hsn-ins">'+hsnX(z[1])+'</small>':'<p>'+hsnX(z[1]).replace(/\n/g,'<br>')+'</p>'}).join('');
+        items.push({text:tx,repeat:e.c||1,virtue:e.r||'',u:u,s:e.s,m:e.m||0})};
+      if(nr<2){mk(e.x,e.u||null);return}
+      /* ذكر فيه أكثر من دعاء: كل دعاء بطاقة مستقلة بعدّادها، ونصه كما هو، وتقدَّم له عبارة التمهيد التي تسبقه */
+      var g=[],k=0,pend=[];
+      e.x.forEach(function(z){pend.push(z);if(z[0]!=='i'){g.push(pend);pend=[]}});
+      if(pend.length)g[g.length-1]=g[g.length-1].concat(pend);
+      g.forEach(function(parts,j){mk(parts,e.u&&e.u.length===g.length?[e.u[j]]:(j===0?e.u||null:null))});
+    });
+    hsnF.reg[slug]={name:c.t,icon:'',n:c.n,items:items};
     hsnF.idx.push({slug:slug,k:hsnNorm(c.t+' '+c.e.map(function(e){return e.x.map(function(z){return z[1]}).join(' ')}).join(' '))});
   });
   hsnF.ok=1;
