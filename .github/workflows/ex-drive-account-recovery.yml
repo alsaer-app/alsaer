@@ -143,7 +143,7 @@ jobs:
           "$BT/apksigner" verify --print-certs "$APK" | tee /tmp/cert.txt
           grep -q '647b477f5e19a79ec542b70d12476a166f3bf262ae7b5c2b1602bcc58a1c85e0' /tmp/cert.txt
           "$BT/aapt" dump badging "$APK" | head -1 | tee /tmp/meta.txt
-          grep -q "versionCode='10201'" /tmp/meta.txt && grep -q "versionName='2.0.1'" /tmp/meta.txt
+          grep -q "versionCode='10200'" /tmp/meta.txt && grep -q "versionName='2.0.0'" /tmp/meta.txt
           "$BT/aapt" dump permissions "$APK" | tee /tmp/perm.txt
           ! grep -qE 'RECORD_AUDIO|MODIFY_AUDIO' /tmp/perm.txt
           "$BT/aapt" dump xmltree "$APK" AndroidManifest.xml | tee /tmp/manifest.txt
