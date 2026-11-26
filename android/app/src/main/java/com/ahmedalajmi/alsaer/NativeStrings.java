@@ -45,6 +45,12 @@ public class NativeStrings {
         T.put("float_show_failed", new String[]{"تعذّر عرض النافذة العائمة", "Could not show the floating window", "Impossible d'afficher la fenêtre flottante", "Yüzen pencere gösterilemedi", "Schwebendes Fenster konnte nicht angezeigt werden", "پنجره شناور نمایش داده نشد", "فلوٹنگ ونڈو ظاہر نہیں ہو سکی"});
         T.put("floating_reminder", new String[]{"تذكير عائم", "Floating reminder", "Rappel flottant", "Yüzen hatırlatma", "Schwebende Erinnerung", "یادآور شناور", "فلوٹنگ یاد دہانی"});
         T.put("in_10_min", new String[]{"بعد ١٠ دقائق", "In 10 minutes", "Dans 10 minutes", "10 dakika sonra", "In 10 Minuten", "۱۰ دقیقه بعد", "10 منٹ بعد"});
+        T.put("media_channel", new String[]{"التشغيل الصوتي", "Audio playback", "Lecture audio", "Ses oynatma", "Audiowiedergabe", "پخش صدا", "آڈیو پلے بیک"});
+        T.put("media_pause", new String[]{"إيقاف مؤقت", "Pause", "Pause", "Duraklat", "Pause", "مکث", "روکیں"});
+        T.put("media_paused", new String[]{"متوقف مؤقتًا", "Paused", "En pause", "Duraklatıldı", "Pausiert", "مکث شده", "رکا ہوا"});
+        T.put("media_play", new String[]{"تشغيل", "Play", "Lecture", "Oynat", "Wiedergabe", "پخش", "چلائیں"});
+        T.put("media_playing", new String[]{"يعمل الآن", "Playing now", "En cours de lecture", "Şu an çalıyor", "Wird abgespielt", "در حال پخش", "ابھی چل رہا ہے"});
+        T.put("media_stop", new String[]{"إيقاف", "Stop", "Arrêter", "Durdur", "Stopp", "توقف", "بند کریں"});
         T.put("minimize", new String[]{"تصغير", "Minimize", "Réduire", "Küçült", "Minimieren", "کوچک کردن", "چھوٹا کریں"});
         T.put("mode_chime", new String[]{"صوت هادئ", "Gentle sound", "Son doux", "Yumuşak ses", "Sanfter Ton", "صدای آرام", "نرم آواز"});
         T.put("mode_silent", new String[]{"بلا صوت", "No sound", "Sans son", "Sessiz", "Ohne Ton", "بدون صدا", "بغیر آواز"});

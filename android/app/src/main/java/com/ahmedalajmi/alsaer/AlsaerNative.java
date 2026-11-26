@@ -316,6 +316,14 @@ public class AlsaerNative {
         return am.canScheduleExactAlarms();
     }
 
+    /* ---- بطاقة التحكم بالصوت في شريط الإشعارات (MediaPlaybackService) ---- */
+    @JavascriptInterface public void mediaUpdate(String title, boolean playing) {
+        MediaPlaybackService.update(act.getApplicationContext(), title, playing);
+    }
+    @JavascriptInterface public void mediaStop() {
+        MediaPlaybackService.stop(act.getApplicationContext());
+    }
+
     @JavascriptInterface
     public void requestNotificationPermission() {
         act.runOnUiThread(() -> {

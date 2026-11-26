@@ -47,6 +47,7 @@ public class MainActivity extends BridgeActivity {
         // ALSAER: جسر الإشعارات الأصلية + تعليق المستمع + جدولة التنبيهات عند إعادة الفتح
         if (getBridge() != null && getBridge().getWebView() != null) {
             getBridge().getWebView().addJavascriptInterface(new AlsaerNative(this), "AlsaerNative");
+            MediaPlaybackService.bind(getBridge().getWebView());
             try { getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false); } catch (Exception e) { }
             // ALSAER: حجم خط التطبيق يتبع حجم خط النظام (WebView لا يفعل ذلك افتراضيًا)
             try {

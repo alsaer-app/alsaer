@@ -621,6 +621,60 @@
    "Updates",
    "به‌روزرسانی‌ها",
    "اپ ڈیٹس"
+  ],
+  "media_pause": [
+   "إيقاف مؤقت",
+   "Pause",
+   "Pause",
+   "Duraklat",
+   "Pause",
+   "مکث",
+   "روکیں"
+  ],
+  "media_play": [
+   "تشغيل",
+   "Play",
+   "Lecture",
+   "Oynat",
+   "Wiedergabe",
+   "پخش",
+   "چلائیں"
+  ],
+  "media_stop": [
+   "إيقاف",
+   "Stop",
+   "Arrêter",
+   "Durdur",
+   "Stopp",
+   "توقف",
+   "بند کریں"
+  ],
+  "media_playing": [
+   "يعمل الآن",
+   "Playing now",
+   "En cours de lecture",
+   "Şu an çalıyor",
+   "Wird abgespielt",
+   "در حال پخش",
+   "ابھی چل رہا ہے"
+  ],
+  "media_paused": [
+   "متوقف مؤقتًا",
+   "Paused",
+   "En pause",
+   "Duraklatıldı",
+   "Pausiert",
+   "مکث شده",
+   "رکا ہوا"
+  ],
+  "media_channel": [
+   "التشغيل الصوتي",
+   "Audio playback",
+   "Lecture audio",
+   "Ses oynatma",
+   "Audiowiedergabe",
+   "پخش صدا",
+   "آڈیو پلے بیک"
   ]
  }
 }
