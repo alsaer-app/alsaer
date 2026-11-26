@@ -69,16 +69,13 @@ public class MediaPlaybackService extends Service {
 
     /* صورة غلاف من تصميمنا: مربع بلون الخلفية، حلقة بلون التمييز، وهلال */
     private android.graphics.Bitmap art(int bg, int ac) {
-        int n = 192;
+        int n = 256;
         android.graphics.Bitmap bm = android.graphics.Bitmap.createBitmap(n, n, android.graphics.Bitmap.Config.ARGB_8888);
         android.graphics.Canvas cv = new android.graphics.Canvas(bm);
         android.graphics.Paint p = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
-        p.setColor(bg); cv.drawRoundRect(0, 0, n, n, 40, 40, p);
-        p.setStyle(android.graphics.Paint.Style.STROKE); p.setStrokeWidth(8); p.setColor(ac);
-        cv.drawRoundRect(8, 8, n - 8, n - 8, 34, 34, p);
-        p.setStyle(android.graphics.Paint.Style.FILL);
-        cv.drawCircle(n / 2f, n / 2f, 46, p);
-        p.setColor(bg); cv.drawCircle(n / 2f + 20, n / 2f - 8, 40, p);
+        p.setColor(bg); cv.drawRect(0, 0, n, n, p);            // لون الثيم صلب بالكامل (شاومي تشتق لونها من هذه الصورة)
+        p.setColor(ac); cv.drawCircle(n / 2f, n / 2f, 26, p);   // هلال صغير
+        p.setColor(bg); cv.drawCircle(n / 2f + 10, n / 2f - 5, 22, p);
         return bm;
     }
 
@@ -248,12 +245,17 @@ public class MediaPlaybackService extends Service {
             session.setCallback(new MediaSession.Callback() {
                 @Override public void onPlay() { DiagLog.add("session play"); command("play"); }
                 @Override public void onPause() { DiagLog.add("session pause"); command("pause"); }
+                @Override public void onCustomAction(String action, android.os.Bundle extras) {
+                    DiagLog.add("session custom " + action);
+                    if ("stop".equals(action)) { if (player != null) command("stop"); else { toPage("stop"); holdLocks(false); stopForeground(true); stopSelf(); } }
+                }
                 @Override public void onStop() { DiagLog.add("session stop"); if (player != null) { command("stop"); return; } toPage("stop"); holdLocks(false); stopForeground(true); stopSelf(); }
             });
             session.setActive(true);
         }
         session.setPlaybackState(new PlaybackState.Builder()
             .setActions(PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PAUSE | PlaybackState.ACTION_STOP)
+            .addCustomAction(new PlaybackState.CustomAction.Builder("stop", NativeStrings.get(this, "media_stop"), R.drawable.ic_mc_close).build())
             .setState(playing ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1f)
             .build());
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
