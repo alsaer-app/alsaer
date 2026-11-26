@@ -74,4 +74,12 @@ button.rdo-back[data-a=rctback]{border-color:var(--accent,#4c9a8f);animation:rbp
 
 .hsn-top{flex-wrap:wrap}.hsn-top .hsn-cn{white-space:normal;min-width:0;flex:1 1 100%;order:3;text-align:center;line-height:1.6;margin:2px 0 0}
 
-.ftw-au{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}.ftw-au .btn{flex:0 0 auto}.ftw-p{flex:1 1 auto!important}.ftw-st{flex:1;font-size:13px;opacity:.85}.ftw-bad{color:#e66}.ftw-au .btn[disabled]{opacity:.45}
+.ftw-d{gap:0}.ftw-t{font-size:19px;line-height:1.7;margin-bottom:14px}.ftw-au svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ftw-au{margin-bottom:18px}.ftw-bar{display:flex;align-items:center;gap:12px;background:color-mix(in srgb,var(--c,#14a198) 14%,transparent);border-radius:20px;padding:10px 12px}.ftw-bar0{background:none;padding:0;justify-content:flex-start}
+.ftw-p{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:#14a198;color:#fff;display:flex;align-items:center;justify-content:center}.ftw-p svg{fill:#fff;stroke:#fff;width:22px;height:22px}
+.ftw-tx{flex:1;min-width:0}.ftw-tx b{display:block;font-size:14px;font-weight:700}.ftw-tx small{display:block;opacity:.65;font-size:12px;margin-top:2px}.ftw-bad{color:#ff9d9d}
+.ftw-ic{flex:none;width:40px;height:40px;border-radius:50%;border:0;background:rgba(127,227,216,.14);color:inherit;display:flex;align-items:center;justify-content:center}
+.ftw-pr{height:4px;background:rgba(127,227,216,.25);border-radius:3px;margin-top:8px}.ftw-pr i{display:block;height:4px;background:#7fe3d8;border-radius:3px}
+.ftw-menu{margin-top:8px;border:1px solid rgba(127,227,216,.25);border-radius:18px;padding:6px 0;background:rgba(127,227,216,.08)}.ftw-menu button{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border:0;background:none;color:inherit;font:inherit;font-size:15px;text-align:start}.ftw-md{color:#ff9d9d!important}
+.ftw-sep{height:1px;background:rgba(127,227,216,.2);margin:18px 0 12px}.ftw-src{display:flex;align-items:center;gap:6px;border:0;background:none;color:inherit;opacity:.7;font:inherit;font-size:12px;padding:0}.ftw-src svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
+.ftw-q small,.ftw-a small{font-size:12px;margin:0 0 6px}.ftw-q,.ftw-a{font-size:16px}
