@@ -130,8 +130,24 @@ jobs:
       - name: Publish update.json
         run: |
           python3 - <<'PY'
-          import json, os
+          import json, os, re
           repo = os.environ['GITHUB_REPOSITORY']
+          # notes: one line per sentence of the latest release-log entry (src/screens/more.js), max 500 chars
+          notes = ''
+          try:
+              first = open('src/screens/more.js', encoding='utf-8').readline()
+              m = re.match(r"var RL_RAW='<p><b>[^<]*</b><br>(.*?)</p>", first)
+              if m:
+                  items = [re.sub(r'<[^>]*>', '', x).strip().rstrip('.') for x in re.split(r'\.\s+', m.group(1))]
+                  out = ''
+                  for it in [i for i in items if i]:
+                      nxt = (out + '\n' + it) if out else it
+                      if len(nxt) > 500:
+                          break
+                      out = nxt
+                  notes = out
+          except Exception as e:
+              print('notes skipped:', e)
           data = {
               "appId": "com.ahmedalajmi.alsaer",
               "versionName": os.environ['VERSION_NAME'],
@@ -141,6 +157,8 @@ jobs:
               "sha256": os.environ['APK_SHA256'],
               "mandatory": False,
           }
+          if notes:
+              data["notes"] = notes
           with open('update.json', 'w', encoding='utf-8') as f:
               json.dump(data, f, ensure_ascii=False, indent=2)
               f.write('\n')
