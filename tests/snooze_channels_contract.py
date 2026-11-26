@@ -35,7 +35,7 @@ import hashlib
 RAW=R/'android/app/src/main/res/raw'
 for n in ['alsaer_notify','alsaer_pray_fajr','alsaer_pray_dhuhr','alsaer_pray_asr','alsaer_pray_maghrib','alsaer_pray_isha']:
  f=RAW/(n+'.wav');d=f.read_bytes();assert d[:4]==b'RIFF' and d[8:12]==b'WAVE' and len(d)>100000,n
-assert 'rawUri(c, "alsaer_notify")' in s and '{"fajr","dhuhr","asr","maghrib","isha"}' in s and 'rawUri(c, "alsaer_pray_" + PRAYER_KEYS[i])' in s
+assert 'rawUri(c, "alsaer_tone")' in s and 'alsaer_notify' not in s and '{"fajr","dhuhr","asr","maghrib","isha"}' in s and 'rawUri(c, "alsaer_pray_" + PRAYER_KEYS[i])' in s
 assert 'R.raw.' not in s and (RAW/'alsaer_tone.mp3').exists()
 assert 'alsaer_pray_" + PRAYER_KEYS[i] + "_v2"' in s and 'for (String cat0' in s
 print('PASS source guards: snooze scheduled separately, category channels created once, old sound-mode channels deleted, API24/25 silent/system/custom branch; real audio and delivery untested')

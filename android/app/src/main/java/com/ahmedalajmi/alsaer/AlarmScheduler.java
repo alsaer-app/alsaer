@@ -254,7 +254,7 @@ public final class AlarmScheduler {
         if (Build.VERSION.SDK_INT < 26) return;
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         long[] vibs = new long[]{0, 90, 90, 150};
-        Uri soundUri = rawUri(c, "alsaer_notify");
+        Uri soundUri = rawUri(c, "alsaer_tone");
         AudioAttributes attrs = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -379,7 +379,7 @@ public final class AlarmScheduler {
                 .setCategory(NotificationCompat.CATEGORY_REMINDER);
         if (Build.VERSION.SDK_INT < 26) {
             String sound=soundMode(c);
-            b.setSound("silent".equals(sound)?null:"system".equals(sound)?Settings.System.DEFAULT_NOTIFICATION_URI:rawUri(c, prayerKey(id) != null ? "alsaer_pray_" + prayerKey(id) : "alsaer_notify"));
+            b.setSound("silent".equals(sound)?null:"system".equals(sound)?Settings.System.DEFAULT_NOTIFICATION_URI:rawUri(c, prayerKey(id) != null ? "alsaer_pray_" + prayerKey(id) : "alsaer_tone"));
             b.setVibrate("silent".equals(sound)?new long[]{0}:new long[]{0, 120, 80, 120, 80, 260});
         }
 
