@@ -119,7 +119,7 @@
    "ایپ ابھی سامنے نہیں ہے، دوبارہ کوشش کریں"
   ],
   "app_name": [
-   "السائر",
+   "السائر إلى الله",
    "السائر",
    "السائر",
    "السائر",
@@ -128,7 +128,7 @@
    "السائر"
   ],
   "brand": [
-   "السائر",
+   "السائر إلى الله",
    "Alsaer",
    "Alsaer",
    "Alsaer",
@@ -137,7 +137,7 @@
    "السائر"
   ],
   "ch_chime_name": [
-   "السائر — تذكيرات بصوت هادئ",
+   "السائر إلى الله — تذكيرات بصوت هادئ",
    "Alsaer — gentle-sound reminders",
    "Alsaer — rappels à son doux",
    "Alsaer — yumuşak sesli hatırlatmalar",
@@ -146,7 +146,7 @@
    "السائر — نرم آواز والی یاد دہانیاں"
   ],
   "ch_silent_name": [
-   "السائر — تذكيرات بلا صوت",
+   "السائر إلى الله — تذكيرات بلا صوت",
    "Alsaer — silent reminders",
    "Alsaer — rappels silencieux",
    "Alsaer — sessiz hatırlatmalar",
@@ -155,7 +155,7 @@
    "السائر — خاموش یاد دہانیاں"
   ],
   "ch_float_name": [
-   "السائر — تنبيهات النوافذ العائمة",
+   "السائر إلى الله — تنبيهات النوافذ العائمة",
    "Alsaer — floating window alerts",
    "Alsaer — alertes des fenêtres flottantes",
    "Alsaer — yüzen pencere uyarıları",
@@ -164,7 +164,7 @@
    "السائر — فلوٹنگ ونڈو الرٹس"
   ],
   "ch_service_name": [
-   "السائر — خدمة النافذة العائمة",
+   "السائر إلى الله — خدمة النافذة العائمة",
    "Alsaer — floating window service",
    "Alsaer — service de fenêtre flottante",
    "Alsaer — yüzen pencere hizmeti",
@@ -173,7 +173,7 @@
    "السائر — فلوٹنگ ونڈو سروس"
   ],
   "ch_system_name": [
-   "السائر — صوت النظام",
+   "السائر إلى الله — صوت النظام",
    "Alsaer — system sound",
    "Alsaer — son système",
    "Alsaer — sistem sesi",
@@ -245,7 +245,7 @@
    "فلوٹنگ ونڈو ملتوی کریں"
   ],
   "biometric_confirm_open": [
-   "تأكيد هويتك لفتح تطبيق السائر",
+   "تأكيد هويتك لفتح تطبيق السائر إلى الله",
    "Confirm your identity to open السائر",
    "Confirmez votre identité pour ouvrir السائر",
    "السائر uygulamasını açmak için kimliğinizi doğrulayın",
@@ -461,7 +461,7 @@
    "پرندوں کی آواز — ایپ کے لیے بنائی گئی پرسکون اسلامی ٹون"
   ],
   "scheduled_reminder_test_ok": [
-   "هذا اختبار للتذكير المحدد؛ إشعارات السائر تعمل بنجاح.",
+   "هذا اختبار للتذكير المحدد؛ إشعارات السائر إلى الله تعمل بنجاح.",
    "This is a test of the scheduled reminder; Alsaer notifications are working.",
    "Ceci est un test du rappel planifié ; les notifications Alsaer fonctionnent.",
    "Bu, zamanlanmış hatırlatmanın denemesidir; Alsaer bildirimleri çalışıyor.",
@@ -596,7 +596,7 @@
    "یاد دہانیوں کا خلاصہ"
   ],
   "update_title": [
-   "تحديث جديد لتطبيق السائر",
+   "تحديث جديد لتطبيق السائر إلى الله",
    "A new alsaer update",
    "Nouvelle mise à jour d'alsaer",
    "alsaer için yeni güncelleme",

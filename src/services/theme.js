@@ -13,7 +13,7 @@ function applyUI(){
   pr('data-press',pick(PRESSES,u.press,'bounce'),'bounce');pr('data-trans',pick(TRANSES,u.trans,'rise'),'rise');
   if(u.fontW==='bold')r.setAttribute('data-fw','bold');else r.removeAttribute('data-fw');
   try{if(window.mcThemeSend)setTimeout(mcThemeSend,0)}catch(e){}
-  var L=lang();r.setAttribute('lang',L);r.setAttribute('dir',langDir());try{document.title=(lang()==='ar')?'السائر':(trS('السائر')||'Al-Sa\'ir ila Allah')}catch(e){}
+  var L=lang();r.setAttribute('lang',L);r.setAttribute('dir',langDir());try{document.title=(lang()==='ar')?'السائر إلى الله':(trS('السائر إلى الله')||'Al-Sa\'ir ila Allah')}catch(e){}
 }
 
 /* ألوان بطاقة الإشعار/شاشة القفل تتبع الثيم الفعلي (يقرؤها MediaPlaybackService) */

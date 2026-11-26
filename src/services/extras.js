@@ -39,7 +39,7 @@ function bkApply(raw){
       S=n0;mem=n0;setTimeout(function(){location.reload()},400);
       return '';
     }
-    return 'هذا ليس ملف نسخة احتياطية من «السائر».';
+    return 'هذا ليس ملف نسخة احتياطية من «السائر إلى الله».';
   }
   if(!validBackup(o.S))return 'النسخة غير صالحة أو ناقصة؛ لم تتغير بياناتك';
   var keep={};BK_KEEP.forEach(function(k){if(S[k]!==undefined)keep[k]=S[k]});
@@ -70,7 +70,7 @@ function gdDriveCard(st,disabled){
     +'<div class="gd-col">'+gdBtn('up','نسخ الآن',false,disabled)+gdBtn('down','استعادة من Drive',true,disabled)+gdProgBar()+'</div>'
     +'<div class="gd-pair"><button class="btn ghost" data-a="gdconnect"'+disabled+'>'+ic('refresh')+' ربط حساب جديد</button>'
     +'<button class="btn ghost bad" data-a="gddisc"'+disabled+'>'+ic('x')+' '+(gdDiscArm?'تأكيد فك الارتباط':'فك الارتباط')+'</button></div>'
-    +'<button class="btn ghost bad block gd-delete" data-a="gddelete"'+disabled+'>حذف نسخ السائر من Drive</button>'
+    +'<button class="btn ghost bad block gd-delete" data-a="gddelete"'+disabled+'>حذف نسخ السائر إلى الله من Drive</button>'
     +'<p class="note">فك الارتباط يطلب تأكيدًا ولا يحذف ملفات النسخ من Drive. تُحفظ كل النسخ المؤرخة دون حذف تلقائي. يصل التطبيق إلى الملفات التي أنشأها أو أُتيحت له فقط.</p></section>';
 }
 function vBackup(){

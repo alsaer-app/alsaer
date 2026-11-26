@@ -104,7 +104,7 @@ function vMonth(){
 function msAct(a,v){
   if(a==='msoff'){MS_OFF=Math.min(0,MS_OFF+(+v));return false}
   if(a==='msshare'){
-    var r=msRange(),t='ملخصي في '+r.name+' — السائر\n',tmp=document.createElement('div');tmp.innerHTML=document.querySelector('.ms-g').innerHTML.replace(/<\/?(small|b)>/g,' ');
+    var r=msRange(),t='ملخصي في '+r.name+' — السائر إلى الله\n',tmp=document.createElement('div');tmp.innerHTML=document.querySelector('.ms-g').innerHTML.replace(/<\/?(small|b)>/g,' ');
     document.querySelectorAll('.ms-t').forEach(function(e){t+='• '+e.querySelector('b').textContent+': '+e.querySelector('small').textContent+'\n'});
     try{navigator.clipboard.writeText(t);toast('نُسخ الملخص')}catch(e){toast('تعذّر النسخ')}
     return true;

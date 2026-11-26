@@ -246,10 +246,10 @@ function mpAyahCard(k,cb){
       var g=x.createLinearGradient(0,0,1080,Hc);g.addColorStop(0,pal.g0);g.addColorStop(1,pal.g1);x.fillStyle=g;x.fillRect(0,0,1080,Hc);
       x.strokeStyle='#C9A24B';x.lineWidth=4;x.strokeRect(40,40,1000,Hc-80);x.lineWidth=1.5;x.strokeRect(58,58,964,Hc-116);
       x.direction='rtl';x.textAlign='center';
-      x.fillStyle=pal.hd;x.font='bold 46px '+ff;x.fillText('السائر',540,150);
+      x.fillStyle=pal.hd;x.font='bold 46px '+ff;x.fillText('السائر إلى الله',540,150);
       x.font=size+'px '+fam;x.fillStyle='#fff';var y0=Hc/2-35-lines.length*lh/2+lh*0.6;lines.forEach(function(l,i){x.fillText(l,540,y0+i*lh)});
       x.fillStyle='#9FB3AE';x.font='36px '+ff;x.fillText(mpVName(k),540,Hc-170);
-      x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر · مجاني بالكامل',540,Hc-100);
+      x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر إلى الله · مجاني بالكامل',540,Hc-100);
       cb(c)
     }catch(e){cb(null)}
   };

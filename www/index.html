@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="author" content="أحمد العجمي">
 <meta name="theme-color" content="#061d1a">
-<title>السائر</title>
+<title>السائر إلى الله</title>
 <style>
 :root{
   --bg:#061a17; --bg2:#0a2621; --surface:#0d2a25; --surface-2:#133630; --fg:#eef4ee; --muted:#9db5ab; --line:#1f4a3f;
@@ -882,7 +882,7 @@ if((u.lang&&u.lang!=='ar')||(u.style&&u.style!=='calm')||(u.look&&u.look!=='clas
 var m=u.mode;if(m!=='light'&&m!=='dark'&&m!=='system')m=localStorage.getItem('tawba_theme')==='light'?'light':'dark';
 var th=m==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m;
 document.documentElement.setAttribute('data-theme',th);
-document.getElementById('app').innerHTML='<div class="splash" data-pre="1"><div class="sp-tile"><img src="icon.png" alt=""></div><div class="t">السائر</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div></div>'}catch(e){}})();</script>
+document.getElementById('app').innerHTML='<div class="splash" data-pre="1"><div class="sp-tile"><img src="icon.png" alt=""></div><div class="t">السائر إلى الله</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div></div>'}catch(e){}})();</script>
 <nav class="tabbar" id="tabs" hidden></nav>
 <div class="toast" id="toast" hidden></div>
 
@@ -3075,7 +3075,7 @@ function bioPrompt(auto){
   var b=bPlug();
   if(!b||bioBusy||unlocked||!bioUsable())return;
   bioBusy=true;
-  b.authenticate({reason:'مصادقة بصمة السائر'}).then(function(r){
+  b.authenticate({reason:'مصادقة بصمة السائر إلى الله'}).then(function(r){
     bioBusy=false;
     if(r&&r.success)bioUnlockNow();
   }).catch(function(){
@@ -3267,7 +3267,7 @@ var ENP2=[
 [/^اتجاه القبلة: (\d+)°$/,'Qibla direction: $1°'],
 [/^تنتهي ختمتك بإذن الله في (.+)$/,function(m,d){var r=trS(d);return 'Your khatmah ends, God willing, on '+(r||d)}],
 [/^متبقٍ (\d+) صفحة · نحو (\d+) يومًا بوردك الحالي \((\d+) (?:صفحات|صفحة) يوميًا\)$/,'$1 pages left · about $2 days at your current portion ($3 pages daily)'],
-[/^مطوّر تطبيق السائر · Developer of Al-Sa'ir ila Allah$/,"Developer of Al-Sa'ir ila Allah"]
+[/^مطوّر تطبيق السائر إلى الله · Developer of Al-Sa'ir ila Allah$/,"Developer of Al-Sa'ir ila Allah"]
 ];
 ENP=ENP.concat(ENP2);
 ENP=ENP.concat([
@@ -3447,7 +3447,7 @@ function applyUI(){
   pr('data-press',pick(PRESSES,u.press,'bounce'),'bounce');pr('data-trans',pick(TRANSES,u.trans,'rise'),'rise');
   if(u.fontW==='bold')r.setAttribute('data-fw','bold');else r.removeAttribute('data-fw');
   try{if(window.mcThemeSend)setTimeout(mcThemeSend,0)}catch(e){}
-  var L=lang();r.setAttribute('lang',L);r.setAttribute('dir',langDir());try{document.title=(lang()==='ar')?'السائر':(trS('السائر')||'Al-Sa\'ir ila Allah')}catch(e){}
+  var L=lang();r.setAttribute('lang',L);r.setAttribute('dir',langDir());try{document.title=(lang()==='ar')?'السائر إلى الله':(trS('السائر إلى الله')||'Al-Sa\'ir ila Allah')}catch(e){}
 }
 
 /* ألوان بطاقة الإشعار/شاشة القفل تتبع الثيم الفعلي (يقرؤها MediaPlaybackService) */
@@ -3516,16 +3516,16 @@ var APP_VERSION='2.0.0',APP_BUILD=200,COPY='';
 try{if(window.AlsaerNative&&typeof AlsaerNative.appBuildInfo==='function'){var bi=AlsaerNative.appBuildInfo().split('|');if(bi.length===2&&parseInt(bi[1],10)>0){APP_VERSION=bi[0];APP_BUILD=parseInt(bi[1],10)}}}catch(e){}
 function devBtn(){
   var ch=ic('chev').replace('class="i"','class="i dev-chev"');
-  return '<button class="dev-btn" data-a="tab" data-v="developer" aria-label="مطوّر السائر — Dr. Ahmed Elagamy"><span class="dev-av"><i>Æ</i></span><span class="dev-tx"><span class="dev-role">مطوّر السائر · Developer</span><b>أحمد العجمي</b><span class="dev-en">Dr. Ahmed Elagamy</span><span class="dev-free">'+ic('check')+'تطبيق السائر مجاني بالكامل · Completely free</span></span><span class="dev-side"><span class="dev-ver">v'+APP_VERSION+'</span>'+ch+'</span></button>'}
+  return '<button class="dev-btn" data-a="tab" data-v="developer" aria-label="مطوّر السائر إلى الله — Dr. Ahmed Elagamy"><span class="dev-av"><i>Æ</i></span><span class="dev-tx"><span class="dev-role">مطوّر السائر إلى الله · Developer</span><b>أحمد العجمي</b><span class="dev-en">Dr. Ahmed Elagamy</span><span class="dev-free">'+ic('check')+'تطبيق السائر إلى الله مجاني بالكامل · Completely free</span></span><span class="dev-side"><span class="dev-ver">v'+APP_VERSION+'</span>'+ch+'</span></button>'}
 
 /* ---------- views ---------- */
 function vSplash(){
-  return '<div class="splash"><div class="sp-tile"><img src="icon.png" alt=""></div><div class="t">السائر</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div></div>';
+  return '<div class="splash"><div class="sp-tile"><img src="icon.png" alt=""></div><div class="t">السائر إلى الله</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div></div>';
 }
 function vOb(){
   var p=S.profile||{},gender=obGender||S.gender||'male';
   return '<div class="ob-page">'
-  +'<div class="ob-brand"><div class="ob-mark">'+ic('moon')+'</div><p class="ob-eyebrow">السائر</p>'
+  +'<div class="ob-brand"><div class="ob-mark">'+ic('moon')+'</div><p class="ob-eyebrow">السائر إلى الله</p>'
   +'<h2>أهلاً بك في رحلتك</h2><p class="ob-intro">خطوة صادقة نحو حياةٍ أقرب إلى الله. أخبرنا باسمك وعمرك لنخاطبك كما يليق بك.</p></div>'
   +'<section class="card ob-form profile-edit">'
   +'<div class="ob-photo-row"><label class="ob-photo-picker" for="ob-photo" aria-label="اختيار صورة شخصية"><div class="profile-edit-head">'+(p.photo?'<img class="profile-photo" style="width:86px;height:86px" src="'+p.photo+'" alt="الصورة الشخصية">':'<div class="ob-avatar">'+(gender==='female'?avFemale():avMale())+'</div>')+'<div class="ob-photo-copy"><strong>صورتك الشخصية</strong><small>اضغط هنا لاختيار صورة من جهازك</small></div></div><span class="ob-photo-action">'+ic('camera')+'</span></label><input id="ob-photo" type="file" accept="image/*" class="profile-file ob-file"></div>'
@@ -4826,7 +4826,7 @@ function bkApply(raw){
       S=n0;mem=n0;setTimeout(function(){location.reload()},400);
       return '';
     }
-    return 'هذا ليس ملف نسخة احتياطية من «السائر».';
+    return 'هذا ليس ملف نسخة احتياطية من «السائر إلى الله».';
   }
   if(!validBackup(o.S))return 'النسخة غير صالحة أو ناقصة؛ لم تتغير بياناتك';
   var keep={};BK_KEEP.forEach(function(k){if(S[k]!==undefined)keep[k]=S[k]});
@@ -4857,7 +4857,7 @@ function gdDriveCard(st,disabled){
     +'<div class="gd-col">'+gdBtn('up','نسخ الآن',false,disabled)+gdBtn('down','استعادة من Drive',true,disabled)+gdProgBar()+'</div>'
     +'<div class="gd-pair"><button class="btn ghost" data-a="gdconnect"'+disabled+'>'+ic('refresh')+' ربط حساب جديد</button>'
     +'<button class="btn ghost bad" data-a="gddisc"'+disabled+'>'+ic('x')+' '+(gdDiscArm?'تأكيد فك الارتباط':'فك الارتباط')+'</button></div>'
-    +'<button class="btn ghost bad block gd-delete" data-a="gddelete"'+disabled+'>حذف نسخ السائر من Drive</button>'
+    +'<button class="btn ghost bad block gd-delete" data-a="gddelete"'+disabled+'>حذف نسخ السائر إلى الله من Drive</button>'
     +'<p class="note">فك الارتباط يطلب تأكيدًا ولا يحذف ملفات النسخ من Drive. تُحفظ كل النسخ المؤرخة دون حذف تلقائي. يصل التطبيق إلى الملفات التي أنشأها أو أُتيحت له فقط.</p></section>';
 }
 function vBackup(){
@@ -5521,12 +5521,12 @@ function cdMake(){
   var g=x.createLinearGradient(0,0,1080,1350);g.addColorStop(0,'#0E2A2B');g.addColorStop(1,'#1B4A45');x.fillStyle=g;x.fillRect(0,0,1080,1350);
   x.strokeStyle='#C9A24B';x.lineWidth=4;x.strokeRect(40,40,1000,1270);x.lineWidth=1.5;x.strokeRect(58,58,964,1234);
   var ff=getComputedStyle(document.body).fontFamily||'sans-serif';
-  x.direction='rtl';x.textAlign='center';x.fillStyle='#E8C873';x.font='bold 46px '+ff;x.fillText('السائر',540,150);
+  x.direction='rtl';x.textAlign='center';x.fillStyle='#E8C873';x.font='bold 46px '+ff;x.fillText('السائر إلى الله',540,150);
   x.fillStyle='#fff';var size=L.t.length>140?44:(L.t.length>70?54:64);x.font=size+'px '+ff;
   var lines=[];L.t.split('\n').forEach(function(par){var w=par.split(' '),cur='';w.forEach(function(wd){var t=cur?cur+' '+wd:wd;if(x.measureText(t).width>880&&cur){lines.push(cur);cur=wd}else cur=t});lines.push(cur)});
   var lh=size*1.7,y0=675-lines.length*lh/2+lh*0.6;lines.slice(0,12).forEach(function(l,i){x.fillText(l,540,y0+i*lh)});
   if(L.s){x.fillStyle='#9FB3AE';x.font='36px '+ff;x.fillText(L.s,540,1180)}
-  x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر · مجاني بالكامل',540,1250);
+  x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر إلى الله · مجاني بالكامل',540,1250);
   return c;
 }
 /* ---------- بطاقة السورة: محتوى «البطاقات» للأستاذ الدكتور ياسر بن إسماعيل راضي (albitaqat.com). الحقوق محفوظة للمؤلف؛ يُعرض بنصه كما هو مع نسبته إليه ومسؤولية استعماله على مالك التطبيق. البيانات في www/albitaqat.js وحدها (قابلة للإزالة) ---------- */
@@ -5954,7 +5954,7 @@ function vFloatSet(){
 }
 function vWidgetSet(){
   var c=nsGet('w');
-  return '<div class="ns">'+nsNote()+'<section class="card"><h3>معاينة</h3>'+nsPrev('w',c)+'<p class="note">أضف الودجت من قائمة ودجت هاتفك (السائر). سطر «كتابي» يعرض كتابك الحالي ونسبة تقدّمه.</p></section>'
+  return '<div class="ns">'+nsNote()+'<section class="card"><h3>معاينة</h3>'+nsPrev('w',c)+'<p class="note">أضف الودجت من قائمة ودجت هاتفك (السائر إلى الله). سطر «كتابي» يعرض كتابك الحالي ونسبة تقدّمه.</p></section>'
    +'<section class="card"><h3>الشكل والمحتوى</h3>'+NS_WOPTS.map(function(o){return nsGroup('w',o,c)}).join('')+'<div class="acts"><button class="btn ghost" data-a="nswreset">استعادة الافتراضي</button></div></section></div>';
 }
 function nsAct(a,v){
@@ -6237,7 +6237,7 @@ function vMonth(){
 function msAct(a,v){
   if(a==='msoff'){MS_OFF=Math.min(0,MS_OFF+(+v));return false}
   if(a==='msshare'){
-    var r=msRange(),t='ملخصي في '+r.name+' — السائر\n',tmp=document.createElement('div');tmp.innerHTML=document.querySelector('.ms-g').innerHTML.replace(/<\/?(small|b)>/g,' ');
+    var r=msRange(),t='ملخصي في '+r.name+' — السائر إلى الله\n',tmp=document.createElement('div');tmp.innerHTML=document.querySelector('.ms-g').innerHTML.replace(/<\/?(small|b)>/g,' ');
     document.querySelectorAll('.ms-t').forEach(function(e){t+='• '+e.querySelector('b').textContent+': '+e.querySelector('small').textContent+'\n'});
     try{navigator.clipboard.writeText(t);toast('نُسخ الملخص')}catch(e){toast('تعذّر النسخ')}
     return true;
@@ -6493,10 +6493,10 @@ function mpAyahCard(k,cb){
       var g=x.createLinearGradient(0,0,1080,Hc);g.addColorStop(0,pal.g0);g.addColorStop(1,pal.g1);x.fillStyle=g;x.fillRect(0,0,1080,Hc);
       x.strokeStyle='#C9A24B';x.lineWidth=4;x.strokeRect(40,40,1000,Hc-80);x.lineWidth=1.5;x.strokeRect(58,58,964,Hc-116);
       x.direction='rtl';x.textAlign='center';
-      x.fillStyle=pal.hd;x.font='bold 46px '+ff;x.fillText('السائر',540,150);
+      x.fillStyle=pal.hd;x.font='bold 46px '+ff;x.fillText('السائر إلى الله',540,150);
       x.font=size+'px '+fam;x.fillStyle='#fff';var y0=Hc/2-35-lines.length*lh/2+lh*0.6;lines.forEach(function(l,i){x.fillText(l,540,y0+i*lh)});
       x.fillStyle='#9FB3AE';x.font='36px '+ff;x.fillText(mpVName(k),540,Hc-170);
-      x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر · مجاني بالكامل',540,Hc-100);
+      x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر إلى الله · مجاني بالكامل',540,Hc-100);
       cb(c)
     }catch(e){cb(null)}
   };
@@ -7950,7 +7950,7 @@ window.alsaerMediaCmd=function(c){
 try{document.addEventListener('visibilitychange',function(){mcDiag('vis '+document.visibilityState+' audio='+(MC.list.filter(function(A){return !A.paused}).length))})}catch(e){}
 /* ===== جولة تفاعلية: تظلّل عناصر التطبيق الحقيقية وتنتقل بين شاشاته ===== */
 var TOUR=[
- {e:'🌙',t:'أهلًا بك في السائر',d:'رفيقك اليومي: مواقيت وأذكار وورد ومتابعة، مجانًا بالكامل. جولة قصيرة تعرّفك بكل شيء في أقل من دقيقة.'},
+ {e:'🌙',t:'أهلًا بك في السائر إلى الله',d:'رفيقك اليومي: مواقيت وأذكار وورد ومتابعة، مجانًا بالكامل. جولة قصيرة تعرّفك بكل شيء في أقل من دقيقة.'},
  {tab:'home',sel:'.profile-hero',t:'بطاقتك',d:'تحيّة اليوم وتاريخه. وللترتيب: اضغط مطوّلًا على أي بطاقة في الرئيسية فتهتز الأيقونات كما في الآيفون، اسحبها لتغيير مكانها أو اضغط (−) لإخفائها.'},
  {tab:'home',sel:'.dprog',t:'تقدّم يومك',d:'يتحرك الشريط كلما أنجزت عبادة اليوم.'},
  {tab:'home',sel:'.tabbar',t:'التنقل',d:'الرئيسية، التقويم، التقدّم، ثم «المزيد» وفيه كل الأقسام. وزر «+» فوق الشريط يفتح مهام سريعة.'},
@@ -8211,7 +8211,7 @@ function sgSegRow(icon,title,desc,segHtml){return '<div class="sg-row segrow"><s
 var IC_BELLOFF='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 9.5-4.9M18 11c0 4 1.5 5.5 2 6H6"/><path d="M10 20a2 2 0 0 0 4 0M3 3l18 18"/></svg>';
 
 
-function sgDeveloperCard(){return '<section class="sg-card settings-dev"><div class="settings-dev-head"><span class="settings-dev-avatar" aria-hidden="true">AE</span><div class="settings-dev-name"><b dir="ltr">Ahmed Elagamy</b><p>مطور السائر</p></div><span class="settings-dev-version" dir="ltr">v'+esc(APP_VERSION)+'</span></div><div class="settings-dev-links"><a href="https://github.com/alsaer-app/alsaer" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.61-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02A9.6 9.6 0 0 1 12 6.82c.85 0 1.71.11 2.51.34 1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.76c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg></a><a href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.5-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.99A10 10 0 0 0 22 12z"/></svg></a><a href="https://wa.me/qr/Y6QVW6757YOCE1?s=v" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.5L3 20.5l1.3-4.8a8.5 8.5 0 1 1 16.2-4z"/><path d="M8.3 7.7c-.8.4-.7 1.8-.1 3.1 1 2.1 2.7 3.6 4.8 4.1 1.1.3 2.3 0 2.5-1.1l-2.1-1.3-.9.9c-1.3-.5-2.3-1.5-2.9-2.8l.7-.9-1-2.1z"/></svg></a></div></section>'}
+function sgDeveloperCard(){return '<section class="sg-card settings-dev"><div class="settings-dev-head"><span class="settings-dev-avatar" aria-hidden="true">AE</span><div class="settings-dev-name"><b dir="ltr">Ahmed Elagamy</b><p>مطور السائر إلى الله</p></div><span class="settings-dev-version" dir="ltr">v'+esc(APP_VERSION)+'</span></div><div class="settings-dev-links"><a href="https://github.com/alsaer-app/alsaer" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.61-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02A9.6 9.6 0 0 1 12 6.82c.85 0 1.71.11 2.51.34 1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.76c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg></a><a href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.5-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.99A10 10 0 0 0 22 12z"/></svg></a><a href="https://wa.me/qr/Y6QVW6757YOCE1?s=v" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.5L3 20.5l1.3-4.8a8.5 8.5 0 1 1 16.2-4z"/><path d="M8.3 7.7c-.8.4-.7 1.8-.1 3.1 1 2.1 2.7 3.6 4.8 4.1 1.1.3 2.3 0 2.5-1.1l-2.1-1.3-.9.9c-1.3-.5-2.3-1.5-2.9-2.8l.7-.9-1-2.1z"/></svg></a></div></section>'}
 
 function vSettings(){
   var M='<p class="msg">'+esc(msg)+'</p>';
@@ -8397,7 +8397,7 @@ function patEnd(e){
 }
 document.addEventListener('pointerup',patEnd);
 document.addEventListener('pointercancel',function(e){if(patDown&&e.pointerId===patPid){patDown=false;patSeq=[];patDraw()}});
-function vLock(){var meth=(S.security&&S.security.method)||'pin';return '<div class="lock"><div class="lock-emblem">'+ic('book-open')+'</div><div class="lock-panel"><h2>السائر</h2><p class="muted">مساحتك الإيمانية محفوظة بخصوصية</p><div style="font-size:30px;margin:4px 0 12px;color:#dfc17d">'+(S.lockType==='pattern'?'⌘':meth==='password'?'▤':'▦')+'</div><p class="muted">'+(S.lockType==='pattern'?'ارسم نمطك لفتح التطبيق':meth==='password'?'أدخل كلمة المرور للمتابعة':'أدخل رمز PIN للمتابعة')+'</p>'+(S.lockType==='pattern'?patHtml():'<input type="password" '+(meth==='pin'?'inputmode="numeric" maxlength="4"':'')+' id="lk" autocomplete="current-password" placeholder="'+(meth==='password'?'كلمة المرور':'••••')+'"><button class="lock-enter" data-a="unlock">فتح التطبيق</button>')+(bioUsable()?'<button class="lock-enter" style="margin-top:10px" data-a="biounlock">'+ic('fingerprint')+'فتح بالبصمة</button>':'')+'<p class="msg" role="alert" aria-live="polite">'+esc(msg)+'</p><div class="lock-foot">خطوة هادئة نحو الأفضل • بياناتك على جهازك</div></div></div>'}
+function vLock(){var meth=(S.security&&S.security.method)||'pin';return '<div class="lock"><div class="lock-emblem">'+ic('book-open')+'</div><div class="lock-panel"><h2>السائر إلى الله</h2><p class="muted">مساحتك الإيمانية محفوظة بخصوصية</p><div style="font-size:30px;margin:4px 0 12px;color:#dfc17d">'+(S.lockType==='pattern'?'⌘':meth==='password'?'▤':'▦')+'</div><p class="muted">'+(S.lockType==='pattern'?'ارسم نمطك لفتح التطبيق':meth==='password'?'أدخل كلمة المرور للمتابعة':'أدخل رمز PIN للمتابعة')+'</p>'+(S.lockType==='pattern'?patHtml():'<input type="password" '+(meth==='pin'?'inputmode="numeric" maxlength="4"':'')+' id="lk" autocomplete="current-password" placeholder="'+(meth==='password'?'كلمة المرور':'••••')+'"><button class="lock-enter" data-a="unlock">فتح التطبيق</button>')+(bioUsable()?'<button class="lock-enter" style="margin-top:10px" data-a="biounlock">'+ic('fingerprint')+'فتح بالبصمة</button>':'')+'<p class="msg" role="alert" aria-live="polite">'+esc(msg)+'</p><div class="lock-foot">خطوة هادئة نحو الأفضل • بياناتك على جهازك</div></div></div>'}
 
 function cleanHadithText(v){
   if(typeof v==='string')return v.replace(/<[^>]*>/g,' ').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/\s+/g,' ').trim();
@@ -8412,7 +8412,7 @@ function renderFirstUpdateNotice(){
   if(!unlocked||!S.onboarded||seen){if(old)old.remove();return}
   if(old)return;
   var wrap=document.createElement('div');wrap.id='update109-notice';wrap.className='update109-backdrop';
-  wrap.innerHTML='<section class="update109-card" role="dialog" aria-modal="true" aria-labelledby="update109-title"><h2 id="update109-title">ما الجديد في السائر؟</h2><div class="ver">الإصدار '+APP_VERSION+' · جديد</div><ul><li>جولة تعريفية بالتطبيق تُعاد في أي وقت من الإعدادات.</li><li>«المسبحة» صفحة مستقلة بعدّاد وذكر مخصّص وصوت نقر.</li><li>«حصن المسلم» و«أسماء الله الحسنى» و«الأحاديث النبوية» من قائمة المزيد.</li><li>شاشة الصلوات منفصلة مع عدّ تنازلي للصلاة القادمة.</li><li>إصلاحات عامة في الأداء والتصميم.</li></ul><p class="free-note">تطبيق السائر مجاني بالكامل</p><button class="btn" data-a="update109Done">متابعة إلى التطبيق</button></section>';
+  wrap.innerHTML='<section class="update109-card" role="dialog" aria-modal="true" aria-labelledby="update109-title"><h2 id="update109-title">ما الجديد في السائر؟</h2><div class="ver">الإصدار '+APP_VERSION+' · جديد</div><ul><li>جولة تعريفية بالتطبيق تُعاد في أي وقت من الإعدادات.</li><li>«المسبحة» صفحة مستقلة بعدّاد وذكر مخصّص وصوت نقر.</li><li>«حصن المسلم» و«أسماء الله الحسنى» و«الأحاديث النبوية» من قائمة المزيد.</li><li>شاشة الصلوات منفصلة مع عدّ تنازلي للصلاة القادمة.</li><li>إصلاحات عامة في الأداء والتصميم.</li></ul><p class="free-note">تطبيق السائر إلى الله مجاني بالكامل</p><button class="btn" data-a="update109Done">متابعة إلى التطبيق</button></section>';
   document.body.appendChild(wrap);
 }
 function vRenderFail(e,t){
@@ -8845,7 +8845,7 @@ function xaMount(){
   ov.innerHTML='<div class="xa" role="alertdialog" aria-modal="true" aria-label="تأكيد الخروج">'
    +'<span class="xa-ic">'+ic('star')+'</span>'
    +'<b class="xa-t">هل بالفعل تريد الخروج من التطبيق؟</b>'
-   +'<p class="xa-p">إن نال «السائر» إعجابك، نجّمه على GitHub؛ نجمتُك تُعين على انتشاره واستمرار تطويره.</p>'
+   +'<p class="xa-p">إن نال «السائر إلى الله» إعجابك، نجّمه على GitHub؛ نجمتُك تُعين على انتشاره واستمرار تطويره.</p>'
    +'<div class="xa-bb"><button class="btn xa-gh" data-a="xastar">'+ic('star')+'نجّمنا على GitHub</button><button class="btn" data-a="xaexit">خروج</button></div>'
    +'<button class="xa-x" data-a="xastay" aria-label="بقاء">✕</button></div>';
   ov.addEventListener('click',function(e){if(e.target===ov){exitAsk=false;render()}});
@@ -9112,7 +9112,7 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
   function remNativeTest(){
     if(!('Notification' in window)){remStatus('هذا الإصدار من WebView لا يوفّر واجهة إشعارات النظام؛ الاختبار الخلفي غير متاح بعد.');return}
     if(Notification.permission==='granted'){
-      try{new Notification('السائر',{body:'هذا إشعار تجريبي للتأكد من وصول الإشعارات.'});remStatus('تم إرسال إشعار تجريبي عبر النظام.')}
+      try{new Notification('السائر إلى الله',{body:'هذا إشعار تجريبي للتأكد من وصول الإشعارات.'});remStatus('تم إرسال إشعار تجريبي عبر النظام.')}
       catch(e){remStatus('تعذر إرسال الإشعار التجريبي: '+e.message)}
     }else remStatus('لم تُمنح صلاحية الإشعارات بعد. اضغط «موافقة وتفعيل الإشعارات».');
   }
@@ -9199,7 +9199,7 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
         nq.pauseFloating(nx);remStatus(nx?'أُوقفت التذكيرات العائمة '+ar(String(nx/60))+' ساعة (اضغط للتمديد)':'عادت التذكيرات العائمة')}catch(x){remStatus('هذه الميزة غير متاحة في هذه النسخة')}
       render();return}
     if(act==='sndopen'){try{setCat='notif';setSub='';setOpen='snd';scAnim=1;tab='settings';window.scrollTo(0,0);render()}catch(x){}return}
-    if(act==='sndset'){remStatus('افتح: إعدادات الهاتف ← التطبيقات ← السائر ← الإشعارات، ثم فعّل الصوت واجعل الأهمية «عالية»');return}
+    if(act==='sndset'){remStatus('افتح: إعدادات الهاتف ← التطبيقات ← السائر إلى الله ← الإشعارات، ثم فعّل الصوت واجعل الأهمية «عالية»');return}
     if(act==='soundtest'){remSoundTest();return}
     var nv=window.AlsaerNative;
     if(nv){
@@ -9207,7 +9207,7 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
         try{nv.requestNotificationPermission()}catch(x){}
         var tries=0,iv=setInterval(function(){tries++;var ok=false;try{ok=nv.notificationsEnabled()}catch(x){}
           if(ok){clearInterval(iv);var r=remLoad();r.consent=true;r.enabled=true;remSave(r);remStatus('تم تفعيل إشعارات النظام بنجاح.');if(window.alsaerNativeSyncSoon)window.alsaerNativeSyncSoon(true);vReminders&&render()}
-          else if(tries>40){clearInterval(iv);remStatus('لم يتم منح الإذن. افتح: إعدادات الهاتف ← التطبيقات ← السائر ← الإشعارات.')}},500);
+          else if(tries>40){clearInterval(iv);remStatus('لم يتم منح الإذن. افتح: إعدادات الهاتف ← التطبيقات ← السائر إلى الله ← الإشعارات.')}},500);
       }else if(act==='test'){
         var tt='تذكير تجريبي';
         try{

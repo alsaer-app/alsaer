@@ -188,7 +188,7 @@
   function remNativeTest(){
     if(!('Notification' in window)){remStatus('هذا الإصدار من WebView لا يوفّر واجهة إشعارات النظام؛ الاختبار الخلفي غير متاح بعد.');return}
     if(Notification.permission==='granted'){
-      try{new Notification('السائر',{body:'هذا إشعار تجريبي للتأكد من وصول الإشعارات.'});remStatus('تم إرسال إشعار تجريبي عبر النظام.')}
+      try{new Notification('السائر إلى الله',{body:'هذا إشعار تجريبي للتأكد من وصول الإشعارات.'});remStatus('تم إرسال إشعار تجريبي عبر النظام.')}
       catch(e){remStatus('تعذر إرسال الإشعار التجريبي: '+e.message)}
     }else remStatus('لم تُمنح صلاحية الإشعارات بعد. اضغط «موافقة وتفعيل الإشعارات».');
   }
@@ -275,7 +275,7 @@
         nq.pauseFloating(nx);remStatus(nx?'أُوقفت التذكيرات العائمة '+ar(String(nx/60))+' ساعة (اضغط للتمديد)':'عادت التذكيرات العائمة')}catch(x){remStatus('هذه الميزة غير متاحة في هذه النسخة')}
       render();return}
     if(act==='sndopen'){try{setCat='notif';setSub='';setOpen='snd';scAnim=1;tab='settings';window.scrollTo(0,0);render()}catch(x){}return}
-    if(act==='sndset'){remStatus('افتح: إعدادات الهاتف ← التطبيقات ← السائر ← الإشعارات، ثم فعّل الصوت واجعل الأهمية «عالية»');return}
+    if(act==='sndset'){remStatus('افتح: إعدادات الهاتف ← التطبيقات ← السائر إلى الله ← الإشعارات، ثم فعّل الصوت واجعل الأهمية «عالية»');return}
     if(act==='soundtest'){remSoundTest();return}
     var nv=window.AlsaerNative;
     if(nv){
@@ -283,7 +283,7 @@
         try{nv.requestNotificationPermission()}catch(x){}
         var tries=0,iv=setInterval(function(){tries++;var ok=false;try{ok=nv.notificationsEnabled()}catch(x){}
           if(ok){clearInterval(iv);var r=remLoad();r.consent=true;r.enabled=true;remSave(r);remStatus('تم تفعيل إشعارات النظام بنجاح.');if(window.alsaerNativeSyncSoon)window.alsaerNativeSyncSoon(true);vReminders&&render()}
-          else if(tries>40){clearInterval(iv);remStatus('لم يتم منح الإذن. افتح: إعدادات الهاتف ← التطبيقات ← السائر ← الإشعارات.')}},500);
+          else if(tries>40){clearInterval(iv);remStatus('لم يتم منح الإذن. افتح: إعدادات الهاتف ← التطبيقات ← السائر إلى الله ← الإشعارات.')}},500);
       }else if(act==='test'){
         var tt='تذكير تجريبي';
         try{

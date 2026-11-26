@@ -58,12 +58,12 @@ function cdMake(){
   var g=x.createLinearGradient(0,0,1080,1350);g.addColorStop(0,'#0E2A2B');g.addColorStop(1,'#1B4A45');x.fillStyle=g;x.fillRect(0,0,1080,1350);
   x.strokeStyle='#C9A24B';x.lineWidth=4;x.strokeRect(40,40,1000,1270);x.lineWidth=1.5;x.strokeRect(58,58,964,1234);
   var ff=getComputedStyle(document.body).fontFamily||'sans-serif';
-  x.direction='rtl';x.textAlign='center';x.fillStyle='#E8C873';x.font='bold 46px '+ff;x.fillText('السائر',540,150);
+  x.direction='rtl';x.textAlign='center';x.fillStyle='#E8C873';x.font='bold 46px '+ff;x.fillText('السائر إلى الله',540,150);
   x.fillStyle='#fff';var size=L.t.length>140?44:(L.t.length>70?54:64);x.font=size+'px '+ff;
   var lines=[];L.t.split('\n').forEach(function(par){var w=par.split(' '),cur='';w.forEach(function(wd){var t=cur?cur+' '+wd:wd;if(x.measureText(t).width>880&&cur){lines.push(cur);cur=wd}else cur=t});lines.push(cur)});
   var lh=size*1.7,y0=675-lines.length*lh/2+lh*0.6;lines.slice(0,12).forEach(function(l,i){x.fillText(l,540,y0+i*lh)});
   if(L.s){x.fillStyle='#9FB3AE';x.font='36px '+ff;x.fillText(L.s,540,1180)}
-  x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر · مجاني بالكامل',540,1250);
+  x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر إلى الله · مجاني بالكامل',540,1250);
   return c;
 }
 /* ---------- بطاقة السورة: محتوى «البطاقات» للأستاذ الدكتور ياسر بن إسماعيل راضي (albitaqat.com). الحقوق محفوظة للمؤلف؛ يُعرض بنصه كما هو مع نسبته إليه ومسؤولية استعماله على مالك التطبيق. البيانات في www/albitaqat.js وحدها (قابلة للإزالة) ---------- */
