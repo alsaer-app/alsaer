@@ -52,7 +52,7 @@
 
 - **قفل التطبيق**: برمز PIN أو كلمة مرور أو نمط، مع فتح بالبصمة وإيقاف مؤقت بعد المحاولات الخاطئة.
 - **نسخ احتياطي بتشفير اختياري**: ملف مستقل أو نسخ مؤرخة إلى Google Drive بعد التفويض، مع AES-GCM وPBKDF2-SHA256 عند تفعيل كلمة المرور.
-- **استخدام أساسي محلي**: لا يتطلب حسابًا لدى المطور. المحتوى والتحديثات تستخدم خدمات خارجية، وGoogle Drive يحتاج تفويضًا اختياريًا. انظر [مسودة سياسة الخصوصية](PRIVACY.md).
+- **استخدام أساسي محلي**: لا يتطلب حسابًا لدى المطور. المحتوى والتحديثات تستخدم خدمات خارجية، وGoogle Drive يحتاج تفويضًا اختياريًا. انظر [سياسة الخصوصية](PRIVACY.md).
 - **واجهة عربية RTL** بثيمات فاتحة وداكنة، وتاريخ هجري (أم القرى) وميلادي.
 
 ## لقطات الشاشة
@@ -108,7 +108,7 @@
 - الموقع اختياري، ويُستخدم لحساب المواقيت والقبلة فقط.
 - يتصل التطبيق بالإنترنت لجلب الراديو والقرّاء والفتاوى والأحاديث والتفسير، ولفحص ملف `update.json` مرة يوميًا. قد يرى مزوّد الخدمة عنوان IP كأي اتصال إنترنت.
 - نسخ Google Drive اختياري بتفويض منك (صلاحية `drive.file`)، والتشفير بكلمة مرور اختياري (AES-GCM وPBKDF2-SHA256).
-- النص الكامل في [PRIVACY.md](PRIVACY.md) وفي [docs/privacy.html](docs/privacy.html). هذه مسودة للمراجعة وليست إقرار Data Safety معتمدًا.
+- النص الكامل في [PRIVACY.md](PRIVACY.md) وفي [docs/privacy.html](docs/privacy.html).
 
 ## البنية التقنية
 
@@ -169,7 +169,6 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 
 - للدعم والملاحظات والبلاغات: cvgj62240@gmail.com
 - المشاكل والاقتراحات التقنية: [Issues](https://github.com/alsaer-app/alsaer/issues)
-- فيسبوك: https://www.facebook.com/share/1E4Mr4L2Yd/
 
 </div>
 
@@ -188,7 +187,7 @@ An Arabic Android companion for daily worship and self-review. Your data stays o
 
 **Install:** open [Releases](https://github.com/alsaer-app/alsaer/releases/latest) on your phone, download the `.apk`, allow installs from that source when Android asks, then install (Android 7.0+). Install new versions over the old one to keep your data. Official builds are signed with certificate SHA-256 `647b477f5e19a79ec542b70d12476a166f3bf262ae7b5c2b1602bcc58a1c85e0`. Back up before uninstalling.
 
-**Privacy:** local-first. Network use is limited to content (radio, reciters, fatwas, hadith, tafsir), a daily check of `update.json`, and optional Google Drive backup that you authorise. Location is optional and used only for prayer times and qibla. Details in [PRIVACY.md](PRIVACY.md) (a draft for review).
+**Privacy:** local-first. Network use is limited to content (radio, reciters, fatwas, hadith, tafsir), a daily check of `update.json`, and optional Google Drive backup that you authorise. Location is optional and used only for prayer times and qibla. Details in [PRIVACY.md](PRIVACY.md).
 
 **Support:** cvgj62240@gmail.com, or open an [issue](https://github.com/alsaer-app/alsaer/issues).
 
