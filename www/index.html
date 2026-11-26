@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; worker-src 'self' blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.jsdelivr.net https://raw.githubusercontent.com; media-src 'self' https://qurango.net https://*.mp3quran.net https://verses.quran.com https://cdn.islamic.network https://everyayah.com https://cdn.mp3quran.net https://audio.opendua.org https://archive.org https://*.archive.org; font-src 'self' data:; connect-src 'self' blob: data: https://bayan.alwa7i.com https://api.alquran.cloud https://cdn.jsdelivr.net https://raw.githubusercontent.com https://oauth2.googleapis.com https://www.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; worker-src 'self' blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.jsdelivr.net https://raw.githubusercontent.com; media-src 'self' https://qurango.net https://*.mp3quran.net https://verses.quran.com https://cdn.islamic.network https://everyayah.com https://cdn.mp3quran.net https://audio.opendua.org https://archive.org https://*.archive.org; font-src 'self' data:; connect-src 'self' blob: data: https://bayan.alwa7i.com https://cdn.jsdelivr.net https://raw.githubusercontent.com https://oauth2.googleapis.com https://www.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="author" content="أحمد العجمي">
 <meta name="theme-color" content="#061d1a">
@@ -5919,7 +5919,7 @@ function ffGet(){var o=JSON.parse(JSON.stringify(FF_DEF)),s=S.ff;if(s&&typeof s=
 function ffSet(k,v){if(!S.ff||typeof S.ff!=='object')S.ff={};S.ff[k]=v;save();ffPushCfg()}
 function ffPushCfg(){var n=window.AlsaerNative;try{if(n&&typeof n.setFloatFeed==='function'){n.setFloatFeed(JSON.stringify(ffGet()));return true}}catch(e){}return false}
 function ffKind(x){var k=String(x.kind||'');if(/آية/.test(k))return 'ayah';if(/حديث/.test(k)||x.grade)return 'hadith';if(/دعاء|الدعاء/.test(k))return 'dua';if(/الاستغفار|أذكار|الصلاة على النبي|تسبيح/.test(k))return 'dhikr';return 'tip'}
-function ffAyat(){try{var a=JSON.parse(localStorage.getItem('alsaer_ff_ayat')||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+function ffAyat(){try{var a=JSON.parse(localStorage.getItem('alsaer_ff_ayat2')||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
 function ffPool(){
   var out=[],seen={};
   function add(k,t,b,s){b=String(b||'').trim();if(!b||b.length>320||seen[b])return;seen[b]=1;out.push({k:k,t:t,b:b,s:String(s||'')})}
@@ -5933,17 +5933,21 @@ function ffJson(u){
   var ctl=(typeof AbortController==='function')?new AbortController():null,to=ctl?setTimeout(function(){ctl.abort()},9000):null;
   return fetch(u,{headers:{'Accept':'application/json'},signal:ctl?ctl.signal:undefined}).then(function(r){if(to)clearTimeout(to);if(!r.ok)throw new Error('x');return r.json()}).catch(function(){if(to)clearTimeout(to);return null});
 }
-/* آيات عشوائية من واجهة مجانية بلا مفتاح (api.alquran.cloud) */
+/* آيات عشوائية من مصحفنا المحلي (QDATA، المتحقَّق بالبصمة) حرفيًا دون تعديل؛ لا شبكة ولا مصدر خارجي */
 function ffFetchAyat(){
-  if(typeof fetch!=='function'||navigator.onLine===false)return Promise.resolve(0);
-  var cur=ffAyat(),seen={},ns=[],i;cur.forEach(function(x){seen[x.b]=1});
-  for(i=0;i<14;i++)ns.push(1+Math.floor(Math.random()*6236));
-  return Promise.all(ns.map(function(n){return ffJson('https://api.alquran.cloud/v1/ayah/'+n+'/quran-uthmani')})).then(function(rs){
-    var add=0;
-    rs.forEach(function(j){var d=j&&j.data;if(!d||!d.text||!d.surah)return;var b='﴿'+String(d.text).trim()+'﴾';if(b.length>320||seen[b])return;seen[b]=1;cur.push({b:b,s:'سورة '+String(d.surah.name||'').replace(/^سورة\s*/,'')+' · آية '+ar(d.numberInSurah)});add++});
-    try{localStorage.setItem('alsaer_ff_ayat',JSON.stringify(cur.slice(-150)))}catch(e){}
-    return add;
-  });
+  var Q=window.QDATA;
+  if(!Q||!Q.s||!Q.n)return Promise.resolve(0);
+  var cur=ffAyat(),seen={},add=0,tries=0;cur.forEach(function(x){seen[x.b]=1});
+  while(add<14&&tries<80){
+    tries++;
+    var si=Math.floor(Math.random()*Q.s.length),vs=Q.s[si]||[],vi=Math.floor(Math.random()*vs.length),t=String(vs[vi]||'').trim();
+    if(t.length<20)continue;
+    var b='\ufd3f'+t+'\ufd3e';
+    if(b.length>320||seen[b])continue;
+    seen[b]=1;cur.push({b:b,s:'سورة '+String(Q.n[si]||'').replace(/^سورة\s*/,'')+' · آية '+ar(vi+1)});add++;
+  }
+  try{localStorage.setItem('alsaer_ff_ayat2',JSON.stringify(cur.slice(-150)))}catch(e){}
+  return Promise.resolve(add);
 }
 /* تجديد: يجلب محتوى جديدًا ثم يدفع الجدول والمحتوى للتطبيق الأصلي */
 function ffRefresh(){
