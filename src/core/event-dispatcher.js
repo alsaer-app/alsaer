@@ -213,7 +213,7 @@ document.addEventListener('click',async function(e){
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}
   else if(/^msb[a-z]+$/.test(a)){if(typeof msbAct==='function'&&msbAct(a,v)===false)return}
   else if(a==='qriw'){var nriw=v==='warsh'?'warsh':'hafs';if((S.quran.riwaya||'hafs')===nriw){render()}else{if(typeof qwSheetClose==='function')qwSheetClose();mqUseRiw(nriw,function(){window.scrollTo(0,0);render();if(typeof qwBanner==='function')qwBanner(nriw)})}}
-  else if(a==='qbm2'){if(rd&&rd.flow&&rd.cv){var q2=String(rd.cv).split(':');mqBmSet(+q2[0],+q2[1]);save();toast('تم حفظ العلامة المرجعية')}}
+  else if(a==='qbm2'){if(rd&&rd.flow&&rd.cv){var q2=String(rd.cv).split(':'),was=mqBmOn(+q2[0]);if(was){S.quran.bm2=null;save();toast('أُزيلت العلامة')}else{mqBmSet(+q2[0],+q2[1]);save();toast('تم حفظ العلامة المرجعية')}document.querySelectorAll('.mq-bm').forEach(function(bb){bb.classList.toggle('on',!was);bb.setAttribute('aria-pressed',String(!was));bb.textContent=was?'☆':'★'})}}
   else if(/^qtf(back|idx|sura|x|cp|go|au)$/.test(a)){if(tfAct(a,v))return}
   else if(a==='qtafsir'){if(rd&&rd.flow&&rd.cv&&typeof mqOpenTf==='function')mqOpenTf(rd.cv)}
 

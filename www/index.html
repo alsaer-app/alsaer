@@ -6307,17 +6307,27 @@ function mpFind(q){
   for(var r=0;r<rest.length&&k<60;r++,k++)out.push(rest[r]);
   return out;
 }
-function mpSearchPanel(){
-  if(!rd||!rd.srch)return '';
-  var D=QD(),R=rd.sr||[],h='<div class="rd-sp"><div class="rd-sh"><button class="ib" data-a="qsclose" aria-label="إغلاق">✕</button><input id="mps-q" class="qd-i" type="search" enterkeyhint="search" autocomplete="off" placeholder="كلمة من الآية، أو رقم مثل ٢:٢٥٥" value="'+esc(rd.sq||'')+'"><button class="btn" data-a="qsdo">بحث</button></div><div class="rd-sr">';
+function mpSrHtml(){
+  var D=QD(),R=rd.sr||[],h='';
   if(rd.sq&&!R.length)h+='<p class="note">لا نتائج. جرّب كلمة أقصر أو بدون تشكيل.</p>';
   else if(!rd.sq)h+='<p class="note">اكتب كلمة أو أكثر من الآية فتظهر الآيات المطابقة، أو رقم السورة والآية مثل ٢:٢٥٥، أو اسم السورة.</p>';
   R.forEach(function(x){
     if(x.sura)h+='<button class="rd-ri" data-a="qsgo" data-v="'+x.pg+'"><b>سورة '+esc(D.n[x.sura-1])+'</b><small>ص '+ar(x.pg)+'</small></button>';
     else{var t=verseText(x.c,x.v);if(t.length>130)t=t.slice(0,130)+'…';h+='<button class="rd-ri" data-a="'+(rd.flow?'qsgov':'qsgo')+'" data-v="'+(rd.flow?x.c+':'+x.v:x.pg)+'"><span class="rd-rt">'+esc(t)+'</span><small>'+esc(D.n[x.c-1])+' · آية '+ar(x.v)+' · ص '+ar(x.pg)+'</small></button>'}
   });
-  return h+'</div></div>';
+  return h;
 }
+function mpSearchPanel(){
+  if(!rd||!rd.srch)return '';
+  return '<div class="rd-sp"><div class="rd-sh"><button class="ib" data-a="qsclose" aria-label="إغلاق">✕</button><input id="mps-q" class="qd-i" type="search" enterkeyhint="search" autocomplete="off" placeholder="كلمة من الآية، أو رقم مثل ٢:٢٥٥" value="'+esc(rd.sq||'')+'"><button class="btn" data-a="qsdo">بحث</button></div><div class="rd-sr">'+mpSrHtml()+'</div></div>';
+}
+/* بحث لحظي أثناء الكتابة: يحدّث قائمة النتائج فقط دون إعادة رسم الشاشة، فيبقى المؤشر ولوحة المفاتيح */
+(function(){var tm;document.addEventListener('input',function(e){
+  var t=e.target;if(!t||t.id!=='mps-q'||!rd||!rd.srch)return;
+  clearTimeout(tm);tm=setTimeout(function(){
+    var el=document.getElementById('mps-q');if(!el||!rd||!rd.srch)return;
+    rd.sq=(el.value||'').trim();rd.sr=rd.sq?mpFind(rd.sq):[];
+    var box=document.querySelector('.rd-sp .rd-sr');if(box)box.innerHTML=mpSrHtml()},220)})})();
 function mpAct2(a,v){
   if(!rd)return true;
   if(a==='qms'){rd.mq=((document.getElementById('mq-q')||{}).value||'').trim();rd.mr=rd.mq?mpFind(rd.mq):[];return false}
@@ -6484,7 +6494,7 @@ document.addEventListener('click',function(e){
   if(k==='imgdl'){if(!mpImg.url)return;try{var an=document.createElement('a');an.href=mpImg.url;an.download='alsaer-ayah.jpg';document.body.appendChild(an);an.click();an.remove();toast('إن لم يبدأ التنزيل، اضغط مطوّلًا على الصورة لحفظها')}catch(e){toast('اضغط مطوّلًا على الصورة لحفظها')}return}
   if(k==='mk'||k==='mkre'){return}
   if(k==='tf'){if(rd&&rd.flow)mqOpenTf(mpSel);return}
-  if(k==='bmrk'){var q3=mpSel.split(':');mqBmSet(+q3[0],+q3[1]);save();toast('تم حفظ العلامة المرجعية');mpApplySel();return}
+  if(k==='bmrk'){var q3=mpSel.split(':');if(mqBmOn(+q3[0],+q3[1])){S.quran.bm2=null;save();toast('أُزيلت العلامة')}else{mqBmSet(+q3[0],+q3[1]);save();toast('تم حفظ العلامة المرجعية')}mpApplySel();return}
   if(k==='copy'){if(wiOn()){toast(WI_NOTXT);return}try{navigator.clipboard.writeText(mpVerseText(mpSel));toast('تم نسخ الآية')}catch(x){toast('تعذّر النسخ')}return}
   if(k==='share'){var t=mpVerseText(mpSel);if(navigator.share){navigator.share({text:t}).catch(function(){})}else{try{navigator.clipboard.writeText(t);toast('نُسخت الآية للمشاركة')}catch(x){}}return}
   if(k==='mark'){var vm=mpVm();if(vm[mpSel]){delete vm[mpSel];toast('أُزيلت العلامة')}else{vm[mpSel]=Date.now();toast('وُضعت علامة حفظ')}S.quran.vm=vm;save();mpApplySel()}
@@ -6631,7 +6641,7 @@ function mqMenuOpen(vv,x,y){
     if(e.target===bd||e.target.closest('[data-mqx]')){mqMenuClose();return}
     var b=e.target.closest('[data-mqm]');if(!b)return;
     var k=b.getAttribute('data-mqm');mqMenuClose();
-    if(k==='bmrk'){mqBmSet(c,v);save();toast('تم حفظ العلامة المرجعية');render()}
+    if(k==='bmrk'){if(mqBmOn(c,v)){S.quran.bm2=null;save();toast('أُزيلت العلامة')}else{mqBmSet(c,v);save();toast('تم حفظ العلامة المرجعية')}render()}
     else if(k==='tf'){mqOpenTf(vv)}
     else if(k==='copy'){if(wiOn())toast(WI_NOTXT);else try{navigator.clipboard.writeText(mpVerseText(vv));toast('تم نسخ الآية')}catch(x2){toast('تعذّر النسخ')}}
     else if(k==='aud'){mqSetCur(vv,false);mqAuPlay(vv)}
@@ -8444,7 +8454,7 @@ document.addEventListener('click',async function(e){
   else if(/^asm[a-z]+$/.test(a)){if(typeof asmAct==='function'&&asmAct(a,v)===false)return}
   else if(/^msb[a-z]+$/.test(a)){if(typeof msbAct==='function'&&msbAct(a,v)===false)return}
   else if(a==='qriw'){var nriw=v==='warsh'?'warsh':'hafs';if((S.quran.riwaya||'hafs')===nriw){render()}else{if(typeof qwSheetClose==='function')qwSheetClose();mqUseRiw(nriw,function(){window.scrollTo(0,0);render();if(typeof qwBanner==='function')qwBanner(nriw)})}}
-  else if(a==='qbm2'){if(rd&&rd.flow&&rd.cv){var q2=String(rd.cv).split(':');mqBmSet(+q2[0],+q2[1]);save();toast('تم حفظ العلامة المرجعية')}}
+  else if(a==='qbm2'){if(rd&&rd.flow&&rd.cv){var q2=String(rd.cv).split(':'),was=mqBmOn(+q2[0]);if(was){S.quran.bm2=null;save();toast('أُزيلت العلامة')}else{mqBmSet(+q2[0],+q2[1]);save();toast('تم حفظ العلامة المرجعية')}document.querySelectorAll('.mq-bm').forEach(function(bb){bb.classList.toggle('on',!was);bb.setAttribute('aria-pressed',String(!was));bb.textContent=was?'☆':'★'})}}
   else if(/^qtf(back|idx|sura|x|cp|go|au)$/.test(a)){if(tfAct(a,v))return}
   else if(a==='qtafsir'){if(rd&&rd.flow&&rd.cv&&typeof mqOpenTf==='function')mqOpenTf(rd.cv)}
 
