@@ -44,22 +44,23 @@ jobs:
           python-version: '3.11'
 
       - name: Determine version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            V="${{ inputs.version }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            V="$INPUT_VERSION"
           else
             V="${GITHUB_REF_NAME#v}"
           fi
-          # versionCode is derived from the version name itself: M*100 + m*10 + p
-          # (1.1.2 -> 112). It rises with the version, so a release can never carry
-          # a code below an installed one. minor/patch must stay <= 9; the check
-          # fails the build loudly rather than shipping a colliding code.
           echo "$V" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "Version must be x.y.z (got: $V)"; exit 1; }
-          IFS=. read -r MA MI PA <<< "$V"
-          if [ "$MI" -gt 9 ] || [ "$PA" -gt 9 ]; then
-            echo "minor/patch > 9: re-floor the versionCode scheme before releasing $V"; exit 1
-          fi
-          CODE=$((MA*100 + MI*10 + PA))
+          # versionCode is explicit: it is read from android/app/build.gradle (the single source of truth),
+          # and the versionName there must equal the tag/input version. This keeps the code above every
+          # installed test build (10200) instead of deriving a lower number from the name.
+          CODE=$(sed -nE 's/^[[:space:]]*versionCode[[:space:]]+([0-9]+).*/\1/p' android/app/build.gradle | head -1)
+          NAME=$(sed -nE 's/^[[:space:]]*versionName[[:space:]]+"([^"]+)".*/\1/p' android/app/build.gradle | head -1)
+          [ -n "$CODE" ] || { echo "versionCode not found in android/app/build.gradle"; exit 1; }
+          [ "$NAME" = "$V" ] || { echo "build.gradle versionName ($NAME) does not match $V"; exit 1; }
           echo "VERSION_NAME=$V" >> "$GITHUB_ENV"
           echo "VERSION_CODE=$CODE" >> "$GITHUB_ENV"
           echo "Building v$V (versionCode $CODE)"
