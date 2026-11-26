@@ -73,7 +73,7 @@ function boCard(b){
    +(b.note?'<p class="bo-nt keepar">'+esc(b.note)+'</p>':'')
    +(fin?'<div class="bo-rt"><span>تقييمك:</span>'+[1,2,3,4,5].map(function(n){return '<button type="button" class="bo-st'+(n<=(b.rate||0)?' on':'')+'" data-a="borate" data-v="'+b.id+':'+n+'" aria-label="'+n+'">★</button>'}).join('')+'</div>'
      :pz?'':'<div class="bo-l"><input id="bo-n-'+b.id+'" class="qd-i" type="number" inputmode="numeric" min="1" value="'+per+'" aria-label="عدد الصفحات"><button class="btn" data-a="bolog" data-v="'+b.id+'">قرأت اليوم ✓</button></div>')
-   +(fin?'':'<div class="bo-l bo-pos"><label>أنا الآن في صفحة<input id="bo-p-'+b.id+'" class="qd-i" type="number" inputmode="numeric" min="0" max="'+b.pages+'" value="'+b.read+'"></label><button class="btn ghost" data-a="bopos" data-v="'+b.id+'">حفظ</button></div>')
+   +(fin?'':'<div class="bo-l bo-pos"><label>أنا الآن في صفحة<input id="bo-p-'+b.id+'" class="qd-i" type="number" inputmode="numeric" min="0" max="'+(parseInt(b.pages,10)||0)+'" value="'+(parseInt(b.read,10)||0)+'"></label><button class="btn ghost" data-a="bopos" data-v="'+b.id+'">حفظ</button></div>')
    +'<div class="bo-x">'+(td?'<button class="btn ghost" data-a="boundo" data-v="'+b.id+'">تراجع عن تسجيل اليوم</button>':'')+(fin?'':'<button class="btn ghost" data-a="bopause" data-v="'+b.id+'">'+(pz?'استئناف':'إيقاف مؤقت')+'</button>')+'<button class="btn ghost" data-a="boedit" data-v="'+b.id+'">تعديل</button><button class="btn ghost" data-a="bodel" data-v="'+b.id+'">'+(boDelAsk===b.id?'تأكيد الحذف':'حذف')+'</button></div></section>';
 }
 function hmFmtSafe(t){try{return typeof ptFmt==='function'?ptFmt(t):t}catch(e){return t}}

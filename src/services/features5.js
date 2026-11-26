@@ -96,7 +96,7 @@ function zkResult(){
 }
 function vZakat(){
   var z=zkGet(),base=z.nisab==='silver'?'silver':'gold',hv=z.hawl,due=hv?f5add(hv,354):'';
-  var inp=function(k,l){return '<label class="zk-l"><span>'+l+'</span><input class="qd-i zk-i" type="text" inputmode="decimal" data-zk="'+k+'" value="'+(z[k]||'')+'" placeholder="٠"></label>'};
+  var inp=function(k,l){return '<label class="zk-l"><span>'+l+'</span><input class="qd-i zk-i" type="text" inputmode="decimal" data-zk="'+k+'" value="'+esc(z[k]||'')+'" placeholder="٠"></label>'};
   return '<div class="zk"><section class="card"><h3>حاسبة الزكاة</h3><p class="note">تقدير مساعد وليس فتوى. أسعار الذهب والفضة تُدخلها بنفسك لتكون دقيقة، وللحالات الخاصة راجع أهل العلم.</p>'
    +'<div class="chips"><button class="chip'+(base==='gold'?' on':'')+'" data-a="zkbase" data-v="gold">النصاب بالذهب</button><button class="chip'+(base==='silver'?' on':'')+'" data-a="zkbase" data-v="silver">النصاب بالفضة</button></div>'
    +inp('goldp','سعر جرام الذهب (عيار ٢٤)')+inp('silverp','سعر جرام الفضة')+ZK_F.map(function(x){return inp(x[0],x[1])}).join('')+'</section>'

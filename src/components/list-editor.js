@@ -23,7 +23,7 @@ function wkSheet(){
   }else if(wkMode==='per'){
     var opts=['morning','evening','afterprayer','sleep','tasbih','quran','kahf','mulk'];
     h+='<div class="mps-h"><button class="mps-x" data-wk="close" aria-label="إغلاق">'+ic('x')+'</button><h3>'+ic('clock')+'أوقات البانر</h3></div><p class="note">لكل فترة وقت بداية ونهاية والأذكار التي تظهر فيها.</p>'
-     +w.per.map(function(P,i){return '<div class="wk-per"><div class="wk-pt"><input class="rm-sel" data-wkp="'+i+'.n" value="'+esc(P.n)+'" aria-label="اسم الفترة"><input type="time" class="rm-sel" data-wkp="'+i+'.f" value="'+P.f+'"><span>→</span><input type="time" class="rm-sel" data-wkp="'+i+'.t" value="'+P.t+'"></div><div class="wk-chips">'+opts.map(function(o){var it=wkItem(o);return '<button class="wk-chip'+((P.g||[]).indexOf(o)>=0?' on':'')+'" data-wk="pg" data-i="'+i+'" data-o="'+o+'">'+it.l+'</button>'}).join('')+'</div></div>'}).join('')
+     +w.per.map(function(P,i){return '<div class="wk-per"><div class="wk-pt"><input class="rm-sel" data-wkp="'+i+'.n" value="'+esc(P.n)+'" aria-label="اسم الفترة"><input type="time" class="rm-sel" data-wkp="'+i+'.f" value="'+esc(P.f)+'"><span>→</span><input type="time" class="rm-sel" data-wkp="'+i+'.t" value="'+esc(P.t)+'"></div><div class="wk-chips">'+opts.map(function(o){var it=wkItem(o);return '<button class="wk-chip'+((P.g||[]).indexOf(o)>=0?' on':'')+'" data-wk="pg" data-i="'+i+'" data-o="'+o+'">'+it.l+'</button>'}).join('')+'</div></div>'}).join('')
      +'<button class="btn ghost block" data-wk="perreset">استعادة الأوقات الافتراضية</button>';
   }
   h+='<div class="wk-foot"><button class="btn ghost" data-wk="reset">استعادة الترتيب الافتراضي</button><button class="btn" data-wk="close">تم</button></div></section>';
