@@ -13,6 +13,12 @@ import android.media.session.PlaybackState;
 import android.os.Build;
 import android.os.IBinder;
 import android.webkit.WebView;
+import androidx.media3.common.AudioAttributes;
+import androidx.media3.common.C;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.ExoPlayer;
 
 import java.lang.ref.WeakReference;
 
@@ -23,6 +29,7 @@ import java.lang.ref.WeakReference;
  */
 public class MediaPlaybackService extends Service {
     static final String ACT_UPDATE = "com.ahmedalajmi.alsaer.MEDIA_UPDATE";
+    static final String ACT_RADIO = "com.ahmedalajmi.alsaer.MEDIA_RADIO";
     static final String ACT_PLAY = "com.ahmedalajmi.alsaer.MEDIA_PLAY";
     static final String ACT_PAUSE = "com.ahmedalajmi.alsaer.MEDIA_PAUSE";
     static final String ACT_STOP = "com.ahmedalajmi.alsaer.MEDIA_STOP";
@@ -33,6 +40,10 @@ public class MediaPlaybackService extends Service {
     private MediaSession session;
     private String title = "", sub = "";
     private boolean playing = true;
+    private ExoPlayer player;
+    private int radioRetry = 0;
+    private String radioUrl = "";
+    private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
     private android.os.PowerManager.WakeLock wakeLock;
     private android.net.wifi.WifiManager.WifiLock wifiLock;
 
@@ -44,6 +55,79 @@ public class MediaPlaybackService extends Service {
         try {
             if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(i); else c.startService(i);
         } catch (Exception e) { DiagLog.add("svc start FAILED " + e.getClass().getSimpleName()); }
+    }
+
+    /* الإذاعة تُشغَّل هنا بمشغّل أصلي (ExoPlayer) لا بعنصر Audio داخل الـWebView */
+    static void radioPlay(Context c, String url, String title) {
+        Intent i = new Intent(c, MediaPlaybackService.class).setAction(ACT_RADIO)
+            .putExtra("u", url == null ? "" : url).putExtra("t", title == null ? "" : title);
+        try {
+            if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(i); else c.startService(i);
+        } catch (Exception e) { DiagLog.add("radio start FAILED " + e.getClass().getSimpleName()); }
+    }
+
+    private void radioState(final String st) {
+        final WebView w = web.get();
+        if (w == null) return;
+        w.post(new Runnable() { public void run() {
+            try { w.evaluateJavascript("window.alsaerRadioState&&window.alsaerRadioState('" + st + "')", null); } catch (Exception ignored) { }
+        } });
+    }
+
+    private void startRadio(String url, String t) {
+        releasePlayer();
+        radioUrl = url; radioRetry = 0; title = t; playing = true;
+        try {
+            player = new ExoPlayer.Builder(this)
+                .setAudioAttributes(new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build(), true)
+                .setHandleAudioBecomingNoisy(true)
+                .setWakeMode(C.WAKE_MODE_NETWORK)
+                .build();
+            player.addListener(new Player.Listener() {
+                @Override public void onPlaybackStateChanged(int s) {
+                    DiagLog.add("exo state " + (s == Player.STATE_READY ? "ready" : s == Player.STATE_BUFFERING ? "buffering" : s == Player.STATE_ENDED ? "ended" : "idle"));
+                    if (s == Player.STATE_READY) { radioRetry = 0; radioState("play"); }
+                    else if (s == Player.STATE_BUFFERING) radioState("load");
+                }
+                @Override public void onPlayWhenReadyChanged(boolean pw, int reason) {
+                    DiagLog.add("exo playWhenReady " + pw + " reason " + reason);
+                    playing = pw; show();
+                }
+                @Override public void onPlayerError(PlaybackException e) {
+                    DiagLog.add("exo error " + e.getErrorCodeName());
+                    if (radioRetry < 3 && player != null) {
+                        radioRetry++;
+                        main.postDelayed(new Runnable() { public void run() {
+                            if (player != null) { player.setMediaItem(MediaItem.fromUri(radioUrl)); player.prepare(); player.play(); DiagLog.add("exo retry " + radioRetry); }
+                        } }, 2000L * radioRetry);
+                    } else { radioState("error"); stopRadioService(); }
+                }
+            });
+            player.setMediaItem(MediaItem.fromUri(url));
+            player.prepare();
+            player.play();
+            DiagLog.add("exo start");
+            radioState("load");
+        } catch (Exception e) { DiagLog.add("exo start FAILED " + e.getClass().getSimpleName()); releasePlayer(); radioState("error"); }
+        show();
+    }
+
+    private void releasePlayer() {
+        main.removeCallbacksAndMessages(null);
+        if (player != null) { try { player.release(); } catch (Exception ignored) { } player = null; }
+    }
+
+    private void stopRadioService() {
+        releasePlayer(); holdLocks(false); stopForeground(true); stopSelf();
+    }
+
+    /* أمر من زر الإشعار/الجلسة: للإذاعة الأصلية مباشرة، وإلا للصفحة */
+    private void command(String c) {
+        if (player == null) { toPage(c); return; }
+        DiagLog.add("cmd " + c + " native");
+        if ("pause".equals(c)) player.pause();
+        else if ("play".equals(c)) { player.seekToDefaultPosition(); player.play(); }
+        else if ("stop".equals(c)) { radioState("stop"); stopRadioService(); }
     }
 
     static void stop(Context c) {
@@ -90,6 +174,8 @@ public class MediaPlaybackService extends Service {
 
     @Override public int onStartCommand(Intent in, int flags, int startId) {
         String a = in == null ? null : in.getAction();
+        if (ACT_RADIO.equals(a)) { startRadio(in.getStringExtra("u"), in.getStringExtra("t")); return START_NOT_STICKY; }
+        if (ACT_STOP.equals(a) && player != null) { command("stop"); return START_NOT_STICKY; }
         if (ACT_STOP.equals(a)) {
             toPage("stop");
             holdLocks(false);
@@ -99,8 +185,9 @@ public class MediaPlaybackService extends Service {
         }
         DiagLog.add("svc action " + (a == null ? "null" : a.substring(a.lastIndexOf('_') + 1)));
         /* الأزرار تطلب من الصفحة فقط؛ الحالة تتغير عندما تؤكد الصفحة (mediaUpdate) فلا تكذب البطاقة */
-        if (ACT_PLAY.equals(a)) { toPage("play"); }
-        else if (ACT_PAUSE.equals(a)) { toPage("pause"); }
+        if (ACT_PLAY.equals(a)) { command("play"); return START_NOT_STICKY; }
+        else if (ACT_PAUSE.equals(a)) { command("pause"); return START_NOT_STICKY; }
+        else if (ACT_UPDATE.equals(a) && player != null) { return START_NOT_STICKY; }
         else if (ACT_UPDATE.equals(a)) {
             title = in.getStringExtra("t");
             playing = in.getBooleanExtra("p", true);
@@ -122,9 +209,9 @@ public class MediaPlaybackService extends Service {
         if (session == null) {
             session = new MediaSession(this, "alsaer");
             session.setCallback(new MediaSession.Callback() {
-                @Override public void onPlay() { DiagLog.add("session play"); toPage("play"); }
-                @Override public void onPause() { DiagLog.add("session pause"); toPage("pause"); }
-                @Override public void onStop() { DiagLog.add("session stop"); toPage("stop"); holdLocks(false); stopForeground(true); stopSelf(); }
+                @Override public void onPlay() { DiagLog.add("session play"); command("play"); }
+                @Override public void onPause() { DiagLog.add("session pause"); command("pause"); }
+                @Override public void onStop() { DiagLog.add("session stop"); if (player != null) { command("stop"); return; } toPage("stop"); holdLocks(false); stopForeground(true); stopSelf(); }
             });
             session.setActive(true);
         }
@@ -169,6 +256,7 @@ public class MediaPlaybackService extends Service {
 
     @Override public void onDestroy() {
         DiagLog.add("svc destroy");
+        releasePlayer();
         holdLocks(false);
         if (session != null) { try { session.setActive(false); session.release(); } catch (Exception ignored) { } session = null; }
         super.onDestroy();

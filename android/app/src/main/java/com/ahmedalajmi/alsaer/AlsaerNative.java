@@ -320,6 +320,8 @@ public class AlsaerNative {
     @JavascriptInterface public void mediaUpdate(String title, boolean playing) {
         MediaPlaybackService.update(act.getApplicationContext(), title, playing);
     }
+    @JavascriptInterface public void radioPlay(String url, String title) { MediaPlaybackService.radioPlay(act.getApplicationContext(), url, title); }
+    @JavascriptInterface public boolean radioNative() { return true; }
     @JavascriptInterface public String diagGet() { return DiagLog.get(); }
     @JavascriptInterface public void diagClear() { DiagLog.clear(); }
     @JavascriptInterface public void diagLog(String line) { DiagLog.add("js " + line); }

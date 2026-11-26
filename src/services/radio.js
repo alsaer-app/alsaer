@@ -32,13 +32,17 @@ function vRadio(){
   h+='<div id="rdo-l">'+rdoRows()+'</div>';
   h+='<p class="note rdo-src">قائمة الإذاعات من تطبيق التقوى (Altaqwaa). البث يحتاج اتصالًا بالإنترنت.</p></div>';
   return h}
-function rdoStop(){if(rdoS.h){try{rdoS.h.destroy()}catch(e){}rdoS.h=null}if(rdoS.a){try{rdoS.a.pause();rdoS.a.removeAttribute('src');rdoS.a.load()}catch(e){}rdoS.a=null}rdoS.id=0;rdoS.st=''}
+function rdoStop(){if(rdoS.n){rdoS.n=0;try{if(window.AlsaerNative&&AlsaerNative.mediaStop)AlsaerNative.mediaStop()}catch(e){}}if(rdoS.h){try{rdoS.h.destroy()}catch(e){}rdoS.h=null}if(rdoS.a){try{rdoS.a.pause();rdoS.a.removeAttribute('src');rdoS.a.load()}catch(e){}rdoS.a=null}rdoS.id=0;rdoS.st=''}
 function rdoRefresh(){var l=document.getElementById('rdo-l');if(l&&window.RDO)l.innerHTML=rdoRows()}
 function rdoAct(a,v){
   if(a==='rdocat'){rdoS.cat=v;if(typeof render==='function')render();return false}
   if(a==='rdoplay'){var id=+v;if(rdoS.id===id){rdoStop();rdoRefresh();return false}
     var r=window.RDO.filter(function(x){return x[0]===id})[0];if(!r)return false;
     rdoStop();try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}try{if(typeof hsnAuStop==='function')hsnAuStop()}catch(e){}
+    /* على أندرويد: مشغّل أصلي داخل الخدمة (لا يتوقف بإخفاء الصفحة). الباقي كما كان */
+    if(window.AlsaerNative&&AlsaerNative.radioPlay&&AlsaerNative.radioNative&&AlsaerNative.radioNative()){
+      rdoS.id=id;rdoS.st='load';rdoS.n=1;try{AlsaerNative.radioPlay(r[2],r[1])}catch(e){rdoS.n=0;rdoS.id=0;rdoS.st=''}
+      rdoRefresh();return false}
     var A=new Audio();rdoS.a=A;rdoS.id=id;rdoS.st='load';A.preload='none';
     A.onplaying=function(){if(rdoS.a===A){rdoS.st='play';rdoRefresh()}};
     var bad=function(){if(rdoS.a===A){rdoStop();rdoRefresh();toast('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت')}};
@@ -65,3 +69,9 @@ function rdoAct(a,v){
   return true}
 (function(){var tm;document.addEventListener('input',function(e){
   if(e.target&&e.target.id==='rdo-q'){var val=e.target.value;clearTimeout(tm);tm=setTimeout(function(){rdoS.q=val;rdoRefresh()},150)}})})();
+
+window.alsaerRadioState=function(st){
+  if(!rdoS.n)return;
+  if(st==='play'||st==='load'){rdoS.st=st}
+  else{rdoS.n=0;rdoS.id=0;rdoS.st='';if(st==='error'){try{toast('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت')}catch(e){}}}
+  rdoRefresh()};

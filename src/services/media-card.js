@@ -27,7 +27,7 @@ function mcSync(){
   MC.t=0;var N=mcBridge();if(!N)return;
   MC.list=MC.list.filter(function(A){return !!mcTitle(A)});
   var A=MC.list[MC.list.length-1];
-  if(!A){if(MC.on){MC.on=false;MC.last='';try{N.mediaStop()}catch(e){}}return}
+  if(!A){if(MC.on){MC.on=false;MC.last='';if(!(typeof rdoS!=='undefined'&&rdoS.n)){try{N.mediaStop()}catch(e){}}}return}
   var pl=!A.paused&&!A.ended,t=mcTitle(A),k=t+'|'+pl;
   if(k===MC.last&&MC.on)return;
   MC.last=k;MC.on=true;
