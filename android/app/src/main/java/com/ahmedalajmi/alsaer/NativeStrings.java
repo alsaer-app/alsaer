@@ -53,6 +53,11 @@ public class NativeStrings {
         T.put("open_app_action", new String[]{"فتح التطبيق", "Open app", "Ouvrir l'application", "Uygulamayı aç", "App öffnen", "باز کردن برنامه", "ایپ کھولیں"});
         T.put("open_window", new String[]{"فتح النافذة", "Open the window", "Ouvrir la fenêtre", "Pencereyi aç", "Fenster öffnen", "باز کردن پنجره", "ونڈو کھولیں"});
         T.put("overlay_perm_missing", new String[]{"إذن «العرض فوق التطبيقات الأخرى» غير ممنوح", "Permission to display over other apps is not granted", "L'autorisation d'affichage par-dessus d'autres applications n'est pas accordée", "Diğer uygulamaların üzerinde gösterme izni verilmedi", "Berechtigung zum Einblenden über anderen Apps nicht erteilt", "مجوز «نمایش روی برنامه‌های دیگر» داده نشده است", "«دوسری ایپس کے اوپر ظاہر کرنے» کی اجازت نہیں دی گئی"});
+        T.put("prayer_asr", new String[]{"العصر", "Asr", "Asr", "İkindi", "Asr", "عصر", "عصر"});
+        T.put("prayer_dhuhr", new String[]{"الظهر", "Dhuhr", "Dhuhr", "Öğle", "Dhuhr", "ظهر", "ظہر"});
+        T.put("prayer_fajr", new String[]{"الفجر", "Fajr", "Fajr", "Sabah", "Fadschr", "صبح", "فجر"});
+        T.put("prayer_isha", new String[]{"العشاء", "Isha", "Isha", "Yatsı", "Ischa", "عشا", "عشاء"});
+        T.put("prayer_maghrib", new String[]{"المغرب", "Maghrib", "Maghrib", "Akşam", "Maghrib", "مغرب", "مغرب"});
         T.put("receive_alert", new String[]{"استقبال التنبيه", "Receive the alert", "Recevoir l'alerte", "Uyarıyı al", "Benachrichtigung empfangen", "دریافت هشدار", "الرٹ وصول کریں"});
         T.put("remaining", new String[]{"متبقٍ", "remaining", "restant", "kaldı", "verbleibend", "باقی‌مانده", "باقی"});
         T.put("remind_10_min", new String[]{"ذكّرني بعد ١٠ دقائق", "Remind me in 10 minutes", "Me rappeler dans 10 minutes", "10 dakika sonra hatırlat", "In 10 Minuten erinnern", "۱۰ دقیقه بعد یادآوری کن", "10 منٹ بعد یاد دلائیں"});

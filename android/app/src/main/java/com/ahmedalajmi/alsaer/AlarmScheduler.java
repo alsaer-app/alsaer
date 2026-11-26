@@ -254,7 +254,7 @@ public final class AlarmScheduler {
         if (Build.VERSION.SDK_INT < 26) return;
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         long[] vibs = new long[]{0, 90, 90, 150};
-        Uri soundUri = Uri.parse("android.resource://" + c.getPackageName() + "/" + R.raw.alsaer_tone);
+        Uri soundUri = rawUri(c, "alsaer_notify");
         AudioAttributes attrs = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -262,10 +262,15 @@ public final class AlarmScheduler {
         nm.deleteNotificationChannel(CH_OLD_CHIME);
         nm.deleteNotificationChannel(CH_OLD_SILENT);
         nm.deleteNotificationChannel(CH_OLD_SYSTEM);
+        // قنوات v1 (النغمة القديمة) تُستبدل بقنوات v2: الصوت يُثبَّت في القناة عند إنشائها فلا يتغير إلا بمعرّف جديد
+        for (String cat0 : new String[]{"pray","fast","habit"}) for (String m0 : new String[]{"","_silent","_system"}) nm.deleteNotificationChannel("alsaer_" + cat0 + m0 + "_v1");
         String[][] cats = {{"pray","cat_pray"},{"fast","cat_fast"},{"habit","cat_habit"}};
         String[][] modes = {{"chime","mode_chime","chime_tone_desc"},{"silent","mode_silent","silent_notif_desc"},{"system","mode_system","system_tone_desc"}};
         for (String[] cat : cats) for (String[] mode : modes)
             mkChan(nm, chId(cat[0], mode[0]), NativeStrings.get(c, "brand")+" — "+NativeStrings.get(c, cat[1])+" · "+NativeStrings.get(c, mode[1]), NativeStrings.get(c, mode[2]), mode[0], soundUri, attrs, vibs);
+        // صوت خاص لكل صلاة (نغمة النمط الافتراضي فقط). أسماء الصلوات تبقى عربية
+        for (int i = 0; i < PRAYER_KEYS.length; i++)
+            mkChan(nm, "alsaer_pray_" + PRAYER_KEYS[i] + "_v2", NativeStrings.get(c, "brand")+" — "+NativeStrings.get(c, "cat_pray")+" · "+prayerName(c, i), NativeStrings.get(c, "chime_tone_desc"), "chime", rawUri(c, "alsaer_pray_" + PRAYER_KEYS[i]), attrs, vibs);
     }
 
     private static void mkChan(NotificationManager nm, String id, String name, String desc, String mode, Uri soundUri, AudioAttributes attrs, long[] vibs) {
@@ -277,6 +282,23 @@ public final class AlarmScheduler {
         else { ch.setSound(soundUri, attrs); ch.enableVibration(true); ch.setVibrationPattern(vibs); }
         ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
         nm.createNotificationChannel(ch);
+    }
+
+    static final String[] PRAYER_KEYS = {"fajr","dhuhr","asr","maghrib","isha"};
+
+    static String prayerName(Context c, int i) {
+        switch (i) {
+            case 0: return NativeStrings.get(c, "prayer_fajr");
+            case 1: return NativeStrings.get(c, "prayer_dhuhr");
+            case 2: return NativeStrings.get(c, "prayer_asr");
+            case 3: return NativeStrings.get(c, "prayer_maghrib");
+            default: return NativeStrings.get(c, "prayer_isha");
+        }
+    }
+
+    /** ملف صوت من res/raw بالاسم (بلا اعتماد على R.raw) */
+    static Uri rawUri(Context c, String name) {
+        return Uri.parse("android.resource://" + c.getPackageName() + "/" + c.getResources().getIdentifier(name, "raw", c.getPackageName()));
     }
 
     /** نمط الصوت المختار: chime | silent | system */
@@ -295,13 +317,22 @@ public final class AlarmScheduler {
         return "habit";
     }
 
+    /** مفتاح الصلاة لإشعار وقت الصلاة نفسه فقط (pray_fajr...)، وإلا null (التنبيه المسبق prep_ يأخذ نغمة الإشعارات العامة) */
+    static String prayerKey(String id) {
+        if (id == null || !id.startsWith("pray_")) return null;
+        String k = id.substring(5);
+        return ("fajr".equals(k) || "dhuhr".equals(k) || "asr".equals(k) || "maghrib".equals(k) || "isha".equals(k)) ? k : null;
+    }
+
     static String chId(String cat, String mode) {
         String m = ("silent".equals(mode) || "system".equals(mode)) ? mode : "chime";
-        return "alsaer_" + cat + ("chime".equals(m) ? "" : "_" + m) + "_v1";
+        return "alsaer_" + cat + ("chime".equals(m) ? "" : "_" + m) + "_v2";
     }
 
     static String channelFor(Context c, String id) {
         String mode = soundMode(c);
+        String k = prayerKey(id);
+        if (k != null && "chime".equals(mode)) return "alsaer_pray_" + k + "_v2";
         return chId(categoryOf(id), mode);
     }
 
@@ -348,7 +379,7 @@ public final class AlarmScheduler {
                 .setCategory(NotificationCompat.CATEGORY_REMINDER);
         if (Build.VERSION.SDK_INT < 26) {
             String sound=soundMode(c);
-            b.setSound("silent".equals(sound)?null:"system".equals(sound)?Settings.System.DEFAULT_NOTIFICATION_URI:Uri.parse("android.resource://" + c.getPackageName() + "/" + R.raw.alsaer_tone));
+            b.setSound("silent".equals(sound)?null:"system".equals(sound)?Settings.System.DEFAULT_NOTIFICATION_URI:rawUri(c, prayerKey(id) != null ? "alsaer_pray_" + prayerKey(id) : "alsaer_notify"));
             b.setVibrate("silent".equals(sound)?new long[]{0}:new long[]{0, 120, 80, 120, 80, 260});
         }
 
