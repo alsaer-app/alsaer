@@ -83,3 +83,8 @@ button.rdo-back[data-a=rctback]{border-color:var(--accent,#4c9a8f);animation:rbp
 .ftw-menu{margin-top:8px;border:1px solid rgba(127,227,216,.25);border-radius:18px;padding:6px 0;background:rgba(127,227,216,.08)}.ftw-menu button{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border:0;background:none;color:inherit;font:inherit;font-size:15px;text-align:start}.ftw-md{color:#ff9d9d!important}
 .ftw-sep{height:1px;background:rgba(127,227,216,.2);margin:18px 0 12px}.ftw-src{display:flex;align-items:center;gap:6px;border:0;background:none;color:inherit;opacity:.7;font:inherit;font-size:12px;padding:0}.ftw-src svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
 .ftw-q small,.ftw-a small{font-size:12px;margin:0 0 6px}.ftw-q,.ftw-a{font-size:16px}
+.hsn-sr-top{margin:0 0 4px}.hsn-sr-top input{background:color-mix(in srgb,var(--fg) 4%,transparent);border-color:color-mix(in srgb,var(--gold) 30%,transparent)}
+.hsn-core .hsn-ic{min-width:30px;font-size:22px;text-align:center}.hsn-row small{flex:none;font-size:12px;color:var(--muted)}
+#hsn-c .hsn-row,#hsn-l .hsn-row{margin:6px 0}
+.hsn-no{font-weight:700;color:var(--gold);font-size:22px}.hsn-cd b{font-size:15px;line-height:1.7}
+.hsn-sv{width:34px;height:34px;color:var(--gold)}#hsn-l{margin-top:10px}

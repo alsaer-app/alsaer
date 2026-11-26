@@ -63,6 +63,49 @@ var HSN={
       {text:"اللَّهُمَّ بَارِكْ لَنَا فِيهِ وَأَطْعِمْنَا خَيْرًا مِنْهُ. (لشرب اللبن)", repeat:1, virtue:""}
     ]}
   };
+
+/* أيقونات أبواب حصن المسلم: رسم خاص بالتطبيق (SVG خطي 24x24) */
+var HSN_SV={
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/>',
+ moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/><path d="M17 3v3M15.5 4.5h3"/>',
+ dress:'<path d="M8 4l-5 3 2.2 3.5L8 9v11h8V9l2.8 1.5L21 7l-5-3c-.6 1.6-2 2.5-4 2.5S8.6 5.6 8 4z"/>',
+ drop:'<path d="M12 3c3.5 4.4 6 7.4 6 10.5a6 6 0 0 1-12 0C6 10.4 8.5 7.4 12 3z"/><path d="M9.5 14.5a2.7 2.7 0 0 0 2.5 2"/>',
+ home:'<path d="M3.5 11L12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/><path d="M10 20v-5.5h4V20"/>',
+ mosque:'<path d="M5 20v-7h14v7"/><path d="M7 13a5 5 0 0 1 10 0"/><path d="M12 6.5V4M11 4.2a1.2 1.2 0 1 0 1.6-1"/><path d="M3 20h18M3 20V9M21 20V9"/>',
+ hands:'<path d="M12 6C10 4.500 7 4 4 4.500V18c3-.5 6 0 8 1.500 2-1.500 5-2 8-1.500V4.500C17 4 14 4.500 12 6z"/><path d="M12 6v13.500"/>',
+ shield:'<path d="M12 3l7.500 2.800v6c0 4.500-3 7.700-7.500 9.200C7.500 19.500 4.500 16.300 4.500 11.800v-6z"/><path d="M9 12l2.200 2.200L15.500 10"/>',
+ family:'<circle cx="8" cy="8" r="2.800"/><circle cx="16.500" cy="9.500" r="2.200"/><path d="M3 19c0-3 2.200-5 5-5s5 2 5 5"/><path d="M13.500 15c.8-.6 1.800-1 3-1 2.200 0 4 1.600 4 4.500"/>',
+ heart:'<path d="M12 20s-7.500-4.500-7.500-10A4.300 4.300 0 0 1 12 7.500 4.300 4.300 0 0 1 19.500 10c0 5.500-7.500 10-7.500 10z"/><path d="M8 12h2l1.200-2 1.800 4 1-2H16"/>',
+ cloud:'<path d="M7 18a4 4 0 0 1-.5-8 5.500 5.500 0 0 1 10.600 1.200A3.400 3.400 0 0 1 17 18z"/><path d="M9 21l1-2M13 21l1-2"/>',
+ food:'<path d="M5 11h14a7 7 0 0 1-14 0z"/><path d="M8 7.500c0-1 1-1.200 1-2.200M12 7.500c0-1 1-1.200 1-2.200M16 7.500c0-1 1-1.200 1-2.200"/><path d="M9 20h6"/>',
+ chat:'<path d="M4 5h16v11H11l-4 3.500V16H4z"/><path d="M8 9.500h8M8 12.500h5"/>',
+ route:'<circle cx="6" cy="18" r="2.200"/><circle cx="18" cy="6" r="2.200"/><path d="M8 18h6.500a3 3 0 0 0 0-6h-5a3 3 0 0 1 0-6H16"/>',
+ kaaba:'<path d="M4 8l8-3.500L20 8v10l-8 3-8-3z"/><path d="M4 8l8 3 8-3M12 11v10"/><path d="M7 13.500v3"/>',
+ beads:'<circle cx="12" cy="4.500" r="1.800"/><circle cx="17.500" cy="8" r="1.800"/><circle cx="18" cy="14" r="1.800"/><circle cx="13.500" cy="18.500" r="1.800"/><circle cx="7.500" cy="17.500" r="1.800"/><circle cx="5.500" cy="11.500" r="1.800"/><path d="M12 20.500v1.500"/>',
+ bed:'<path d="M3 18V7M3 14h18v4M21 14v-2.500a3 3 0 0 0-3-3h-7V14"/><circle cx="7" cy="11" r="1.800"/>',
+ door:'<path d="M6 21V4.500a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1V21"/><path d="M4 21h16"/><circle cx="14.500" cy="12.500" r=".9"/>'
+};
+function hsnSv(k){return '<svg class="i hsn-sv" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(HSN_SV[k]||HSN_SV.hands)+'</svg>'}
+var HSN_CORE_SV={sabah:'sun',massa:'moon',afterPrayer:'mosque',sleep:'bed',wakeup:'sun',home:'door',food:'food'};
+function hsnChSv(n){
+  if(n===27)return 'sun';
+  if(n===1||(n>=28&&n<=31))return 'bed';
+  if(n>=2&&n<=5)return 'dress';
+  if(n>=6&&n<=9)return 'drop';
+  if(n===10||n===11)return 'door';
+  if((n>=12&&n<=25)||n===32||n===33)return 'mosque';
+  if(n===26)return 'hands';
+  if(n>=34&&n<=46)return 'shield';
+  if(n===47||n===48||(n>=79&&n<=81))return 'family';
+  if(n>=49&&n<=60)return 'heart';
+  if(n>=61&&n<=66)return 'cloud';
+  if(n>=67&&n<=76)return 'food';
+  if(n>=95&&n<=105)return 'route';
+  if(n>=115&&n<=121)return 'kaaba';
+  if(n>=129)return 'beads';
+  if(n===77||n===78||(n>=82&&n<=94)||(n>=106&&n<=114))return 'chat';
+  return 'hands';
+}
 /* ===== حصن المسلم (الأذكار) + المسبحة: شاشتان منفصلتان ===== */
 var hsnS={cat:null};
 /* الأبواب الكاملة (١٣٢ بابًا): ملف بيانات يُحمَّل عند فتح الشاشة؛ الفئات السبع القديمة تبقى كما هي */
@@ -95,9 +138,9 @@ function hsnRows(q){
   hsnF.idx.forEach(function(r){
     if(n&&r.k.indexOf(n)<0)return;
     var c=hsnF.reg[r.slug],dn=hsnDone(P,r.slug);
-    h+='<button class="card hsn-row" data-a="hsncat" data-v="'+r.slug+'"><b>'+ar(c.n)+'</b><span>'+hsnX(c.name)+'</span><small>'+ar(dn)+' / '+ar(c.items.length)+'</small></button>';
+    h+='<button class="asm-card hsn-cd" data-a="hsncat" data-v="'+r.slug+'"><i class="asm-dot'+(dn===c.items.length?' on':'')+'"></i><div class="hsn-ic">'+hsnSv(hsnChSv(c.n))+'</div><b>'+hsnX(c.name)+'</b><span>'+ar(dn)+' / '+ar(c.items.length)+'</span></button>';
   });
-  return h||'<p class="note">لا نتائج</p>';
+  return h?'<div class="asm-grid">'+h+'</div>':'<p class="note">لا نتائج</p>';
 }
 var HSN_PRE=['سُبْحَانَ اللَّهِ','الْحَمْدُ لِلَّهِ','اللَّهُ أَكْبَرُ','لَا إِلَٰهَ إِلَّا اللَّهُ','أَسْتَغْفِرُ اللَّهَ'];
 function hsnP(){
@@ -124,11 +167,15 @@ function vHisn(){
        return '<div class="card hsn-z'+(dn?' done':'')+'" data-a="hsnz" data-v="'+hsnS.cat+':'+i+'" style="font-size:'+P.fs+'px"><div class="hsn-t">'+it.text+'</div><div class="hsn-b"><small>'+[it.virtue||'',it.s?'<span>ذكر</span> '+ar(it.s):''].filter(Boolean).join(' · ')+'</small>'+(it.u?'<button class="btn ghost hsn-au" data-a="hsnau" data-v="'+hsnS.cat+':'+i+'">▶ استماع</button>':'')+'<button class="btn ghost hsn-au hsn-sh" data-a="hsnsh" data-v="'+hsnS.cat+':'+i+'">مشاركة</button>'+'<span class="hsn-c'+(dn?' done':'')+'">'+(dn?'✓':ar(r))+'</span></div></div>'}).join('');
     return h+'</div>';
   }
-  h+='<div class="asm-grid">'+Object.keys(HSN).map(function(s){var c=HSN[s],dn=hsnDone(P,s);return '<button class="asm-card" data-a="hsncat" data-v="'+s+'"><i class="asm-dot'+(dn===c.items.length?' on':'')+'"></i><div class="hsn-ic">'+c.icon+'</div><b>'+c.name+'</b><span>'+ar(dn)+' / '+ar(c.items.length)+'</span></button>'}).join('')+'</div>';
-  h+='<p class="note">الأذكار من حصن المسلم وما ثبت من القرآن والسنة. يُحفظ تقدّمك اليومي على هذا الجهاز ويتجدد كل يوم.</p>';
+  var qv=hsnF.q||'';
+  h+='<div class="hsn-sr hsn-sr-top"><input id="hsn-q" type="search" placeholder="ابحث في أذكار حصن المسلم" value="'+hsnX(qv).replace(/"/g,'&quot;')+'"></div>';
+  var nq=hsnNorm(qv).trim(),core='';
+  Object.keys(HSN).forEach(function(s){var c=HSN[s];if(nq&&hsnNorm(c.name).indexOf(nq)<0)return;var dn=hsnDone(P,s);core+='<button class="asm-card" data-a="hsncat" data-v="'+s+'"><i class="asm-dot'+(dn===c.items.length?' on':'')+'"></i><div class="hsn-ic">'+hsnSv(HSN_CORE_SV[s])+'</div><b>'+c.name+'</b><span>'+ar(dn)+' / '+ar(c.items.length)+'</span></button>'});
+  if(core)h+='<div id="hsn-c" class="asm-grid">'+core+'</div>';
   if(hsnF.ok){var tot=0;hsnF.idx.forEach(function(r){tot+=hsnF.reg[r.slug].items.length});
-    h+='<div class="hsn-sr"><input id="hsn-q" type="search" placeholder="ابحث في أذكار حصن المسلم" value="'+hsnX(hsnF.q).replace(/"/g,'&quot;')+'"></div><h3 class="hsn-h"><span>جميع الأبواب</span> <span dir="ltr">('+ar(hsnF.idx.length)+' / '+ar(tot)+')</span></h3><div id="hsn-l">'+hsnRows(hsnF.q)+'</div><p class="note hsn-src">النص والصوت: OpenDua (CC BY 4.0) عن كتاب «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني. عناوين الأبواب والتكرار والمراجع: asellam/HisnElMuslim (MIT).</p>';
+    h+='<div id="hsn-l">'+hsnRows(qv)+'</div>';
   }else hsnfEnsure(function(ok){if(ok&&tab==='hisn'&&!hsnS.cat)render()});
+  h+='<p class="note">الأذكار من حصن المسلم وما ثبت من القرآن والسنة. يُحفظ تقدّمك اليومي على هذا الجهاز ويتجدد كل يوم.</p>';
   return h+'</div>';
 }
 /* ===== المسبحة ===== */
