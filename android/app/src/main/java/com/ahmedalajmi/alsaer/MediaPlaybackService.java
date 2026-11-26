@@ -20,6 +20,9 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.datasource.DefaultDataSource;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 
 import java.lang.ref.WeakReference;
 
@@ -44,6 +47,9 @@ public class MediaPlaybackService extends Service {
     private ExoPlayer player;
     private int radioRetry = 0;
     private String radioUrl = "";
+    private final Runnable demote = new Runnable() { public void run() {
+        if (!playing && Build.VERSION.SDK_INT >= 24) { DiagLog.add("demote after 10min pause"); stopForeground(Service.STOP_FOREGROUND_DETACH); }
+    } };
     private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
     private android.os.PowerManager.WakeLock wakeLock;
     private android.net.wifi.WifiManager.WifiLock wifiLock;
@@ -110,7 +116,9 @@ public class MediaPlaybackService extends Service {
         releasePlayer();
         radioUrl = url; radioRetry = 0; title = t; playing = true;
         try {
-            player = new ExoPlayer.Builder(this)
+            // يسمح بتحويل https إلى http؛ الاتصال الفعلي بـhttp يمنعه network_security_config إلا لنطاق radiojar.com
+            DefaultHttpDataSource.Factory http = new DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true);
+            player = new ExoPlayer.Builder(this, new DefaultMediaSourceFactory(new DefaultDataSource.Factory(this, http)))
                 .setAudioAttributes(new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build(), true)
                 .setHandleAudioBecomingNoisy(true)
                 .setWakeMode(C.WAKE_MODE_NETWORK)
@@ -293,7 +301,9 @@ public class MediaPlaybackService extends Service {
         Notification n = b.build();
         if (Build.VERSION.SDK_INT >= 29) startForeground(NID, n, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
         else startForeground(NID, n);
-        if (!playing && Build.VERSION.SDK_INT >= 24) stopForeground(Service.STOP_FOREGROUND_DETACH);
+        /* عند الإيقاف المؤقت تبقى الخدمة في المقدمة ١٠ دقائق (كي لا يقتلها النظام فيضيع زر التشغيل) ثم تُنزَّل */
+        main.removeCallbacks(demote);
+        if (!playing) main.postDelayed(demote, 10 * 60 * 1000L);
     }
 
     @Override public void onDestroy() {

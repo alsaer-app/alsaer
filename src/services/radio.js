@@ -30,7 +30,7 @@ function vRadio(){
   h+='<div class="rdo-chips"><button class="'+(rdoS.cat?'':'on')+'" data-a="rdocat" data-v="">الكل</button>'+RDO_CATS.map(function(c){return '<button class="'+(rdoS.cat===c?'on':'')+'" data-a="rdocat" data-v="'+c+'">'+c+'</button>'}).join('')+'</div>';
   h+='<input type="search" id="rdo-q" class="rm-sel" placeholder="ابحث عن إذاعة" value="'+rdoEsc(rdoS.q)+'" autocomplete="off">';
   h+='<div id="rdo-l">'+rdoRows()+'</div>';
-  h+='<p class="note rdo-src">قائمة الإذاعات من تطبيق التقوى (Altaqwaa). البث يحتاج اتصالًا بالإنترنت.</p></div>';
+  h+='<p class="note rdo-src">قائمة الإذاعات من تطبيق التقوى (Altaqwaa). البث يحتاج اتصالًا بالإنترنت.</p><p class="note rdo-src">رابط إذاعة السعودية من قائمة mp3quran.net.</p></div>';
   return h}
 function rdoStop(){if(rdoS.n){rdoS.n=0;try{if(window.AlsaerNative&&AlsaerNative.mediaStop)AlsaerNative.mediaStop()}catch(e){}}if(rdoS.h){try{rdoS.h.destroy()}catch(e){}rdoS.h=null}if(rdoS.a){try{rdoS.a.pause();rdoS.a.removeAttribute('src');rdoS.a.load()}catch(e){}rdoS.a=null}rdoS.id=0;rdoS.st=''}
 function rdoRefresh(){var l=document.getElementById('rdo-l');if(l&&window.RDO)l.innerHTML=rdoRows()}
