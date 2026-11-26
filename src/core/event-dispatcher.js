@@ -274,6 +274,9 @@ document.addEventListener('click',async function(e){
   else if(a==='setday'){if(v)S.days[calSel]={status:v,note:(S.days[calSel]&&S.days[calSel].note)||''};else delete S.days[calSel];save();checkNew()}
   else if(a==='rst'){var k2=dk();if(lockLeft('c:'+k2+':'+d.id)>0){lockBlock(lockLeft('c:'+k2+':'+d.id));return}S.counters[k2]=S.counters[k2]||{};S.counters[k2][d.id]=0;save()}
   else if(a==='nextq'){qi++}
+  else if(a==='diagclear'){try{window.AlsaerNative.diagClear()}catch(e){}}
+  else if(a==='diagrefresh'){}
+  else if(a==='diagcopy'){try{navigator.clipboard.writeText(window.AlsaerNative.diagGet()||'');toast('نُسخ السجل')}catch(e){toast('تعذّر النسخ')}}
   else if(a==='tstart'){timerDeadline=Date.now()+300000;secs=300;startTimerTick()}
   else if(a==='tstop'){stopTimer()}
   else if(a==='addr'){var r=document.getElementById('reason');if(r&&r.value.trim()){S.reasons.push(r.value.trim().slice(0,200));save();checkNew()}}

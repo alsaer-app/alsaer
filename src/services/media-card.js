@@ -1,6 +1,17 @@
 /* بطاقة التحكم بالصوت في شريط الإشعارات: تتابع عناصر Audio التي تنشئها الخدمات (إذاعة، قرّاء، فتاوى، حصن، مصحف)
    وتبلّغ الجسر الأصلي (AlsaerNative.mediaUpdate/mediaStop). الصوت يبقى في الصفحة؛ الأزرار تعود عبر alsaerMediaCmd. */
 var MC={list:[],t:0,on:false,last:'',asked:false};
+function mcDiag(t){try{var N=window.AlsaerNative;if(N&&N.diagLog)N.diagLog(String(t).slice(0,150))}catch(e){}}
+window.mcDiag=mcDiag;
+function mcSrc(A){
+  try{
+    if(typeof rdoS!=='undefined'&&rdoS.a===A)return 'radio';
+    if(typeof rctS!=='undefined'&&rctS.a===A)return 'reciter';
+    if(typeof ftA!=='undefined'&&ftA.a===A)return 'fatwa';
+    if(typeof hsnF!=='undefined'&&hsnF.a===A)return 'hisn';
+    if(typeof mqAu!=='undefined'&&mqAu.a===A)return 'mushaf';
+  }catch(e){}
+  return 'other'}
 function mcBridge(){var N=window.AlsaerNative;return N&&N.mediaUpdate?N:null}
 function mcT(t){try{var r=typeof trS==='function'?trS(t):null;return r===null||r===undefined?t:r}catch(e){return t}}
 function mcTitle(A){
@@ -26,6 +37,7 @@ function mcQueue(){if(!MC.t)MC.t=setTimeout(mcSync,200)}
 function mcTrack(A){
   MC.list.push(A);
   ['play','playing','pause','ended','emptied','error','waiting'].forEach(function(ev){A.addEventListener(ev,mcQueue)});
+  ['play','pause','ended','emptied','error','waiting','stalled'].forEach(function(ev){A.addEventListener(ev,function(){mcDiag('audio '+mcSrc(A)+' '+ev+(ev==='error'&&A.error?' code'+A.error.code:'')+' vis='+document.visibilityState)})});
   mcQueue()}
 (function(){
   var NA=window.Audio;if(!NA||NA.__mc)return;
@@ -33,18 +45,24 @@ function mcTrack(A){
   W.prototype=NA.prototype;W.__mc=1;window.Audio=W;
 })();
 window.alsaerMediaCmd=function(c){
+  MC.list=MC.list.filter(function(A){return !!mcTitle(A)});
   var A=MC.list[MC.list.length-1];
+  mcDiag('cmd '+c+' '+(A?mcSrc(A):'no-audio'));
   try{
-    if((c==='pause'||c==='play')&&A&&typeof mqAu!=='undefined'&&mqAu.a===A){mqAu.pa=(c==='pause')}
-    if(c==='pause'&&A)A.pause();
-    else if(c==='play'&&A){var p=A.play();if(p&&p.catch)p.catch(function(){})}
-    if((c==='pause'||c==='play')&&A&&typeof mqAu!=='undefined'&&mqAu.a===A&&typeof mqAuBar==='function')mqAuBar();
-    else if(c==='stop'){
+    if(c==='stop'){
+      /* الإيقاف يوقف كل المصادر دائمًا، قبل أي فرع آخر */
       try{if(typeof rdoStop==='function'){rdoStop();if(typeof rdoRefresh==='function')rdoRefresh()}}catch(e){}
       try{if(typeof rctStop==='function'){rctStop();if(typeof rctRefresh==='function')rctRefresh()}}catch(e){}
       try{if(typeof ftAuStop==='function'){ftAuStop();if(typeof ftAuUi==='function')ftAuUi()}}catch(e){}
       try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}
       try{if(typeof hsnAuStop==='function')hsnAuStop()}catch(e){}
+    }else if(A&&(c==='pause'||c==='play')){
+      var isMq=typeof mqAu!=='undefined'&&mqAu.a===A;
+      if(isMq)mqAu.pa=(c==='pause');
+      if(c==='pause')A.pause();
+      else{var p=A.play();if(p&&p.catch)p.catch(function(e){mcDiag('play rejected '+(e&&e.name))})}
+      if(isMq&&typeof mqAuBar==='function')mqAuBar();
     }
-  }catch(e){}
+  }catch(e){mcDiag('cmd error '+(e&&e.name))}
   mcQueue()};
+try{document.addEventListener('visibilitychange',function(){mcDiag('vis '+document.visibilityState+' audio='+(MC.list.filter(function(A){return !A.paused}).length))})}catch(e){}

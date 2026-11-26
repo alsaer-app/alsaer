@@ -33,6 +33,8 @@ public class MediaPlaybackService extends Service {
     private MediaSession session;
     private String title = "", sub = "";
     private boolean playing = true;
+    private android.os.PowerManager.WakeLock wakeLock;
+    private android.net.wifi.WifiManager.WifiLock wifiLock;
 
     static void bind(WebView w) { web = new WeakReference<>(w); }
 
@@ -41,7 +43,7 @@ public class MediaPlaybackService extends Service {
             .putExtra("t", title == null ? "" : title).putExtra("p", playing);
         try {
             if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(i); else c.startService(i);
-        } catch (Exception ignored) { }
+        } catch (Exception e) { DiagLog.add("svc start FAILED " + e.getClass().getSimpleName()); }
     }
 
     static void stop(Context c) {
@@ -50,11 +52,39 @@ public class MediaPlaybackService extends Service {
 
     private void toPage(final String cmd) {
         final WebView w = web.get();
-        if (w == null) return;
+        if (w == null) { DiagLog.add("cmd " + cmd + " NO-WEBVIEW"); return; }
+        DiagLog.add("cmd " + cmd + " ->page");
         w.post(new Runnable() { public void run() {
-            w.evaluateJavascript("window.alsaerMediaCmd&&window.alsaerMediaCmd('" + cmd + "')", null);
+            try {
+                w.evaluateJavascript("window.alsaerMediaCmd&&window.alsaerMediaCmd('" + cmd + "')", null);
+            } catch (Exception e) { DiagLog.add("cmd " + cmd + " eval-failed"); }
         } });
     }
+
+    /* تبقي المعالج والواي فاي حيّين أثناء التشغيل فقط (مهلة أمان ٦ ساعات) ثم تُحرَّر عند الإيقاف/الإنهاء */
+    private void holdLocks(boolean on) {
+        try {
+            if (on) {
+                if (wakeLock == null) {
+                    android.os.PowerManager pm = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
+                    wakeLock = pm.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "alsaer:media");
+                    wakeLock.setReferenceCounted(false);
+                }
+                if (!wakeLock.isHeld()) { wakeLock.acquire(6 * 60 * 60 * 1000L); DiagLog.add("wakelock on"); }
+                if (wifiLock == null) {
+                    android.net.wifi.WifiManager wm = (android.net.wifi.WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                    wifiLock = wm.createWifiLock(android.net.wifi.WifiManager.WIFI_MODE_FULL_HIGH_PERF, "alsaer:media");
+                    wifiLock.setReferenceCounted(false);
+                }
+                if (!wifiLock.isHeld()) wifiLock.acquire();
+            } else {
+                if (wakeLock != null && wakeLock.isHeld()) { wakeLock.release(); DiagLog.add("wakelock off"); }
+                if (wifiLock != null && wifiLock.isHeld()) wifiLock.release();
+            }
+        } catch (Exception e) { DiagLog.add("lock-error " + e.getClass().getSimpleName()); }
+    }
+
+    @Override public void onTaskRemoved(Intent rootIntent) { DiagLog.add("task removed"); super.onTaskRemoved(rootIntent); }
 
     @Override public IBinder onBind(Intent i) { return null; }
 
@@ -62,15 +92,19 @@ public class MediaPlaybackService extends Service {
         String a = in == null ? null : in.getAction();
         if (ACT_STOP.equals(a)) {
             toPage("stop");
+            holdLocks(false);
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
         }
-        if (ACT_PLAY.equals(a)) { toPage("play"); playing = true; }
-        else if (ACT_PAUSE.equals(a)) { toPage("pause"); playing = false; }
+        DiagLog.add("svc action " + (a == null ? "null" : a.substring(a.lastIndexOf('_') + 1)));
+        /* الأزرار تطلب من الصفحة فقط؛ الحالة تتغير عندما تؤكد الصفحة (mediaUpdate) فلا تكذب البطاقة */
+        if (ACT_PLAY.equals(a)) { toPage("play"); }
+        else if (ACT_PAUSE.equals(a)) { toPage("pause"); }
         else if (ACT_UPDATE.equals(a)) {
             title = in.getStringExtra("t");
             playing = in.getBooleanExtra("p", true);
+            DiagLog.add("page state " + (playing ? "playing" : "paused"));
         }
         show();
         return START_NOT_STICKY;
@@ -84,12 +118,13 @@ public class MediaPlaybackService extends Service {
 
     private void show() {
         sub = NativeStrings.get(this, playing ? "media_playing" : "media_paused");
+        holdLocks(playing);
         if (session == null) {
             session = new MediaSession(this, "alsaer");
             session.setCallback(new MediaSession.Callback() {
-                @Override public void onPlay() { toPage("play"); playing = true; show(); }
-                @Override public void onPause() { toPage("pause"); playing = false; show(); }
-                @Override public void onStop() { toPage("stop"); stopForeground(true); stopSelf(); }
+                @Override public void onPlay() { DiagLog.add("session play"); toPage("play"); }
+                @Override public void onPause() { DiagLog.add("session pause"); toPage("pause"); }
+                @Override public void onStop() { DiagLog.add("session stop"); toPage("stop"); holdLocks(false); stopForeground(true); stopSelf(); }
             });
             session.setActive(true);
         }
@@ -133,6 +168,8 @@ public class MediaPlaybackService extends Service {
     }
 
     @Override public void onDestroy() {
+        DiagLog.add("svc destroy");
+        holdLocks(false);
         if (session != null) { try { session.setActive(false); session.release(); } catch (Exception ignored) { } session = null; }
         super.onDestroy();
     }

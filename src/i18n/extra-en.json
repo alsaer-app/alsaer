@@ -1510,5 +1510,11 @@
 "حفظ في المفضلة": "Save to favorites",
 "يظهر أول ٤٠ نتيجة، ضيّق البحث لتصل لغيرها.": "Showing the first 40 results; narrow your search to see more.",
 "ملاءمة": "Fit",
-"ملاءمة الصفحة": "Fit page"
+"ملاءمة الصفحة": "Fit page",
+"تشخيص الصوت": "Audio diagnostics",
+"سجل قصير على جهازك فقط، بلا بيانات شخصية. انسخه وأرسله عند وجود مشكلة في الصوت أو أزرار الإشعار.": "A short log kept on your device only, with no personal data. Copy and send it if audio or the notification buttons misbehave.",
+"لا سجل بعد": "No log yet",
+"نسخ السجل": "Copy log",
+"مسح السجل": "Clear log",
+"نُسخ السجل": "Log copied"
 }

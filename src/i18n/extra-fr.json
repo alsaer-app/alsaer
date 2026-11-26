@@ -1789,5 +1789,11 @@
 "حفظ في المفضلة": "Enregistrer dans les favoris",
 "يظهر أول ٤٠ نتيجة، ضيّق البحث لتصل لغيرها.": "Les 40 premiers résultats sont affichés ; affinez la recherche.",
 "ملاءمة": "Ajuster",
-"ملاءمة الصفحة": "Ajuster la page"
+"ملاءمة الصفحة": "Ajuster la page",
+"تشخيص الصوت": "Diagnostic audio",
+"سجل قصير على جهازك فقط، بلا بيانات شخصية. انسخه وأرسله عند وجود مشكلة في الصوت أو أزرار الإشعار.": "Un court journal conservé uniquement sur votre appareil, sans données personnelles. Copiez-le et envoyez-le en cas de problème audio ou de boutons de notification.",
+"لا سجل بعد": "Aucun journal",
+"نسخ السجل": "Copier le journal",
+"مسح السجل": "Effacer le journal",
+"نُسخ السجل": "Journal copié"
 }

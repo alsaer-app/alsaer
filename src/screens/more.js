@@ -39,6 +39,12 @@ function vAch(){
 function lrow(tabId,icon,title,sub){return '<button class="lrow" data-a="tab" data-v="'+tabId+'">'+ic(icon)+'<span class="t">'+title+(sub?'<small class="muted">'+sub+'</small>':'')+'</span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'}
 function mtile(tabId,icon,title,sub){return '<button class="mtile" data-a="tab" data-v="'+tabId+'" style="--i:'+(MI++)+'" title="'+esc(sub||'')+'"><span class="mt-i">'+ic(icon)+'</span><b>'+title+'</b><em hidden>'+esc(sub||'')+'</em></button>'}
 var MI=0;
+var diagOpen=false;
+function diagCard(){
+  var N=window.AlsaerNative,t=(N&&N.diagGet)?N.diagGet():'';
+  return '<section class="card" style="margin-top:14px"><h4 class="mr-h">تشخيص الصوت</h4><p class="note">سجل قصير على جهازك فقط، بلا بيانات شخصية. انسخه وأرسله عند وجود مشكلة في الصوت أو أزرار الإشعار.</p>'
+   +'<pre dir="ltr" style="white-space:pre-wrap;font-size:11px;max-height:220px;overflow:auto;text-align:left;margin:8px 0">'+esc(t||'لا سجل بعد')+'</pre>'
+   +'<div class="row"><button class="btn ghost" data-a="diagcopy">نسخ السجل</button><button class="btn ghost" data-a="diagrefresh">تحديث</button><button class="btn ghost" data-a="diagclear">مسح السجل</button></div></section>'}
 function vMore(){
   MI=0;
   var G=[
@@ -49,7 +55,7 @@ function vMore(){
    ['التطبيق',[mtile('settings','gear','الإعدادات','المظهر والقفل والتذكيرات والنوافذ العائمة والودجت والنسخ الاحتياطي')]]
   ];
   return '<div class="mr-search"><input id="mr-q" type="search" placeholder="ابحث في المزيد…" autocomplete="off" aria-label="بحث"></div><div id="mr-list">'
-   +G.map(function(g){return '<section class="mr-g"><h4 class="mr-h">'+g[0]+'</h4><div class="mt-grid">'+g[1].join('')+'</div></section>'}).join('')+'<p class="note mr-none" id="mr-none" hidden>لا نتائج</p></div>'+devBtn();
+   +G.map(function(g){return '<section class="mr-g"><h4 class="mr-h">'+g[0]+'</h4><div class="mt-grid">'+g[1].join('')+'</div></section>'}).join('')+'<p class="note mr-none" id="mr-none" hidden>لا نتائج</p>'+diagCard()+'</div>'+devBtn();
 }
 document.addEventListener('input',function(e){var t=e.target;if(!t||t.id!=='mr-q')return;var q=t.value.trim(),any=false;
   document.querySelectorAll('#mr-list .mr-g').forEach(function(g){var vis=0;g.querySelectorAll('.mtile').forEach(function(r){var ok=!q||r.textContent.indexOf(q)>=0;r.style.display=ok?'':'none';if(ok)vis++});g.style.display=vis?'':'none';if(vis)any=true});

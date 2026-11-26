@@ -39,8 +39,21 @@ public class MainActivity extends BridgeActivity {
         if (driveAuthorization != null && driveAuthorization.onResult(requestCode, resultCode, data)) return;
         super.onActivityResult(requestCode, resultCode, data);
     }
+    // ALSAER: تشخيص الدورة الحياتية + إعادة ربط الـWebView بخدمة الوسائط (كي لا تضيع أوامر البطاقة)
+    @Override public void onStart() { super.onStart(); DiagLog.add("act start"); }
+    @Override public void onResume() {
+        super.onResume();
+        try { if (getBridge() != null && getBridge().getWebView() != null) MediaPlaybackService.bind(getBridge().getWebView()); } catch (Exception ignored) { }
+        DiagLog.add("act resume");
+    }
+    @Override public void onPause() { super.onPause(); DiagLog.add("act pause"); }
+    @Override public void onStop() { super.onStop(); DiagLog.add("act stop"); }
+    @Override public void onTrimMemory(int level) { super.onTrimMemory(level); DiagLog.add("trim " + level); }
+    @Override public void onDestroy() { DiagLog.add("act destroy finishing=" + isFinishing()); super.onDestroy(); }
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        DiagLog.init(this);
+        DiagLog.add("act create");
         AlsaerNative.markBoot(); // ALSAER بند 64: بداية ساعة قياس الإقلاع
         registerPlugin(BiometricPlugin.class);
         super.onCreate(savedInstanceState);

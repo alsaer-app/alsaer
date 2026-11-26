@@ -48,8 +48,14 @@ function rdoAct(a,v){
       rdoHlsEnsure(function(ok){
         if(rdoS.a!==A)return;
         if(ok&&window.Hls&&Hls.isSupported()){
-          var H=new Hls();rdoS.h=H;
-          H.on(Hls.Events.ERROR,function(ev,d){if(d&&d.fatal)bad()});
+          var H=new Hls({maxBufferLength:60,maxMaxBufferLength:120,liveSyncDurationCount:4,manifestLoadingMaxRetry:4,levelLoadingMaxRetry:4,fragLoadingMaxRetry:6});rdoS.h=H;var nr=0,mr=0;
+          H.on(Hls.Events.ERROR,function(ev,d){
+            try{if(window.mcDiag)mcDiag('hls '+(d&&d.type)+' '+(d&&d.details)+(d&&d.fatal?' FATAL':''))}catch(e){}
+            if(!d||!d.fatal)return;
+            /* خطأ فادح: نحاول الاستعادة قبل الاستسلام (شبكة: إعادة تحميل حتى ٣ مرات، وسائط: recoverMediaError مرتين) */
+            if(d.type===Hls.ErrorTypes.NETWORK_ERROR&&nr<3){nr++;try{H.startLoad();return}catch(e){}}
+            if(d.type===Hls.ErrorTypes.MEDIA_ERROR&&mr<2){mr++;try{H.recoverMediaError();return}catch(e){}}
+            bad()});
           H.loadSource(r[2]);H.attachMedia(A);
           var p2=A.play();if(p2&&p2.catch)p2.catch(bad)
         }else if(A.canPlayType('application/vnd.apple.mpegurl')){A.src=r[2];var p3=A.play();if(p3&&p3.catch)p3.catch(bad)}

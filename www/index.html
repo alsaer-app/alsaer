@@ -4742,6 +4742,12 @@ function vAch(){
 function lrow(tabId,icon,title,sub){return '<button class="lrow" data-a="tab" data-v="'+tabId+'">'+ic(icon)+'<span class="t">'+title+(sub?'<small class="muted">'+sub+'</small>':'')+'</span>'+ic('chev').replace('class="i"','class="i chev"')+'</button>'}
 function mtile(tabId,icon,title,sub){return '<button class="mtile" data-a="tab" data-v="'+tabId+'" style="--i:'+(MI++)+'" title="'+esc(sub||'')+'"><span class="mt-i">'+ic(icon)+'</span><b>'+title+'</b><em hidden>'+esc(sub||'')+'</em></button>'}
 var MI=0;
+var diagOpen=false;
+function diagCard(){
+  var N=window.AlsaerNative,t=(N&&N.diagGet)?N.diagGet():'';
+  return '<section class="card" style="margin-top:14px"><h4 class="mr-h">تشخيص الصوت</h4><p class="note">سجل قصير على جهازك فقط، بلا بيانات شخصية. انسخه وأرسله عند وجود مشكلة في الصوت أو أزرار الإشعار.</p>'
+   +'<pre dir="ltr" style="white-space:pre-wrap;font-size:11px;max-height:220px;overflow:auto;text-align:left;margin:8px 0">'+esc(t||'لا سجل بعد')+'</pre>'
+   +'<div class="row"><button class="btn ghost" data-a="diagcopy">نسخ السجل</button><button class="btn ghost" data-a="diagrefresh">تحديث</button><button class="btn ghost" data-a="diagclear">مسح السجل</button></div></section>'}
 function vMore(){
   MI=0;
   var G=[
@@ -4752,7 +4758,7 @@ function vMore(){
    ['التطبيق',[mtile('settings','gear','الإعدادات','المظهر والقفل والتذكيرات والنوافذ العائمة والودجت والنسخ الاحتياطي')]]
   ];
   return '<div class="mr-search"><input id="mr-q" type="search" placeholder="ابحث في المزيد…" autocomplete="off" aria-label="بحث"></div><div id="mr-list">'
-   +G.map(function(g){return '<section class="mr-g"><h4 class="mr-h">'+g[0]+'</h4><div class="mt-grid">'+g[1].join('')+'</div></section>'}).join('')+'<p class="note mr-none" id="mr-none" hidden>لا نتائج</p></div>'+devBtn();
+   +G.map(function(g){return '<section class="mr-g"><h4 class="mr-h">'+g[0]+'</h4><div class="mt-grid">'+g[1].join('')+'</div></section>'}).join('')+'<p class="note mr-none" id="mr-none" hidden>لا نتائج</p>'+diagCard()+'</div>'+devBtn();
 }
 document.addEventListener('input',function(e){var t=e.target;if(!t||t.id!=='mr-q')return;var q=t.value.trim(),any=false;
   document.querySelectorAll('#mr-list .mr-g').forEach(function(g){var vis=0;g.querySelectorAll('.mtile').forEach(function(r){var ok=!q||r.textContent.indexOf(q)>=0;r.style.display=ok?'':'none';if(ok)vis++});g.style.display=vis?'':'none';if(vis)any=true});
@@ -7607,8 +7613,14 @@ function rdoAct(a,v){
       rdoHlsEnsure(function(ok){
         if(rdoS.a!==A)return;
         if(ok&&window.Hls&&Hls.isSupported()){
-          var H=new Hls();rdoS.h=H;
-          H.on(Hls.Events.ERROR,function(ev,d){if(d&&d.fatal)bad()});
+          var H=new Hls({maxBufferLength:60,maxMaxBufferLength:120,liveSyncDurationCount:4,manifestLoadingMaxRetry:4,levelLoadingMaxRetry:4,fragLoadingMaxRetry:6});rdoS.h=H;var nr=0,mr=0;
+          H.on(Hls.Events.ERROR,function(ev,d){
+            try{if(window.mcDiag)mcDiag('hls '+(d&&d.type)+' '+(d&&d.details)+(d&&d.fatal?' FATAL':''))}catch(e){}
+            if(!d||!d.fatal)return;
+            /* خطأ فادح: نحاول الاستعادة قبل الاستسلام (شبكة: إعادة تحميل حتى ٣ مرات، وسائط: recoverMediaError مرتين) */
+            if(d.type===Hls.ErrorTypes.NETWORK_ERROR&&nr<3){nr++;try{H.startLoad();return}catch(e){}}
+            if(d.type===Hls.ErrorTypes.MEDIA_ERROR&&mr<2){mr++;try{H.recoverMediaError();return}catch(e){}}
+            bad()});
           H.loadSource(r[2]);H.attachMedia(A);
           var p2=A.play();if(p2&&p2.catch)p2.catch(bad)
         }else if(A.canPlayType('application/vnd.apple.mpegurl')){A.src=r[2];var p3=A.play();if(p3&&p3.catch)p3.catch(bad)}
@@ -7836,6 +7848,17 @@ function ftwAct(a,v){
 /* بطاقة التحكم بالصوت في شريط الإشعارات: تتابع عناصر Audio التي تنشئها الخدمات (إذاعة، قرّاء، فتاوى، حصن، مصحف)
    وتبلّغ الجسر الأصلي (AlsaerNative.mediaUpdate/mediaStop). الصوت يبقى في الصفحة؛ الأزرار تعود عبر alsaerMediaCmd. */
 var MC={list:[],t:0,on:false,last:'',asked:false};
+function mcDiag(t){try{var N=window.AlsaerNative;if(N&&N.diagLog)N.diagLog(String(t).slice(0,150))}catch(e){}}
+window.mcDiag=mcDiag;
+function mcSrc(A){
+  try{
+    if(typeof rdoS!=='undefined'&&rdoS.a===A)return 'radio';
+    if(typeof rctS!=='undefined'&&rctS.a===A)return 'reciter';
+    if(typeof ftA!=='undefined'&&ftA.a===A)return 'fatwa';
+    if(typeof hsnF!=='undefined'&&hsnF.a===A)return 'hisn';
+    if(typeof mqAu!=='undefined'&&mqAu.a===A)return 'mushaf';
+  }catch(e){}
+  return 'other'}
 function mcBridge(){var N=window.AlsaerNative;return N&&N.mediaUpdate?N:null}
 function mcT(t){try{var r=typeof trS==='function'?trS(t):null;return r===null||r===undefined?t:r}catch(e){return t}}
 function mcTitle(A){
@@ -7861,6 +7884,7 @@ function mcQueue(){if(!MC.t)MC.t=setTimeout(mcSync,200)}
 function mcTrack(A){
   MC.list.push(A);
   ['play','playing','pause','ended','emptied','error','waiting'].forEach(function(ev){A.addEventListener(ev,mcQueue)});
+  ['play','pause','ended','emptied','error','waiting','stalled'].forEach(function(ev){A.addEventListener(ev,function(){mcDiag('audio '+mcSrc(A)+' '+ev+(ev==='error'&&A.error?' code'+A.error.code:'')+' vis='+document.visibilityState)})});
   mcQueue()}
 (function(){
   var NA=window.Audio;if(!NA||NA.__mc)return;
@@ -7868,21 +7892,27 @@ function mcTrack(A){
   W.prototype=NA.prototype;W.__mc=1;window.Audio=W;
 })();
 window.alsaerMediaCmd=function(c){
+  MC.list=MC.list.filter(function(A){return !!mcTitle(A)});
   var A=MC.list[MC.list.length-1];
+  mcDiag('cmd '+c+' '+(A?mcSrc(A):'no-audio'));
   try{
-    if((c==='pause'||c==='play')&&A&&typeof mqAu!=='undefined'&&mqAu.a===A){mqAu.pa=(c==='pause')}
-    if(c==='pause'&&A)A.pause();
-    else if(c==='play'&&A){var p=A.play();if(p&&p.catch)p.catch(function(){})}
-    if((c==='pause'||c==='play')&&A&&typeof mqAu!=='undefined'&&mqAu.a===A&&typeof mqAuBar==='function')mqAuBar();
-    else if(c==='stop'){
+    if(c==='stop'){
+      /* الإيقاف يوقف كل المصادر دائمًا، قبل أي فرع آخر */
       try{if(typeof rdoStop==='function'){rdoStop();if(typeof rdoRefresh==='function')rdoRefresh()}}catch(e){}
       try{if(typeof rctStop==='function'){rctStop();if(typeof rctRefresh==='function')rctRefresh()}}catch(e){}
       try{if(typeof ftAuStop==='function'){ftAuStop();if(typeof ftAuUi==='function')ftAuUi()}}catch(e){}
       try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}
       try{if(typeof hsnAuStop==='function')hsnAuStop()}catch(e){}
+    }else if(A&&(c==='pause'||c==='play')){
+      var isMq=typeof mqAu!=='undefined'&&mqAu.a===A;
+      if(isMq)mqAu.pa=(c==='pause');
+      if(c==='pause')A.pause();
+      else{var p=A.play();if(p&&p.catch)p.catch(function(e){mcDiag('play rejected '+(e&&e.name))})}
+      if(isMq&&typeof mqAuBar==='function')mqAuBar();
     }
-  }catch(e){}
+  }catch(e){mcDiag('cmd error '+(e&&e.name))}
   mcQueue()};
+try{document.addEventListener('visibilitychange',function(){mcDiag('vis '+document.visibilityState+' audio='+(MC.list.filter(function(A){return !A.paused}).length))})}catch(e){}
 /* ===== جولة تفاعلية: تظلّل عناصر التطبيق الحقيقية وتنتقل بين شاشاته ===== */
 var TOUR=[
  {e:'🌙',t:'أهلًا بك في السائر',d:'رفيقك اليومي: مواقيت وأذكار وورد ومتابعة، مجانًا بالكامل. جولة قصيرة تعرّفك بكل شيء في أقل من دقيقة.'},
@@ -8721,6 +8751,9 @@ document.addEventListener('click',async function(e){
   else if(a==='setday'){if(v)S.days[calSel]={status:v,note:(S.days[calSel]&&S.days[calSel].note)||''};else delete S.days[calSel];save();checkNew()}
   else if(a==='rst'){var k2=dk();if(lockLeft('c:'+k2+':'+d.id)>0){lockBlock(lockLeft('c:'+k2+':'+d.id));return}S.counters[k2]=S.counters[k2]||{};S.counters[k2][d.id]=0;save()}
   else if(a==='nextq'){qi++}
+  else if(a==='diagclear'){try{window.AlsaerNative.diagClear()}catch(e){}}
+  else if(a==='diagrefresh'){}
+  else if(a==='diagcopy'){try{navigator.clipboard.writeText(window.AlsaerNative.diagGet()||'');toast('نُسخ السجل')}catch(e){toast('تعذّر النسخ')}}
   else if(a==='tstart'){timerDeadline=Date.now()+300000;secs=300;startTimerTick()}
   else if(a==='tstop'){stopTimer()}
   else if(a==='addr'){var r=document.getElementById('reason');if(r&&r.value.trim()){S.reasons.push(r.value.trim().slice(0,200));save();checkNew()}}
