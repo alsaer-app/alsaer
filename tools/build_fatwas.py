@@ -8,12 +8,16 @@ for f in os.listdir(O):os.remove(os.path.join(O,f))
 d=sorted(json.load(open(src,encoding='utf-8')),key=lambda x:x['id'])
 j=lambda o:json.dumps(o,ensure_ascii=False,separators=(',',':'))
 PRE='https://binbaz.org.sa/fatwas/'
+APRE='https://files.zadapps.info/binbaz.org.sa/'  # الصوت: المسار بعد هذه البادئة فقط (6th field)
+def aud(x):
+    a=(x.get('audio') or '').strip()
+    return a[len(APRE):] if a.startswith(APRE) and '..' not in a and '?' not in a and '#' not in a else ''
 def strip(a):
     a=a.strip()
     return a[len('الجواب:'):].lstrip() if a.startswith('الجواب:') else a
 N=150;chunks=[d[i:i+N] for i in range(0,len(d),N)]
 for n,ch in enumerate(chunks):
-    rows=[[x['id'],x['title'].strip(),x['question'].strip(),strip(x['answer']),x['link'][len(PRE):] if x['link'].startswith(PRE) else x['link']] for x in ch]
+    rows=[[x['id'],x['title'].strip(),x['question'].strip(),strip(x['answer']),x['link'][len(PRE):] if x['link'].startswith(PRE) else x['link'],aud(x)] for x in ch]
     open(os.path.join(O,'f%03d.json'%n),'w',encoding='utf-8').write(j(rows))
 cats=collections.OrderedDict()
 for x in d:

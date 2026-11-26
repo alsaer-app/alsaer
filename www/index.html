@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; worker-src 'self' blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.jsdelivr.net https://raw.githubusercontent.com; media-src 'self' https://qurango.net https://*.mp3quran.net https://verses.quran.com https://cdn.islamic.network https://everyayah.com https://cdn.mp3quran.net https://audio.opendua.org https://archive.org https://*.archive.org; font-src 'self' data:; connect-src 'self' blob: data: https://bayan.alwa7i.com https://cdn.jsdelivr.net https://raw.githubusercontent.com https://oauth2.googleapis.com https://www.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; worker-src 'self' blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.jsdelivr.net https://raw.githubusercontent.com; media-src 'self' blob: https://files.zadapps.info https://qurango.net https://*.mp3quran.net https://verses.quran.com https://cdn.islamic.network https://everyayah.com https://cdn.mp3quran.net https://audio.opendua.org https://archive.org https://*.archive.org; font-src 'self' data:; connect-src 'self' blob: data: https://files.zadapps.info https://bayan.alwa7i.com https://cdn.jsdelivr.net https://raw.githubusercontent.com https://oauth2.googleapis.com https://www.googleapis.com; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="author" content="أحمد العجمي">
 <meta name="theme-color" content="#061d1a">
@@ -2180,6 +2180,8 @@ button.rdo-back[data-a=rctback]{border-color:var(--accent,#4c9a8f);animation:rbp
 .ftw-n{font-size:12px;opacity:.8}.ftw-d{display:flex;flex-direction:column;gap:12px}.ftw-t{font-size:18px;line-height:1.7}.ftw-q,.ftw-a{line-height:2}.ftw-q small,.ftw-a small,.ftw-h{display:block;opacity:.6;margin:8px 0 4px}.ftw-q p,.ftw-a p{margin:0 0 10px}.ftw-act{display:flex;gap:8px;margin:12px 0}.ftw-act .btn{flex:1}.ftw-more{width:100%;margin:10px 0}
 
 .hsn-top{flex-wrap:wrap}.hsn-top .hsn-cn{white-space:normal;min-width:0;flex:1 1 100%;order:3;text-align:center;line-height:1.6;margin:2px 0 0}
+
+.ftw-au{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}.ftw-au .btn{flex:0 0 auto}.ftw-p{flex:1 1 auto!important}.ftw-st{flex:1;font-size:13px;opacity:.85}.ftw-bad{color:#e66}.ftw-au .btn[disabled]{opacity:.45}
 /* لمسات الشكل والسرعة */
 html{-webkit-tap-highlight-color:transparent;scroll-behavior:auto}
 .mr-g{content-visibility:auto;contain-intrinsic-size:auto 90px}
@@ -7513,6 +7515,49 @@ function ftIdx(cb){
 function ftChunk(n,cb){window.FTW=window.FTW||{};if(window.FTW[n]){cb(true);return}ftJson('f'+('00'+n).slice(-3)+'.json',{},function(j){if(!j){cb(false);return}window.FTW[n]=j;cb(true)})}
 function ftGet(id){var n=Math.floor((id-1)/window.FTI.per),c=window.FTW&&window.FTW[n];if(!c)return null;for(var i=0;i<c.length;i++)if(c[i][0]===id)return c[i];return null}
 function ftCat(name){var c=window.FTI.cats;for(var i=0;i<c.length;i++)if(c[i][0]===name)return c[i];return null}
+
+/* صوت الفتوى: بث مباشر من files.zadapps.info (مصدر الصوت موقع الشيخ binbaz.org.sa) مع تنزيل اختياري إلى ذاكرة الجهاز (Cache API)، ملف واحد في كل مرة، مع إعادة المحاولة والحذف. لا يُضمَّن أي صوت في التطبيق. المسار يأتي من حقل الفتوى السادس ويُتحقق منه قبل بناء الرابط */
+var FT_AU='https://files.zadapps.info/binbaz.org.sa/',FT_ACACHE='alsaer-fatwa-audio';
+var ftA={a:null,id:0,st:'',dl:0,pct:0,err:0,ctl:null,have:{},url:''};
+function ftAuPath(f){var p=f&&f[5];return(typeof p==='string'&&p&&p.indexOf('..')<0&&!/[?#\\:]|^\//.test(p)&&/\.mp3$/i.test(p))?p:''}
+function ftAuUrl(f){var p=ftAuPath(f);return p?FT_AU+p.split('/').map(encodeURIComponent).join('/'):''}
+function ftAuStop(){if(ftA.a){try{ftA.a.pause();ftA.a.removeAttribute('src');ftA.a.load()}catch(e){}ftA.a=null}if(ftA.url){try{URL.revokeObjectURL(ftA.url)}catch(e){}ftA.url=''}ftA.id=0;ftA.st=''}
+function ftAuAbort(){if(ftA.ctl){try{ftA.ctl.abort()}catch(e){}ftA.ctl=null}ftA.dl=0;ftA.pct=0}
+function ftAuHave(id,u){var C=window.caches;if(!C||!u){ftA.have[id]=false;return}C.open(FT_ACACHE).then(function(c){return c.match(u)}).then(function(m){ftA.have[id]=!!m;ftAuUi()},function(){ftA.have[id]=false})}
+function ftAuUi(){var e=document.getElementById('ftw-au');if(e&&ftS.view==='detail'){var f=window.FTI&&ftGet(ftS.id);if(f)e.outerHTML=ftAuBar(f)}}
+function ftAuBar(f){
+  var u=ftAuUrl(f);if(!u)return '<div id="ftw-au"></div>';
+  var id=f[0],h='<div id="ftw-au" class="ftw-au">',on=ftA.id===id,pl=on&&ftA.st==='play',ld=on&&ftA.st==='load',dl=ftA.dl===id,hv=ftA.have[id];
+  h+='<button class="btn ftw-p" data-a="ftwplay" data-v="'+id+'" aria-label="'+(pl?'إيقاف':'استماع')+'">'+(pl?'⏸ إيقاف':ld?'… جارٍ التحميل':'▶ استماع')+'</button>';
+  if(dl)h+='<span class="ftw-st">جارٍ التنزيل '+ftA.pct+'%</span><button class="btn ghost" data-a="ftwdlx" data-v="'+id+'">إلغاء</button>';
+  else if(hv)h+='<span class="ftw-st">✓ محفوظ على الجهاز</span><button class="btn ghost ftw-del" data-a="ftwdel" data-v="'+id+'">حذف</button>';
+  else if(ftA.err===id)h+='<span class="ftw-st ftw-bad">تعذّر التنزيل</span><button class="btn ghost" data-a="ftwdl" data-v="'+id+'">إعادة المحاولة</button>';
+  else h+='<button class="btn ghost" data-a="ftwdl" data-v="'+id+'"'+(ftA.dl?' disabled':'')+'>تنزيل</button>';
+  return h+'</div>'}
+function ftAuPlay(f){
+  var id=f[0],u=ftAuUrl(f);if(!u)return;
+  if(ftA.id===id){ftAuStop();ftAuUi();return}
+  ftAuStop();try{if(typeof rdoStop==='function')rdoStop()}catch(e){}try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}try{if(typeof hsnAuStop==='function')hsnAuStop()}catch(e){}try{if(typeof rctStop==='function')rctStop()}catch(e){}
+  var A=new Audio();ftA.a=A;ftA.id=id;ftA.st='load';A.preload='none';
+  var go=function(src){if(ftA.a!==A)return;A.src=src;A.onplaying=function(){if(ftA.a===A){ftA.st='play';ftAuUi()}};A.onended=function(){if(ftA.a===A){ftAuStop();ftAuUi()}};var bad=function(){if(ftA.a===A){ftAuStop();ftAuUi();try{toast('تعذّر تشغيل الصوت. يحتاج اتصالًا بالإنترنت أو تنزيله مسبقًا')}catch(e){}}};A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad)};
+  ftAuUi();
+  var C=window.caches;
+  if(C&&ftA.have[id])C.open(FT_ACACHE).then(function(c){return c.match(u)}).then(function(m){return m?m.blob():null}).then(function(b){if(b){ftA.url=URL.createObjectURL(b);go(ftA.url)}else{ftA.have[id]=false;go(u)}},function(){go(u)});
+  else go(u)}
+function ftAuDl(f){
+  var id=f[0],u=ftAuUrl(f),C=window.caches;if(!u||ftA.dl)return;
+  if(!C||typeof AbortController==='undefined'||!window.ReadableStream){try{toast('التنزيل غير مدعوم على هذا الجهاز')}catch(e){}return}
+  ftA.dl=id;ftA.pct=0;ftA.err=0;var ctl=new AbortController();ftA.ctl=ctl;ftAuUi();
+  var fail=function(){if(ftA.ctl===ctl){ftA.ctl=null;ftA.dl=0;ftA.pct=0;ftA.err=id;ftAuUi()}};
+  fetch(u,{signal:ctl.signal}).then(function(r){
+    if(!r.ok||!r.body)throw 0;var len=+r.headers.get('content-length')||0,rd=r.body.getReader(),parts=[],got=0;
+    var pump=function(){return rd.read().then(function(x){
+      if(x.done)return;parts.push(x.value);got+=x.value.length;if(len){var p=Math.min(99,Math.floor(got*100/len));if(p!==ftA.pct){ftA.pct=p;ftAuUi()}}return pump()})};
+    return pump().then(function(){if(len&&got!==len)throw 0;return new Blob(parts,{type:'audio/mpeg'})})
+  }).then(function(b){
+    return C.open(FT_ACACHE).then(function(c){return c.put(u,new Response(b,{headers:{'content-type':'audio/mpeg'}}))}).then(function(){ftA.have[id]=true;if(ftA.ctl===ctl){ftA.ctl=null;ftA.dl=0;ftA.pct=0}ftAuUi();try{toast('تم تنزيل الصوت')}catch(e){}})
+  }).catch(function(){if(ctl.signal.aborted){ftA.dl=0;ftA.pct=0;ftA.ctl=null;ftAuUi()}else fail()})}
+function ftAuDel(f){var u=ftAuUrl(f),C=window.caches;if(!C||!u)return;if(ftA.id===f[0])ftAuStop();C.open(FT_ACACHE).then(function(c){return c.delete(u)}).then(function(){ftA.have[f[0]]=false;ftA.err=0;ftAuUi();try{toast('تم حذف الصوت من الجهاز')}catch(e){}},function(){})}
 function ftBack(){return '<button class="rdo-back" data-a="ftwback">→ '+(ftS.view==='detail'&&ftS.cat?'القائمة':'الفئات')+'</button>'}
 function ftCats(q){
   var n=ftNorm(q).trim(),h='';
@@ -7537,8 +7582,8 @@ function vFatwas(){
     h+=ftBack()+'<section class="card ftw-d"><b class="ftw-t keepar">'+ftEsc(f[1])+'</b>';
     h+='<div class="ftw-q keepar"><small>السؤال</small><p>'+ftEsc(f[2])+'</p></div>';
     h+='<div class="ftw-a keepar"><small>الجواب</small>'+f[3].split(/\n+/).map(function(p){return p.trim()?'<p>'+ftEsc(p)+'</p>':''}).join('')+'</div></section>';
-    h+='<div class="ftw-act"><button class="btn ghost" data-a="ftwcopy" data-v="'+id+'">نسخ</button><button class="btn ghost" data-a="ftwshare" data-v="'+id+'">مشاركة</button><button class="btn ghost" data-a="ftwsrc" data-v="'+id+'">المصدر</button></div>';
-    h+='<p class="note rdo-src">الفتوى من موقع الشيخ ابن باز الرسمي binbaz.org.sa (مؤسسة الشيخ عبد العزيز بن باز الخيرية).</p></div>';return h}
+    h+=ftAuBar(f);if(ftAuUrl(f)&&ftA.have[id]===undefined)ftAuHave(id,ftAuUrl(f));h+='<div class="ftw-act"><button class="btn ghost" data-a="ftwcopy" data-v="'+id+'">نسخ</button><button class="btn ghost" data-a="ftwshare" data-v="'+id+'">مشاركة</button><button class="btn ghost" data-a="ftwsrc" data-v="'+id+'">المصدر</button></div>';
+    h+='<p class="note rdo-src">الفتوى'+(ftAuUrl(f)?' وصوتها':'')+' من موقع الشيخ ابن باز الرسمي binbaz.org.sa (مؤسسة الشيخ عبد العزيز بن باز الخيرية).</p></div>';return h}
   if(ftS.view==='list'){
     var c=ftCat(ftS.cat);
     if(!c)return h+ftBack()+'<p class="note">لا نتائج</p></div>';
@@ -7561,10 +7606,14 @@ function ftRefresh(){var l=document.getElementById('ftw-l');if(l&&window.FTI)l.i
 function ftText(f){return f[1]+'\n\nالسؤال: '+f[2]+'\n\nالجواب: '+f[3]+'\n\nالمصدر: https://binbaz.org.sa/fatwas/'+f[4]}
 function ftwAct(a,v){
   if(a==='ftwcat'){ftS.view='list';ftS.cat=v;ftS.lim=60;if(typeof render==='function')render();return false}
-  if(a==='ftwopen'){ftS.id=+v;ftS.view='detail';if(typeof render==='function')render();return false}
-  if(a==='ftwback'){if(ftS.view==='detail'&&ftS.cat)ftS.view='list';else{ftS.view='cats';ftS.cat=''}ftS.lim=60;if(typeof render==='function')render();return false}
+  if(a==='ftwopen'){ftAuStop();ftS.id=+v;ftS.view='detail';if(typeof render==='function')render();return false}
+  if(a==='ftwback'){ftAuStop();if(ftS.view==='detail'&&ftS.cat)ftS.view='list';else{ftS.view='cats';ftS.cat=''}ftS.lim=60;if(typeof render==='function')render();return false}
   if(a==='ftwmore'){ftS.lim+=60;ftRefresh();return false}
   var f=window.FTI&&ftGet(+v);
+  if(a==='ftwplay'&&f){ftAuPlay(f);return false}
+  if(a==='ftwdl'&&f){ftAuDl(f);return false}
+  if(a==='ftwdlx'){ftAuAbort();ftAuUi();return false}
+  if(a==='ftwdel'&&f){ftAuDel(f);return false}
   if(a==='ftwcopy'&&f){try{navigator.clipboard.writeText(ftText(f));toast('تم نسخ الفتوى')}catch(e){toast('تعذّر النسخ')}return false}
   if(a==='ftwshare'&&f){try{if(navigator.share){navigator.share({text:ftText(f)});return false}}catch(e){}try{navigator.clipboard.writeText(ftText(f));toast('تم نسخ الفتوى')}catch(e){toast('تعذّر النسخ')}return false}
   if(a==='ftwsrc'&&f){if(typeof cdOpenUrl==='function')cdOpenUrl('https://binbaz.org.sa/fatwas/'+f[4]);return false}
