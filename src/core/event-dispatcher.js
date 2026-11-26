@@ -10,8 +10,8 @@ function handlePhotoInput(input){
     img.onerror=function(){toast('لم نتمكن من فتح الصورة، جرّب صورة بصيغة JPG أو PNG');input.value=''};
     img.onload=function(){
       try{
-        /* صورة الملف الشخصي تظهر بحجم صغير؛ نخزن نسخة خفيفة جداً لتفادي امتلاء localStorage */
-        var maxSide=144, scale=Math.min(1,maxSide/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+        /* نخزن نسخة واضحة (حتى 480px) تكفي العرض المكبّر، مع سقف حجم يحمي localStorage */
+        var maxSide=480, scale=Math.min(1,maxSide/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
         var w=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));
         var h=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
         var canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
@@ -20,12 +20,12 @@ function handlePhotoInput(input){
         for(var attempt=0;attempt<5;attempt++){
           canvas.width=w;canvas.height=h;
           ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,w,h);
-          ctx.drawImage(img,0,0,w,h);
-          data=canvas.toDataURL('image/jpeg',attempt<2?.52:.42);
-          if(data.length<=70000)break;
-          w=Math.max(48,Math.round(w*.78));h=Math.max(48,Math.round(h*.78));
+          try{ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high'}catch(ig){}ctx.drawImage(img,0,0,w,h);
+          data=canvas.toDataURL('image/jpeg',attempt<2?.88:(attempt<3?.8:.7));
+          if(data.length<=150000)break;
+          w=Math.max(96,Math.round(w*.8));h=Math.max(96,Math.round(h*.8));
         }
-        if(!data||data.length>100000){toast('لم نتمكن من تصغير الصورة، جرّب صورة أخرى');input.value='';return}
+        if(!data||data.length>180000){toast('لم نتمكن من تصغير الصورة، جرّب صورة أخرى');input.value='';return}
         S.profile=S.profile||{name:'',age:'',photo:''};
         S.profile.photo=data;
         saveNow();
