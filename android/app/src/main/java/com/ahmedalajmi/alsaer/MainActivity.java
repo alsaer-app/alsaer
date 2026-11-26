@@ -12,6 +12,12 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     private DriveAuthorization driveAuthorization;
     private BackupDocuments backupDocuments;
+    private LocationBridge locationBridge;
+    LocationBridge location() { if (locationBridge == null) locationBridge = new LocationBridge(this); return locationBridge; }
+    @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (locationBridge != null && locationBridge.onPermission(requestCode, grantResults)) return;
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
     void backupDocument(boolean save,String content,String name){
         if(backupDocuments==null)backupDocuments=new BackupDocuments(this);
         backupDocuments.launch(save,content,name);

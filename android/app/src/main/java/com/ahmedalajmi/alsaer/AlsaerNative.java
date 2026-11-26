@@ -50,6 +50,13 @@ public class AlsaerNative {
     @JavascriptInterface public void gdriveClearToken(String token) {
         act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).clearDriveToken(token); });
     }
+    /* ALSAER: موقع الجهاز عبر LocationManager مع طلب الإذن الأصلي؛ النتيجة إلى window.gpsOnNative */
+    @JavascriptInterface public boolean locHasPermission() {
+        return (act instanceof MainActivity) && ((MainActivity)act).location().hasPermission();
+    }
+    @JavascriptInterface public void locGet() {
+        if (act instanceof MainActivity) ((MainActivity)act).location().request();
+    }
     @JavascriptInterface public void gdriveRevoke() {
         act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).revokeDrive(); });
     }

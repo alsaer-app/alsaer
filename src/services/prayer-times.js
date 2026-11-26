@@ -103,6 +103,7 @@ function gpsFix(silent){
     var moved=old>5;if(S.loc.auto)autoPtimes();save();
     if(!silent){compassStop();render()}else if(moved){render()}
   }
+  function web(){
   /* مرحلة سريعة: آخر موقع معروف أو تقريبي خلال ثوانٍ، ثم تحسين صامت بدقة أعلى */
   navigator.geolocation.getCurrentPosition(function(p){
     gpsBusy=false;apply(p);
@@ -129,6 +130,24 @@ function gpsFix(silent){
       tmo=setTimeout(function(){fin(giveUp,e1)},42000);
     },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   },{enableHighAccuracy:false,timeout:8000,maximumAge:3600e3});
+  }
+  /* المسار الأصلي (LocationManager + طلب الإذن من أندرويد مباشرة): الصامت لا يطلب إذنًا. أي فشل غير الرفض أو إغلاق الموقع يعود للمسار القديم */
+  var nv=window.AlsaerNative;
+  if(nv&&typeof nv.locGet==='function'&&typeof nv.locHasPermission==='function'&&(!silent||nv.locHasPermission())){
+    var fell=false;
+    window.gpsOnNative=function(lat,lng,acc,err){
+      window.gpsOnNative=null;
+      if(!err){gpsBusy=false;apply({coords:{latitude:lat,longitude:lng,accuracy:acc}});return}
+      var code=' (loc-'+String(err).replace(/[^a-z]/g,'').slice(0,12)+')';
+      if(err==='denied'){gpsBusy=false;busy(false);if(!silent){say('لم يُسمح بالوصول للموقع. فعّله من إعدادات الهاتف ثم أعد المحاولة، أو اختر مدينتك يدويًا.'+code,'bad');var t3=document.querySelector('.pt-lt b');if(t3)t3.textContent='لم يُحدَّد الموقع بعد'}return}
+      if(err==='off'){gpsBusy=false;busy(false);if(!silent){say('خدمة الموقع مغلقة أو لا تتوفر إشارة. فعّل «الموقع/GPS» من الإعدادات السريعة في هاتفك ثم أعد المحاولة، أو اختر مدينتك يدويًا.'+code,'bad');locDialog()}return}
+      if(!fell){fell=true;web()}
+    };
+    if(!silent)say('نطلب إذن الموقع… اضغط «سماح» إن ظهر لك طلب.','busy');
+    try{nv.locGet()}catch(e){window.gpsOnNative=null;web()}
+    return;
+  }
+  web();
 }
 /* تحديد الموقع تلقائيًا دون انتظار ضغط الزر: عند فتح التطبيق وعند الرجوع إليه وكل نصف ساعة، ما لم يختر المستخدم المدينة يدويًا */
 function autoLoc(){
