@@ -1,5 +1,5 @@
 function vSplash(){
-  return '<div class="splash"><div class="sp-tile"><img src="icon.png" alt=""></div><div class="t">السائر إلى الله</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div></div>';
+  return '<div class="splash"><div class="sp-tile"><img src="icon.png" alt=""></div><div class="t">السائر إلى الله</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div><div class="ld"><i></i></div></div>';
 }
 function vOb(){
   var p=S.profile||{},gender=obGender||S.gender||'male';

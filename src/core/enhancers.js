@@ -23,7 +23,7 @@
 render();
 /* تسخين أثناء الشعار الثابت: أول استدعاء لمنسّق التاريخ الهجري (Intl) مكلف، فنبنيه قبل انتهاء الشعار لا عنده */
 setTimeout(function(){try{hijriNumeric(new Date())}catch(e){}},350);
-setTimeout(function(){splash=false;render();checkNew();try{var _w=Math.round(performance.now()),_t=-1;if(window.AlsaerNative&&AlsaerNative.bootDone)_t=AlsaerNative.bootDone(_w);window.__alsaerBoot={webMs:_w,totalMs:typeof _t==='number'?_t:-1}}catch(e){}},window.__NOSPLASH?0:Math.max(0,1300-Math.round(performance.now())));
+setTimeout(function(){splash=false;render();requestAnimationFrame(function(){setTimeout(function(){checkNew();try{var _w=Math.round(performance.now()),_t=-1;if(window.AlsaerNative&&AlsaerNative.bootDone)_t=AlsaerNative.bootDone(_w);window.__alsaerBoot={webMs:_w,totalMs:typeof _t==='number'?_t:-1}}catch(e){}},0)})},window.__NOSPLASH?0:Math.max(0,1300-Math.round(performance.now())));
 setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,300)})(function(){loadHeavy()})}catch(e){}},window.__NOSPLASH?1500:6000);
 (function(){
   window.addEventListener('resize',fitSoon);
