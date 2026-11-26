@@ -52,17 +52,17 @@
 ## لقطات الشاشة
 
 <p align="center">
-  <img src="screenshots/home.jpg" width="150" alt="الشاشة الرئيسية: بطاقة الورد وخطوتك التالية">
-  <img src="screenshots/quran.jpg" width="150" alt="المصحف: سورة الفاتحة">
-  <img src="screenshots/adhkar.jpg" width="150" alt="الأذكار بعدّاد لكل ذكر">
-  <img src="screenshots/fatwas.jpg" width="150" alt="فتاوى ابن باز: شريط الاستماع تحت العنوان">
-  <img src="screenshots/more.jpg" width="150" alt="شاشة المزيد">
-  <img src="screenshots/progress.jpg" width="150" alt="التقدم والتقييم">
-  <img src="screenshots/calendar.jpg" width="150" alt="التقويم والمتابعة">
-  <img src="screenshots/onboarding.jpg" width="150" alt="شاشة الترحيب">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="screenshots/home.jpg"><img src="screenshots/home-light.jpg" width="150" alt="الشاشة الرئيسية: بطاقة الورد وخطوتك التالية"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="screenshots/quran.jpg"><img src="screenshots/quran-light.jpg" width="150" alt="المصحف: سورة الفاتحة"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="screenshots/adhkar.jpg"><img src="screenshots/adhkar-light.jpg" width="150" alt="الأذكار بعدّاد لكل ذكر"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="screenshots/fatwas.jpg"><img src="screenshots/fatwas-light.jpg" width="150" alt="فتاوى ابن باز: شريط الاستماع تحت العنوان"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="screenshots/more.jpg"><img src="screenshots/more-light.jpg" width="150" alt="شاشة المزيد"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="screenshots/progress.jpg"><img src="screenshots/progress-light.jpg" width="150" alt="التقدم والتقييم"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="screenshots/calendar.jpg"><img src="screenshots/calendar-light.jpg" width="150" alt="التقويم والمتابعة"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="screenshots/onboarding.jpg"><img src="screenshots/onboarding-light.jpg" width="150" alt="شاشة الترحيب"></picture>
 </p>
 
-<p align="center"><sub>الصور مُولَّدة من واجهة الويب في متصفح (محاكاة بحجم الهاتف) وليست لقطات من جهاز حقيقي.</sub></p>
+<p align="center"><sub>الصور مُولَّدة من واجهة الويب في متصفح (محاكاة بحجم الهاتف) وليست لقطات من جهاز حقيقي، وتتبدّل بين الداكن والفاتح حسب مظهر صفحتك في GitHub.</sub></p>
 
 ## التثبيت
 
