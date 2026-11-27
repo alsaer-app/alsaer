@@ -1,9 +1,10 @@
 {
   "appId": "com.ahmedalajmi.alsaer",
-  "versionName": "1.1.2",
-  "versionCode": 112,
-  "apkUrl": "https://github.com/alsaer-app/alsaer/releases/latest",
+  "versionName": "2.0.1",
+  "versionCode": 10201,
+  "apkUrl": "https://github.com/alsaer-app/alsaer/releases/download/v2.0.1/Alsaer-v2.0.1.apk",
   "releasePage": "https://github.com/alsaer-app/alsaer/releases/latest",
-  "sha256": "",
-  "mandatory": false
+  "sha256": "1a5419d7994279f01e524ff77e8404d43dcaf78deab7941314f7d24126385767",
+  "mandatory": false,
+  "notes": "الفتاوى تُحمَّل من مستودع مخصص لها ويُتحقق من بصمة كل ملف\nبطاقة الوسائط في الإشعارات تتبع ثيم التطبيق بأيقونات وغلاف خاص، وزر الإيقاف بإجراء مخصص\nأُزيلت بطاقة التشخيص\nإذاعة القرآن الكريم من السعودية تعمل عبر رابط مسموح لنطاق radiojar.com فقط، مع استمرار التشغيل في الخلفية بعد الإيقاف المؤقت\nالاسم العربي «السائر إلى الله» وفي بقية اللغات «Alsaer»\nإصلاحات ربط Google Drive: إعادة المحاولة بعد خطأ 401، وعدم فقد الربط الجديد، ورسالة سبب مختصرة عند الفشل"
 }
