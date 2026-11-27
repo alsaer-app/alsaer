@@ -1,0 +1,44 @@
+«ذكّرني» تعيد الرنين كل ١٠ دقائق حتى ٣ مرات ثم تتوقف	"Remind me" re-rings every 10 minutes up to 3 times, then stops	« Me rappeler » sonne à nouveau toutes les 10 minutes, 3 fois au maximum, puis s'arrête
+آخر استعادة ناجحة	Last successful restore	Dernière restauration réussie
+أُلغي اختيار الحساب؛ لم نغيّر ملفاتك.	Account selection cancelled; your files were not changed.	Sélection du compte annulée ; vos fichiers n'ont pas été modifiés.
+إيقاف التأجيل الحالي	Stop current snooze	Arrêter le report en cours
+احمِ نسختك في Google Drive	Protect your backup in Google Drive	Protégez votre sauvegarde dans Google Drive
+التأجيل التلقائي	Auto snooze	Report automatique
+التحديثات · سجل الإصدارات · فحص التطبيق	Updates · release log · app checkup	Mises à jour · journal des versions · diagnostic
+التنبيهات والتذكيرات	Alerts & reminders	Alertes et rappels
+التنزيل للقراءة بلا إنترنت	Download for offline reading	Télécharger pour lire hors ligne
+العرض والمظهر	Display & appearance	Affichage et apparence
+القفل · النسخ الاحتياطي · درايف · الاستعادة	Lock · backup · Drive · restore	Verrouillage · sauvegarde · Drive · restauration
+القنوات · الصوت · النوافذ العائمة · الودجت	Channels · sound · floating windows · widget	Canaux · son · fenêtres flottantes · widget
+الكل	All	Tout
+المدينة · طريقة الحساب · الضبط	City · calculation method · adjustment	Ville · méthode de calcul · ajustement
+الملف الشخصي · الأجهزة · الجولة التعريفية	Profile · devices · the tour	Profil · appareils · visite guidée
+الوضع · النمط · اللغة · اللون · الأرقام والساعة	Mode · style · language · color · digits & clock	Mode · style · langue · couleur · chiffres et horloge
+انتهت مهلة الربط دون رد من Google. أعد المحاولة.	Linking timed out with no response from Google. Try again.	Délai de liaison dépassé sans réponse de Google. Réessayez.
+تأكيد فك الارتباط	Confirm unlinking	Confirmer la dissociation
+تذكير مؤجّل	snoozed reminder	rappel reporté
+تذكيرات مؤجّلة	snoozed reminders	rappels reportés
+تعذّر الربط. اضغط ربط حساب جديد للمحاولة مجددًا.	Linking failed. Tap Link a new account to try again.	Liaison impossible. Touchez Lier un nouveau compte pour réessayer.
+تعذّر قراءة بياناتك المحفوظة؛ حُفظت كنسخة تالفة ولم نكتب فوقها. يمكنك الاستعادة من «الأمان والبيانات».	Your saved data could not be read; it was kept as a corrupt copy and not overwritten. You can restore from "Security & data".	Vos données enregistrées sont illisibles ; elles ont été conservées comme copie corrompue sans être écrasées. Vous pouvez restaurer depuis « Sécurité et données ».
+تم الرفع	Uploaded	Envoyé
+تمت الاستعادة	Restored	Restauré
+توقف التأجيل الحالي	Current snooze stopped	Report en cours arrêté
+جارٍ الاستعادة…	Restoring…	Restauration…
+جارٍ الرفع…	Uploading…	Envoi…
+حسابك	Your account	Votre compte
+ربط حساب جديد	Link a new account	Lier un nouveau compte
+رفضت Google الربط. إن كان الحساب مربوطًا سابقًا فافتح myaccount.google.com/permissions وألغِ إذن «السائر» ثم أعد المحاولة.	Google refused the link. If the account was linked before, open myaccount.google.com/permissions, revoke "Alsaer", then try again.	Google a refusé la liaison. Si le compte était déjà lié, ouvrez myaccount.google.com/permissions, révoquez « Alsaer », puis réessayez.
+سجل النشاط اليومي	Daily activity log	Journal d'activité quotidien
+سجّل صلواتك وقراءتك وصيامك وعاداتك لتظهر هنا باليوم والساعة.	Log your prayers, reading, fasting and habits to see them here by day and hour.	Enregistrez vos prières, lectures, jeûnes et habitudes pour les voir ici par jour et par heure.
+صلواتك وقراءتك وصيامك وعاداتك باليوم والساعة	Your prayers, reading, fasting and habits by day and hour	Vos prières, lectures, jeûnes et habitudes par jour et par heure
+صمت هذا اليوم ✓	Fasted this day ✓	Journée jeûnée ✓
+فك الارتباط	Unlink	Dissocier
+فك الارتباط يطلب تأكيدًا ولا يحذف ملفات النسخ من Drive. تُحفظ كل النسخ المؤرخة دون حذف تلقائي. يصل التطبيق إلى الملفات التي أنشأها أو أُتيحت له فقط.	Unlinking asks for confirmation and never deletes backup files from Drive. All dated copies are kept with no automatic deletion. The app only accesses files it created or that were shared with it.	La dissociation demande confirmation et ne supprime jamais les sauvegardes de Drive. Toutes les copies datées sont conservées sans suppression automatique. L'application n'accède qu'aux fichiers qu'elle a créés ou qui lui ont été partagés.
+لا يوجد نشاط مسجّل بعد.	No activity logged yet.	Aucune activité enregistrée pour l'instant.
+لم يُسجَّل صيام	No fasting logged	Aucun jeûne enregistré
+محاولة الربط السابقة لم تكتمل. أعد المحاولة.	The previous linking attempt did not finish. Try again.	La tentative de liaison précédente n'a pas abouti. Réessayez.
+محاولة ربط أخرى جارية. انتظر لحظة ثم أعد المحاولة.	Another linking attempt is in progress. Wait a moment, then try again.	Une autre tentative de liaison est en cours. Patientez un instant, puis réessayez.
+نسخ مؤرخة ترجع على هذا الهاتف أو أي هاتف آخر، حتى بعد إعادة التثبيت. لا يرى التطبيق إلا الملفات التي ينشئها.	Dated copies restore onto this phone or any other, even after reinstalling. The app only sees files it creates.	Des copies datées se restaurent sur ce téléphone ou un autre, même après réinstallation. L'application ne voit que les fichiers qu'elle crée.
+نسختك محفوظة في Google Drive	Your backup is saved in Google Drive	Votre sauvegarde est enregistrée dans Google Drive
+وردك اكتمل ✓	Your wird is complete ✓	Votre wird est terminé ✓
+● متصل	● Connected	● Connecté

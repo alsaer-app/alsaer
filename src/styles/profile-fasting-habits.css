@@ -5,8 +5,8 @@
 .welcome-line.is-evening svg.i{color:#b8c8e8;filter:drop-shadow(0 0 7px rgba(184,200,232,.35))}
 .profile-avt{overflow:hidden;display:grid;place-items:center}
 .profile-photo{display:block;object-fit:cover;border-radius:50%;border:2px solid var(--gold);background:var(--surface-2)}
-.profile-avatar-large .profile-photo,.profile-edit-head .profile-photo{filter:brightness(1.42) contrast(1.08) saturate(1.06)}
-.profile-avt .profile-photo{filter:brightness(1.45) contrast(1.08) saturate(1.05)}
+.profile-avatar-large .profile-photo,.profile-edit-head .profile-photo{filter:brightness(1.1) contrast(1.08) saturate(1.06)}
+.profile-avt .profile-photo{filter:brightness(1.1) contrast(1.08) saturate(1.05)}
 .profile-edit-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
 .profile-edit-head .profile-photo{width:76px;height:76px;flex:none}
 .profile-label{display:block;font-size:14px;font-weight:800;margin:12px 0 6px;color:var(--fg)}

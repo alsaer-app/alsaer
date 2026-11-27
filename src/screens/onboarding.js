@@ -1,5 +1,5 @@
 function vSplash(){
-  return '<div class="splash"><div class="sp-tile"><svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M40 10a22 22 0 1 0 14 38A18 18 0 0 1 40 10z" fill="#fff" opacity=".95"/><path d="M6 54c14-9 28-9 52 0" stroke="#fff" stroke-width="3.2" stroke-linecap="round" opacity=".7"/><circle cx="44" cy="22" r="2.4" fill="#fff"/></svg></div><div class="t">السائر إلى الله</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div></div>';
+  return '<div class="splash"><div class="sp-tile"><img src="icon.png" alt=""></div><div class="t">السائر إلى الله</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div><div class="ld"><i></i></div></div>';
 }
 function vOb(){
   var p=S.profile||{},gender=obGender||S.gender||'male';

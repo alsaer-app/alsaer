@@ -66,7 +66,52 @@ function cdMake(){
   x.fillStyle='#C9A24B';x.font='30px '+ff;x.fillText('تطبيق السائر إلى الله · مجاني بالكامل',540,1250);
   return c;
 }
+/* ---------- بطاقة السورة: محتوى «البطاقات» للأستاذ الدكتور ياسر بن إسماعيل راضي (albitaqat.com). الحقوق محفوظة للمؤلف؛ يُعرض بنصه كما هو مع نسبته إليه ومسؤولية استعماله على مالك التطبيق. البيانات في www/albitaqat.js وحدها (قابلة للإزالة) ---------- */
+var cdTab='sura',cdSura=1;
+function abqEnsure(cb){
+  if(window.ALBQ){cb();return}
+  var q=window.__abq||(window.__abq=[]);q.push(cb);if(window.__abl)return;window.__abl=1;
+  var sc=document.createElement('script');sc.src='albitaqat.js';
+  sc.onload=sc.onerror=function(){window.__abl=0;q.splice(0).forEach(function(f){try{f()}catch(e){}})};
+  document.head.appendChild(sc);
+}
+function abqRow(c){var D=window.ALBQ;return D&&D.rows&&D.rows[c-1]}
+function cdPlayIc(on){return on?'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>':'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>'}
+function cdSuraInfo(c){
+  var st=suraPage(c),en=c<114?Math.max(st,suraPage(c+1)-1):604,P=curP(),j1=(P[st-1]||[])[4]||1,j2=(P[en-1]||[])[4]||j1,n=AD().s[c-1].length;
+  return {c:c,name:AD().n[c-1],en:(typeof SUR_EN!=='undefined'&&SUR_EN[c-1])||'',n:n,med:MEDINAN.indexOf(c)>=0,st:st,en2:en,j1:j1,j2:j2};
+}
 function vCards(){
+  var tabs='<div class="cd-tabs"><button class="chip'+(cdTab==='sura'?' on':'')+'" data-a="cdtab" data-v="sura">تعريف السورة</button><button class="chip'+(cdTab==='share'?' on':'')+'" data-a="cdtab" data-v="share">بطاقات المشاركة</button></div>';
+  if(cdTab==='share')return tabs+vCardsShare();
+  if(!window.ALBQ){abqEnsure(function(){if(tab==='cards')render()});return '<div class="cd cds">'+tabs+'<p class="note" style="text-align:center">جارٍ التحميل…</p></div>'}
+  var I=cdSuraInfo(cdSura),R=abqRow(cdSura),D=window.ALBQ,playing=!!(mqAu&&mqAu.a&&mqAu.ext&&+mqAu.k.split(':')[0]===cdSura&&!mqAu.pa);
+  var jz=I.j1===I.j2?'<span>الجزء</span> '+ar(I.j1):'<span>الجزء</span> '+ar(I.j1)+'–'+ar(I.j2);
+  var secs=D.titles.map(function(t,i){return '<section class="card cds-s"><h3>'+esc(t)+'</h3><p class="keepar">'+esc(R[i+1])+'</p></section>'}).join('');
+  return '<div class="cd cds">'+tabs
+   +'<section class="cds-h"><div class="cds-b">'+ar(I.c)+'</div><h2>'+esc(I.name)+'</h2><div class="cds-en">'+esc(I.en)+'</div><div class="cds-m">'+ar(I.n)+' <span>'+(I.n<3?'آية':I.n<11?'آيات':'آية')+'</span> · <span>'+(I.med?'مدنية':'مكية')+'</span> · '+jz+' · <span>ص</span> '+ar(I.st)+(I.en2>I.st?'–'+ar(I.en2):'')+'</div></section>'
+   +'<div class="cds-r"><button class="card cds-a" data-a="cdplay"><span class="cds-ic gold">'+cdPlayIc(playing)+'</span><span class="cds-t"><b>'+(playing?'إيقاف مؤقت':'صوت')+'</b><small>تلاوة البطاقة بصوت المؤلف</small></span></button>'
+   +'<button class="card cds-a" data-a="cdopen" data-v="pdf"><span class="cds-ic pdf">PDF</span><span class="cds-t"><b>PDF</b><small>بطاقة السورة</small></span></button></div>'
+   +'<button class="card cds-yt" data-a="cdopen" data-v="yt"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><span>مشاهدة البطاقة على يوتيوب</span></button>'
+   +secs
+   +'<p class="cds-cr">المحتوى من «كتاب البطاقات» لأ.د. ياسر بن إسماعيل راضي، موقع <a href="#" data-a="cdopen" data-v="site">albitaqat.com</a>. الحقوق محفوظة للمؤلف. الصوت وملفات PDF والفيديو تُفتح من مصادرها الأصلية وتحتاج إنترنت.</p></div>';
+}
+function cdOpenUrl(u){
+  try{if(window.AlsaerNative&&AlsaerNative.openUrl&&AlsaerNative.openUrl(u))return}catch(e){}
+  try{window.open(u,'_blank','noopener')}catch(e2){try{location.href=u}catch(e3){}}
+}
+function cdPlay(){
+  var R=abqRow(cdSura);if(!R)return;
+  if(mqAu&&mqAu.a&&mqAu.ext&&+mqAu.k.split(':')[0]===cdSura){if(mqAu.a.paused){mqAu.pa=false;var r0=mqAu.a.play();if(r0&&r0.catch)r0.catch(function(){})}else{mqAu.pa=true;mqAu.a.pause()}mqAuBar();return}
+  if(typeof mqAuStop==='function')mqAuStop();
+  var a=new Audio();a.preload='auto';a.src=R[9];mqAu={a:a,k:cdSura+':1',pa:false,ext:1,nm:'بطاقة '+AD().n[cdSura-1]+' · ياسر راضي'};
+  a.onended=function(){if(mqAu.a===a)mqAuStop()};
+  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')};
+  var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
+  if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader'&&!(mqAu.ext&&tab==='cards'))mqAuStop();else try{mqAuSync()}catch(e){}},500);
+  mqAuBar();
+}
+function vCardsShare(){
   var src=[['weekly','إنجازي الأسبوعي'],['fav','من أذكاري'],['custom','نص أكتبه']];
   return '<div class="cd"><section class="card"><h3>بطاقة للمشاركة</h3><div class="chips">'+src.map(function(s){return '<button class="chip'+(cdSrc===s[0]?' on':'')+'" data-a="cdsrc" data-v="'+s[0]+'">'+s[1]+'</button>'}).join('')+'</div>'
    +(cdSrc==='custom'?'<textarea id="cd-text" class="bk-ta" rows="3" maxlength="300" dir="rtl" placeholder="اكتب آية أو دعاءً أو فائدة…">'+esc(cdText)+'</textarea>':'')
@@ -122,6 +167,9 @@ document.addEventListener('change',function(e){var t=e.target;if(t&&t.getAttribu
 /* ---------- الأوامر ---------- */
 function f7Act(a,v,d){
   if(a==='frz'){var F=frGet();if(F.used<FR_MAX&&!frozen(v)){F.days.push(v);F.used++;save();toast('جُمِّد اليوم — سلسلتك محفوظة')}return false}
+  if(a==='cdtab'){cdTab=v==='share'?'share':'sura';return false}
+  if(a==='cdplay'){abqEnsure(cdPlay);return false}
+  if(a==='cdopen'){var R2=abqRow(cdSura),u=v==='site'?'https://albitaqat.com/':R2&&(v==='pdf'?R2[10]:'https://www.youtube.com/watch?v='+R2[11]);if(u)cdOpenUrl(u);return true}
   if(a==='cdsrc'){cdSrc=v;cdUrl='';return false}
   if(a==='cdmake'){var el=document.getElementById('cd-text');if(el)cdText=el.value;try{cdUrl=cdMake().toDataURL('image/png')}catch(e){toast('تعذّر إنشاء الصورة')}return false}
   if(a==='cdshare'){cdBlob(function(b){if(!b){toast('تعذّر إنشاء الصورة');return}try{var f=new File([b],'alsaer-card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return}}catch(e){}toast('المشاركة غير متاحة هنا — اضغط مطوّلًا على الصورة لحفظها')});return true}
@@ -130,7 +178,6 @@ function f7Act(a,v,d){
     A=Math.max(1,Math.min(A,mx));B=Math.max(A,Math.min(B,mx));var L=hfList();L.push({id:'h'+Date.now().toString(36),s:s,a:A,b:B,box:0,next:f7add(dk(),1),last:dk()});if(L.length>300)L.shift();save();toast('أُضيف إلى محفوظك — أولى مراجعاته غدًا');return false}
   if(a==='hfrev'){var p=String(v).split(':'),it=hfList().filter(function(x){return x.id===p[0]})[0];if(it){it.box=p[1]==='1'?Math.min(HF_INT.length-1,it.box+1):Math.max(0,it.box-1);it.next=f7add(dk(),p[1]==='1'?HF_INT[it.box]:1);it.last=dk();save();hapGo([40])}return false}
   if(a==='hfdel'){S.hifz=hfList().filter(function(x){return x.id!==v});save();return false}
-  if(a==='bmtog'){var pg=rd&&rd.page;if(pg){var B=bmList(),i=B.indexOf(pg);if(i>=0)B.splice(i,1);else B.push(pg);save();hapGo([30])}return false}
   if(a==='bmdel'){S.bm=bmList().filter(function(x){return String(x)!==String(v)});save();return false}
   if(a==='ktdur'){var n=parseInt(v,10);if(n>0)kt.dur=n;return false}
   if(a==='ktstart'){kt.end=Date.now()+kt.dur*60000;clearInterval(kt.iv);kt.iv=setInterval(ktTick,1000);try{if(navigator.wakeLock)navigator.wakeLock.request('screen').then(function(w){kt.wl=w},function(){})}catch(e){}return false}
@@ -148,7 +195,6 @@ document.addEventListener('change',function(e){var t=e.target;if(t&&t.getAttribu
 
 /* ---------- علامات المصحف ---------- */
 function bmList(){if(!Array.isArray(S.bm))S.bm=[];return S.bm}
-function bmHas(p){return !!p&&bmList().indexOf(p)>=0}
 function bmCard(){
   var L=bmList().slice().sort(function(a,b){return a-b});
   return '<section class="card"><h3>علامات المصحف</h3>'+(L.length?L.map(function(p){return '<div class="nt-i"><button class="bm-go" data-a="qopen" data-v="'+p+'"><b>صفحة '+ar(p)+'</b><small>سورة '+esc(pageSura(p))+'</small></button><button class="nt-x" data-a="bmdel" data-v="'+p+'" aria-label="حذف">✕</button></div>'}).join(''):'<p class="note">اضغط ☆ أثناء القراءة في المصحف لوضع علامة.</p>')+'</section>';

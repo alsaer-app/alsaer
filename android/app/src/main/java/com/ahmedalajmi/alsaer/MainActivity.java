@@ -10,19 +10,81 @@ import com.getcapacitor.BridgeActivity;
  * MainActivity مدموج: إضافة بصمة (BiometricPlugin) + الإشعارات المحلية (AlsaerNative).
  */
 public class MainActivity extends BridgeActivity {
+    private DriveAuthorization driveAuthorization;
+    private BackupDocuments backupDocuments;
+    private LocationBridge locationBridge;
+    LocationBridge location() { if (locationBridge == null) locationBridge = new LocationBridge(this); return locationBridge; }
+    void backupDocument(boolean save,String content,String name){
+        if(backupDocuments==null)backupDocuments=new BackupDocuments(this);
+        backupDocuments.launch(save,content,name);
+    }
+    void authorizeDrive(boolean interactive) {
+        if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
+        driveAuthorization.authorize(interactive);
+    }
+    void authorizeDrive(boolean interactive, String accountEmail) {
+        if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
+        driveAuthorization.authorize(interactive, accountEmail);
+    }
+    void clearDriveToken(String token) {
+        if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
+        driveAuthorization.clearToken(token);
+    }
+    void revokeDrive() {
+        if (driveAuthorization == null) driveAuthorization = new DriveAuthorization(this);
+        driveAuthorization.revoke();
+    }
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (backupDocuments != null && backupDocuments.onResult(requestCode,resultCode,data)) return;
+        if (driveAuthorization != null && driveAuthorization.onResult(requestCode, resultCode, data)) return;
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+    // ALSAER: تشخيص الدورة الحياتية + إعادة ربط الـWebView بخدمة الوسائط (كي لا تضيع أوامر البطاقة)
+    @Override public void onStart() { super.onStart(); DiagLog.add("act start"); }
+    @Override public void onResume() {
+        super.onResume();
+        try { if (getBridge() != null && getBridge().getWebView() != null) MediaPlaybackService.bind(getBridge().getWebView()); } catch (Exception ignored) { }
+        DiagLog.add("act resume");
+    }
+    @Override public void onPause() { super.onPause(); DiagLog.add("act pause"); }
+    @Override public void onStop() { super.onStop(); DiagLog.add("act stop"); }
+    @Override public void onTrimMemory(int level) { super.onTrimMemory(level); DiagLog.add("trim " + level); }
+    @Override public void onDestroy() { DiagLog.add("act destroy finishing=" + isFinishing()); super.onDestroy(); }
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        DiagLog.init(this);
+        DiagLog.add("act create");
+        AlsaerNative.markBoot(); // ALSAER بند 64: بداية ساعة قياس الإقلاع
         registerPlugin(BiometricPlugin.class);
         super.onCreate(savedInstanceState);
         // ALSAER: جسر الإشعارات الأصلية + تعليق المستمع + جدولة التنبيهات عند إعادة الفتح
         if (getBridge() != null && getBridge().getWebView() != null) {
             getBridge().getWebView().addJavascriptInterface(new AlsaerNative(this), "AlsaerNative");
-            Speech.wv = getBridge().getWebView();
+            MediaPlaybackService.bind(getBridge().getWebView());
             try { getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false); } catch (Exception e) { }
+            // ALSAER: حجم خط التطبيق يتبع حجم خط النظام (WebView لا يفعل ذلك افتراضيًا)
+            try {
+                float fs = getResources().getConfiguration().fontScale;
+                getBridge().getWebView().getSettings().setTextZoom(Math.round(fs * 100));
+            } catch (Exception e) { }
         }
-        Speech.restore(this);
         handleRoute(getIntent());
-        AlarmScheduler.scheduleAll(this);
+        handleGdriveRedirect(getIntent()); // ALSAER
+        // ALSAER: الجدولة خارج الخيط الرئيسي حتى لا تؤخّر الإقلاع
+        final android.content.Context app = getApplicationContext();
+        new Thread(() -> { AlarmScheduler.scheduleAll(app); RebuildWorker.enqueue(app); UpdateWorker.enqueue(app); }).start();
+    }
+
+    // ALSAER: بعد ردّ المستخدم على طلب إذن الإشعارات نوقظ الواجهة فورًا بدل انتظار دورة الاستطلاع
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        // نتيجة إذن الموقع الأصلي (LocationBridge) تُعالَج هنا ولا تصل إلى Capacitor
+        if (locationBridge != null && locationBridge.onPermission(requestCode, grantResults)) return;
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        final WebView wv = getBridge() != null ? getBridge().getWebView() : null;
+        if (wv != null) {
+            wv.post(() -> wv.evaluateJavascript("window.alsaerPoll&&window.alsaerPoll()", null));
+        }
     }
 
     @Override
@@ -30,25 +92,11 @@ public class MainActivity extends BridgeActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         handleRoute(intent); // ALSAER
+        handleGdriveRedirect(intent); // ALSAER
         final WebView wv = getBridge() != null ? getBridge().getWebView() : null;
         if (wv != null) {
             wv.post(() -> wv.evaluateJavascript("window.alsaerPoll&&window.alsaerPoll()", null));
         }
-    }
-
-    // ALSAER: لا يبقى الميكروفون يعمل بعد خروج التطبيق من الواجهة
-    @Override
-    public void onStop() {
-        Speech.stopAll();
-        SherpaAsr.stopAll();
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        Speech.stopAll();
-        SherpaAsr.stopAll();
-        super.onDestroy();
     }
 
     // ALSAER: الرجوع تتولاه صفحة التطبيق نفسها (نوافذ المصحف ← الشاشة السابقة)؛ في الرئيسية فقط يُقلَّص التطبيق
@@ -61,6 +109,31 @@ public class MainActivity extends BridgeActivity {
                 moveTaskToBack(true);
             }
         });
+    }
+
+    // ALSAER: عودة المتصفح برمز موافقة Google Drive (com.ahmedalajmi.alsaer://gdrive?code=...)
+    // يُحفظ الرابط أولًا ثم تسحبه الصفحة عند جاهزيتها: في الإقلاع البارد يصل الـintent قبل تحميل
+    // الصفحة، فأي حقن مباشر هنا كان يضيع الرمز بصمت. الاستهلاك مرة واحدة (consume) يمنع التكرار.
+    private String pendingGdriveRedirect = null;
+
+    synchronized String consumeGdriveRedirect() {
+        String u = pendingGdriveRedirect;
+        pendingGdriveRedirect = null;
+        return u;
+    }
+
+    private void handleGdriveRedirect(Intent intent) {
+        if (intent == null) return;
+        android.net.Uri d = intent.getData();
+        if (d == null || !"com.ahmedalajmi.alsaer".equals(d.getScheme()) || !"gdrive".equals(d.getHost())) return;
+        pendingGdriveRedirect = d.toString();
+        intent.setData(null);
+        final WebView wv = getBridge() != null ? getBridge().getWebView() : null;
+        if (wv != null) {
+            // التشغيل الدافئ: الصفحة محمّلة فتسحب الرمز فورًا. في الإقلاع البارد يضيع هذا النداء
+            // بأمان وتلتقطه الصفحة عند إقلاعها لأن pendingGdriveRedirect ما يزال محفوظًا.
+            wv.post(() -> wv.evaluateJavascript("window.gdrivePullRedirect&&window.gdrivePullRedirect()", null));
+        }
     }
 
     // ALSAER

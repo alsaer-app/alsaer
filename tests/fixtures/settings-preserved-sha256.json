@@ -1,0 +1,10 @@
+{
+ "src/screens/more.js": "474327c1018e24133372eefeb1410c6892d028d2d620ca2eb35710ef5c3098ef",
+ "src/screens/reader.js": "68eaa4503015011322d614f183ec7e36b940a9dfdd01e91802339fd9fb5a6bbb",
+ "src/services/extras.js": "74a686b48e7c0e9a05c374aaf0840b381fc39160297ce4f438b98464240a809d",
+ "src/services/gdrive-backup.js": "4691f2d6eeec3cf1a4b69eb1fdabf865db017df70d5f9fe4c221e4655cf55f85",
+ "src/services/reader-layout.js": "4090817cd50f817c76e740907cffa39cfdd557ade2cbdf619d42a80e08407290",
+ "src/styles/inputs.css": "f88bf78a7df10bfed7d4f3aa351fa58504cc94177c1eabe24f82ed05631e55c7",
+ "www/quran.js": "d3739994426491e333b0f90250edb0961eb36a41a787666540b199e503640ea2",
+ "www/warsh.js": "96978b093d9dafa672d45c23ce56a651dc6d08ad2a6b2ac21a01bdcf7f7cf014"
+}

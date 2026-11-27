@@ -27,6 +27,8 @@ body.rdi #app{padding-top:0}
 .rd-ov{position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .18s,visibility .18s}.rd-ov.on{opacity:1;visibility:visible}
 .rd-t{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:max(8px,env(safe-area-inset-top)) 10px 14px;background:linear-gradient(var(--bg) 60%,transparent);pointer-events:auto}
 .rd-t b{flex:1;text-align:center;font-size:16px}.rd-ta{display:flex;gap:6px}.rd-t .ib{width:40px;height:40px}.rd-t .i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2}
+.rd-ta .ib{width:auto;min-width:46px;height:auto;padding:4px 3px;display:flex;flex-direction:column;gap:2px}
+.rd-ta .ib small{font-size:10px;line-height:1.1;white-space:nowrap;font-weight:600}
 .rd-b{position:absolute;bottom:0;left:0;right:0;padding:8px 8px max(8px,env(safe-area-inset-bottom));background:var(--bg);border-radius:20px 20px 0 0;max-height:72vh;overflow:auto;pointer-events:auto;box-shadow:0 -8px 24px rgba(0,0,0,.3)}
 .rd-b .rbar{margin:0 0 8px}
 .rd-sp{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}
@@ -70,20 +72,29 @@ body.rdi #mp{touch-action:pan-y}
 .rd-t{background:var(--bg);border-bottom:1px solid var(--line);padding-bottom:10px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
 /* توهج الآية + علامات الحفظ + شريط الآية */
 #mp .mw{transition:background-color .12s,box-shadow .12s}
-#mp .mw.vhl{background:color-mix(in srgb,#43d9a0 26%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,#43d9a0 26%,transparent),0 0 16px 2px color-mix(in srgb,#43d9a0 55%,transparent);border-radius:7px}
 #mp .mw.vmk{border-bottom:2px dotted var(--gold)}
-.mp-vb{position:fixed;left:12px;right:12px;bottom:max(14px,env(safe-area-inset-bottom));z-index:46;display:flex;flex-direction:column;gap:8px;align-items:center;padding:12px;border-radius:20px;background:color-mix(in srgb,var(--bg) 94%,transparent);border:1px solid color-mix(in srgb,#43d9a0 50%,transparent);box-shadow:0 10px 30px rgba(0,0,0,.45),0 0 18px color-mix(in srgb,#43d9a0 25%,transparent);max-width:520px;margin:0 auto}
-.mp-vb b{font-size:14px;color:var(--gold)}.mp-vbb{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.mp-vbb button{border:1px solid var(--line);background:var(--surface-2);color:inherit;font:inherit;font-size:14px;padding:9px 14px;border-radius:14px}.mp-vbb button.on{border-color:var(--gold);color:var(--gold)}
+.mp-vb{position:fixed;left:12px;right:12px;bottom:max(14px,env(safe-area-inset-bottom));z-index:66;display:flex;flex-direction:column;gap:8px;align-items:center;padding:12px;border-radius:20px;background:color-mix(in srgb,var(--bg) 94%,transparent);border:1px solid color-mix(in srgb,#43d9a0 50%,transparent);box-shadow:0 10px 30px rgba(0,0,0,.45),0 0 18px color-mix(in srgb,#43d9a0 25%,transparent);max-width:520px;margin:0 auto;animation:mpSheetIn .19s cubic-bezier(.2,.9,.3,1.12);transition:top .18s ease}
+.mp-vb.mp-closing{animation:mpSheetOut .16s ease-in forwards}
+@keyframes mpSheetIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes mpSheetOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(10px) scale(.98)}}
+.mp-grip{display:block;width:38px;height:4px;border-radius:99px;background:color-mix(in srgb,var(--gold) 45%,transparent);margin:-2px auto 2px}
+@media (prefers-reduced-motion: reduce){.mp-vb{animation:none!important;transition:none!important}}
+.mp-vb b{font-size:14px;color:var(--gold)}
+.mp-vbh{display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px}
+.mp-vx{flex:none;border:none;background:none;color:var(--muted);font:inherit;font-size:15px;padding:2px 8px;border-radius:10px;line-height:1.2;cursor:pointer}
+.mp-vbb{display:flex;flex-direction:column;gap:6px;width:100%}
+.mp-vbb .mp-br{display:flex;gap:6px;width:100%}
+.mp-vbb button{flex:1;border:1px solid var(--line);background:var(--surface-2);color:inherit;font:inherit;font-size:13px;padding:8px 4px;border-radius:12px;white-space:nowrap;text-align:center;min-height:36px;transition:transform .09s ease,border-color .15s ease,color .15s ease,background .15s ease}.mp-vbb button:active{transform:scale(.94)}.mp-vbb button.on{border-color:var(--gold);color:var(--gold)}
+@media (prefers-reduced-motion: reduce){.mp-vbb button{transition:none!important}.mp-vbb button:active{transform:none}}
 .mpj-m{display:flex;flex-wrap:wrap;gap:8px}
 /* خيارات المصحف عائمة */
 .mps-wrap{pointer-events:none}.mps-wrap .mps-back{background:transparent;pointer-events:auto}
 .mps-wrap .mps{pointer-events:auto;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));max-height:56vh;border-radius:24px;border:1px solid var(--line);box-shadow:0 14px 40px rgba(0,0,0,.5);background:color-mix(in srgb,var(--bg) 96%,transparent)}
 
 /* توهج الآية الأجمل */
-#mp .mw.vhl{background:linear-gradient(135deg,rgba(67,217,160,.34),rgba(220,184,113,.30));border-radius:10px;box-shadow:0 0 0 3px rgba(220,184,113,.30),0 0 16px 3px rgba(67,217,160,.50);animation:vglow 1.7s ease-in-out infinite,vpop .22s ease-out;text-shadow:0 0 10px rgba(255,236,170,.55)}
-@keyframes vglow{0%,100%{box-shadow:0 0 0 3px rgba(220,184,113,.25),0 0 12px 2px rgba(67,217,160,.40)}50%{box-shadow:0 0 0 4px rgba(220,184,113,.45),0 0 26px 6px rgba(67,217,160,.65)}}
-@keyframes vpop{from{transform:scale(.94);opacity:.6}to{transform:none;opacity:1}}
+#mp .mw.vhl{background:color-mix(in srgb,#C9A24B 24%,transparent);box-shadow:3px 0 0 0 color-mix(in srgb,#C9A24B 24%,transparent),-3px 0 0 0 color-mix(in srgb,#C9A24B 24%,transparent),0 2px 0 0 color-mix(in srgb,#C9A24B 24%,transparent),0 -2px 0 0 color-mix(in srgb,#C9A24B 24%,transparent),inset 0 -2px 0 color-mix(in srgb,#C9A24B 70%,transparent)}
+#mp .mw.vhl.vhl-ls{border-start-start-radius:9px;border-end-start-radius:9px}
+#mp .mw.vhl.vhl-le{border-start-end-radius:9px;border-end-end-radius:9px}
 .mp-in{will-change:auto}
 /* أسهم تقليب ثابتة */
 .rd-ar{position:fixed;bottom:max(14px,env(safe-area-inset-bottom));z-index:42;width:46px;height:46px;border-radius:50%;border:1px solid color-mix(in srgb,var(--gold) 55%,transparent);background:color-mix(in srgb,var(--bg) 82%,transparent);color:var(--gold);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.35);padding:0;transition:transform .12s,opacity .15s}
@@ -101,7 +112,7 @@ body.orn.rd{padding-left:0!important;padding-right:0!important}body.orn.rd #app{
 .mp.pgc-ornate .mp-h{color:#7a4a14;font-size:11.5px}.mp.pgc-ornate .mp-h .sb{border-color:#b98a2e;background:rgba(185,138,46,.12)}
 .mp.pgc-ornate .mp-f .pn{color:#7a4a14;border-color:#b98a2e;background:rgba(185,138,46,.1)}
 .mp.pgc-ornate .ml.hd>span{color:#7a4a14;border-color:#b98a2e;background:linear-gradient(90deg,transparent,rgba(185,138,46,.22),transparent)}
-.mp.pgc-ornate .mw.vhl{background:linear-gradient(135deg,rgba(67,217,160,.30),rgba(216,178,90,.45))}
+.mp.pgc-ornate .mw.vhl{background:rgba(216,178,90,.38);box-shadow:0 0 0 2px rgba(216,178,90,.38),inset 0 -2px 0 rgba(160,110,40,.55)}
 
 /* ===== مصحف مزخرف: واجهة أقرب لتطبيقات المصحف الورقية (شريط بنّي علوي وشريط كريمي سفلي) ===== */
 .mp.pgc-ornate .mp-in{border-width:26px;border-image-width:26px}
@@ -116,7 +127,7 @@ body.orn .rd-b .reader-done{background:#17a589;color:#fff;border:0}
 body.orn .rd-sl input[type=range]{accent-color:#8a5a36}
 body.orn .rd-ar{background:#f9f5ee;border-color:#b98a2e;color:#8a5a36}
 body.orn .mp-vb{background:#f9f5ee;border-color:#8a5a36;color:#4a2f18}body.orn .mp-vb b{color:#8a5a36}
-body.orn .mp-vbb button{background:#fff;border:1.5px solid #8a5a36;color:#8a5a36}body.orn .mp-vbb button.on{background:#8a5a36;color:#fff}
+body.orn .mp-vbb button{background:#fff;border:1.5px solid #8a5a36;color:#8a5a36}body.orn .mp-vbb button.on{background:#8a5a36;color:#fff}body.orn .mp-vx{color:#8a5a36}
 body.orn .rd-js{background:#f9f5ee;color:#4a2f18}body.orn .rd-js .qd-i{background:#fff;color:#4a2f18;border-color:#d8c4a4}body.orn .rd-js .btn{background:#8a5a36;color:#fff}
 body.orn .mps-wrap .mps{background:#faf6ee;color:#4a2f18;border-color:#d8c4a4}
 body.orn .mps h3,body.orn .mps h4{color:#8a5a36}body.orn .mps-o{background:#fff;border-color:#e2d4bc;color:#4a2f18}body.orn .mps-o.on{border-color:#8a5a36;box-shadow:0 0 0 1px #8a5a36 inset}
@@ -163,6 +174,8 @@ body.orn .mps .btn{background:#8a5a36;color:#fff}
 .mp.mpi.pgc-black .pgi-ov,.mp.mpi.pgc-green .pgi-ov,.mp.mpi.pgc-blue .pgi-ov{mix-blend-mode:screen}
 .mp.mpi.pgc-black .pgb.hl,.mp.mpi.pgc-green .pgb.hl,.mp.mpi.pgc-blue .pgb.hl{background:rgba(255,196,60,.28)}
 
+.mp-shi{display:block;width:62%;max-width:260px;max-height:210px;object-fit:contain;margin:4px auto;border:1.5px solid #C9A24B;border-radius:10px;background:#0E2A2B}.mp-shb{display:flex;gap:8px;justify-content:center;width:100%}.mp-shb button{border:1px solid var(--line);background:var(--surface-2);color:inherit;font:inherit;font-size:12px;border-radius:999px;padding:4px 12px}
+.mp-src{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;font-size:11px;color:var(--muted);padding:0 2px}.mp-src button{font:inherit;font-size:11px;color:var(--gold);background:none;border:none;text-decoration:underline;padding:2px 4px}
 .mp-tf{width:100%;max-height:34vh;overflow:auto;font-size:15px;line-height:1.95;text-align:right;padding:8px 10px;border-radius:14px;background:var(--surface-2);color:var(--fg);-webkit-overflow-scrolling:touch}
 
 /* أسهم التقليب داخل شريط الصفحة السفلي (لا تغطي الآيات) + زر خروج ظاهر */
@@ -188,3 +201,67 @@ body.orn .mp-fa{background:#f9f5ee;border-color:#b98a2e;color:#8a5a36}body.orn .
 .home-cfg .i{width:18px;height:18px;color:var(--gold)}
 .sc-adv{margin:12px 0;border:1px solid var(--line);border-radius:16px;padding:4px 10px}.sc-adv>summary{cursor:pointer;padding:12px 4px;color:var(--muted);font-size:14px;list-style:none}.sc-adv>summary::-webkit-details-marker{display:none}.sc-adv[open]>summary{color:var(--gold)}
 .sc-grid>*:last-child:nth-child(odd){grid-column:1/-1}
+
+.rd-ix .rd-ri[hidden]{display:none}
+
+/* قائمة المصحف الجانبية */
+.rd-menb{position:fixed;top:0;left:0;width:100vw;height:100dvh;z-index:67;background:rgba(0,0,0,.5)}
+.rd-menu{position:fixed;top:0;right:0;height:100dvh;width:min(88vw,360px);z-index:68;background:var(--bg);border-inline-start:1px solid var(--line);box-shadow:-14px 0 34px rgba(0,0,0,.35);padding:max(12px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom));overflow:auto;animation:rdMenuIn .22s ease-out}
+@keyframes rdMenuIn{from{transform:translateX(48px);opacity:0}to{transform:none;opacity:1}}
+.rd-mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.rd-mh b{font-size:17px}
+.rd-mx{border:0;background:var(--surface-2);color:inherit;width:34px;height:34px;border-radius:12px;display:grid;place-items:center}
+.rd-mq{display:flex;gap:8px;margin-bottom:6px}.rd-mq .qd-i{flex:1;width:auto;text-align:start}
+.rd-mr{max-height:32vh;overflow:auto;margin-bottom:6px}
+.rd-mt{display:flex;gap:6px;margin:8px 0}.rd-mt button{flex:1;border:1px solid var(--line);background:var(--surface);color:inherit;border-radius:10px;padding:7px 0;font:inherit;font-size:13px;cursor:pointer}
+.rd-mt button.on{background:linear-gradient(180deg,var(--btn1),var(--btn2));color:var(--on-gold);border-color:transparent}
+.rd-mtb .mpj-r{display:flex;gap:8px;align-items:end}.rd-mtb label{flex:1;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}.rd-mtb .qd-i{width:100%;box-sizing:border-box}
+.rd-mwc{margin-top:10px}
+.rd-mg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.rd-mg button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:64px;padding:8px 4px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:inherit;font:inherit;font-size:11px;cursor:pointer}
+.rd-mg .i{width:20px;height:20px}
+/* توهج ثابت للاختيارات المفعلة في درج المصحف والشريط السفلي */
+.rd-mg button.on{border-color:color-mix(in srgb,var(--gold) 70%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 40%,transparent),0 0 16px 2px color-mix(in srgb,var(--gold) 35%,transparent);color:var(--gold)}
+.rd-mg button.on .i{color:var(--gold);filter:drop-shadow(0 0 4px color-mix(in srgb,var(--gold) 80%,transparent))}
+.rd-b .ib.bm[aria-pressed="true"],.rd-mtb .ib[aria-pressed="true"],.fsz .ib[aria-pressed="true"]{border-color:color-mix(in srgb,var(--gold) 70%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 40%,transparent),0 0 16px 2px color-mix(in srgb,var(--gold) 35%,transparent);color:var(--gold)}
+
+/* ===== سجل النشاط اليومي ===== */
+.jn-fchips{display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 12px}
+.jn-fchips .chip.on{color:var(--gold);border-color:color-mix(in srgb,var(--gold) 55%,var(--line));background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.day-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
+.day-h b{font-size:16px}
+.jrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px dashed color-mix(in srgb,var(--line) 70%,transparent)}
+.jrow:first-of-type{border-top:none;padding-top:0}
+.jrow .ji{width:36px;height:36px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;color:var(--gold);flex:none}
+.jrow .jt{flex:1;min-width:0}
+.jrow .jt b{display:block;font-size:14.5px}
+.jrow .jt small{display:block}
+.pchips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.pchips .chip{padding:5px 10px;font-size:13px;cursor:default}
+.pchips .chip.ok{color:var(--good);border-color:color-mix(in srgb,var(--good) 45%,var(--line));background:color-mix(in srgb,var(--good) 10%,transparent)}
+.prog{height:6px;border-radius:99px;background:color-mix(in srgb,var(--line) 60%,transparent);overflow:hidden;margin-top:7px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--btn1),var(--btn2));border-radius:99px}
+.jn-t{color:var(--muted);font-size:11.5px;font-weight:400;margin-inline-start:3px}
+.jn-note{text-align:center;font-size:12.5px;margin-top:4px;line-height:1.9}
+
+/* ===== أزرار Drive: حالة الرفع/الاستعادة (تصميم معتمد) ===== */
+.gd-spin{width:16px;height:16px;flex:none;display:inline-block;vertical-align:-3px;border-radius:50%;border:2.5px solid currentColor;border-top-color:transparent;animation:spin .7s linear infinite}
+.gd-prog{grid-column:1/-1;width:100%;height:4px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.gd-prog i{display:block;height:100%;width:38%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--good));animation:gdProg 1.1s ease-in-out infinite}
+@keyframes gdProg{0%{transform:translateX(120%)}100%{transform:translateX(-320%)}}
+.btn.done{background:var(--good);border-color:transparent;color:#fff;opacity:1!important;animation:gdDone .45s ease}
+.btn.done svg.i{width:17px;height:17px}
+@keyframes gdDone{0%{transform:scale(.96)}55%{transform:scale(1.02)}100%{transform:scale(1)}}
+/* بطاقة السورة (المحتوى من albitaqat.com، انظر features7.js) */
+.cd-tabs{display:flex;gap:8px;padding:2px 0 10px}.cd-tabs .chip{flex:1;text-align:center}
+.cds-h{text-align:center;padding:18px 14px 16px;margin:0 -2px 10px;border-radius:20px;background:linear-gradient(var(--surface-2,var(--surface)),var(--bg));border:1px solid var(--line)}
+.cds-b{width:48px;height:48px;border-radius:15px;background:var(--gold);color:#1a1405;font-weight:800;font-size:22px;display:grid;place-items:center;margin:0 auto 8px;box-shadow:0 0 18px color-mix(in srgb,var(--gold) 35%,transparent)}
+.cds-h h2{margin:0;font-size:28px}.cds-en{color:var(--muted);font-size:14px;margin-top:2px;direction:ltr}.cds-m{color:var(--muted);font-size:13px;margin-top:10px}
+.cds-r{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cds-a{margin:0;display:flex;align-items:center;gap:10px;padding:10px;text-align:start;color:inherit;font:inherit;cursor:pointer}
+.cds-ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:700;font-size:12px}.cds-ic.gold{background:var(--gold);color:#1a1405}.cds-ic.pdf{border-radius:12px;background:#3a2a2a;color:#f0c0c0}
+.cds-ic .i{width:20px;height:20px}.cds-t{display:flex;flex-direction:column;min-width:0}.cds-t small{color:var(--muted);font-size:11px}
+.cds-yt{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 10px;padding:12px;border:1px solid color-mix(in srgb,#e07a7a 45%,var(--line));color:#e07a7a;font:inherit;cursor:pointer}.cds-yt .i{width:16px;height:16px}
+.cds-s{margin:0 0 10px}.cds-s h3{color:var(--gold);font-size:17px;margin:0 0 6px}.cds-s p{margin:0;line-height:2;font-size:16px;color:var(--fg)}
+.cds-cr{color:var(--muted);font-size:12px;line-height:1.8;text-align:center;margin:12px 6px 90px}.cds-cr a{color:var(--gold)}
+.mq-pill{white-space:nowrap}@media(max-width:400px){.mq-ta .mq-pill .i{display:none}.mq-ta .mq-pill{padding:0 7px}}
+.mq-ta .mq-cb,.mq-ta .mq-pill{flex:none}@media(max-width:400px){.mq-ta .mq-cb{width:28px;min-width:28px;height:28px}.mq-ta .mq-pill{font-size:10.5px;padding:0 6px}}

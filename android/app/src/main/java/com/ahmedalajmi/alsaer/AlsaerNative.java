@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 
@@ -16,31 +17,8 @@ import org.json.JSONObject;
 public class AlsaerNative {
     private final Activity act;
 
-    private final Speech speech;
 
-    private final SherpaAsr sherpa;
-
-    public AlsaerNative(Activity a) { act = a; speech = new Speech(a); sherpa = new SherpaAsr(a); }
-
-    @JavascriptInterface
-    public boolean speechAvailable() { return speech.available(); }
-
-    @JavascriptInterface
-    public void speechStart() { speech.start("[]"); }
-
-    @JavascriptInterface
-    public void speechStart2(String biasJson) { speech.start(biasJson); }
-
-    @JavascriptInterface
-    public void speechBias(String biasJson) { speech.setBias(biasJson); }
-
-    @JavascriptInterface
-    public void speechStop() { speech.stop(); }
-
-    @JavascriptInterface
-    public void speechMute(boolean b) { speech.setMuteBeep(b); if (!b) speech.silent(false); }
-    @JavascriptInterface public void speechOnDevice(boolean b) { speech.setOnDevice(b); }
-    @JavascriptInterface public void speechSilent(boolean on) { speech.silent(on); }
+    public AlsaerNative(Activity a) { act = a; }
 
     /* ---- مرآة إعدادات الويب في SharedPreferences: تحمي من فقدان localStorage عند أي تغيير في أصل WebView ---- */
     @JavascriptInterface public void mirrorSet(String k, String v) {
@@ -50,16 +28,262 @@ public class AlsaerNative {
         return act.getSharedPreferences("alsaer_webstore_mirror", 0).getString(k, null);
     }
 
-    /* ---- النموذج القرآني المحلي (sherpa-onnx): حالة/تنزيل/تشغيل ---- */
-    @JavascriptInterface public String asrStatus() { return sherpa.status(); }
-    @JavascriptInterface public void asrDownload(String kind) { sherpa.download(kind); }
-    @JavascriptInterface public void asrCancelDownload() { sherpa.cancelDownload(); }
-    @JavascriptInterface public void asrDelete(String kind) { sherpa.delete(kind); }
-    @JavascriptInterface public void asrStart(String kind, int jsid) { sherpa.start(kind, jsid); }
-    @JavascriptInterface public void asrWarmup(String kind) { sherpa.warmup(kind); }
-    @JavascriptInterface public void asrStop() { sherpa.stop(); }
-    @JavascriptInterface public String asrDiag() { return SherpaAsr.diagDump(); }
-    @JavascriptInterface public void asrSelfTest(String kind) { sherpa.selfTest(kind); }
+    /* ---- بند 64: قياس بدء التشغيل — نبضة خفية بلا واجهة: آخر زمن إقلاع يُحفظ ويُسجَّل في logcat (AlsaerBoot) ---- */
+    private static volatile long bootT0 = 0;
+    public static void markBoot() { bootT0 = SystemClock.elapsedRealtime(); }
+    @JavascriptInterface public long bootDone(int webMs) {
+        long totalMs = bootT0 > 0 ? SystemClock.elapsedRealtime() - bootT0 : -1;
+        act.getSharedPreferences("alsaer_boot", 0).edit()
+            .putLong("last_web_ms", webMs).putLong("last_total_ms", totalMs).apply();
+        android.util.Log.i("AlsaerBoot", "web_ms=" + webMs + " total_ms=" + totalMs);
+        return totalMs;
+    }
+
+    @JavascriptInterface public void gdriveAuthorize(boolean interactive) {
+        act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).authorizeDrive(interactive); });
+    }
+    @JavascriptInterface public void gdriveAuthorizeAccount(boolean interactive, String accountEmail) {
+        act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).authorizeDrive(interactive, accountEmail); });
+    }
+    /* ALSAER: مسح تخزين تفويض Google Drive على الجهاز (يرافق فك الربط وإعادة الضبط بعد رمز ميت) */
+    /* ALSAER: يمسح رمز وصول قديم (401) من ذاكرة Play ثم يُعلم الصفحة لتطلب رمزًا جديدًا */
+    @JavascriptInterface public void gdriveClearToken(String token) {
+        act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).clearDriveToken(token); });
+    }
+    /* ALSAER: موقع الجهاز عبر LocationManager مع طلب الإذن الأصلي؛ النتيجة إلى window.gpsOnNative */
+    @JavascriptInterface public boolean locHasPermission() {
+        return (act instanceof MainActivity) && ((MainActivity)act).location().hasPermission();
+    }
+    @JavascriptInterface public void locGet() {
+        if (act instanceof MainActivity) ((MainActivity)act).location().request();
+    }
+    @JavascriptInterface public void gdriveRevoke() {
+        act.runOnUiThread(() -> { if (act instanceof MainActivity) ((MainActivity)act).revokeDrive(); });
+    }
+
+    @JavascriptInterface public void backupExport(String content,String name) {
+        act.runOnUiThread(()->{if(act instanceof MainActivity)((MainActivity)act).backupDocument(true,content,name);});
+    }
+    @JavascriptInterface public void backupImport() {
+        act.runOnUiThread(()->{if(act instanceof MainActivity)((MainActivity)act).backupDocument(false,null,null);});
+    }
+
+    /* Backup password is encrypted with a non-exportable Android Keystore key. */
+    private javax.crypto.SecretKey driveBackupKey() throws Exception {
+        java.security.KeyStore ks = java.security.KeyStore.getInstance("AndroidKeyStore"); ks.load(null);
+        String alias = "alsaer_drive_backup_password_v1";
+        if (ks.containsAlias(alias)) return (javax.crypto.SecretKey) ks.getKey(alias, null);
+        javax.crypto.KeyGenerator gen = javax.crypto.KeyGenerator.getInstance("AES", "AndroidKeyStore");
+        gen.init(new android.security.keystore.KeyGenParameterSpec.Builder(alias,
+            android.security.keystore.KeyProperties.PURPOSE_ENCRYPT | android.security.keystore.KeyProperties.PURPOSE_DECRYPT)
+            .setBlockModes(android.security.keystore.KeyProperties.BLOCK_MODE_GCM)
+            .setEncryptionPaddings(android.security.keystore.KeyProperties.ENCRYPTION_PADDING_NONE).build());
+        return gen.generateKey();
+    }
+    @JavascriptInterface public String gdriveSeal(String password) {
+        try {
+            javax.crypto.Cipher c = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding");
+            c.init(javax.crypto.Cipher.ENCRYPT_MODE, driveBackupKey());
+            byte[] data = c.doFinal(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return android.util.Base64.encodeToString(c.getIV(), android.util.Base64.NO_WRAP) + ":" + android.util.Base64.encodeToString(data, android.util.Base64.NO_WRAP);
+        } catch (Exception e) { return ""; }
+    }
+    @JavascriptInterface public String gdriveOpen(String sealed) {
+        try {
+            String[] parts = sealed.split(":", 2); if (parts.length != 2) return "";
+            javax.crypto.Cipher c = javax.crypto.Cipher.getInstance("AES/GCM/NoPadding");
+            c.init(javax.crypto.Cipher.DECRYPT_MODE, driveBackupKey(), new javax.crypto.spec.GCMParameterSpec(128, android.util.Base64.decode(parts[0], android.util.Base64.NO_WRAP)));
+            return new String(c.doFinal(android.util.Base64.decode(parts[1], android.util.Base64.NO_WRAP)), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) { return ""; }
+    }
+    @JavascriptInterface public boolean gdriveSaveBackup(String content) {
+        if (content == null || content.isEmpty()) return false;
+        try {
+            java.io.File dir = new java.io.File(act.getFilesDir(), "backups");
+            if (!dir.exists() && !dir.mkdirs()) return false;
+            android.util.AtomicFile file = new android.util.AtomicFile(new java.io.File(dir, "alsaer-backup.txt"));
+            java.io.FileOutputStream out = null;
+            try { out = file.startWrite(); out.write(content.getBytes(java.nio.charset.StandardCharsets.UTF_8)); file.finishWrite(out); }
+            catch (Exception e) { if (out != null) file.failWrite(out); return false; }
+            return true;
+        } catch (Exception e) { return false; }
+    }
+
+    /* ALSAER: فتح رابط في متصفح الجهاز (صفحة موافقة Google لربط النسخة الاحتياطية) */
+    // ALSAER: زر «خروج» في حوار تأكيد الخروج يُقلِّص التطبيق (نفس أثر زر الرجوع النهائي سابقًا)
+    @JavascriptInterface public void exitApp() {
+        act.runOnUiThread(() -> act.moveTaskToBack(true));
+    }
+    @JavascriptInterface public boolean openUrl(String url) {
+        // https only: the page must never be able to launch other URI schemes (intent:, file:, content:, market:, tel: ...)
+        if (url == null || !url.startsWith("https://")) return false;
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            act.startActivity(i);
+            return true;
+        } catch (Exception e) { return false; }
+    }
+
+    @JavascriptInterface public String appBuildInfo() { return BuildConfig.VERSION_NAME + "|" + BuildConfig.VERSION_CODE; }
+
+    /* ALSAER: تحميل التحديث داخل التطبيق — تنزيل قابل للاستئناف (HttpURLConnection + Range)
+       في خيط خلفي، وحالته محفوظة في SharedPreferences لتبقى بعد إغلاق التطبيق (يُستكمل من
+       حيث توقف). قبل فتح مثبّت النظام يُتحقق من SHA-256 واسم الحزمة ورقم الإصدار وتطابق
+       التوقيع مع التطبيق الحالي. لا خدمة أمامية: إن أُغلق التطبيق يتوقف التنزيل ويُستأنف لاحقًا. */
+    private static volatile boolean updRunning = false;
+
+    private android.content.SharedPreferences updPrefs() { return act.getSharedPreferences("alsaer_update_dl", 0); }
+    private java.io.File updPart() { return new java.io.File(act.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "alsaer-update.part"); }
+    private java.io.File updApk() { return new java.io.File(act.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "alsaer-update.apk"); }
+
+    @JavascriptInterface public String updateStart(final String url, final long size, final String sha) {
+        /* فرض أصلي: لا تنزيل إلا عبر https وبصمة SHA-256 كاملة، حتى لو تجاوز شيء طبقة JS */
+        if (url == null || !url.startsWith("https://")) return "bad-url";
+        if (sha == null || sha.length() != 64) return "bad-sha";
+        if (updRunning) return "busy";
+        android.content.SharedPreferences p = updPrefs();
+        long done = 0;
+        if (!url.equals(p.getString("url", "")) && updPart().exists()) updPart().delete();
+        if (url.equals(p.getString("url", "")) && updPart().exists()) done = updPart().length();
+        p.edit().putString("url", url).putLong("size", size).putString("sha", sha == null ? "" : sha)
+                .putLong("done", done).putString("st", "downloading").putString("err", "").apply();
+        updRunning = true;
+        new Thread(new Runnable() { public void run() { updRun(url); } }, "alsaer-upd").start();
+        return "started";
+    }
+
+    private void updRun(String url) {
+        android.content.SharedPreferences p = updPrefs();
+        java.io.File part = updPart();
+        long lastFlush = 0;
+        try {
+            long total = p.getLong("size", 0);
+            long done = part.exists() ? part.length() : 0;
+            while (true) {
+                java.net.HttpURLConnection c = (java.net.HttpURLConnection) new java.net.URL(url).openConnection();
+                c.setConnectTimeout(15000);
+                c.setReadTimeout(20000);
+                c.setRequestProperty("User-Agent", "alsaer-updater");
+                if (done > 0) c.setRequestProperty("Range", "bytes=" + done + "-");
+                c.connect();
+                int code = c.getResponseCode();
+                /* 416 = الجزء المحفوظ مكتمل فعلًا (أو أطول من المورد): ننتقل للتحقق بالبصمة بدل الفشل الدائم */
+                if (code == 416 && done > 0) { c.disconnect(); break; }
+                if (code == 200 && done > 0) { done = 0; if (part.exists()) part.delete(); }
+                else if (code != 200 && code != 206) throw new java.io.IOException("http " + code);
+                String cl = c.getHeaderField("Content-Length");
+                if (cl != null) {
+                    long n = Long.parseLong(cl.trim());
+                    total = (code == 206) ? done + n : n;
+                }
+                java.io.InputStream in = c.getInputStream();
+                java.io.RandomAccessFile raf = new java.io.RandomAccessFile(part, "rw");
+                raf.seek(done);
+                byte[] buf = new byte[16384];
+                int n;
+                while ((n = in.read(buf)) > 0) {
+                    raf.write(buf, 0, n);
+                    done += n;
+                    long now = System.currentTimeMillis();
+                    if (now - lastFlush > 700) {
+                        p.edit().putLong("done", done).putLong("size", total).apply();
+                        lastFlush = now;
+                    }
+                }
+                raf.close();
+                in.close();
+                c.disconnect();
+                if (total <= 0 || done >= total) break; /* اكتمل الملف؛ وإلا فالاتصال انقطع مبكرًا فنُعيد الاتصال للاستكمال */
+            }
+            String sha = p.getString("sha", "");
+            if (sha.length() == 64) {
+                p.edit().putString("st", "verifying").apply();
+                String real = updSha256(part);
+                if (!sha.equalsIgnoreCase(real)) { part.delete(); throw new java.io.IOException("sha256"); }
+            }
+            java.io.File apk = updApk();
+            if (apk.exists()) apk.delete();
+            if (!part.renameTo(apk)) throw new java.io.IOException("rename");
+            p.edit().putLong("done", apk.length()).putString("st", "done").putString("err", "").apply();
+        } catch (Exception e) {
+            String m = "sha256".equals(e.getMessage()) ? NativeStrings.get(act, "file_invalid_checksum") : NativeStrings.get(act, "connection_lost");
+            p.edit().putString("st", "failed").putString("err", m).apply();
+        } finally { updRunning = false; }
+    }
+
+    private String updSha256(java.io.File f) throws Exception {
+        java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+        java.io.FileInputStream in = new java.io.FileInputStream(f);
+        byte[] buf = new byte[65536];
+        int n;
+        while ((n = in.read(buf)) > 0) md.update(buf, 0, n);
+        in.close();
+        byte[] d = md.digest();
+        StringBuilder sb = new StringBuilder();
+        for (byte b : d) sb.append(String.format("%02x", b));
+        return sb.toString();
+    }
+
+    @JavascriptInterface public String updateProgress() {
+        android.content.SharedPreferences p = updPrefs();
+        long done = p.getLong("done", 0), total = p.getLong("size", 0);
+        int pct = total > 0 ? (int) (done * 100 / total) : -1;
+        return "{\"st\":\"" + p.getString("st", "idle") + "\",\"done\":" + done + ",\"total\":" + total
+                + ",\"pct\":" + pct + ",\"run\":" + updRunning
+                + ",\"err\":\"" + p.getString("err", "").replace("\"", "'")
+                + "\",\"url\":\"" + p.getString("url", "") + "\"}";
+    }
+
+    @JavascriptInterface public String updateInstall() {
+        try {
+            java.io.File f = updApk();
+            if (!f.exists()) return "nofile";
+            android.content.pm.PackageManager pm = act.getPackageManager();
+            android.content.pm.PackageInfo pi;
+            if (Build.VERSION.SDK_INT >= 28) pi = pm.getPackageArchiveInfo(f.getAbsolutePath(), android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES);
+            else pi = pm.getPackageArchiveInfo(f.getAbsolutePath(), android.content.pm.PackageManager.GET_SIGNATURES);
+            if (pi == null || pi.packageName == null || !pi.packageName.equals(act.getPackageName())) return "badpkg";
+            long vc = (Build.VERSION.SDK_INT >= 28) ? pi.getLongVersionCode() : pi.versionCode;
+            if (vc <= BuildConfig.VERSION_CODE) return "badver";
+            android.content.pm.PackageInfo cur = (Build.VERSION.SDK_INT >= 28)
+                    ? pm.getPackageInfo(act.getPackageName(), android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES)
+                    : pm.getPackageInfo(act.getPackageName(), android.content.pm.PackageManager.GET_SIGNATURES);
+            String a = updSig(pi), b = updSig(cur);
+            if (a == null || !a.equals(b)) return "badsig";
+            if (Build.VERSION.SDK_INT >= 26 && !pm.canRequestPackageInstalls()) {
+                Intent i = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + act.getPackageName()));
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                act.startActivity(i);
+                return "needperm";
+            }
+            Uri u = androidx.core.content.FileProvider.getUriForFile(act, act.getPackageName() + ".fileprovider", f);
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setDataAndType(u, "application/vnd.android.package-archive");
+            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+            act.startActivity(i);
+            return "ok";
+        } catch (Exception e) { return "error"; }
+    }
+
+    private String updSig(android.content.pm.PackageInfo pi) {
+        try {
+            android.content.pm.Signature[] s;
+            if (Build.VERSION.SDK_INT >= 28 && pi.signingInfo != null) s = pi.signingInfo.getApkContentsSigners();
+            else s = pi.signatures;
+            if (s == null || s.length == 0) return null;
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] d = md.digest(s[0].toByteArray());
+            StringBuilder sb = new StringBuilder();
+            for (byte x : d) sb.append(String.format("%02x", x));
+            return sb.toString();
+        } catch (Exception e) { return null; }
+    }
+
+    /* ALSAER: تسحب الصفحة رمز عودة Google Drive المعلّق (إقلاع بارد أثناء الموافقة). مرة واحدة: أول سحب يستهلكه. */
+    @JavascriptInterface public String consumeGdriveRedirect() {
+        return (act instanceof MainActivity) ? ((MainActivity) act).consumeGdriveRedirect() : null;
+    }
     @JavascriptInterface public void shareText(String title, String body) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("text/plain");
@@ -74,6 +298,15 @@ public class AlsaerNative {
     public void setSchedule(String json) { AlarmScheduler.saveAndSchedule(act, json); }
 
     @JavascriptInterface
+    public void setSnoozeAuto(boolean on) { AlarmScheduler.setSnoozeAuto(act, on); }
+
+    @JavascriptInterface
+    public void snoozeStopAll() { AlarmScheduler.snoozeStopAll(act); }
+
+    @JavascriptInterface
+    public int snoozeActiveCount() { return AlarmScheduler.snoozeActiveCount(act); }
+
+    @JavascriptInterface
     public boolean notificationsEnabled() { return NotificationManagerCompat.from(act).areNotificationsEnabled(); }
 
     @JavascriptInterface
@@ -81,6 +314,18 @@ public class AlsaerNative {
         if (Build.VERSION.SDK_INT < 31) return true;
         android.app.AlarmManager am = (android.app.AlarmManager) act.getSystemService(android.content.Context.ALARM_SERVICE);
         return am.canScheduleExactAlarms();
+    }
+
+    /* ---- بطاقة التحكم بالصوت في شريط الإشعارات (MediaPlaybackService) ---- */
+    @JavascriptInterface public void mediaUpdate(String title, boolean playing) {
+        MediaPlaybackService.update(act.getApplicationContext(), title, playing);
+    }
+    @JavascriptInterface public void radioPlay(String url, String title) { MediaPlaybackService.radioPlay(act.getApplicationContext(), url, title); }
+    @JavascriptInterface public boolean radioNative() { return true; }
+    @JavascriptInterface public void mediaTheme(String bg, String fg, String accent, String on) { MediaPlaybackService.setTheme(act.getApplicationContext(), bg, fg, accent, on); }
+    @JavascriptInterface public void diagLog(String line) { DiagLog.add("js " + line); }
+    @JavascriptInterface public void mediaStop() {
+        MediaPlaybackService.stop(act.getApplicationContext());
     }
 
     @JavascriptInterface
@@ -98,11 +343,11 @@ public class AlsaerNative {
     @JavascriptInterface
     public void testNotification(String title) {
         try {
-            String t = (title == null || title.trim().isEmpty()) ? "تذكير تجريبي" : title.trim();
+            String t = (title == null || title.trim().isEmpty()) ? NativeStrings.get(act, "test_reminder") : title.trim();
             JSONObject it = new JSONObject();
             it.put("id", "test");
             it.put("title", t);
-            it.put("body", "هذا اختبار للتذكير المحدد؛ إشعارات السائر تعمل بنجاح.");
+            it.put("body", NativeStrings.get(act, "scheduled_reminder_test_ok"));
             it.put("route", "tab:reminders");
             AlarmScheduler.ensureChannel(act);
             AlarmScheduler.scheduleAt(act, it, System.currentTimeMillis() + 3000L, true);

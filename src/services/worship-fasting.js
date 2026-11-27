@@ -15,15 +15,17 @@ function worshipToggle(id,val){var k=dk(),cur=((S.worship||{})[k]||{})[id],lk='w
   if(cur===undefined||inGrace(lk))lockSet(lk);else if(S.locks)delete S.locks[lk];
 S.worship=S.worship||{};S.worship[k]=S.worship[k]||{};S.worship[k][id]=val;save();checkNew()}
 
+var _hjF=null,_hjF2=null;
+/* المنسّق يُنشأ مرة واحدة (إنشاؤه هو الجزء الغالي)؛ النتيجة تُحسب لكل تاريخ كما كانت */
 function hijriNumeric(d){
   try{
-    var f=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'});
-    var p=f.formatToParts(d),o={};p.forEach(function(x){if(x.type==='day'||x.type==='month'||x.type==='year')o[x.type]=parseInt(x.value,10)});
+    if(!_hjF)_hjF=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'});
+    var p=_hjF.formatToParts(d),o={};p.forEach(function(x){if(x.type==='day'||x.type==='month'||x.type==='year')o[x.type]=parseInt(x.value,10)});
     if(o.day&&o.month&&o.year)return o;
   }catch(e){}
   try{
-    var f2=new Intl.DateTimeFormat('en-u-ca-islamic-nu-latn',{day:'numeric',month:'numeric',year:'numeric'});
-    var p2=f2.formatToParts(d),o2={};p2.forEach(function(x){if(x.type==='day'||x.type==='month'||x.type==='year')o2[x.type]=parseInt(x.value,10)});
+    if(!_hjF2)_hjF2=new Intl.DateTimeFormat('en-u-ca-islamic-nu-latn',{day:'numeric',month:'numeric',year:'numeric'});
+    var p2=_hjF2.formatToParts(d),o2={};p2.forEach(function(x){if(x.type==='day'||x.type==='month'||x.type==='year')o2[x.type]=parseInt(x.value,10)});
     return o2;
   }catch(e){return null}
 }
@@ -37,7 +39,7 @@ function fastingReasons(d){
     if(p.shawwal&&h.month===10&&h.day>=2&&h.day<=7)out.push('ست من شوال');
   }
   if(p.dawud&&S.fasting.dawudAnchor){
-    var diff=Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate())-parse(S.fasting.dawudAnchor))/86400000);
+    var diff=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-parse(S.fasting.dawudAnchor))/86400000);
     if(diff>=0&&diff%2===0)out.push('صيام يوم وإفطار يوم');
   }
   if((S.fasting.customDates||[]).indexOf(dk(d))>=0)out.push('يوم صيام مخصص');

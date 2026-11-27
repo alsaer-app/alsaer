@@ -1,0 +1,10 @@
+name = "alsaer-qcf-7299"
+main = "worker.js"
+compatibility_date = "2026-11-25"
+
+# Secrets QCF_CLIENT_ID and QCF_CLIENT_SECRET are set in the Cloudflare
+# dashboard (never in this file). QCF_ENV stays "prelive" until the QCF
+# console approves production Content scopes for the Alsaer app; then flip
+# to "production".
+[vars]
+QCF_ENV = "prelive"

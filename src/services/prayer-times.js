@@ -12,7 +12,17 @@ function ptCompute(date,lat,lng,method,asrF){
   function mid(t){return ptFix(12-ptSun(J+t).eqt,24)}
   function ang(a,t,ccw){var dc=ptSun(J+t).decl,x=(-Math.sin(ptRad(a))-Math.sin(ptRad(dc))*Math.sin(ptRad(lat)))/(Math.cos(ptRad(dc))*Math.cos(ptRad(lat)));if(x>1||x<-1)return NaN;var v=ptDeg(Math.acos(x))/15;return mid(t)+(ccw?-v:v)}
   function asr(f,t){var dc=ptSun(J+t).decl,a=-ptDeg(Math.atan(1/(f+Math.tan(ptRad(Math.abs(lat-dc))))));return ang(a,t,false)}
-  var fajr=ang(M[1],5/24,true),sunrise=ang(0.833,6/24,true),dhuhr=mid(12/24)+1/60,as=asr(asrF||1,13/24),maghrib=ang(0.833,18/24,false),isha=M[3]?maghrib+M[3]/60:ang(M[2],18/24,false);
+  var fajr=ang(M[1],5/24,true),sunrise=ang(0.833,6/24,true),dhuhr=mid(12/24)+1/60,as=asr(asrF||1,13/24),maghrib=ang(0.833,18/24,false);
+  /* أم القرى: العشاء بعد المغرب بـ ٩٠ دقيقة، وتُمدَّد إلى ١٢٠ دقيقة في رمضان */
+  var ishaMin=M[3];
+  if(ishaMin){try{if(typeof hijriNumeric==='function'){var hj=hijriNumeric(date);if(hj&&hj.month===9)ishaMin=120}}catch(e){}}
+  var isha=ishaMin?maghrib+ishaMin/60:ang(M[2],18/24,false);
+  /* خطوط العرض العالية: متى تعذّرت زاوية الفجر/العشاء (لا شفق) نقدّرهما بمنتصف الليل بين المغرب والشروق */
+  if(!isNaN(sunrise)&&!isNaN(maghrib)){
+    var night=ptFix(sunrise-maghrib+24,24);
+    if(isNaN(fajr))fajr=ptFix(maghrib+night/2,24);
+    if(isNaN(isha))isha=ptFix(maghrib+night/2,24);
+  }
   var off=tz-lng/15,out={fajr:fajr,sunrise:sunrise,dhuhr:dhuhr,asr:as,maghrib:maghrib,isha:isha};
   Object.keys(out).forEach(function(k){var v=out[k];if(isNaN(v)){out[k]=null;return}v=ptFix(v+off+0.5/60,24);var h=Math.floor(v),m=Math.floor((v-h)*60);out[k]=(h<10?'0':'')+h+':'+(m<10?'0':'')+m});
   return out;
@@ -82,7 +92,7 @@ function gpsFix(silent){
   function busy(on,label){var bt=document.querySelector('[data-a=gps]');if(!bt)return;bt.classList.toggle('busy',!!on);if(label&&bt.lastChild)bt.lastChild.nodeValue=' '+label}
   if(!navigator.geolocation){if(!silent)say('الجهاز لا يدعم تحديد الموقع. اختر مدينتك يدويًا.','bad');return}
   gpsBusy=true;gpsBusyAt=Date.now();
-  var myAt=gpsBusyAt;if(!silent)setTimeout(function(){if(gpsBusy&&gpsBusyAt===myAt&&!(S.loc&&S.loc.gpsAt>=myAt)){locDialog()}},7000);
+
   if(!silent){say('نطلب إذن الموقع… اضغط «سماح» إن ظهر لك طلب.','busy');busy(true,'جارٍ التحديد…');var t2=document.querySelector('.pt-lt b');if(t2)t2.textContent='جارٍ تحديد موقعك…'}
   function apply(p,final){
     S.loc=S.loc||{};
@@ -93,6 +103,7 @@ function gpsFix(silent){
     var moved=old>5;if(S.loc.auto)autoPtimes();save();
     if(!silent){compassStop();render()}else if(moved){render()}
   }
+  function web(){
   /* مرحلة سريعة: آخر موقع معروف أو تقريبي خلال ثوانٍ، ثم تحسين صامت بدقة أعلى */
   navigator.geolocation.getCurrentPosition(function(p){
     gpsBusy=false;apply(p);
@@ -100,7 +111,7 @@ function gpsFix(silent){
       try{navigator.geolocation.getCurrentPosition(function(q){if((q.coords.accuracy||1e9)<(p.coords.accuracy||1e9))apply(q)},function(){},{enableHighAccuracy:true,timeout:25000,maximumAge:0})}catch(e){}
     }
   },function(er){
-    if(!silent&&er&&er.code===2){gpsBusy=false;busy(false);say('خدمة الموقع مغلقة. فعّلها من الإعدادات ثم أعد المحاولة.','bad');locDialog();return}
+    if(!silent&&er&&er.code===2){gpsBusy=false;busy(false);say('تعذّر الحصول على الموقع. تحقق من الإعدادات أو جرّب في مكان مفتوح.','bad');locDialog();return}
     if(er&&er.code===1){gpsBusy=false;busy(false);if(!silent){say('لم يُسمح بالوصول للموقع. فعّله من إعدادات الهاتف ثم أعد المحاولة، أو اختر مدينتك يدويًا.','bad');var t2=document.querySelector('.pt-lt b');if(t2)t2.textContent='لم يُحدَّد الموقع بعد'}return}
     /* لم يصل موقع سريع: جرّب الدقة العالية مرة أخيرة */
     if(!silent)say('جارٍ البحث عن إشارة الموقع… قد يستغرق ذلك لحظات.','busy');
@@ -119,6 +130,24 @@ function gpsFix(silent){
       tmo=setTimeout(function(){fin(giveUp,e1)},42000);
     },{enableHighAccuracy:true,timeout:20000,maximumAge:0});
   },{enableHighAccuracy:false,timeout:8000,maximumAge:3600e3});
+  }
+  /* المسار الأصلي (LocationManager + طلب الإذن من أندرويد مباشرة): الصامت لا يطلب إذنًا. أي فشل غير الرفض أو إغلاق الموقع يعود للمسار القديم */
+  var nv=window.AlsaerNative;
+  if(nv&&typeof nv.locGet==='function'&&typeof nv.locHasPermission==='function'&&(!silent||nv.locHasPermission())){
+    var fell=false;
+    window.gpsOnNative=function(lat,lng,acc,err){
+      window.gpsOnNative=null;
+      if(!err){gpsBusy=false;apply({coords:{latitude:lat,longitude:lng,accuracy:acc}});return}
+      var code=' (loc-'+String(err).replace(/[^a-z]/g,'').slice(0,12)+')';
+      if(err==='denied'){gpsBusy=false;busy(false);if(!silent){say('لم يُسمح بالوصول للموقع. فعّله من إعدادات الهاتف ثم أعد المحاولة، أو اختر مدينتك يدويًا.'+code,'bad');var t3=document.querySelector('.pt-lt b');if(t3)t3.textContent='لم يُحدَّد الموقع بعد'}return}
+      if(err==='off'){gpsBusy=false;busy(false);if(!silent){say('خدمة الموقع مغلقة أو لا تتوفر إشارة. فعّل «الموقع/GPS» من الإعدادات السريعة في هاتفك ثم أعد المحاولة، أو اختر مدينتك يدويًا.'+code,'bad');locDialog()}return}
+      if(!fell){fell=true;web()}
+    };
+    if(!silent)say('نطلب إذن الموقع… اضغط «سماح» إن ظهر لك طلب.','busy');
+    try{nv.locGet()}catch(e){window.gpsOnNative=null;web()}
+    return;
+  }
+  web();
 }
 /* تحديد الموقع تلقائيًا دون انتظار ضغط الزر: عند فتح التطبيق وعند الرجوع إليه وكل نصف ساعة، ما لم يختر المستخدم المدينة يدويًا */
 function autoLoc(){

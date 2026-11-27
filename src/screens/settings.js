@@ -1,5 +1,6 @@
-var setCat='';
+var setCat='',setSub='',scAnim=0;
 if(!IC.hash)IC.hash='<path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/>';
+if(!IC.globe)IC.globe='<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>';
 function sgGroup(t,rows){return '<div class="sg-t">'+t+'</div><div class="sg-card">'+rows+'</div>'}
 function sgRow(icon,title,desc,ctl,extra){return '<div class="sg-row'+(extra||'')+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div>'+(ctl?'<div class="sg-ctl">'+ctl+'</div>':'')+'</div>'}
 function sgSeg(items,cur,act,extraAttr){return '<div class="sg-seg">'+items.map(function(x){return '<button type="button" class="'+(cur===x[0]?'on':'')+'" '+(extraAttr?extraAttr.replace('%v',x[0]):'data-a="'+act+'" data-v="'+x[0]+'"')+'>'+x[1]+'</button>'}).join('')+'</div>'}
@@ -36,9 +37,31 @@ function sgStatus(){
   rows+='<div class="sg-kv"><span>التذكيرات في الخلفية:</span><b class="'+((nat&&pk&&r.enabled)?'sg-good':'')+'">'+((nat&&pk&&r.enabled)?'مفعّل':'غير مفعّل')+'</b></div>';
   return sgGroup('حالة النظام',rows);
 }
-function sgLit(html,on){return on?html.replace('class="lrow','class="lrow lit').replace('class="sc-tile','class="sc-tile lit'):html}
+function sgLit(html,on){return on?html.replace('class="lrow','class="lrow lit').replace('class="sc-tile','class="sc-tile lit').replace('class="sg-row','class="sg-row lit'):html}
+
+/* --- صفوف الاتجاه أ: تنقّل/لوحات داخل بطاقات مجمّعة --- */
+function sgCtlV(val){return '<div class="sg-ctl">'+(val?'<span class="sg-val">'+val+'</span>':'')+ic('chev').replace('class="i"','class="i chev"')+'</div>'}
+/* اللغة: صف بقيمة + ورقة سفلية بسبع لغات (النموذج B المعتمد) */
+var LANG_NAMES={ar:'العربية',en:'English',fr:'Français',tr:'Türkçe',de:'Deutsch',fa:'فارسی',ur:'اردو'};
+function sgLangRow(){var cur=(typeof lang==='function'?lang():'ar');return '<button type="button" class="sg-row sg-btn" data-a="ulangsheet"><span class="sg-ic">'+ic('globe')+'</span><div class="sg-tx"><b>اللغة</b><small>العربية افتراضية؛ القرآن والأذكار والأحاديث تبقى عربية دائمًا</small></div>'+sgCtlV('<span class="keepar">'+(LANG_NAMES[cur]||LANG_NAMES.ar)+'</span>')+'</button>'}
+function langSheetOpen(){
+  var o=document.getElementById('lang-wrap');if(o)o.remove();var cur=(typeof lang==='function'?lang():'ar');
+  var w=document.createElement('div');w.id='lang-wrap';w.className='mps-wrap';
+  w.innerHTML='<div class="mps-back" data-a="ulangclose"></div><section class="mps" role="dialog" aria-modal="true" aria-label="اللغة"><div class="mps-grab"></div><div class="mps-h"><button class="mps-x" data-a="ulangclose" aria-label="إغلاق">'+ic('x')+'</button><h3>اللغة</h3></div><div class="lang-list">'+LANG_CHOICES.map(function(c){var on=c===cur;return '<button type="button" class="lang-it'+(on?' on':'')+'" data-a="ulang" data-v="'+c+'" aria-pressed="'+on+'"><span class="keepar">'+LANG_NAMES[c]+'</span>'+(on?'<i class="lang-ck">'+ic('check')+'</i>':'')+'</button>'}).join('')+'</div></section>';
+  document.body.appendChild(w);
+}
+function sgNav(key,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="sopen" data-v="'+key+'" aria-expanded="'+(setOpen===key)+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div>'+sgCtlV(val)+'</button>'}
+function sgNavTab(tabId,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="tab" data-v="'+tabId+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div>'+sgCtlV(val)+'</button>'}
+function sgNavSub(sub,icon,title,desc,val){return '<button type="button" class="sg-row sg-btn" data-a="ssub" data-v="'+sub+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div>'+sgCtlV(val)+'</button>'}
+function sgSwitch(icon,title,desc,attr,on){return '<div class="sg-row'+(on?' lit':'')+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div><div class="sg-ctl"><label class="rm-sw"><input type="checkbox" '+attr+' '+(on?'checked':'')+'><i></i></label></div></div>'}
+function sgSegRow(icon,title,desc,segHtml){return '<div class="sg-row segrow"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b>'+(desc?'<small>'+desc+'</small>':'')+'</div><div class="sg-ctl">'+segHtml+'</div></div>'}
+var IC_BELLOFF='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0 1 9.5-4.9M18 11c0 4 1.5 5.5 2 6H6"/><path d="M10 20a2 2 0 0 0 4 0M3 3l18 18"/></svg>';
+
+
+function sgDeveloperCard(){return '<section class="sg-card settings-dev"><div class="settings-dev-head"><span class="settings-dev-avatar" aria-hidden="true">AE</span><div class="settings-dev-name"><b dir="ltr">Ahmed Elagamy</b><p>مطور السائر إلى الله</p></div><span class="settings-dev-version" dir="ltr">v'+esc(APP_VERSION)+'</span></div><div class="settings-dev-links"><a href="https://github.com/alsaer-app/alsaer" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.61-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02A9.6 9.6 0 0 1 12 6.82c.85 0 1.71.11 2.51.34 1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.76c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg></a><a href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.5-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.99A10 10 0 0 0 22 12z"/></svg></a></div></section>'}
+
 function vSettings(){
-  var CH=ic('chev').replace('class="i"','class="i chev"'),M='<p class="msg">'+esc(msg)+'</p>';
+  var M='<p class="msg">'+esc(msg)+'</p>';
   var P=function(k,html){return setOpen===k?'<div class="panel">'+html+'</div>':''};
   var nat=window.AlsaerNative,rr={};try{rr=JSON.parse(localStorage.getItem('alsaer_daily_reminders_v1')||'{}')}catch(e){}
   var dg=U().digits==='west'?'west':'east',auto=!!(S.loc&&S.loc.auto),pk=false,ek=false;
@@ -46,53 +69,132 @@ function vSettings(){
   var wOn=false,fOn=false;try{wOn=!!(nat&&nat.widgetActive&&nat.widgetActive());fOn=!!(nat&&nat.floatingEnabled&&nat.floatingEnabled()&&nat.canDrawOverlays&&nat.canDrawOverlays())}catch(e){}
   var nOn=!!(rr.enabled&&(nat?pk:true));
   var permN=nat?(pk?1:0)+(ek?1:0)+(rr.battDone?1:0):0;
-  var A=''+srow('acct','shield','مركز الأمان',secLevelLabel())
-  +P('acct',secPanel(M));
-  var LOOK=''+srow('look',isDark()?'moon':'sun','المظهر',isDark()?'داكن':'فاتح')
-  +P('look',vAppearance())
-  +srow('digits','hash','نمط الأرقام',dg==='west'?'0-9 عادية':'٠-٩ مشرقية')
-  +P('digits','<section class="card"><p class="note">أرقام مشرقية (٠-٩) أو عادية (0-9) في كل التطبيق.</p>'+sgSeg([['east','٠-٩ مشرقية'],['west','0-9 عادية']],dg,'udigits')+'</section>')
-  +srow('clk','clock','نظام الساعة',clk12()?'١٢ ساعة':'٢٤ ساعة')
-  +P('clk','<section class="card"><p class="note">يُطبَّق على كل المواقيت وحقول الوقت والتذكيرات في التطبيق.</p>'+sgSeg([['12','١٢ ساعة'],['24','٢٤ ساعة']],clk12()?'12':'24','clkset')+'</section>');
-  var HOME=''+srow('homecfg','menu','الصفحة الرئيسية','إظهار البطاقات وإخفاؤها')
-  +P('homecfg','<section class="card"><h3 style="margin:0 0 8px">بطاقات الصفحة الرئيسية</h3>'+HOME_SECS.map(function(x){var on=!(S.homeHide&&S.homeHide[x[0]]);return '<div class="rm-row'+(on?' on':'')+'" style="margin:6px 0"><div class="rm-tx"><b>'+x[1]+'</b></div><label class="rm-sw"><input type="checkbox" data-hide="'+x[0]+'" '+(on?'checked':'')+'><i></i></label></div>'}).join('')+'<h3 style="margin:14px 0 8px">تخصيص الرئيسية</h3><div class="hc-btns"><button class="btn ghost" data-a="wkedit" data-v="quran">اختصارات القرآن</button><button class="btn ghost" data-a="wkedit" data-v="adhkar">اختصارات الأذكار</button><button class="btn ghost" data-a="wkedit" data-v="ibadat">اختصارات العبادات</button><button class="btn ghost" data-a="wkper">أوقات «ذكر هذا الوقت»</button></div></section>');
-  var NOTIF=''+'<section class="card"><div class="rm-row'+(rr.enabled?' on':'')+'"><div class="rm-tx"><b>تفعيل التنبيهات</b><small>'+(rr.enabled?'تصلك التنبيهات حتى مع إغلاق التطبيق':'متوقفة')+'</small></div><label class="rm-sw"><input type="checkbox" data-rem-master '+(rr.enabled?'checked':'')+'><i></i></label></div></section>'
-  +sgLit(lrow('reminders','bell','تذكيراتي','الملك والكهف والصلاة على النبي وغيرها'),nOn)
-  +'<details class="sc-adv"'+(setOpen==='perm'?' open':'')+'><summary>خيارات متقدمة: نوافذ عائمة، ودجت، صلاحيات</summary>'
-  +sgLit(lrow('floatfeed','bell','جدولة النوافذ العائمة','أوقاتها ومحتواها الإسلامي، ٢٤ ساعة أو فترة أو أوقات محددة'),fOn)
-  +sgLit(lrow('floatset','sparkles','شكل النوافذ العائمة','التصميم والحركة والألوان ومدة الظهور'),fOn)
-  +sgLit(lrow('widgetset','sparkles','الودجت','ألوانه وحجمه وما يعرضه'),wOn)
-;
-  var PERM=''+srow('perm','shield','الصلاحيات للعمل في الخلفية',nat?(permN+'/3'):'')
-  +P('perm',sgPerms());
+
+  /* ===== الشكل والعرض ===== */
+  var u=U(),md=uiMode(),sid=pick(Object.keys(STY),u.style,'calm'),lk=pick(LOOKS,u.look,'classic');
+  var lkE=LOOKS.filter(function(x){return x[0]===lk})[0]||LOOKS[0];
+  var fn=pick(FONTS,u.font,'plex'),fnN=(FONTS.filter(function(x){return x[0]===fn})[0]||[])[1]||'';
+  var pr=pick(PRESSES,u.press,'bounce'),prN=(PRESSES.filter(function(x){return x[0]===pr})[0]||[])[1]||'';
+  var tr=pick(TRANSES,u.trans,'rise'),trN=(TRANSES.filter(function(x){return x[0]===tr})[0]||[])[1]||'';
+  var ac=apAcc();
+  var hidN=HOME_SECS.filter(function(x){return !(S.homeHide&&S.homeHide[x[0]])}).length;
+  var LOOK='<div class="sg-card">'
+   +sgSegRow(isDark()?'moon':'sun','الوضع','تلقائي يتبع نظام هاتفك',sgSeg([['system','تلقائي'],['light','فاتح'],['dark','داكن']],md,'umode'))
+   +sgNav('sty','sparkles','النمط','الثيم وشكل الواجهة في اختيار واحد',STY[sid].n+' · '+lkE[1])
+   +P('sty','<div style="padding:4px 2px 8px"><p class="sg-pl">الثيم</p><div class="sty-grid">'+Object.keys(STY).map(function(k){var s=STY[k];return oBtn('ustyle',k,sid,'<span class="pv" style="background:'+s.pv[0]+'"><i style="background:'+s.pv[1]+'"></i><b style="background:'+s.pv[2]+'"></b></span><small>'+s.n+'</small>','uo sty')}).join('')+'</div><p class="sg-pl" style="margin-top:12px">شكل الواجهة</p><div class="look-row">'+LOOKS.map(function(x){return oBtn('ulook',x[0],lk,'<span class="lk-pv '+x[0]+'"><i></i><i></i></span><b>'+x[1]+'</b>','uo lo')}).join('')+'</div><p class="note">'+lkE[2]+'</p></div>')
+   +sgLangRow()
+   +sgNav('acc','target','لون التطبيق','','<span class="sg-dot" style="background:'+ac.col+'"></span>'+(ac.name?' '+ac.name:''))
+   +P('acc','<div style="padding:4px 2px 8px"><div class="acc-row">'+ACC.map(function(x){var on=ac.id===x.id;return '<button class="acc" data-a="uacc" data-v="'+x.id+'" aria-pressed="'+on+'" aria-label="'+x.n+'" style="background:'+(isDark()?x.d:x.l)+'">'+(on?'✓':'')+'</button>'}).join('')+'</div></div>')
+   +sgNav('dgclk','hash','الأرقام والساعة','',(dg==='west'?'0-9 عادية':'٠-٩ مشرقية')+' · '+(clk12()?'١٢ ساعة':'٢٤ ساعة'))
+   +P('dgclk','<div class="keepar" style="padding:4px 2px 8px"><p class="sg-pl">نمط الأرقام</p>'+sgSeg([['east','٠-٩ مشرقية'],['west','0-9 عادية']],dg,'udigits')+'<p class="sg-pl" style="margin-top:12px">نظام الساعة</p>'+sgSeg([['12','١٢ ساعة'],['24','٢٤ ساعة']],clk12()?'12':'24','clkset')+'</div>')
+   +sgNav('homecfg','menu','الصفحة الرئيسية','إظهار البطاقات وإخفاؤها',ar(hidN)+' بطاقات ظاهرة')
+   +P('homecfg','<section class="card"><h3 style="margin:0 0 8px">بطاقات الصفحة الرئيسية</h3>'+HOME_SECS.map(function(x){var on=!(S.homeHide&&S.homeHide[x[0]]);return '<div class="rm-row'+(on?' on':'')+'" style="margin:6px 0"><div class="rm-tx"><b>'+x[1]+'</b></div><label class="rm-sw"><input type="checkbox" data-hide="'+x[0]+'" '+(on?'checked':'')+'><i></i></label></div>'}).join('')+'<h3 style="margin:14px 0 8px">تخصيص الرئيسية</h3><div class="hc-btns"><button class="btn ghost" data-a="wkedit" data-v="quran">اختصارات القرآن</button><button class="btn ghost" data-a="wkedit" data-v="adhkar">اختصارات الأذكار</button><button class="btn ghost" data-a="wkedit" data-v="ibadat">اختصارات العبادات</button><button class="btn ghost" data-a="wkper">أوقات «ذكر هذا الوقت»</button></div></section>')
+   +sgNavSub('look-adv','gear','خيارات متقدمة','','الاهتزاز · الخط · الحركات')
+   +'</div>';
+  var ADV='<div class="sg-card">'
+   +sgSegRow('phone','الاهتزاز','',sgSeg(HAPS,(u.hap)||'mid','uhap'))
+   +sgNav('font','pen','الخط','',fnN+' · '+(u.fontW==='bold'?'عريض':'عادي'))
+   +P('font','<div style="padding:4px 2px 8px"><div class="font-grid">'+FONTS.map(function(x){return oBtn('ufont',x[0],fn,'<span class="fo-s fo-'+x[0]+'">أبجد</span><small>'+x[1]+'</small>','uo fo')}).join('')+'</div><div class="seg" style="margin-top:10px"><button class="'+(u.fontW!=='bold'?'on':'')+'" data-a="ufw" data-v="normal">عادي</button><button class="'+(u.fontW==='bold'?'on':'')+'" data-a="ufw" data-v="bold" style="font-weight:800">عريض</button></div></div>')
+   +sgSegRow('sparkles','الحركات','حركة الضغط والانتقالات في مفتاح واحد',sgSeg([['full','كاملة'],['reduced','مخففة'],['none','بلا']],apMotionCur(),'umotion'))
+   +sgNav('press','star','حركة الضغط','',prN)
+   +P('press','<div style="padding:4px 2px 8px"><div class="opt-list">'+PRESSES.map(function(x){return oBtn('upress',x[0],pr,'<b>'+x[1]+'</b><small>'+x[2]+'</small>','uo ol')}).join('')+'</div></div>')
+   +sgNav('trans','up','حركة الانتقال','',trN)
+   +P('trans','<div style="padding:4px 2px 8px"><div class="opt-list">'+TRANSES.map(function(x){return oBtn('utrans',x[0],tr,'<b>'+x[1]+'</b><small>'+x[2]+'</small>','uo ol')}).join('')+'</div></div>')
+   +'</div><p class="note" style="margin:10px 6px 0">«مخففة» تُبقي الانتقالات الأساسية فقط · «بلا» توقف كل الحركة · ويمكنك ضبط الضغط والانتقال كلٌّ على حدة من الصفين أعلاه</p>'
+   +'<p class="note" style="margin:8px 6px 0">الاهتزاز: يهتز الهاتف قليلًا عند المسبحة وتسجيل العبادات. إن لم تشعر به فعّل «ردود الفعل اللمسية» من إعدادات الصوت والاهتزاز في هاتفك.</p>';
+
+  /* ===== التنبيهات ===== */
+  var snd=rr.soundMode||'chime',sndN=snd==='chime'?'نغمة السائر':(snd==='silent'?'بلا صوت':'صوت النظام');
+  var REMK=['malik','kahf','salat','dua','wird','prayers','fasting','weekly','backup'];
+  var onN=rr.enabled?REMK.filter(function(k){return rr[k]}).length:0;
+  function sndOpt(val,icon,label,sub){
+    var on=snd===val;
+    return '<label class="snd-opt'+(on?' on':'')+'"><span class="snd-ic">'+icon+'</span><b>'+label+'</b><small>'+sub+'</small><span class="snd-chk">'+ic('check')+'</span><input type="radio" name="alsaer-snd" data-rem-sound="'+val+'" '+(on?'checked':'')+'></label>';
+  }
+  var snzN=0;try{if(window.AlsaerNative&&AlsaerNative.snoozeActiveCount)snzN=AlsaerNative.snoozeActiveCount()||0}catch(e){}
+  var NOTIF='<div class="sg-card">'
+   +sgSwitch('bell','تفعيل التنبيهات',rr.enabled?'تصلك التنبيهات حتى مع إغلاق التطبيق':'متوقفة','data-rem-master',rr.enabled)
+   +sgSwitch('clock','التأجيل التلقائي','«ذكّرني» تعيد الرنين كل ١٠ دقائق حتى ٣ مرات ثم تتوقف','data-rem-toggle="snoozeAuto"',rr.snoozeAuto!==false)
+   +(snzN?'<button class="sg-row sg-btn" data-a="snzstop"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>إيقاف التأجيل الحالي</b><small>'+ar(snzN)+' '+(snzN===1?'تذكير مؤجّل':'تذكيرات مؤجّلة')+'</small></div><div class="sg-ctl">'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>':'')
+   +sgSegRow('bell','الصلاة على النبي ﷺ','تكرار التذكير · المواعيد من تذكيراتي ← ذكي','<select class="rm-sel" data-rem-time="salatEvery" aria-label="تكرار الصلاة على النبي">'+[[15,'١٥ دقيقة'],[30,'نصف ساعة'],[60,'ساعة'],[120,'ساعتان'],[0,'مرة يوميًا']].map(function(x){var ev=rr.salatEvery==null?(Object.keys(rr).length?'120':'15'):String(rr.salatEvery);return '<option value="'+x[0]+'"'+(String(x[0])===ev?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select>')
+   +sgLit(sgNavTab('reminders','bell','تذكيراتي','الملك والكهف والصلاة على النبي وغيرها',ar(onN)+' مفعّلة'),nOn)
+   +sgLit(sgNavSub('notif-float','bell','النوافذ العائمة','تظهر فوق التطبيقات في أوقاتها','الجدولة والشكل'),fOn)
+   +sgNav('snd','bell','صوت الإشعار','النغمة أو بلا صوت أو صوت النظام',sndN)
+   +P('snd','<div style="padding:4px 2px 8px"><div class="snd-grid">'+sndOpt('chime',ic('bell'),'نغمة هادئة','نغمة السائر')+sndOpt('silent',IC_BELLOFF,'بلا صوت','إشعار صامت')+sndOpt('system',ic('phone'),'صوت النظام','نغمة هاتفك')+'</div><div class="rm-row'+(rr.respectSilent?' on':'')+'" style="margin:10px 0 0"><div class="rm-tx"><b>احترام وقت الصامت</b><small>عند صمت الهاتف تصل الإشعارات بلا صوت. يستخدم قناة النظام التي تلتزم بوضع الصامت بدل النغمة الخاصة</small></div><label class="rm-sw"><input type="checkbox" data-rem-toggle="respectSilent" '+(rr.respectSilent?'checked':'')+'><i></i></label></div></div>')
+   +sgNav('perm','shield','الصلاحيات للعمل في الخلفية','الإشعارات · المنبّهات · البطارية',nat?(ar(permN)+'/٣'):'')
+   +P('perm',sgPerms())
+   +'</div>'
+   +'<div class="sg-t">'+ic('gear')+' خيارات متقدمة</div><div class="sg-card">'
+   +sgLit(sgNavTab('widgetset','sparkles','الودجت','','ألوانه وحجمه وما يعرضه'),wOn)
+   +'</div>';
+  var FLOAT='<div class="sg-card">'
+   +sgLit(sgNavTab('floatfeed','bell','جدولة النوافذ العائمة','أوقاتها ومحتواها الإسلامي، ٢٤ ساعة أو فترة أو أوقات محددة',''),fOn)
+   +sgLit(sgNavTab('floatset','sparkles','شكل النوافذ العائمة','التصميم والحركة والألوان ومدة الظهور',''),fOn)
+   +'</div><p class="note" style="margin:10px 6px 0">تظهر النوافذ فوق التطبيقات الأخرى في أوقاتها، وتحتاج إذن «العرض فوق التطبيقات» من هاتفك.</p>';
+
+  /* ===== الموقع والمواقيت (كما هو) ===== */
   var LOC=''+srow('loc','mosque','الموقع والمواقيت',esc((S.loc&&S.loc.city)||'تحديد المدينة'))
   +P('loc','<section class="card"><b>مصدر الوقت</b><p class="note">تلقائي حسب موقعك، أو يدوي.</p>'+sgSeg([['1','تلقائي'],['0','يدوي']],auto?'1':'0','ptauto')+'</section>'+locCard());
-  var PROF=''+srow('prof','user','الملف الشخصي',(S.profile&&S.profile.name)||'إضافة الاسم والصورة')
-  +P('prof','<section class="card profile-edit"><div class="profile-preview" id="profile-preview"><div class="profile-photo-line"><div class="profile-edit-head"><button type="button" class="profile-photo-open" data-a="viewprofilephoto" aria-label="عرض الصورة بالحجم الكامل">'+profileAvatar(76)+'</button><div><h3 id="profile-preview-name">'+esc((S.profile&&S.profile.name)||'ملفك الشخصي')+'</h3><p class="note" id="profile-preview-age">'+((S.profile&&S.profile.age)?'العمر · '+esc(S.profile.age)+' سنة':'بياناتك الخاصة تظهر هنا بشكل أنيق')+'</p></div></div><button type="button" class="profile-photo-pencil" data-a="editprofilephoto" aria-label="تعديل الصورة">'+ic('pencil')+'</button></div></div><input id="profile-photo" type="file" accept="image/*" class="profile-file" style="display:none"><label class="profile-label" for="profile-name">الاسم</label><input id="profile-name" type="text" maxlength="40" value="'+esc(S.profile&&S.profile.name||'')+'" placeholder="اكتب اسمك"><label class="profile-label" for="profile-age">السن</label><input id="profile-age" type="number" inputmode="numeric" min="1" max="120" value="'+esc(S.profile&&S.profile.age||'')+'" placeholder="عمرك بالسنوات"><p class="note">يمكنك ترك السن أو الصورة دون إضافة.</p><label class="profile-label">طريقة المخاطبة</label>'+sgSeg([['male','ذكر'],['female','أنثى']],S.gender==='female'?'female':'male','gender')+'<button class="btn block" data-a="saveprofile" style="margin-top:10px">حفظ الملف الشخصي</button></section>');
-  var BK=''+srow('bk','cloud','النسخ الاحتياطي','على هذا الجهاز')
-  +P('bk','<section class="card"><p class="note">تنبيه خصوصية: النسخة الاحتياطية نص قابل للقراءة؛ احفظها في مكان خاص ولا ترسلها للآخرين.</p><textarea id="bk" placeholder="الصق النسخة هنا للاسترجاع"></textarea><input type="password" id="bkpw" autocomplete="off" placeholder="كلمة مرور للنسخة المشفّرة (٦ أحرف فأكثر)" style="margin:8px 0"><div class="row"><button class="btn" data-a="bkenc">نسخ مشفّر (موصى به)</button><button class="btn ghost" data-a="bkcopy">نسخ عادي</button></div><button class="btn ghost block" data-a="bkrestore" style="margin-top:8px">استرجاع (عادي أو مشفّر)</button>'+M+'</section>');
-  var RST=''+srow('rst','trash','مسح كل البيانات','')
-  +P('rst','<section class="card"><p class="note">سيُحذف كل ما سجّلته على هذا الجهاز نهائياً.</p><button class="btn bad" data-a="reset">'+(confirmReset?'تأكيد المسح النهائي؟ اضغط مرة أخرى':'مسح')+'</button>'+M+'</section>');
-  var SYS=''+srow('sys','info','حالة النظام','')
-  +P('sys',sgStatus())
-  +'<a class="lrow" href="https://wa.me/201020372842" target="_blank" rel="noopener">'+ic('help')+'<span class="t">مساعدة ودعم</span>'+CH+'</a>'
-  +'<button class="lrow" data-a="tourreplay">'+ic('sparkles')+'<span class="t">إعادة الجولة التعريفية</span>'+CH+'</button>'
-  +'<button class="lrow" data-a="tab" data-v="developer">'+ic('info')+'<span class="t">عن التطبيق</span>'+CH+'</button>';
-  var cats={
-   look:['الشكل والعرض',isDark()?'moon':'sun',LOOK+HOME],
-   notif:['التنبيهات','bell',NOTIF+PERM+'</details>'],
-   loc:['الموقع والمواقيت','mosque',LOC],
-   sec:['الأمان والبيانات','shield',A+BK+RST],
-   prof:['ملفي الشخصي','user',PROF],
-   about:['المساعدة والمعلومات','info',SYS]
+
+  /* ===== الأمان والبيانات ===== */
+  var SEC='<div class="sg-card">'
+   +sgNav('acct','shield','مركز الأمان','القفل والبصمة وستر المحتوى',secLevelLabel())
+   +P('acct',secPanel(M))
+   +sgNavTab('backup','cloud','النسخ الاحتياطي','نسخ واسترجاع وتشفير',(typeof gdConfigured==='function'&&gdConfigured())?'محلي + درايف':'على هذا الجهاز')
+   +'</div>'
+   +'<div class="sg-t dng">'+ic('shield')+' منطقة خطرة</div><div class="sg-card dng">'
+   +sgNav('rst','trash','مسح كل البيانات','حذف نهائي لكل ما سجّلته على هذا الجهاز','')
+   +P('rst','<section class="card"><p class="note">سيُحذف كل ما سجّلته على هذا الجهاز نهائياً.</p><button class="btn bad" data-a="reset">'+(confirmReset?'تأكيد المسح النهائي؟ اضغط مرة أخرى':'مسح')+'</button>'+M+'</section>')
+   +'</div>';
+
+  /* ===== ملفي الشخصي (كما هو) ===== */
+  var PROF=''+srow('prof','user','الملف الشخصي',esc((S.profile&&S.profile.name)||'إضافة الاسم والصورة'))
+  +P('prof','<section class="card profile-edit"><div class="profile-preview" id="profile-preview"><div class="profile-photo-line"><div class="profile-edit-head"><button type="button" class="profile-photo-open" data-a="viewprofilephoto" aria-label="عرض الصورة بالحجم الكامل">'+profileAvatar(76)+'</button><div><h3 id="profile-preview-name" class="keepar">'+esc((S.profile&&S.profile.name)||'ملفك الشخصي')+'</h3><p class="note" id="profile-preview-age">'+((S.profile&&S.profile.age)?'العمر · '+esc(S.profile.age)+' سنة':'بياناتك الخاصة تظهر هنا بشكل أنيق')+'</p></div></div><button type="button" class="profile-photo-pencil" data-a="editprofilephoto" aria-label="تعديل الصورة">'+ic('pencil')+'</button></div></div><input id="profile-photo" type="file" accept="image/*" class="profile-file" style="display:none"><label class="profile-label" for="profile-name">الاسم</label><input id="profile-name" type="text" maxlength="40" value="'+esc(S.profile&&S.profile.name||'')+'" placeholder="اكتب اسمك"><label class="profile-label" for="profile-age">السن</label><input id="profile-age" type="number" inputmode="numeric" min="1" max="120" value="'+esc(S.profile&&S.profile.age||'')+'" placeholder="عمرك بالسنوات"><p class="note">يمكنك ترك السن أو الصورة دون إضافة.</p><p class="note">طريقة المخاطبة</p><div class="row"><button class="btn ghost" data-a="gender" data-v="male">ذكر</button><button class="btn ghost" data-a="gender" data-v="female">أنثى</button></div><button class="btn block" data-a="saveprofile" style="margin-top:10px">حفظ الملف الشخصي</button></section>');
+
+  /* ===== المساعدة والمعلومات ===== */
+  var upd=(typeof updInfo==='function')?updInfo():null;
+  var ABOUT='<div class="sg-card">'
+   +sgNav('sys','info','حالة النظام','الجهاز والإصدار وحالة التذكيرات','')
+   +P('sys',sgStatus())
+   +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>التحقق والتنزيل داخل التطبيق</small></div><div class="sg-ctl"><span class="sg-val">'+(upd?('يتوفر '+esc(upd.versionName||String(upd.versionCode))):updCurrentLabel())+'</span>'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'
+   +'<button type="button" class="sg-row sg-btn" data-a="tourreplay"><span class="sg-ic">'+ic('sparkles')+'</span><div class="sg-tx"><b>إعادة الجولة التعريفية</b><small>جولة سريعة على أهم الشاشات</small></div>'+sgCtlV('')+'</button>'
+   +sgNavTab('developer','info','عن التطبيق','سجل الإصدارات · الخصوصية','')
+   +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصدر نص المصحف</b><small>نص المصحف: مجمع الملك فهد لطباعة المصحف الشريف، روايتا حفص (بيانات النسخة 18) وورش (بيانات النسخة 10)، منقول دون تعديل.</small></div></div>'
+   +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصادر التفسير والترقيم</b><small>التفسير الميسر لمجمع الملك فهد لطباعة المصحف الشريف، من قاعدة مركز تفسير للدراسات القرآنية (CC BY 4.0). مطابقة ترقيم ورش بحفص: quran-ws/qiraat-ayah-map (CC BY 4.0).</small></div></div>'
+   +'<div class="sg-row"><span class="sg-ic">'+ic('book')+'</span><div class="sg-tx"><b>مصدر التلاوة</b><small>التلاوة في حفص: محمد صديق المنشاوي (مرتل)، الصوت من Quran Foundation (verses.quran.com). وفي ورش: ياسين الجزائري (ورش عن نافع)، الصوت وتوقيت الآيات من mp3quran.net، مع تظليل الآية الجارية. يُبثّ مباشرة ولا يُحفظ على الجهاز، ويحتاج إنترنتًا.</small></div></div>'
+   +'</div>';
+
+  var APPBOTTOM='<div class="sg-t">التطبيق</div><div class="sg-card settings-app">'
+   +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>الإصدار '+esc(APP_VERSION)+' · التحقق من وجود تحديث</small></div>'+sgCtlV('')+'</button>'
+   +'<a class="sg-row sg-btn" href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer"><span class="sg-ic">'+ic('mail')+'</span><div class="sg-tx"><b>اقتراحات وملاحظات</b><small>شارك فكرة أو أبلغ عن مشكلة</small></div>'+sgCtlV('')+'</a></div>'+sgDeveloperCard();
+
+  var ACCOUNT='<div class="sg-card">'+sgNavSub('account-prof','user','الملف الشخصي','الاسم والصورة وطريقة المخاطبة',esc((S.profile&&S.profile.name)||''))+sgNavSub('account-sec','shield','الأمان والبيانات','القفل والبصمة والنسخ الاحتياطي','')+sgNavSub('account-about','info','المساعدة والمعلومات','حالة النظام والجولة وعن التطبيق','')+'</div>'+APPBOTTOM;
+  var views={look:LOOK,notif:NOTIF,loc:LOC,account:ACCOUNT};
+  var subs={
+   'look-adv':['look','خيارات متقدمة',ADV],
+   'notif-float':['notif','النوافذ العائمة',FLOAT],
+   'account-prof':['account','الملف الشخصي',PROF],
+   'account-sec':['account','الأمان والبيانات',SEC],
+   'account-about':['account','المساعدة والمعلومات',ABOUT]
   };
-  var catSub={look:'المظهر · الأرقام · الساعة · الرئيسية',notif:'تنبيهات · نوافذ عائمة · ودجت',loc:esc((S.loc&&S.loc.city)||'تحديد المدينة'),sec:secLevelLabel()+' · نسخ احتياطي',prof:esc((S.profile&&S.profile.name)||'الاسم والصورة'),about:'حالة النظام · الدعم · عن التطبيق'};
-  if(setCat&&cats[setCat]){
-    var c=cats[setCat];
-    return '<div class="sc-head"><button type="button" class="sc-back" data-a="scat" data-v="">'+ic('chev')+' الإعدادات</button><h2>'+ic(c[1])+c[0]+'</h2></div><div class="lrows">'+c[2]+'</div>'+COPY;
+  var CATS=[['look','العرض'],['notif','التنبيهات'],['loc','الموقع'],['account','حسابي']];
+  var activeCat=(setSub&&subs[setSub])?subs[setSub][0]:(setCat||'');
+  var tabsHtml='<div class="sg-tabs" role="tablist" aria-label="أقسام الإعدادات">'+CATS.map(function(x){return '<button type="button" role="tab" aria-selected="'+(activeCat===x[0])+'" class="'+(activeCat===x[0]?'on':'')+'" data-a="scat" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>';
+  var _an=scAnim?1:0;scAnim=0;
+  var pgCls='sg-tab-page',anCls=_an?'sg-anim':'';
+  if(setSub&&subs[setSub]){
+    var sub=subs[setSub];
+    return '<section class="'+pgCls+'">'+tabsHtml+'<div class="'+anCls+'"><div class="sc-head"><button type="button" class="sc-back" data-a="ssub" data-v="">'+ic('chev')+' رجوع</button><h2>'+sub[1]+'</h2></div>'+sub[2]+'</div></section>'+COPY;
   }
-  var nm=(S.profile&&S.profile.name)||'السائر إلى الله';
-  return '<button type="button" class="sc-me" data-a="scat" data-v="prof"><span class="sc-av">'+profileAvatar(52)+'</span><span class="sc-mt"><b>'+esc(nm)+'</b><small>الملف الشخصي</small></span>'+ic('chev')+'</button>'
-   +'<div class="sc-grid">'+Object.keys(cats).filter(function(k){return k!=='prof'}).map(function(k){return sgLit('<button type="button" class="sc-tile sc-'+k+'" data-a="scat" data-v="'+k+'"><span class="sc-ic">'+ic(cats[k][1])+'</span><b>'+cats[k][0]+'</b><small>'+catSub[k]+'</small></button>',(k==='notif'&&(nOn||fOn||wOn)))}).join('')+'</div>'
-   +COPY;
+  if(setCat&&views[setCat]){
+    var catN=(CATS.filter(function(x){return x[0]===setCat})[0]||['',''])[1];
+    return '<section class="'+pgCls+'">'+tabsHtml+'<div class="'+anCls+'"><div class="sc-head"><button type="button" class="sc-back" data-a="scat" data-v="">'+ic('chev')+' الإعدادات</button><h2>'+catN+'</h2></div><div class="sg-tab-body" role="tabpanel">'+views[setCat]+'</div></div></section>'+COPY;
+  }
+  var idxRow=function(act,val,icon,title,desc){return '<button type="button" class="sg-row sg-btn" data-a="'+act+'" data-v="'+val+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b><small>'+desc+'</small></div><div class="sg-ctl">'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'};
+  var INDEX='<div class="sg-t">الشكل</div><div class="sg-card">'+idxRow('scat','look','sparkles','العرض والمظهر','الوضع · النمط · اللغة · اللون · الأرقام والساعة')+'</div>'
+   +'<div class="sg-t">التنبيهات</div><div class="sg-card">'+idxRow('scat','notif','bell','التنبيهات والتذكيرات','القنوات · الصوت · النوافذ العائمة · الودجت')+'</div>'
+   +'<div class="sg-t">الموقع</div><div class="sg-card">'+idxRow('scat','loc','mosque','الموقع والمواقيت','المدينة · طريقة الحساب · الضبط')+'</div>'
+   +'<div class="sg-t">الخصوصية</div><div class="sg-card">'+idxRow('ssub','account-sec','shield','الأمان والبيانات','القفل · النسخ الاحتياطي · درايف · الاستعادة')+'</div>'
+   +'<div class="sg-t">حسابك</div><div class="sg-card">'+idxRow('scat','account','user','حسابي','الملف الشخصي · الأجهزة · الجولة التعريفية')+idxRow('ssub','account-about','info','المساعدة والمعلومات','التحديثات · سجل الإصدارات · فحص التطبيق')+'</div>';
+  return '<section class="'+pgCls+'"><div class="sg-tab-body '+anCls+'" role="tabpanel">'+INDEX+'</div></section>'+COPY;
 }

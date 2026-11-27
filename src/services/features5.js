@@ -72,7 +72,7 @@ function adkFind(id){var r=null;ADHKAR.forEach(function(g){g.items.forEach(funct
 function vNotes(){
   var L=ntList(),F=ntFavs().map(adkFind).filter(Boolean);
   var favs=F.length?F.map(function(it){return '<div class="nt-i fav"><p class="ar">'+esc(it.t)+'</p><button class="nt-x" data-a="adkfav" data-id="'+it.id+'" aria-label="إزالة من المفضلة">★</button></div>'}).join(''):'<p class="note">اضغط ★ بجانب أي ذكر في صفحة «الأذكار» ليظهر هنا.</p>';
-  var notes=L.length?L.slice().reverse().map(function(n){var k=NT_KINDS.filter(function(x){return x[0]===n.k})[0];return '<div class="nt-i"><small>'+(k?k[1]:'ملاحظة')+' · '+esc(n.d||'')+'</small><p>'+esc(n.t)+'</p><button class="nt-x" data-a="ntdel" data-v="'+n.id+'" aria-label="حذف">✕</button></div>'}).join(''):'<p class="note">لا ملاحظات بعد.</p>';
+  var notes=L.length?L.slice().reverse().map(function(n){var k=NT_KINDS.filter(function(x){return x[0]===n.k})[0];return '<div class="nt-i"><small>'+(k?k[1]:'ملاحظة')+' · '+esc(n.d||'')+'</small><p class="keepar">'+esc(n.t)+'</p><button class="nt-x" data-a="ntdel" data-v="'+n.id+'" aria-label="حذف">✕</button></div>'}).join(''):'<p class="note">لا ملاحظات بعد.</p>';
   return '<div class="nt"><section class="card"><h3>إضافة</h3><div class="chips">'+NT_KINDS.map(function(x){return '<button class="chip'+(ntKind===x[0]?' on':'')+'" data-a="ntkind" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
    +'<textarea id="nt-in" class="bk-ta" rows="3" maxlength="600" dir="rtl" placeholder="اكتب دعاءً أو فائدة أو ملاحظة…">'+esc(ntDraft)+'</textarea><div class="acts"><button class="btn" data-a="ntadd">حفظ</button></div></section>'
    +'<section class="card"><h3>أذكاري المفضلة</h3>'+favs+'</section><section class="card"><h3>ملاحظاتي</h3>'+notes+'</section>'+bmCard()+'</div>';
@@ -96,7 +96,7 @@ function zkResult(){
 }
 function vZakat(){
   var z=zkGet(),base=z.nisab==='silver'?'silver':'gold',hv=z.hawl,due=hv?f5add(hv,354):'';
-  var inp=function(k,l){return '<label class="zk-l"><span>'+l+'</span><input class="qd-i zk-i" type="text" inputmode="decimal" data-zk="'+k+'" value="'+(z[k]||'')+'" placeholder="٠"></label>'};
+  var inp=function(k,l){return '<label class="zk-l"><span>'+l+'</span><input class="qd-i zk-i" type="text" inputmode="decimal" data-zk="'+k+'" value="'+esc(z[k]||'')+'" placeholder="٠"></label>'};
   return '<div class="zk"><section class="card"><h3>حاسبة الزكاة</h3><p class="note">تقدير مساعد وليس فتوى. أسعار الذهب والفضة تُدخلها بنفسك لتكون دقيقة، وللحالات الخاصة راجع أهل العلم.</p>'
    +'<div class="chips"><button class="chip'+(base==='gold'?' on':'')+'" data-a="zkbase" data-v="gold">النصاب بالذهب</button><button class="chip'+(base==='silver'?' on':'')+'" data-a="zkbase" data-v="silver">النصاب بالفضة</button></div>'
    +inp('goldp','سعر جرام الذهب (عيار ٢٤)')+inp('silverp','سعر جرام الفضة')+ZK_F.map(function(x){return inp(x[0],x[1])}).join('')+'</section>'
@@ -115,12 +115,6 @@ function featAct(a,v,d){
   if(a==='ntadd'){var el=document.getElementById('nt-in'),t=(el?el.value:ntDraft).trim();if(!t){toast('اكتب نصًا أولًا');return true}
     var L=ntList();L.push({id:'n'+Date.now().toString(36),k:ntKind,t:t.slice(0,600),d:dk()});if(L.length>200)L.shift();ntDraft='';save();return false}
   if(a==='ntdel'){S.notes=ntList().filter(function(x){return x.id!==v});save();return false}
-  if(a==='adkall'){var gg=(typeof ADHKAR!=='undefined'?ADHKAR:[]).filter(function(x){return x.id===v})[0];if(gg){var kk=dk();S.counters[kk]=S.counters[kk]||{};var mx=0;gg.items.forEach(function(it){var lf=lockLeft('c:'+kk+':'+it.id);if(lf>0){mx=Math.max(mx,lf)}else delete S.counters[kk][it.id]});save();hapGo([20]);if(mx>0){lockBlock(mx);return false}}return false}
-  if(a==='adkcopy'||a==='adkshare'){var tx='';(typeof ADHKAR!=='undefined'?ADHKAR:[]).forEach(function(gx){gx.items.forEach(function(it){if(it.id===(d&&d.id))tx=it.t})});
-    if(tx){tx+='\n\n— السائر إلى الله';
-      if(a==='adkshare'&&navigator.share){navigator.share({text:tx}).catch(function(){})}
-      else{var okc=false;try{navigator.clipboard.writeText(tx);okc=true}catch(e){}if(!okc){try{var ta=document.createElement('textarea');ta.value=tx;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();okc=true}catch(e){}}toast(okc?'نُسخ الذكر':'تعذّر النسخ')}}
-    return true}
   if(a==='adkfav'){var id=d&&d.id,F=ntFavs(),i=F.indexOf(id);if(id){if(i>=0)F.splice(i,1);else F.push(id);save();hapGo([30])}return false}
   if(a==='zkbase'){zkGet().nisab=v==='silver'?'silver':'gold';save();return false}
   if(a==='zkhawl'){var z=zkGet();if(v==='set')z.hawl=dk();else delete z.hawl;save();return false}

@@ -5,7 +5,7 @@
 .sg-row{display:flex;align-items:center;gap:12px;padding:14px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--fg);font:inherit;text-align:start;width:100%;min-height:64px;text-decoration:none;box-sizing:border-box}
 .sg-card>.sg-row:last-child,.sg-card>.panel:last-child{border-bottom:0}
 .sg-btn{cursor:pointer}.sg-btn:active{background:color-mix(in srgb,var(--gold) 8%,transparent)}
-.sg-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good)}
+.sg-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold)}
 .sg-ic svg{width:22px;height:22px}
 .sg-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .sg-tx b{font-size:16px;font-weight:800;color:var(--fg)}.sg-tx small{font-size:13px;color:var(--muted);line-height:1.5}
@@ -13,7 +13,7 @@
 .sg-val{color:var(--muted);font-size:13px;font-weight:700}.sg-val .chev{width:18px;height:18px}
 .sg-seg{display:flex;background:color-mix(in srgb,var(--muted) 14%,transparent);border-radius:999px;padding:3px;gap:2px}
 .sg-seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;font-weight:700;padding:7px 11px;border-radius:999px;cursor:pointer;white-space:nowrap;min-height:0}
-.sg-seg button.on{background:var(--good);color:#fff}
+.sg-seg button.on{background:var(--gold);color:var(--on-gold,#fff)}
 .sg-row:has(.sg-seg){flex-wrap:wrap}.sg-row:has(.sg-seg) .sg-ctl{flex:1 0 100%;max-width:100%;order:3}.sg-row:has(.sg-seg) .sg-seg{width:100%}.sg-row:has(.sg-seg) .sg-seg button{flex:1}
 .sg-pill{display:inline-block;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:800;border:1px solid var(--line);white-space:nowrap}
 .sg-pill.ok{color:var(--good);border-color:var(--good);background:color-mix(in srgb,var(--good) 10%,transparent)}
@@ -25,3 +25,46 @@
 .sg-kv span{color:var(--muted)}.sg-kv b{font-weight:800}.sg-good{color:var(--good)}
 .sg-card .panel{margin:0;padding:10px;border-bottom:1px solid var(--line)}
 .sg-card .panel .card{margin:0}
+
+/* إعادة تصميم الإعدادات (الاتجاه أ): نقطة اللون، منطقة خطرة، تموّج «مفعّل»، حركة الصفحات الفرعية */
+.sg-dot{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;border:2px solid var(--line)}
+.sg-pl{font-size:13px;font-weight:700;color:var(--muted);margin:4px 2px 8px}
+.sg-t.dng{color:var(--bad,#e0645c)}
+.sg-card.dng{border-color:color-mix(in srgb,var(--bad,#e0645c) 38%,transparent)}
+.sg-card.dng .sg-ic{background:color-mix(in srgb,var(--bad,#e0645c) 12%,transparent);color:var(--bad,#e0645c)}
+.sg-row.lit .sg-ic{background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold)}
+.sg-card .sg-row:has(+ .panel){border-bottom:0}
+@keyframes scSubIn{from{transform:translateX(-26px);opacity:.35}to{transform:none;opacity:1}}
+@keyframes scIdxIn{from{transform:translateX(26px);opacity:.35}to{transform:none;opacity:1}}
+@keyframes scFadeIn{from{opacity:0}to{opacity:1}}
+.sc-page-sub{animation:scSubIn .28s cubic-bezier(.2,.7,.25,1)}
+.sc-page-index{animation:scIdxIn .28s cubic-bezier(.2,.7,.25,1)}
+html[data-trans="fade"] .sc-page-sub,html[data-trans="fade"] .sc-page-index{animation:scFadeIn .2s ease}
+html[data-trans="none"] .sc-page-sub,html[data-trans="none"] .sc-page-index{animation:none}
+
+/* شاشة النسخ الاحتياطي الموحّدة: بطاقة الحالة */
+.okcard{display:flex;gap:12px;align-items:center;padding:14px 16px;margin:4px 0 6px;border-radius:18px;border:1px solid color-mix(in srgb,var(--good) 35%,transparent);background:color-mix(in srgb,var(--good) 8%,transparent)}
+.okcard .oki{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+.okcard .oki svg{width:22px;height:22px}
+.okcard b{display:block;font-size:15px;font-weight:800}
+.okcard small{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+
+/* Approved compact Settings tabs, retaining existing row controls. */
+.sg-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;padding:4px;background:var(--surface-2);border-radius:16px;margin:4px 0 16px}
+.sg-tabs button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:12px;font-weight:800;min-height:44px;border-radius:12px;padding:6px 2px;cursor:pointer}
+.sg-tabs button.on{background:var(--gold);color:var(--on-gold,#fff)}
+.sg-tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+#app.sg-tabs-active,#app.sg-tabs-active.vin,#app.sg-tabs-active .sc-page-sub,#app.sg-tabs-active .sc-page-index,#app.sg-tabs-active .sg-tabs,#app.sg-tabs-active .sg-row,#app.sg-tabs-active .mtile{animation:none!important}
+
+.sg-row:has([data-rem-time="salatEvery"]){flex-wrap:wrap}.sg-row:has([data-rem-time="salatEvery"]) .sg-ctl{flex:1 0 100%;max-width:100%;order:3}.sg-row [data-rem-time="salatEvery"]{width:100%;min-height:44px}
+/* 54: grouped settings index - slide+fade transition (approved mockup) */
+.sg-anim{animation:sgSlideIn .25s cubic-bezier(.2,.8,.25,1) both}
+@keyframes sgSlideIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.sg-anim{animation:none}}
+/* منتقي اللغة (ورقة سفلية) */
+.lang-list{display:flex;flex-direction:column;margin-top:4px}
+.lang-it{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px 4px;background:none;border:0;border-bottom:1px solid var(--line,rgba(127,127,127,.18));color:inherit;font:inherit;font-weight:700;font-size:16px;text-align:start;cursor:pointer}
+.lang-it:last-child{border-bottom:0}
+.lang-it .lang-ck{display:inline-flex;color:var(--gold,#2fa08c)}
+.lang-it .lang-ck .i{width:20px;height:20px}
+.lang-it:active{opacity:.7}

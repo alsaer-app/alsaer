@@ -1,0 +1,27 @@
+// Loads the real ADHKAR + migrateAdhkarSplit from src and checks the saved-counter migration.
+const fs=require('fs'),vm=require('vm');
+const a=fs.readFileSync('src/constants/adhkar.js','utf8'),s=fs.readFileSync('src/services/storage.js','utf8');
+const m=s.slice(s.indexOf('var ADHKAR_SPLIT'),s.indexOf('function fixShape'));
+const ctx={};vm.createContext(ctx);vm.runInContext(a+'\n'+m+'\nthis.ADHKAR=ADHKAR;this.mig=migrateAdhkarSplit;',ctx);
+let bad=0;const t=(n,c)=>{console.log((c?'PASS ':'FAIL ')+n);if(!c)bad++};
+const ids=[];ctx.ADHKAR.forEach(g=>g.items.forEach(i=>ids.push(i.id)));
+t('ids unique',new Set(ids).size===ids.length);
+t('old grouped ids gone from list',!['m6','e6','p9','s2','e4'].some(x=>ids.includes(x)));
+t('split ids present',['m6a','m6b','m6c','e6a','e6c','p9a','p9c','s2a','s2c','e4a','e4b'].every(x=>ids.includes(x)));
+const n={};ctx.ADHKAR.forEach(g=>g.items.forEach(i=>n[i.id]=i.n));
+t('n kept (3,3,1,3,33)',n.m6a===3&&n.e6b===3&&n.p9c===1&&n.s2a===3&&n.e4a===33&&n.e4b===33);
+const o={counters:{'2026-11-20':{m6:3,e6:1,p9:1,s2:2,e4:33,m1:1},'2026-11-21':{m6:2,m6a:3,e4:50},'2026-11-22':{m1:1},'bad':null}};
+const before=JSON.stringify(o.counters['2026-11-22']);
+ctx.mig(o);const c=o.counters['2026-11-20'];
+t('complete group stays complete',c.m6a===3&&c.m6b===3&&c.m6c===3);
+t('partial copied',c.e6a===1&&c.e6b===1&&c.e6c===1&&c.s2a===2&&c.s2c===2);
+t('p9 done',c.p9a===1&&c.p9b===1&&c.p9c===1);
+t('e4 split',c.e4a===33&&c.e4b===33);
+t('unrelated untouched',c.m1===1&&JSON.stringify(o.counters['2026-11-22'])===before);
+t('old keys kept (nothing deleted)',c.m6===3&&c.e4===33);
+const d=o.counters['2026-11-21'];
+t('existing new value not overwritten',d.m6a===3&&d.m6b===2);
+t('capped at n',d.e4a===33&&d.e4b===33);
+const j=JSON.stringify(o);ctx.mig(o);t('idempotent',JSON.stringify(o)===j);
+ctx.mig(null);ctx.mig({});ctx.mig({counters:5});t('bad input safe',true);
+process.exit(bad?1:0);

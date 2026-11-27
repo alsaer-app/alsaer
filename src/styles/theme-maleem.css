@@ -127,8 +127,8 @@ body.rd .rbar.rdim{opacity:.15;transform:translateY(10px);pointer-events:none}
 
 /* achievements */
 .astats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 12px}
-.astat{padding:14px 8px;text-align:center;border-radius:20px}
-.astat small{font-size:.9rem;font-weight:500;color:var(--muted);display:block}
+.astat{padding:14px 8px;text-align:center;min-width:0;border-radius:20px}
+.astat small{font-size:.9rem;font-weight:500;color:var(--muted);display:block;overflow-wrap:anywhere;hyphens:auto;min-width:0}
 .astat b{font-size:1.9rem;font-weight:700;display:block;margin-top:2px;font-variant-numeric:tabular-nums}
 .badges{gap:12px}
 .bd{border-radius:20px;padding:16px 8px 12px;gap:8px}
@@ -154,13 +154,14 @@ body.rd .rbar.rdim{opacity:.15;transform:translateY(10px);pointer-events:none}
 /* splash (reference: tile rises, word writes itself) */
 @keyframes spUp{to{opacity:1;transform:none}}
 @keyframes spWrite{to{clip-path:inset(0 0 0 0)}}
-.splash{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:0}
-.splash .sp-tile{width:96px;height:96px;border-radius:27px;position:relative;overflow:hidden;background:linear-gradient(135deg,#12E3D2 0%,#02A5A4 50%,#00535F 100%);box-shadow:0 14px 30px -12px rgba(0,83,95,.55);opacity:0;transform:translateY(46px) scale(.88);animation:spUp .46s cubic-bezier(.2,.9,.25,1.15) forwards;display:grid;place-items:center}
+.splash{position:fixed;inset:0;z-index:300;background:#061a1d radial-gradient(circle at 50% 30%,#0f3a35 0,#0a2a2b 260px,#061a1d 520px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;animation:none}
+.splash .sp-tile{width:104px;height:104px;border-radius:30px;position:relative;overflow:hidden;background:transparent;box-shadow:0 16px 36px -12px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.08);display:grid;place-items:center}
 .splash .sp-tile svg{width:64px;height:64px}
-.splash .t{font-family:var(--font-ui);font-weight:700;font-size:2rem;line-height:1.2;color:var(--fg);white-space:nowrap;clip-path:inset(0 0 0 100%);animation:spWrite .42s .28s cubic-bezier(.45,0,.2,1) forwards;background:none;-webkit-background-clip:border-box;filter:none}
-.splash .s{color:var(--muted);font-size:.95rem;font-weight:500;text-align:center;opacity:0;animation:spUp .4s .6s ease forwards;transform:translateY(6px)}
-.splash .ld{height:5px;background:var(--surface-2);width:min(200px,56%);border-radius:999px;overflow:hidden}
-.splash .ld i{background:linear-gradient(90deg,#7DF4E2,#A6FBEB)}
+.splash .sp-tile img{width:100%;height:100%;object-fit:cover;display:block}
+.splash .t{font-family:var(--font-ui);font-weight:700;font-size:2.2rem;line-height:1.25;color:#fff;white-space:nowrap;margin-top:26px;background:none;-webkit-background-clip:border-box;filter:none;text-shadow:none}
+.splash .s{color:#8ea79c;font-size:1rem;font-weight:500;text-align:center;margin-top:10px;line-height:1.7}
+.splash .ld{position:absolute;bottom:calc(34px + env(safe-area-inset-bottom,0px));height:3px;width:46%;max-width:200px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
+.splash .ld i{display:block;height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,#5ccfb7,#dcb871);animation:load 1.3s linear forwards}
 .splash .ver{display:none}
 .gc{border-radius:20px}
 .chipv{display:inline-flex;align-items:center;gap:6px;margin-bottom:10px}

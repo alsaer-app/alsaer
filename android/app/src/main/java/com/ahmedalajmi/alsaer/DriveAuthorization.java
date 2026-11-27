@@ -1,0 +1,86 @@
+package com.ahmedalajmi.alsaer;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.webkit.WebView;
+import com.google.android.gms.auth.api.identity.AuthorizationRequest;
+import com.google.android.gms.auth.api.identity.AuthorizationResult;
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.auth.api.identity.RevokeAccessRequest;
+import com.google.android.gms.common.api.Scope;
+import org.json.JSONObject;
+import java.util.Collections;
+
+/** Device-owned access tokens. No client secret, server exchange or redirect URI. */
+final class DriveAuthorization {
+    static final int REQUEST = 7402;
+    private final MainActivity activity;
+    private boolean busy;
+    private long busySince;
+    private boolean interactive;
+    DriveAuthorization(MainActivity activity) { this.activity = activity; }
+    void authorize(boolean allowUi) { authorize(allowUi, null); }
+    /** Silent requests name the account chosen at link time; without it Play may resolve a different default account, find no grant for it and report consent-required. */
+    void authorize(boolean allowUi, String accountEmail) {
+        activity.runOnUiThread(() -> {
+            // A wedged latch (result never delivered) must not block relinking forever; the JS side times out at 300s.
+            if (busy && System.currentTimeMillis() - busySince <= 300000) { deliver("", "busy"); return; }
+            busy = true; busySince = System.currentTimeMillis(); interactive = allowUi;
+            AuthorizationRequest.Builder builder = AuthorizationRequest.builder()
+                .setRequestedScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive.file")));
+            // Only an explicit Link/change-account action asks for an account picker.
+            if (allowUi) builder.setPrompt(AuthorizationRequest.Prompt.SELECT_ACCOUNT);
+            else if (accountEmail != null && !accountEmail.isEmpty() && accountEmail.indexOf('@') > 0) builder.setAccount(new android.accounts.Account(accountEmail, "com.google"));
+            AuthorizationRequest request = builder.build();
+            Identity.getAuthorizationClient(activity).authorize(request)
+                .addOnSuccessListener(this::accept)
+                .addOnFailureListener(e -> deliver("", "authorization-failed"));
+        });
+    }
+    /** Full local unlink: clears Play services' cached grant/token so a later authorize() cannot hand back a stale revoked token. Best-effort: the HTTP revoke in JS governs success/failure; this only cleans the on-device cache. */
+    void revoke() {
+        try {
+            Identity.getAuthorizationClient(activity)
+                .revokeAccess(RevokeAccessRequest.builder()
+                    .setScopes(Collections.singletonList(new Scope("https://www.googleapis.com/auth/drive.file")))
+                    .build());
+        } catch (Exception ignored) { }
+    }
+    /** Clears one cached access token in Play services (GoogleAuthUtil.clearToken blocks, so it runs off the UI thread) and tells the page when done, success or not. */
+    void clearToken(String token) {
+        new Thread(() -> {
+            try { com.google.android.gms.auth.GoogleAuthUtil.clearToken(activity, token); } catch (Exception ignored) { }
+            WebView view = activity.getBridge() == null ? null : activity.getBridge().getWebView();
+            if (view != null) view.post(() -> view.evaluateJavascript("window.gdriveOnTokenCleared&&window.gdriveOnTokenCleared()", null));
+        }, "alsaer-clear-token").start();
+    }
+    private void accept(AuthorizationResult result) {
+        if (result.hasResolution()) {
+            if (!interactive) { deliver("", "consent-required"); return; }
+            try {
+                activity.startIntentSenderForResult(result.getPendingIntent().getIntentSender(), REQUEST, null, 0, 0, 0);
+            } catch (Exception e) { deliver("", "resolution-failed"); }
+            return;
+        }
+        String token = result.getAccessToken();
+        if (!result.getGrantedScopes().contains("https://www.googleapis.com/auth/drive.file") || token == null || token.isEmpty()) {
+            deliver("", "scope-not-granted"); return;
+        }
+        String email = "";
+        try { if (result.toGoogleSignInAccount() != null && result.toGoogleSignInAccount().getEmail() != null) email = result.toGoogleSignInAccount().getEmail(); } catch (Exception ignored) {}
+        deliver(token, "", email);
+    }
+    boolean onResult(int request, int result, Intent data) {
+        if (request != REQUEST) return false;
+        if (result != Activity.RESULT_OK || data == null) { deliver("", "cancelled"); return true; }
+        try { accept(Identity.getAuthorizationClient(activity).getAuthorizationResultFromIntent(data)); }
+        catch (Exception e) { deliver("", "authorization-failed"); }
+        return true;
+    }
+    private void deliver(String token, String error) { deliver(token, error, ""); }
+    private void deliver(String token, String error, String email) {
+        busy = false;
+        WebView view = activity.getBridge() == null ? null : activity.getBridge().getWebView();
+        if (view != null) view.post(() -> view.evaluateJavascript("window.gdriveOnNativeToken&&window.gdriveOnNativeToken(" + JSONObject.quote(token) + "," + JSONObject.quote(error) + "," + JSONObject.quote(email) + ")", null));
+    }
+}

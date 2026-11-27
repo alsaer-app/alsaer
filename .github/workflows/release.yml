@@ -44,14 +44,23 @@ jobs:
           python-version: '3.11'
 
       - name: Determine version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            V="${{ inputs.version }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            V="$INPUT_VERSION"
           else
             V="${GITHUB_REF_NAME#v}"
           fi
-          # versionCode must always stay above the current installed base (10145)
-          CODE=$((10145 + ${{ github.run_number }}))
+          echo "$V" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "Version must be x.y.z (got: $V)"; exit 1; }
+          # versionCode is explicit: it is read from android/app/build.gradle (the single source of truth),
+          # and the versionName there must equal the tag/input version. This keeps the code above every
+          # installed test build (10200) instead of deriving a lower number from the name.
+          CODE=$(sed -nE 's/^[[:space:]]*versionCode[[:space:]]+([0-9]+).*/\1/p' android/app/build.gradle | head -1)
+          NAME=$(sed -nE 's/^[[:space:]]*versionName[[:space:]]+"([^"]+)".*/\1/p' android/app/build.gradle | head -1)
+          [ -n "$CODE" ] || { echo "versionCode not found in android/app/build.gradle"; exit 1; }
+          [ "$NAME" = "$V" ] || { echo "build.gradle versionName ($NAME) does not match $V"; exit 1; }
           echo "VERSION_NAME=$V" >> "$GITHUB_ENV"
           echo "VERSION_CODE=$CODE" >> "$GITHUB_ENV"
           echo "Building v$V (versionCode $CODE)"
@@ -121,8 +130,24 @@ jobs:
       - name: Publish update.json
         run: |
           python3 - <<'PY'
-          import json, os
+          import json, os, re
           repo = os.environ['GITHUB_REPOSITORY']
+          # notes: one line per sentence of the latest release-log entry (src/screens/more.js), max 500 chars
+          notes = ''
+          try:
+              first = open('src/screens/more.js', encoding='utf-8').readline()
+              m = re.match(r"var RL_RAW='<p><b>[^<]*</b><br>(.*?)</p>", first)
+              if m:
+                  items = [re.sub(r'<[^>]*>', '', x).strip().rstrip('.') for x in re.split(r'\.\s+', m.group(1))]
+                  out = ''
+                  for it in [i for i in items if i]:
+                      nxt = (out + '\n' + it) if out else it
+                      if len(nxt) > 500:
+                          break
+                      out = nxt
+                  notes = out
+          except Exception as e:
+              print('notes skipped:', e)
           data = {
               "appId": "com.ahmedalajmi.alsaer",
               "versionName": os.environ['VERSION_NAME'],
@@ -132,6 +157,8 @@ jobs:
               "sha256": os.environ['APK_SHA256'],
               "mandatory": False,
           }
+          if notes:
+              data["notes"] = notes
           with open('update.json', 'w', encoding='utf-8') as f:
               json.dump(data, f, ensure_ascii=False, indent=2)
               f.write('\n')

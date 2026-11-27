@@ -34,12 +34,22 @@ public class AlsaerWidget extends AppWidgetProvider {
         } catch (Throwable ignored) { }
     }
 
-    /** أرقام المعرّفات ثابتة (من widget_res/ids.txt) لأنها غير مسجّلة بالاسم في جدول الموارد. */
-    private static int id(String n) {
+    /** المعرّفات تُحلّ بالاسم من جدول الموارد (مسجّلة فيه)، مع أرقام widget_res/ids.txt احتياطًا إن تغيّرت الأرقام بين بناء وأحد. */
+    private static final java.util.HashMap<String, Integer> ID_CACHE = new java.util.HashMap<>();
+    private static int idFallback(String n) {
         switch (n) { case "wg_next": return 0x7f0900c6; case "wg_time": return 0x7f0900c7; case "wg_left": return 0x7f0900c8; case "wg_date": return 0x7f0900c9;
             case "wg_book": return 0x7f0900cb; case "wg_lbl": return 0x7f0900cc; case "wg_row": return 0x7f0900cd; case "wg_bg": return 0x7f0900ce;
             case "wg_pr": return 0x7f0900d0; case "wg_p1": return 0x7f0900d1; case "wg_p2": return 0x7f0900d2; case "wg_p3": return 0x7f0900d3;
             case "wg_p4": return 0x7f0900d4; case "wg_p5": return 0x7f0900d5; default: return 0x7f0900ca; }
+    }
+    private static int id(Context c, String n) {
+        Integer cached = ID_CACHE.get(n);
+        if (cached != null) return cached;
+        int r = 0;
+        try { r = c.getResources().getIdentifier(n, "id", c.getPackageName()); } catch (Throwable ignored) { }
+        if (r == 0) r = idFallback(n);
+        ID_CACHE.put(n, r);
+        return r;
     }
 
     /** إعدادات الودجت: theme (١٠ أساليب) · size s|m|l · design full|compact|prayers|clock · radius · alpha · date · left · book */
@@ -81,7 +91,7 @@ public class AlsaerWidget extends AppWidgetProvider {
     static void render(Context c, AppWidgetManager m, int[] ids) {
         int layout = c.getResources().getIdentifier("alsaer_widget", "layout", c.getPackageName());
         if (layout == 0) return;
-        String name = "افتح التطبيق", time = "--:--", date = "", book = "";
+        String name = NativeStrings.get(c, "open_app"), time = "--:--", date = "", book = "";
         long at = 0;
         java.util.ArrayList<String[]> up = new java.util.ArrayList<>();
         try {
@@ -92,7 +102,7 @@ public class AlsaerWidget extends AppWidgetProvider {
             if (l != null) for (int k = 0; k < l.length(); k++) {
                 JSONObject p = l.getJSONObject(k);
                 if (p.optLong("at") > now) {
-                    if (at == 0) { at = p.optLong("at"); name = "الصلاة القادمة: " + p.optString("n"); time = p.optString("t"); }
+                    if (at == 0) { at = p.optLong("at"); name = NativeStrings.get(c, "next_prayer") + " " + p.optString("n"); time = p.optString("t"); }
                     if (up.size() < 5) up.add(new String[]{p.optString("n"), p.optString("t")});
                 }
             }
@@ -114,32 +124,33 @@ public class AlsaerWidget extends AppWidgetProvider {
             RemoteViews v = new RemoteViews(c.getPackageName(), layout);
             int pw = Math.min(560, Math.max(80, (int) (wdp * den))), ph = Math.min(560, Math.max(60, (int) (hdp * den)));
             float rad = Math.min(Math.max(0, Math.min(40, st.optInt("radius", 22))) * den * ((float) pw / (wdp * den)), Math.min(pw, ph) / 2f);
-            try { v.setImageViewBitmap(id("wg_bg"), bg(pl, pw, ph, rad, st.optInt("alpha", 100))); } catch (Throwable ignored) { }
-            v.setTextViewText(id("wg_next"), clock ? name.replace("الصلاة القادمة: ", "") : name);
-            v.setTextViewText(id("wg_time"), time);
-            v.setTextViewText(id("wg_date"), date);
-            v.setTextViewText(id("wg_book"), book);
-            v.setTextColor(id("wg_next"), colT);
-            v.setTextColor(id("wg_time"), colX);
-            v.setTextColor(id("wg_lbl"), col2);
-            v.setTextColor(id("wg_left"), col2);
-            v.setTextColor(id("wg_date"), col2);
-            v.setTextColor(id("wg_book"), colA);
+            try { v.setImageViewBitmap(id(c, "wg_bg"), bg(pl, pw, ph, rad, st.optInt("alpha", 100))); } catch (Throwable ignored) { }
+            v.setTextViewText(id(c, "wg_next"), clock ? name.replace(NativeStrings.get(c, "next_prayer") + " ", "") : name);
+            v.setTextViewText(id(c, "wg_time"), time);
+            v.setTextViewText(id(c, "wg_date"), date);
+            v.setTextViewText(id(c, "wg_book"), book);
+            v.setTextColor(id(c, "wg_next"), colT);
+            v.setTextColor(id(c, "wg_time"), colX);
+            v.setTextViewText(id(c, "wg_lbl"), NativeStrings.get(c, "remaining") + " ");
+            v.setTextColor(id(c, "wg_lbl"), col2);
+            v.setTextColor(id(c, "wg_left"), col2);
+            v.setTextColor(id(c, "wg_date"), col2);
+            v.setTextColor(id(c, "wg_book"), colA);
             int tp = android.util.TypedValue.COMPLEX_UNIT_SP;
-            v.setTextViewTextSize(id("wg_next"), tp, (clock ? 14 : 13) * sc);
-            v.setTextViewTextSize(id("wg_time"), tp, (clock ? 40 : compact ? 22 : 26) * sc);
-            v.setTextViewTextSize(id("wg_lbl"), tp, 12 * sc);
-            v.setTextViewTextSize(id("wg_left"), tp, 12 * sc);
-            v.setTextViewTextSize(id("wg_date"), tp, 11 * sc);
-            v.setTextViewTextSize(id("wg_book"), tp, 11 * sc);
+            v.setTextViewTextSize(id(c, "wg_next"), tp, (clock ? 14 : 13) * sc);
+            v.setTextViewTextSize(id(c, "wg_time"), tp, (clock ? 40 : compact ? 22 : 26) * sc);
+            v.setTextViewTextSize(id(c, "wg_lbl"), tp, 12 * sc);
+            v.setTextViewTextSize(id(c, "wg_left"), tp, 12 * sc);
+            v.setTextViewTextSize(id(c, "wg_date"), tp, 11 * sc);
+            v.setTextViewTextSize(id(c, "wg_book"), tp, 11 * sc);
             boolean showDate = st.optBoolean("date", true) && date.length() > 0 && !compact;
             boolean showBook = st.optBoolean("book", true) && book.length() > 0 && !compact && !clock && hdp >= 110;
-            v.setViewVisibility(id("wg_date"), showDate || (clock && st.optBoolean("date", true) && date.length() > 0) ? android.view.View.VISIBLE : android.view.View.GONE);
-            v.setViewVisibility(id("wg_book"), showBook ? android.view.View.VISIBLE : android.view.View.GONE);
-            v.setViewVisibility(id("wg_row"), st.optBoolean("left", true) && !clock ? android.view.View.VISIBLE : android.view.View.GONE);
-            v.setViewVisibility(id("wg_pr"), prayers ? android.view.View.VISIBLE : android.view.View.GONE);
+            v.setViewVisibility(id(c, "wg_date"), showDate || (clock && st.optBoolean("date", true) && date.length() > 0) ? android.view.View.VISIBLE : android.view.View.GONE);
+            v.setViewVisibility(id(c, "wg_book"), showBook ? android.view.View.VISIBLE : android.view.View.GONE);
+            v.setViewVisibility(id(c, "wg_row"), st.optBoolean("left", true) && !clock ? android.view.View.VISIBLE : android.view.View.GONE);
+            v.setViewVisibility(id(c, "wg_pr"), prayers ? android.view.View.VISIBLE : android.view.View.GONE);
             if (prayers) for (int k = 1; k <= 5; k++) {
-                int pid = id("wg_p" + k);
+                int pid = id(c, "wg_p" + k);
                 if (k <= up.size()) {
                     v.setViewVisibility(pid, android.view.View.VISIBLE);
                     v.setTextViewText(pid, up.get(k - 1)[0] + "\n" + up.get(k - 1)[1]);
@@ -147,7 +158,7 @@ public class AlsaerWidget extends AppWidgetProvider {
                     v.setTextViewTextSize(pid, tp, 10 * sc);
                 } else v.setViewVisibility(pid, android.view.View.GONE);
             }
-            int left = id("wg_left");
+            int left = id(c, "wg_left");
             if (at > 0 && Build.VERSION.SDK_INT >= 24) {
                 v.setViewVisibility(left, android.view.View.VISIBLE);
                 v.setChronometerCountDown(left, true);
@@ -156,7 +167,7 @@ public class AlsaerWidget extends AppWidgetProvider {
             Intent open = new Intent(c, MainActivity.class);
             open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             int fl = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
-            v.setOnClickPendingIntent(id("wg_root"), PendingIntent.getActivity(c, 7100, open, fl));
+            v.setOnClickPendingIntent(id(c, "wg_root"), PendingIntent.getActivity(c, 7100, open, fl));
             m.updateAppWidget(wid, v);
         }
         if (at > 0) schedule(c, at + 2000);

@@ -64,16 +64,16 @@ function boSpark(b){
 }
 function boCard(b){
   var o=boOpt(),pct=Math.min(100,Math.round(b.read/b.pages*100)),left=Math.max(0,b.pages-b.read),td=boToday(b),fin=b.read>=b.pages,pz=b.st==='pause',st=boStreak(b),ed=boFinish(b),per=boPer(b),col=BO_COLS[b.col]||BO_COLS.gold;
-  var head='<div class="bo-h">'+boLogo(b)+'<div class="bo-t"><b>'+esc(b.n)+'</b><small>'+(b.au?esc(b.au)+' · ':'')+(fin?'✓ أتممت الكتاب':pz?'متوقف مؤقتًا · قرأت '+ar(b.read)+' من '+ar(b.pages):'قرأت '+ar(b.read)+' من '+ar(b.pages)+' · بقي '+ar(left)+' صفحة')+'</small></div><span class="bo-p" style="color:'+col+'">'+ar(pct)+'٪</span></div>'
+  var head='<div class="bo-h">'+boLogo(b)+'<div class="bo-t"><b class="keepar">'+esc(b.n)+'</b><small>'+(b.au?'<span class="keepar">'+esc(b.au)+'</span> · ':'')+(fin?'✓ أتممت الكتاب':pz?'متوقف مؤقتًا · قرأت '+ar(b.read)+' من '+ar(b.pages):'قرأت '+ar(b.read)+' من '+ar(b.pages)+' · بقي '+ar(left)+' صفحة')+'</small></div><span class="bo-p" style="color:'+col+'">'+ar(pct)+'٪</span></div>'
    +'<div class="bo-bar"><i style="width:'+pct+'%;background:'+col+'"></i></div>';
   if(o.view==='compact'&&!fin)return '<section class="card bo-c bo-k" style="border-inline-start:4px solid '+col+'">'+head+'<div class="bo-l">'+(pz?'<button class="btn ghost" data-a="bopause" data-v="'+b.id+'">استئناف</button>':'<input id="bo-n-'+b.id+'" class="qd-i" type="number" inputmode="numeric" min="1" value="'+per+'" aria-label="عدد الصفحات"><button class="btn" data-a="bolog" data-v="'+b.id+'">قرأت ✓</button>')+'<button class="btn ghost" data-a="boedit" data-v="'+b.id+'">تعديل</button></div></section>';
   return '<section class="card bo-c" style="border-inline-start:4px solid '+col+'">'+head
    +'<div class="bo-m">'+(fin||pz?'':'<span>'+ar(per)+' صفحة يوميًا'+(b.goal==='date'&&b.due?' (حتى '+esc(boDate(b.due).toLocaleDateString('ar-EG-u-nu-arab',{day:'numeric',month:'long'}))+')':'')+(ed?' · ينتهي نحو '+esc(ed):'')+'</span>')
    +(b.rem&&!fin&&!pz?'<span>🔔 '+esc(hmFmtSafe(b.t))+(b.days&&b.days.length?' · '+b.days.map(function(d){return BO_DAYS[d]}).join('، '):'')+'</span>':'')+(st?'<span>🔥 '+ar(st)+' يوم</span>':'')+(td?'<span>✓ قرأت اليوم '+ar(td)+'</span>':'')+boSpark(b)+'</div>'
-   +(b.note?'<p class="bo-nt">'+esc(b.note)+'</p>':'')
+   +(b.note?'<p class="bo-nt keepar">'+esc(b.note)+'</p>':'')
    +(fin?'<div class="bo-rt"><span>تقييمك:</span>'+[1,2,3,4,5].map(function(n){return '<button type="button" class="bo-st'+(n<=(b.rate||0)?' on':'')+'" data-a="borate" data-v="'+b.id+':'+n+'" aria-label="'+n+'">★</button>'}).join('')+'</div>'
      :pz?'':'<div class="bo-l"><input id="bo-n-'+b.id+'" class="qd-i" type="number" inputmode="numeric" min="1" value="'+per+'" aria-label="عدد الصفحات"><button class="btn" data-a="bolog" data-v="'+b.id+'">قرأت اليوم ✓</button></div>')
-   +(fin?'':'<div class="bo-l bo-pos"><label>أنا الآن في صفحة<input id="bo-p-'+b.id+'" class="qd-i" type="number" inputmode="numeric" min="0" max="'+b.pages+'" value="'+b.read+'"></label><button class="btn ghost" data-a="bopos" data-v="'+b.id+'">حفظ</button></div>')
+   +(fin?'':'<div class="bo-l bo-pos"><label>أنا الآن في صفحة<input id="bo-p-'+b.id+'" class="qd-i" type="number" inputmode="numeric" min="0" max="'+(parseInt(b.pages,10)||0)+'" value="'+(parseInt(b.read,10)||0)+'"></label><button class="btn ghost" data-a="bopos" data-v="'+b.id+'">حفظ</button></div>')
    +'<div class="bo-x">'+(td?'<button class="btn ghost" data-a="boundo" data-v="'+b.id+'">تراجع عن تسجيل اليوم</button>':'')+(fin?'':'<button class="btn ghost" data-a="bopause" data-v="'+b.id+'">'+(pz?'استئناف':'إيقاف مؤقت')+'</button>')+'<button class="btn ghost" data-a="boedit" data-v="'+b.id+'">تعديل</button><button class="btn ghost" data-a="bodel" data-v="'+b.id+'">'+(boDelAsk===b.id?'تأكيد الحذف':'حذف')+'</button></div></section>';
 }
 function hmFmtSafe(t){try{return typeof ptFmt==='function'?ptFmt(t):t}catch(e){return t}}

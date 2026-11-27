@@ -2,14 +2,15 @@
 var DG_E='٠١٢٣٤٥٦٧٨٩';
 function digitsConv(s,west){return west?s.replace(/[٠-٩]/g,function(c){return DG_E.indexOf(c)}):s.replace(/\d/g,function(c){return DG_E[c]})}
 function digitsWalk(root){
-  var west=U().digits==='west';if(!root)return;
+  var west=U().digits==='west'||lang()!=='ar';if(!root)return;
   var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null),n;
   while((n=w.nextNode())){var p=n.parentNode;if(!p||(p.closest&&p.closest('.mp,.keepar,.qv,.mushaf,script,style,textarea,input,.tin')))continue;
     var v=n.nodeValue;if(!(west?/[٠-٩]/:/\d/).test(v))continue;var r=digitsConv(v,west);if(r!==v)n.nodeValue=r}
 }
 function digitsApply(force){
   if(!U().digits)U().digits='east'; /* الافتراضي مشرقية كما تعرض شاشة الإعدادات */
-  ['app','top','tabs'].forEach(function(i){digitsWalk(document.getElementById(i))});
+  /* Sheets, dialogs and toasts are appended directly to body, outside app/top/tabs. */
+  digitsWalk(document.body);
   if(force)try{render()}catch(e){}
 }
 (function(){if(!window.MutationObserver)return;var t=null;

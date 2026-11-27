@@ -25,28 +25,65 @@ import java.util.Calendar;
 public final class AlarmScheduler {
     static final String PREFS = "alsaer_notif";
     static final String K_ITEMS = "items", K_IDS = "ids", K_PENDING = "pending", K_ROUTE = "route", K_SOUND = "sound";
-    static final String CH_CHIME = "alsaer_reminders_v7";
-    static final String CH_SILENT = "alsaer_reminders_silent_v7";
-    static final String CH_SYSTEM = "alsaer_reminders_system_v7";
+    /* بند 62: قنوات الإشعارات حسب الفئة (صلاة/صيام/عادات) × نمط الصوت، تظهر في إعدادات النظام فيمكن كتم فئة دون غيرها. القنوات القديمة بأسماء الأنماط تُحذف عند أول تشغيل. */
+    static final String CH_OLD_CHIME = "alsaer_reminders_v7";
+    static final String CH_OLD_SILENT = "alsaer_reminders_silent_v7";
+    static final String CH_OLD_SYSTEM = "alsaer_reminders_system_v7";
     static final String ACTION_ALARM = "com.ahmedalajmi.alsaer.ALARM";
     static final String ACTION_DONE = "com.ahmedalajmi.alsaer.DONE";
     static final String ACTION_SNOOZE = "com.ahmedalajmi.alsaer.SNOOZE";
+    static final String ACTION_SNOOZE_STOP = "com.ahmedalajmi.alsaer.SNOOZE_STOP";
     static final long SNOOZE_MS = 10L * 60L * 1000L;
-
+    /* التأجيل التلقائي: إعادة الرنين كل ١٠ دقائق حتى ٣ مرات لكل إطلاق ثم يتوقف */
+    static final int SNOOZE_MAX = 3;
+    static boolean snoozeAuto(Context c){ return prefs(c).getBoolean("snz-auto", true); }
+    static void setSnoozeAuto(Context c, boolean on){ prefs(c).edit().putBoolean("snz-auto", on).apply(); }
+    static int snoozeChain(Context c, String id){ return prefs(c).getInt("snz-chain:"+id, 0); }
+    static void snoozeChainSet(Context c, String id, int n){ prefs(c).edit().putInt("snz-chain:"+id, n).apply(); }
+    static int snoozeActiveCount(Context c){
+        int n=0;
+        for(java.util.Map.Entry<String,?> e: prefs(c).getAll().entrySet()){
+            if(e.getKey().startsWith("snz-chain:")&&e.getValue() instanceof Integer&&(Integer)e.getValue()>0)n++;
+        }
+        return n;
+    }
+    static void cancelSnooze(Context c, String id){
+        AlarmManager am=(AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
+        Intent in=new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM).setData(alarmIdentity(id,true));
+        cancelIntent(c,am,code(c,id,"snooze"),in);
+        snoozeChainSet(c,id,0);
+    }
+    static void snoozeStopAll(Context c){
+        for(String k: new java.util.ArrayList<>(prefs(c).getAll().keySet())){
+            if(k.startsWith("snz-chain:"))cancelSnooze(c,k.substring("snz-chain:".length()));
+        }
+    }
     private AlarmScheduler() {}
 
     static SharedPreferences prefs(Context c) {
         return c.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    static int code(String id) { return id.hashCode() & 0x7fffffff; }
+    static int legacyCode(String id) { return id.hashCode() & 0x7fffffff; }
+
+    /* Persisted allocation, keyed by the full id AND purpose, never a hash. */
+    static int code(Context c,String id,String purpose) {
+        final SharedPreferences p=prefs(c);
+        return AlarmRequestIds.allocate(new AlarmRequestIds.Store(){
+            public int get(String key,int fallback){return p.getInt(key,fallback);}
+            public boolean save(String key,int value,int next){return p.edit().putInt(key,value).putInt("request-v2-next",next).commit();}
+        },id,purpose);
+    }
+    static Uri alarmIdentity(String id,boolean snooze){
+        return new Uri.Builder().scheme("alsaer-alarm").authority(snooze?"snooze":"normal").appendPath(id).build();
+    }
 
     static int immutable() { return Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0; }
 
     /* ---------- الجدول ---------- */
 
     public static synchronized void saveAndSchedule(Context c, String json) {
-        prefs(c).edit().putString(K_ITEMS, json == null ? "[]" : json).apply();
+        prefs(c).edit().putString("legacy-items-v2",prefs(c).getString(K_ITEMS,"[]")).putString(K_ITEMS, json == null ? "[]" : json).apply();
         scheduleAll(c);
     }
 
@@ -59,30 +96,92 @@ public final class AlarmScheduler {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject it = arr.optJSONObject(i);
             if (it == null) continue;
+            long once=it.optLong("at",0);
+            if(once>0&&prefs(c).getLong("fired-once:"+it.optString("id"),0)==once)continue;
             long at = nextTrigger(it, now);
-            if (at <= 0) continue;
+            /* أفق متحرك يومان: ما بعده يُجدوَل عند إعادة البناء التالية */
+            if (at <= 0 || !ReminderPlan.inHorizon(at, now)) continue;
             scheduleAt(c, it, at, false);
-            ids.put(code(it.optString("id")));
+            ids.put(code(c,it.optString("id"),"alarm"));
         }
         prefs(c).edit().putString(K_IDS, ids.toString()).apply();
+        scheduleRebuild(c);
+    }
+
+    /** منبّه إعادة بناء غير دقيق بعد ٣٦ ساعة: يمدّ الأفق حتى لو لم يُفتح التطبيق ولم يعمل WorkManager. لا يُلغى مع cancelAll. */
+    static void scheduleRebuild(Context c) {
+        try {
+            AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+            if (am == null) return;
+            Uri identity = new Uri.Builder().scheme("alsaer-alarm").authority("rebuild").appendPath("next").build();
+            Intent in = new Intent(c, AlarmReceiver.class).setAction(ACTION_ALARM).setData(identity);
+            in.putExtra("kind", "rebuild");
+            PendingIntent pi = PendingIntent.getBroadcast(c, code(c, "__rebuild__", "alarm"), in, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
+            long at = System.currentTimeMillis() + ReminderPlan.REBUILD_AFTER_MS;
+            if (Build.VERSION.SDK_INT >= 23) am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
+            else am.set(AlarmManager.RTC_WAKEUP, at, pi);
+        } catch (Throwable ignored) { }
     }
 
     static void cancelAll(Context c) {
-        AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
-        JSONArray ids;
-        try { ids = new JSONArray(prefs(c).getString(K_IDS, "[]")); } catch (Exception e) { return; }
-        for (int i = 0; i < ids.length(); i++) {
-            Intent in = new Intent(c, AlarmReceiver.class).setAction(ACTION_ALARM);
-            PendingIntent pi = PendingIntent.getBroadcast(c, ids.optInt(i), in,
-                    PendingIntent.FLAG_NO_CREATE | immutable());
-            if (pi != null) { am.cancel(pi); pi.cancel(); }
-        }
+        AlarmManager am=(AlarmManager)c.getSystemService(Context.ALARM_SERVICE);
+        /* Old integer-only records cancel pre-upgrade alarms without data URIs. */
+        try {
+            JSONArray ids=new JSONArray(prefs(c).getString(K_IDS,"[]"));
+            for(int n=0;n<ids.length();n++)cancelIntent(c,am,ids.optInt(n),new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM));
+        }catch(Exception ignored){}
+        final JSONArray keptSnoozes=new JSONArray();
+        /* Both normal and snooze entries are tracked as exact identity records, including deleted items. */
+        try {
+            JSONArray records=new JSONArray(prefs(c).getString("alarm-records-v2","[]"));
+            for(int n=0;n<records.length();n++){
+                JSONObject r=records.optJSONObject(n);if(r==null)continue;
+                /* الغفوات النشطة لا تُلغى عند إعادة الجدولة (فتح التطبيق/حفظ الجدول) وتبقى مسجّلة */
+                if(r.optString("uri").startsWith("alsaer-alarm://snooze/")){keptSnoozes.put(r);continue;}
+                Intent in=new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM).setData(Uri.parse(r.optString("uri")));
+                cancelIntent(c,am,r.optInt("rc"),in);
+            }
+        }catch(Exception ignored){}
+        /* Legacy snoozes were never in K_IDS. Recover every previously known item's snooze. */
+        try {
+            JSONArray old=new JSONArray(prefs(c).getString("legacy-items-v2",prefs(c).getString(K_ITEMS,"[]")));
+            for(int n=0;n<old.length();n++){
+                JSONObject it=old.optJSONObject(n);if(it==null)continue;String id=it.optString("id");
+                if(!prefs(c).getBoolean("legacy-identity-cleaned-v2",false)){
+                    NotificationManagerCompat.from(c).cancel(legacyCode(id));
+                    cancelLegacyAction(c,legacyCode(id+"#done"),ACTION_DONE);
+                    cancelLegacyAction(c,legacyCode(id+"#snzact"),ACTION_SNOOZE);
+                    PendingIntent open=PendingIntent.getActivity(c,legacyCode(id),new Intent(c,MainActivity.class),PendingIntent.FLAG_NO_CREATE|immutable());if(open!=null)open.cancel();
+                }
+                cancelIntent(c,am,legacyCode(id),new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM));
+                cancelIntent(c,am,legacyCode(id+"#snz"),new Intent(c,AlarmReceiver.class).setAction(ACTION_ALARM));
+            }
+        }catch(Exception ignored){}
+        prefs(c).edit().putBoolean("legacy-identity-cleaned-v2",true).putString("alarm-records-v2",keptSnoozes.toString()).putString("legacy-items-v2",prefs(c).getString(K_ITEMS,"[]")).apply();
+    }
+    static void cancelLegacyAction(Context c,int rc,String action){
+        PendingIntent pi=PendingIntent.getBroadcast(c,rc,new Intent(c,ActionReceiver.class).setAction(action),PendingIntent.FLAG_NO_CREATE|immutable());if(pi!=null)pi.cancel();
+    }
+    static void cancelIntent(Context c,AlarmManager am,int rc,Intent in){
+        PendingIntent pi=PendingIntent.getBroadcast(c,rc,in,PendingIntent.FLAG_NO_CREATE|immutable());
+        if(pi!=null){if(am!=null)am.cancel(pi);pi.cancel();}
+    }
+    static synchronized void rememberAlarm(Context c,int rc,Uri uri){
+        try{
+            JSONArray old=new JSONArray(prefs(c).getString("alarm-records-v2","[]")),records=new JSONArray();
+            for(int n=0;n<old.length();n++){JSONObject r=old.optJSONObject(n);if(r!=null&&r.optInt("rc")!=rc)records.put(r);}
+            records.put(new JSONObject().put("rc",rc).put("uri",uri.toString()));
+            if(!prefs(c).edit().putString("alarm-records-v2",records.toString()).commit())throw new IllegalStateException("alarm record not saved");
+        }catch(org.json.JSONException e){throw new IllegalStateException(e);}
     }
 
     /** الموعد التالي بعد الوقت now (0 = لا يوجد). dow: 0=الأحد ... 6=السبت (مثل getDay في JS). */
     static long nextTrigger(JSONObject it, long now) {
         long at = it.optLong("at", 0);
-        if (at > 0) return at > now ? at : 0;
+        if (at > 0) {
+            /* الفائت لا يُطلق أبدًا (لا مهلة لحاق): يُسقط */
+            return at > now ? at : 0;
+        }
         int h = it.optInt("h", -1), m = it.optInt("m", 0);
         if (h < 0) return 0;
         JSONArray dow = it.optJSONArray("dow");
@@ -91,8 +190,13 @@ public final class AlarmScheduler {
         for (int d = 0; d < 8; d++) {
             Calendar c2 = (Calendar) base.clone();
             c2.add(Calendar.DAY_OF_YEAR, d);
-            c2.set(Calendar.HOUR_OF_DAY, h);
-            c2.set(Calendar.MINUTE, m);
+            String dayKey=String.format(java.util.Locale.US,"%04d-%02d-%02d",c2.get(Calendar.YEAR),c2.get(Calendar.MONTH)+1,c2.get(Calendar.DAY_OF_MONTH));
+            if(dayKey.equals(it.optString("skipDate")))continue;
+            JSONObject prayer=it.optJSONObject("prayer");
+            int clock=prayer==null?h*60+m:PrayerClock.minutes(c2,prayer);
+            if(clock<0)continue;
+            c2.set(Calendar.HOUR_OF_DAY, clock/60);
+            c2.set(Calendar.MINUTE, clock%60);
             c2.set(Calendar.SECOND, 0);
             c2.set(Calendar.MILLISECOND, 0);
             if (c2.getTimeInMillis() <= now) continue;
@@ -109,16 +213,19 @@ public final class AlarmScheduler {
 
     /** تنبيهات مرتبطة بدخول وقت الصلاة (والسحور والإفطار) تبقى دقيقة؛ غيرها نافذة مرنة توفّر البطارية. */
     static boolean needsExact(String id) {
-        return id != null && (id.startsWith("pray_") || id.startsWith("prep_") || id.startsWith("fs_") || id.startsWith("fi_"));
+        return id != null && (id.startsWith("pray_") || id.startsWith("prep_") || id.startsWith("fs_") || id.startsWith("fi_") || id.startsWith("wird"));
     }
 
     static void scheduleAt(Context c, JSONObject it, long at, boolean snooze) {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         String id = it.optString("id");
-        int rc = snooze ? code(id + "#snz") : code(id);
-        Intent in = new Intent(c, AlarmReceiver.class).setAction(ACTION_ALARM);
+        int rc = code(c,id,snooze?"snooze":"alarm");
+        Uri identity=alarmIdentity(id,snooze);
+        Intent in = new Intent(c, AlarmReceiver.class).setAction(ACTION_ALARM).setData(identity);
+        rememberAlarm(c,rc,identity);
         in.putExtra("item", it.toString());
         in.putExtra("snooze", snooze);
+        in.putExtra("due", at); // الموعد المقرر: يُسقط الاستلام المتأخر جدًا ويمنع تكرار نفس الموعد
         PendingIntent pi = PendingIntent.getBroadcast(c, rc, in, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
         boolean exact = snooze || needsExact(id);
         boolean canExact = Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms();
@@ -147,38 +254,51 @@ public final class AlarmScheduler {
         if (Build.VERSION.SDK_INT < 26) return;
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         long[] vibs = new long[]{0, 90, 90, 150};
-        Uri soundUri = Uri.parse("android.resource://" + c.getPackageName() + "/" + R.raw.alsaer_tone);
+        Uri soundUri = rawUri(c, "alsaer_tone");
         AudioAttributes attrs = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build();
-        if (nm.getNotificationChannel(CH_CHIME) == null) {
-            NotificationChannel ch = new NotificationChannel(CH_CHIME, "السائر — تذكيرات بصوت هادئ", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("نغمة تغريد العصافير — نغمة إسلامية هادئة مخصصة للتطبيق");
-            ch.setSound(soundUri, attrs);
-            ch.enableVibration(true);
-            ch.setVibrationPattern(vibs);
-            ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            nm.createNotificationChannel(ch);
+        nm.deleteNotificationChannel(CH_OLD_CHIME);
+        nm.deleteNotificationChannel(CH_OLD_SILENT);
+        nm.deleteNotificationChannel(CH_OLD_SYSTEM);
+        // قنوات v1 (النغمة القديمة) تُستبدل بقنوات v2: الصوت يُثبَّت في القناة عند إنشائها فلا يتغير إلا بمعرّف جديد
+        for (String cat0 : new String[]{"pray","fast","habit"}) for (String m0 : new String[]{"","_silent","_system"}) nm.deleteNotificationChannel("alsaer_" + cat0 + m0 + "_v1");
+        String[][] cats = {{"pray","cat_pray"},{"fast","cat_fast"},{"habit","cat_habit"}};
+        String[][] modes = {{"chime","mode_chime","chime_tone_desc"},{"silent","mode_silent","silent_notif_desc"},{"system","mode_system","system_tone_desc"}};
+        for (String[] cat : cats) for (String[] mode : modes)
+            mkChan(nm, chId(cat[0], mode[0]), NativeStrings.get(c, "brand")+" — "+NativeStrings.get(c, cat[1])+" · "+NativeStrings.get(c, mode[1]), NativeStrings.get(c, mode[2]), mode[0], soundUri, attrs, vibs);
+        // صوت خاص لكل صلاة (نغمة النمط الافتراضي فقط). أسماء الصلوات تبقى عربية
+        for (int i = 0; i < PRAYER_KEYS.length; i++)
+            mkChan(nm, "alsaer_pray_" + PRAYER_KEYS[i] + "_v2", NativeStrings.get(c, "brand")+" — "+NativeStrings.get(c, "cat_pray")+" · "+prayerName(c, i), NativeStrings.get(c, "chime_tone_desc"), "chime", rawUri(c, "alsaer_pray_" + PRAYER_KEYS[i]), attrs, vibs);
+    }
+
+    private static void mkChan(NotificationManager nm, String id, String name, String desc, String mode, Uri soundUri, AudioAttributes attrs, long[] vibs) {
+        if (nm.getNotificationChannel(id) != null) return;
+        NotificationChannel ch = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_HIGH);
+        ch.setDescription(desc);
+        if ("silent".equals(mode)) { ch.setSound(null, null); ch.enableVibration(false); ch.setVibrationPattern(new long[]{0}); }
+        else if ("system".equals(mode)) { ch.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, attrs); ch.enableVibration(true); ch.setVibrationPattern(vibs); }
+        else { ch.setSound(soundUri, attrs); ch.enableVibration(true); ch.setVibrationPattern(vibs); }
+        ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        nm.createNotificationChannel(ch);
+    }
+
+    static final String[] PRAYER_KEYS = {"fajr","dhuhr","asr","maghrib","isha"};
+
+    static String prayerName(Context c, int i) {
+        switch (i) {
+            case 0: return NativeStrings.get(c, "prayer_fajr");
+            case 1: return NativeStrings.get(c, "prayer_dhuhr");
+            case 2: return NativeStrings.get(c, "prayer_asr");
+            case 3: return NativeStrings.get(c, "prayer_maghrib");
+            default: return NativeStrings.get(c, "prayer_isha");
         }
-        if (nm.getNotificationChannel(CH_SILENT) == null) {
-            NotificationChannel ch = new NotificationChannel(CH_SILENT, "السائر — تذكيرات بلا صوت", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("إشعارات صامتة؛ التذكير يظهر دون نغمة");
-            ch.setSound(null, null);
-            ch.enableVibration(false);
-            ch.setVibrationPattern(new long[]{0});
-            ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            nm.createNotificationChannel(ch);
-        }
-        if (nm.getNotificationChannel(CH_SYSTEM) == null) {
-            NotificationChannel ch = new NotificationChannel(CH_SYSTEM, "السائر — صوت النظام", NotificationManager.IMPORTANCE_HIGH);
-            ch.setDescription("استخدام نغمة إشعارات الهاتف الافتراضية");
-            ch.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, attrs);
-            ch.enableVibration(true);
-            ch.setVibrationPattern(vibs);
-            ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-            nm.createNotificationChannel(ch);
-        }
+    }
+
+    /** ملف صوت من res/raw بالاسم (بلا اعتماد على R.raw) */
+    static Uri rawUri(Context c, String name) {
+        return Uri.parse("android.resource://" + c.getPackageName() + "/" + c.getResources().getIdentifier(name, "raw", c.getPackageName()));
     }
 
     /** نمط الصوت المختار: chime | silent | system */
@@ -191,9 +311,29 @@ public final class AlarmScheduler {
         prefs(c).edit().putString(K_SOUND, ("silent".equals(m) || "system".equals(m)) ? m : "chime").apply();
     }
 
-    static String channelFor(Context c) {
+    static String categoryOf(String id) {
+        if (id != null && (id.startsWith("pray_") || id.startsWith("prep_"))) return "pray";
+        if (id != null && (id.startsWith("fs_") || id.startsWith("fi_"))) return "fast";
+        return "habit";
+    }
+
+    /** مفتاح الصلاة لإشعار وقت الصلاة نفسه فقط (pray_fajr...)، وإلا null (التنبيه المسبق prep_ يأخذ نغمة الإشعارات العامة) */
+    static String prayerKey(String id) {
+        if (id == null || !id.startsWith("pray_")) return null;
+        String k = id.substring(5);
+        return ("fajr".equals(k) || "dhuhr".equals(k) || "asr".equals(k) || "maghrib".equals(k) || "isha".equals(k)) ? k : null;
+    }
+
+    static String chId(String cat, String mode) {
+        String m = ("silent".equals(mode) || "system".equals(mode)) ? mode : "chime";
+        return "alsaer_" + cat + ("chime".equals(m) ? "" : "_" + m) + "_v2";
+    }
+
+    static String channelFor(Context c, String id) {
         String mode = soundMode(c);
-        return "silent".equals(mode) ? CH_SILENT : ("system".equals(mode) ? CH_SYSTEM : CH_CHIME);
+        String k = prayerKey(id);
+        if (k != null && "chime".equals(mode)) return "alsaer_pray_" + k + "_v2";
+        return chId(categoryOf(id), mode);
     }
 
     /** أيقونة كبيرة مطابقة لأيقونة التطبيق داخل الإشعار. */
@@ -215,11 +355,46 @@ public final class AlarmScheduler {
         }
     }
 
+    static final String GROUP_KEY = "alsaer_reminders_group";
+    static final String CH_SUMMARY = "alsaer_summary_v1";
+    static final int SUMMARY_ID = 7100;
+
+    /** ملخص المجموعة: قناة هادئة، والتنبيه للإشعارات الفرعية فقط. */
+    static void postSummary(Context c) {
+        try {
+            if (Build.VERSION.SDK_INT >= 26) {
+                NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+                if (nm.getNotificationChannel(CH_SUMMARY) == null) {
+                    NotificationChannel ch = new NotificationChannel(CH_SUMMARY, NativeStrings.get(c, "chan_summary"), NotificationManager.IMPORTANCE_LOW);
+                    ch.setSound(null, null);
+                    nm.createNotificationChannel(ch);
+                }
+            }
+            int n = 1;
+            if (Build.VERSION.SDK_INT >= 23) {
+                n = 0;
+                for (android.service.notification.StatusBarNotification sn : ((NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications())
+                    if (GROUP_KEY.equals(sn.getNotification().getGroup()) && sn.getId() != SUMMARY_ID) n++;
+            }
+            Intent open = new Intent(c, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent pi = PendingIntent.getActivity(c, SUMMARY_ID, open, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
+            Notification sum = new NotificationCompat.Builder(c, CH_SUMMARY)
+                    .setSmallIcon(R.drawable.ic_stat_alsaer)
+                    .setContentTitle(NativeStrings.get(c, "app_name"))
+                    .setContentText(String.format(NativeStrings.get(c, "notif_summary"), n))
+                    .setGroup(GROUP_KEY).setGroupSummary(true)
+                    .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
+                    .setContentIntent(pi).setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_LOW).build();
+            NotificationManagerCompat.from(c).notify(SUMMARY_ID, sum);
+        } catch (Throwable ignored) { }
+    }
+
     static void show(Context c, JSONObject it) {
         ensureChannel(c);
         String id = it.optString("id");
-        int nid = code(id);
-        String title = it.optString("title", "السائر إلى الله");
+        int nid = code(c,id,"notification");
+        String title = it.optString("title", NativeStrings.get(c, "app_name"));
         String body = it.optString("body", "");
 
         Intent open = new Intent(c, MainActivity.class);
@@ -227,7 +402,7 @@ public final class AlarmScheduler {
         open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent content = PendingIntent.getActivity(c, nid, open, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
 
-        NotificationCompat.Builder b = new NotificationCompat.Builder(c, channelFor(c))
+        NotificationCompat.Builder b = new NotificationCompat.Builder(c, channelFor(c, id))
                 .setSmallIcon(R.drawable.ic_stat_alsaer)
                 .setLargeIcon(launcherIcon(c))
                 .setContentTitle(title)
@@ -236,27 +411,39 @@ public final class AlarmScheduler {
                 .setContentIntent(content)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_REMINDER);
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setGroup(GROUP_KEY);
         if (Build.VERSION.SDK_INT < 26) {
-            b.setSound(Uri.parse("android.resource://" + c.getPackageName() + "/" + R.raw.alsaer_tone));
-            b.setVibrate(new long[]{0, 120, 80, 120, 80, 260});
+            String sound=soundMode(c);
+            b.setSound("silent".equals(sound)?null:"system".equals(sound)?Settings.System.DEFAULT_NOTIFICATION_URI:rawUri(c, prayerKey(id) != null ? "alsaer_pray_" + prayerKey(id) : "alsaer_tone"));
+            b.setVibrate("silent".equals(sound)?new long[]{0}:new long[]{0, 120, 80, 120, 80, 260});
         }
 
         JSONObject act = it.optJSONObject("act");
+        String firstLabel = NativeStrings.get(c, "start");
+        PendingIntent firstIntent = content;
         if (act != null) {
             Intent done = new Intent(c, ActionReceiver.class).setAction(ACTION_DONE);
             done.putExtra("key", act.optString("k"));
             done.putExtra("nid", nid);
-            PendingIntent dpi = PendingIntent.getBroadcast(c, code(id + "#done"), done, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
-            b.addAction(0, act.optString("l", "تم"), dpi);
+            PendingIntent dpi = PendingIntent.getBroadcast(c, code(c,id,"done"), done, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
+            firstLabel = act.optString("l", NativeStrings.get(c, "done"));
+            firstIntent = dpi;
         }
+        b.addAction(0, firstLabel, firstIntent);
         Intent snz = new Intent(c, ActionReceiver.class).setAction(ACTION_SNOOZE);
         snz.putExtra("item", it.toString());
         snz.putExtra("nid", nid);
-        PendingIntent spi = PendingIntent.getBroadcast(c, code(id + "#snzact"), snz, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
-        b.addAction(0, "ذكّرني بعد ١٠ دقائق", spi);
+        PendingIntent spi = PendingIntent.getBroadcast(c, code(c,id,"snooze-action"), snz, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
+        b.addAction(0, NativeStrings.get(c, "remind_10_min"), spi);
+        Intent stp = new Intent(c, ActionReceiver.class).setAction(ACTION_SNOOZE_STOP);
+        stp.putExtra("id", id);
+        stp.putExtra("nid", nid);
+        PendingIntent stpi = PendingIntent.getBroadcast(c, code(c,id,"snooze-stop"), stp, PendingIntent.FLAG_UPDATE_CURRENT | immutable());
+        b.addAction(0, NativeStrings.get(c, "stop"), stpi);
 
         try { NotificationManagerCompat.from(c).notify(nid, b.build()); } catch (SecurityException ignored) {}
+        postSummary(c);
         if (FloatFeed.linked(c)) FloatingReminderService.showIfEnabled(c, title, body, it.optString("route", ""), it, nid);
     }
     /* ---------- ما يحتاجه التطبيق عند فتحه ---------- */

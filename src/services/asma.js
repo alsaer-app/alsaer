@@ -114,14 +114,25 @@ function asmQuizNew(){
   var ci=Math.floor(Math.random()*ASM.length),c=ASM[ci],ask=Math.random()>.5,pool=ASM.filter(function(x,i){return i!==ci}).sort(function(){return Math.random()-.5}).slice(0,3);
   asmS.qz={c:c.id,ask:ask,opts:[c].concat(pool).sort(function(){return Math.random()-.5}).map(function(x){return x.id}),ans:null};
 }
+function asmNz(t){return t.normalize('NFD').replace(/\u0670/g,'ا').replace(/[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه')}
+/* آيات الاسم: بحث آلي في نص المصحف (حفص) دون أي تعديل عليه؛ تُعرض الآية إذا ورد فيها الاسم بلفظه كلمةً كاملة (مع "ال" أو دونها) */
+var asmVC={};
+function asmVerses(nm){if(asmVC[nm])return asmVC[nm];var Q=window.QDATA,r=[];if(Q&&Q.s){var k=asmNz(nm.replace(/^ال/,'')),k2=nm==='الرحمن'?'|'+k.replace(/ن$/,'ان'):'',re=new RegExp('(^| )(ال)?('+k+k2+')( |$)');Q.s.forEach(function(v,si){v.forEach(function(t,vi){if(re.test(asmNz(t)))r.push([si,vi])})})}return asmVC[nm]=r}
+function asmEvHtml(x){var Q=window.QDATA,L=asmVerses(x.n);if(x.n==='الله')return '';var h='<section class="card asm-ev"><h3>من القرآن الكريم</h3>';
+  if(!L.length)return h+'<p class="asm-txt asm-none">لم يُعثر على الاسم بلفظه في آيات المصحف (قد يرد بمعناه أو بصيغة فعل).</p></section>';
+  L.slice(0,5).forEach(function(p){h+='<p class="asm-ay">'+asmEsc(Q.s[p[0]][p[1]])+' <small>﴿'+asmEsc(Q.n[p[0]])+' : '+ar(p[1]+1)+'﴾</small></p>'});
+  h+='<p class="asm-more">الآيات مستخرجة آليًا بورود لفظ الاسم، وقد يرد اللفظ في بعض المواضع بمعنى آخر؛ فبيان المعنى مرجعه أهل العلم.</p>';
+  if(L.length>5)h+='<p class="asm-more"><span>وردت في</span> '+ar(L.length)+' <span>آية، عُرضت أولى خمس منها.</span></p>';
+  return h+'</section>'}
 function vAsma(){
   var P=asmP(),h='<div class="asm">';
   if(asmS.cur){
     var x=ASM.filter(function(y){return y.id===asmS.cur})[0],i=x.o-1,done=!!P.learned[x.id];
     return h+'<div class="asm-crumb"><button class="btn ghost" data-a="asmback">← الأسماء</button></div>'
-      +'<section class="card asm-head"><small>الاسم رقم '+ar(x.o)+' من ٩٩</small><h2>'+x.n+'</h2><p>'+asmEsc(x.m)+'</p>'
+      +'<section class="card asm-head"><small><span>الاسم رقم</span> '+ar(x.o)+' <span>من ٩٩</span></small><h2>'+x.n+'</h2><p>'+asmEsc(x.m)+'</p>'
       +'<div class="acts"><button class="btn'+(done?'':' ghost')+'" data-a="asmmark" data-v="'+x.id+'">'+(done?'★ مُعلَّمة كمحفوظة':'☆ وضع علامة «حفظتها»')+'</button><button class="btn ghost" data-a="asmshare" data-v="'+x.id+'">مشاركة</button></div></section>'
       +'<section class="card"><h3>شرح الاسم</h3><p class="asm-txt">'+asmEsc(x.e)+'</p></section>'
+      +asmEvHtml(x)
       +'<section class="card asm-inv"><h3>كيف تدعو الله به</h3><p class="asm-txt">'+asmEsc(x.i)+'</p></section>'
       +'<div class="acts"><button class="btn ghost" data-a="asmopen" data-v="'+(i>0?ASM[i-1].id:x.id)+'"'+(i<1?' disabled':'')+'>→ السابق</button><button class="btn ghost" data-a="asmopen" data-v="'+(i<ASM.length-1?ASM[i+1].id:x.id)+'"'+(i>=ASM.length-1?' disabled':'')+'>التالي ←</button></div></div>';
   }

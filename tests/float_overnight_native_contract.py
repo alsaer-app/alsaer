@@ -1,0 +1,7 @@
+"""Execute production native floating next-time logic, not Android delivery."""
+from pathlib import Path
+import subprocess,tempfile,shutil
+R=Path(__file__).resolve().parents[1];src=(R/'android/app/src/main/java/com/ahmedalajmi/alsaer/FloatFeed.java').read_text();src=src[src.index('    static int hm('):src.index('    static String upcoming(')]
+with tempfile.TemporaryDirectory() as t:
+ p=Path(t);(p/'FloatNext.java').write_text('import java.util.*;import org.json.*;class AlarmScheduler{static boolean dayAllowed(JSONArray a,int d){if(a==null||a.length()==0)return true;for(int i=0;i<a.length();i++)if(a.optInt(i,-1)==d)return true;return false;}}class FloatNext{'+src+'''public static void main(String[] a)throws Exception{TimeZone.setDefault(TimeZone.getTimeZone("Africa/Cairo"));Calendar c=Calendar.getInstance();c.set(2026,10,24,0,30,0);c.set(Calendar.MILLISECOND,0);JSONObject cfg=new JSONObject("{mode:'interval',every:60,all:false,from:'22:00',to:'02:00',days:[1]}");long n=next(cfg,c.getTimeInMillis());c.setTimeInMillis(n);if(c.get(Calendar.DAY_OF_MONTH)!=24||c.get(Calendar.HOUR_OF_DAY)!=1)throw new AssertionError(c.getTime());System.out.println("PASS production Java Monday overnight tail -> Tuesday 01:00");}}''')
+ cp='/tmp/alsaer-java/json.jar';compiler=['javac'] if shutil.which('javac') else ['java','-jar','/tmp/alsaer-java/ecj.jar','-11','-proc:none'];subprocess.run(compiler+['-cp',cp,'-d',t,str(p/'FloatNext.java')],check=True);subprocess.run(['java','-cp',t+':'+cp,'FloatNext'],check=True)

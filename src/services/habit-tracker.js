@@ -1,5 +1,5 @@
 /* ===== متتبّع العادة المستهدفة: تسجيل متعدد المرات في اليوم + تقرير ===== */
-var manageTargets=false,repRange='week',showRep=false,showAllChips=false;
+var manageTargets=false,repRange='week',showRep=false;
 function mainName(){return String(S.mainName||'').trim()||'العادة الرئيسية'}
 function trackables(){
   var l=[['main',mainName(),'bad']];
@@ -32,7 +32,7 @@ function evSync(id,k){
     var r=S.days[k],st=t.d>0?'relapse':(t.s>0?'success':null);
     var note=draft!==null?draft:((r&&r.note)||''),trig=draftTrig!==null?draftTrig:((r&&r.trig)||[]);
     if(st)S.days[k]={status:st,note:note,trig:trig};
-    else if(r&&!note&&!(trig||[]).length)delete S.days[k];
+    else if(r){if(note||(trig||[]).length)S.days[k]={note:note,trig:trig};else delete S.days[k]}
     draft=null;draftTrig=null;
   }else if(type==='bad'){
     S.habitCounts=S.habitCounts||{};var hc=S.habitCounts[k]=S.habitCounts[k]||{};

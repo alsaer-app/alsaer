@@ -10,7 +10,7 @@ BASE, PROJ, VC, VN = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
 z = zipfile.ZipFile(BASE)
 # 1) manifest
 a = AXML(z.read('AndroidManifest.xml'))
-PERMS = ['android.permission.VIBRATE', 'android.permission.USE_EXACT_ALARM', 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION', 'android.permission.SYSTEM_ALERT_WINDOW', 'android.permission.RECORD_AUDIO', 'android.permission.MODIFY_AUDIO_SETTINGS']
+PERMS = ['android.permission.VIBRATE', 'android.permission.USE_EXACT_ALARM', 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION', 'android.permission.SYSTEM_ALERT_WINDOW']
 if os.environ.get('ALSAER_NO_EXACT') == '1': PERMS.remove('android.permission.USE_EXACT_ALARM')   # نسخة اختبار: بدون الإذن المقيَّد
 for perm in PERMS: a.add_permission(perm)
 # 1b) الكلاسات المعدَّلة (native_overlay/classes3.dex) في الحزمة .x: إعادة توجيه المانيفست إليها + خدمة التذكيرات العائمة

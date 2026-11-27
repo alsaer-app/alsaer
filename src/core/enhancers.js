@@ -18,15 +18,14 @@
     if(tab==='reader'&&rdBar&&rdBar.isConnected)rdBar.classList.remove('rdim');
   },{passive:true});
 })();
-(function(){var _r=render;render=function(){var x=_r.apply(this,arguments);try{applyMp();femizeDom(document.getElementById('app'));femizeDom(document.getElementById('top'))}catch(e){}return x}})();
+(function(){var _r=render;render=function(){var x=_r.apply(this,arguments);try{femizeDom(document.getElementById('app'));femizeDom(document.getElementById('top'))}catch(e){}return x}})();
 (function(){var _t=toast;toast=function(t){return _t(isFem()?femStr(t):t)}})();
 render();
-setTimeout(function(){splash=false;render();checkNew()},window.__NOSPLASH?0:1000);
+/* تسخين أثناء الشعار الثابت: أول استدعاء لمنسّق التاريخ الهجري (Intl) مكلف، فنبنيه قبل انتهاء الشعار لا عنده */
+setTimeout(function(){try{hijriNumeric(new Date())}catch(e){}},350);
+setTimeout(function(){splash=false;render();requestAnimationFrame(function(){setTimeout(function(){checkNew();try{var _w=Math.round(performance.now()),_t=-1;if(window.AlsaerNative&&AlsaerNative.bootDone)_t=AlsaerNative.bootDone(_w);window.__alsaerBoot={webMs:_w,totalMs:typeof _t==='number'?_t:-1}}catch(e){}},0)})},window.__NOSPLASH?0:Math.max(0,1300-Math.round(performance.now())));
 setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,300)})(function(){loadHeavy()})}catch(e){}},window.__NOSPLASH?1500:6000);
-(function(){var x0=null,y0=null;
-  document.addEventListener('touchstart',function(e){var m=e.target.closest&&e.target.closest('#mp');if(m&&e.touches.length===1){x0=e.touches[0].clientX;y0=e.touches[0].clientY}else x0=null},{passive:true});
-  document.addEventListener('touchend',function(e){if(x0===null)return;var t=e.changedTouches[0],dx=t.clientX-x0,dy=t.clientY-y0;x0=null;
-    if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6){var b=document.querySelector('.rbar [data-a=qpage][data-v="'+(dx>0?'1':'-1')+'"]');if(b&&!b.disabled)b.click()}},{passive:true});
+(function(){
   window.addEventListener('resize',fitSoon);
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSoon);if(document.fonts)document.fonts.addEventListener&&document.fonts.addEventListener('loadingdone',fitSoon);
 })();

@@ -3,7 +3,17 @@
 <body>
 <div class="top" id="top"></div>
 <div id="app"></div>
+<script>/* سبلاش ثابت: يُرسم فور تحليل الصفحة قبل تحميل السكربت الكبير. للإعداد الافتراضي فقط (عربي، نمط هادئ)، وغير ذلك يرسمه render() كما كان */
+(function(){try{var s=JSON.parse(localStorage.getItem('tawba_v1')||'{}'),u=(s&&s.ui)||{};
+if((u.lang&&u.lang!=='ar')||(u.style&&u.style!=='calm')||(u.look&&u.look!=='classic')||(u.font&&u.font!=='plex')||u.fontW==='bold'||u.accent)return;
+var m=u.mode;if(m!=='light'&&m!=='dark'&&m!=='system')m=localStorage.getItem('tawba_theme')==='light'?'light':'dark';
+var th=m==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):m;
+document.documentElement.setAttribute('data-theme',th);
+document.getElementById('app').innerHTML='<div class="splash" data-pre="1"><div class="sp-tile"><img src="icon.png" alt=""></div><div class="t">السائر إلى الله</div><div class="s">رحلة نحو القرب من الله<br>وتحسين حياتك</div><div class="ld"><i></i></div></div>'}catch(e){}})();</script>
 <nav class="tabbar" id="tabs" hidden></nav>
 <div class="toast" id="toast" hidden></div>
 
 <script src="quran.js"></script>
+<script>/* حزم الترجمة ملفات منفصلة: العربية لا تحتاج شيئًا؛ غيرها يُحمَّل متزامنًا قبل السكربت الكبير (اللغة النشطة + الإنجليزية احتياطًا) */
+(function(){try{var s=JSON.parse(localStorage.getItem('tawba_v1')||'{}'),l=(s&&s.ui&&s.ui.lang)||'ar',L=/alsaertest/.test(location.search)?['en','fr','tr','de','fa','ur']:(l!=='ar'&&/^(en|fr|tr|de|fa|ur)$/.test(l)?(l==='en'?['en']:['en',l]):[]);
+L.forEach(function(k){document.write('<script src="i18n-'+k+'.js"><\/script>')})}catch(e){}})();</script>

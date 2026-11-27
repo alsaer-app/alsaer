@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ثغرة أمنية / Security issue
+    url: https://github.com/alsaer-app/alsaer/blob/main/SECURITY.md
+    about: لا تفتح Issue عامًا. اتبع تعليمات SECURITY.md.

@@ -7,14 +7,20 @@
 <p align="center">
   <a href="https://github.com/alsaer-app/alsaer/actions/workflows/build.yml"><img src="https://github.com/alsaer-app/alsaer/actions/workflows/build.yml/badge.svg" alt="حالة البناء"></a>
   <a href="https://github.com/alsaer-app/alsaer/releases/latest"><img src="https://img.shields.io/github/v/release/alsaer-app/alsaer?color=0F6F63&label=%D8%A3%D8%AD%D8%AF%D8%AB%20%D8%A5%D8%B5%D8%AF%D8%A7%D8%B1" alt="أحدث إصدار"></a>
-  <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%A5%D8%B5%D8%AF%D8%A7%D8%B1-1.0.13-0F6F63" alt="الإصدار 1.0.13">
   <img src="https://img.shields.io/badge/minSdk-24-0F6F63?logo=android&logoColor=white" alt="minSdk 24">
   <a href="LICENSE"><img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AA%D8%B1%D8%AE%D9%8A%D8%B5-MIT-0F6F63" alt="الترخيص MIT"></a>
-  <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AE%D8%B5%D9%88%D8%B5%D9%8A%D8%A9-%D8%AF%D9%88%D9%86%20%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA-0F6F63" alt="دون إنترنت">
+  <img src="https://img.shields.io/badge/%D8%A7%D9%84%D8%AE%D8%B5%D9%88%D8%B5%D9%8A%D8%A9-%D8%A7%D9%84%D8%A3%D8%B3%D8%A7%D8%B3%20%D9%85%D8%AD%D9%84%D9%8A-0F6F63" alt="الأساس يعمل دون إنترنت؛ الراديو والقراء وأول فتح للفتاوى تحتاج إنترنت">
 </p>
 
-<p align="center"><b>تطبيق أندرويد إيماني شخصي، يعمل دون إنترنت بالكامل.</b><br>
-كل بياناتك محفوظة على جهازك فقط، ولا تُرسل إلى أي خادم.</p>
+<p align="center"><b>رفيقك اليومي في الطريق إلى الله: المصحف، الصلاة، الأذكار، والمتابعة الذاتية، في تطبيق أندرويد عربي يحفظ بياناتك على جهازك.</b><br>
+الأساس يعمل دون حساب ودون إنترنت. الراديو والقرّاء والفتاوى والأحاديث تحتاج إنترنت، ونسخ Google Drive اختياري. التفاصيل في <a href="PRIVACY.md">الخصوصية</a>.</p>
+
+<p align="center">
+  <a href="https://github.com/alsaer-app/alsaer/releases/latest"><b>⬇ تحميل أحدث نسخة (APK)</b></a>
+  &nbsp;·&nbsp; <a href="#التثبيت">طريقة التثبيت</a>
+  &nbsp;·&nbsp; <a href="#الخصوصية">الخصوصية</a>
+  &nbsp;·&nbsp; <a href="#التواصل">التواصل</a>
+</p>
 
 ---
 
@@ -23,10 +29,18 @@
 ### العبادة اليومية
 
 - **المصحف الكامل**: صفحات المصحف (١٥ سطرًا) بخط عثماني، بروايتي حفص وورش، مع إبراز أحكام التجويد بالألوان؛ نص ٦٢٣٦ آية من مشروع تنزيل.
-- **التلاوة والتسميع**: متابعة صوتية لحظية مع تصحيح فوري، عبر محرك قرآني محلي بالكامل (نماذج whisper المخصصة للقرآن تعمل على الجهاز دون إنترنت عبر sherpa-onnx)، مع خيار محرك التعرف المدمج في الهاتف.
-- **مواقيت الصلاة والتنبيهات**: إشعارات محلية مجدولة بنغمة مخصصة، تعمل بعد إعادة تشغيل الهاتف.
-- **الأذكار والأدعية**: محتوى من الكتاب والسنة مع عدّادات.
+- **مواقيت الصلاة والتنبيهات**: إشعارات محلية مجدولة تعمل بعد إعادة تشغيل الهاتف، بنغمة خاصة لكل صلاة ونغمة موحدة للتذكيرات الأخرى. تُجمَّع التذكيرات في مجموعة واحدة مع ملخص هادئ، وفي كل تذكير أزرار «ابدأ» و«ذكّرني بعد ١٠ دقائق» و«إيقاف». ورد القرآن يُنبَّه في وقته بدقة.
+- **تنبيه التحديث**: إشعار محلي واحد لكل إصدار جديد، يقرأ ملف `update.json` العام عبر https مرة يوميًا دون حساب ولا خدمات دفع، ولا يرسل شيئًا عنك.
+- **الأذكار والأدعية**: محتوى من الكتاب والسنة مع عدّاد لكل ذكر؛ المعوذات (الإخلاص والفلق والناس) بندٌ لكل سورة، وتقدّمك المحفوظ ينتقل تلقائيًا دون فقد.
 - **جدول الصيام**: الاثنين والخميس، الأيام البيض، عاشوراء وعرفة، ستة شوال، صيام داود، وأيام مخصصة، مع تذكيرات السحور والإفطار.
+- **أسماء الله الحسنى**: ٩٩ اسمًا مع الدليل من الآيات، وحفظ ومسبحة واختبار، وشرح المعنى بالعربية.
+- **حصن المسلم**: أذكار الصباح والمساء وبعد الصلاة وغيرها بعدّاد تكرار ومشاركة نص الذكر وتشغيل الصوت (الصوت يحتاج إنترنت).
+- **راديو قرآن**: بث مباشر لإذاعات القرآن والبرامج الإسلامية (يحتاج إنترنت؛ قائمة المحطات في `www/radio-stations.js`).
+- **استمع لقارئ**: سور المصحف الـ١١٤ بأصوات ١٥٨ قارئًا مع تصفية بالرواية والبحث وتشغيل متتابع (يحتاج إنترنت؛ القائمة في `www/reciters.js`).
+- **فتاوى ابن باز رحمه الله**: ١٩٬٧٢٧ فتوى مكتوبة في ٢١٥ فئة مع بحث بالعنوان ونسخ ومشاركة ورابط المصدر، والاستماع للفتوى حيث يتوفر صوتها (بث مباشر أو تنزيل اختياري لكل ملف، ويحتاج إنترنت). تُحمَّل الشرائح عند الحاجة من مجلد `www/fatwas/` على الإنترنت وتُحفظ في ذاكرة التطبيق لتُقرأ بلا اتصال بعد أول فتح.
+- **الأحاديث النبوية**: تسعة كتب مع البحث والمفضلة وحديث اليوم (يحتاج إنترنت).
+- **أدوات الاستعداد**: ختمة القرآن، متابعة الحفظ بمراجعة متباعدة، المسبحة، قضاء ما فات، المناسبات الهجرية، وضع رمضان، حاسبة الزكاة، والأوقات المستحبة والمنهي عنها.
+- **ست لغات إضافية للواجهة**: الإنجليزية والفرنسية والألمانية والتركية والفارسية والأردية إلى جانب العربية. النصوص الدينية (القرآن والأذكار والأدعية والأحاديث والفتاوى وأسماء الله) تبقى بالعربية. الترجمات راجعناها بأنفسنا وليست من مترجم متخصص.
 - **التذكير العائم وودجت الشاشة الرئيسية**: تذكيرات تظهر فوق التطبيقات، ومتابعة يومية من الشاشة الرئيسية.
 
 ### المتابعة الذاتية
@@ -37,35 +51,71 @@
 ### الخصوصية والحماية
 
 - **قفل التطبيق**: برمز PIN أو كلمة مرور أو نمط، مع فتح بالبصمة وإيقاف مؤقت بعد المحاولات الخاطئة.
-- **نسخ احتياطي مشفر**: تصدير واستعادة بكلمة مرور (AES-256-GCM مع PBKDF2-SHA256).
-- **دون إنترنت**: لا حسابات، لا خوادم، لا تتبع.
+- **نسخ احتياطي بتشفير اختياري**: ملف مستقل أو نسخ مؤرخة إلى Google Drive بعد التفويض، مع AES-GCM وPBKDF2-SHA256 عند تفعيل كلمة المرور.
+- **استخدام أساسي محلي**: لا يتطلب حسابًا لدى المطور. المحتوى والتحديثات تستخدم خدمات خارجية، وGoogle Drive يحتاج تفويضًا اختياريًا. انظر [سياسة الخصوصية](PRIVACY.md).
 - **واجهة عربية RTL** بثيمات فاتحة وداكنة، وتاريخ هجري (أم القرى) وميلادي.
 
 ## لقطات الشاشة
 
 <p align="center">
-  <img src="screenshots/home.jpg" width="150" alt="الشاشة الرئيسية: حديث اليوم وخطوتك التالية">
-  <img src="screenshots/quran.jpg" width="150" alt="المصحف: سورة الفاتحة بالتجويد الملون">
-  <img src="screenshots/onboarding.jpg" width="150" alt="شاشة الترحيب">
-  <img src="screenshots/progress.jpg" width="150" alt="التقدم والتقييم">
-  <img src="screenshots/calendar.jpg" width="150" alt="التقويم والمتابعة">
-  <img src="screenshots/more.jpg" width="150" alt="شاشة المزيد">
+  <img src="screenshots/01-home-light.jpg" width="170" alt="الشاشة الرئيسية: بطاقة اليوم وخطوتك التالية">
+  <img src="screenshots/02-quran-light.jpg" width="170" alt="المصحف: سورة الفاتحة بالخط العثماني">
+  <img src="screenshots/03-fatwas-light.jpg" width="170" alt="فتاوى ابن باز: الفئات والبحث">
+  <img src="screenshots/04-more-light.jpg" width="170" alt="شاشة المزيد: كل الأقسام">
 </p>
+<p align="center">
+  <img src="screenshots/05-reminders-light.jpg" width="170" alt="مركز التذكيرات">
+  <img src="screenshots/06-calendar-light.jpg" width="170" alt="التقويم والمتابعة">
+  <img src="screenshots/07-settings-light.jpg" width="170" alt="الإعدادات">
+  <img src="screenshots/08-hisn-light.jpg" width="170" alt="حصن المسلم">
+</p>
+
+<details>
+<summary>المظهر الداكن</summary>
+<p align="center">
+  <img src="screenshots/01-home-dark.jpg" width="170" alt="الرئيسية، المظهر الداكن">
+  <img src="screenshots/02-quran-dark.jpg" width="170" alt="المصحف، المظهر الداكن">
+  <img src="screenshots/03-fatwas-dark.jpg" width="170" alt="الفتاوى، المظهر الداكن">
+  <img src="screenshots/04-more-dark.jpg" width="170" alt="المزيد، المظهر الداكن">
+</p>
+<p align="center">
+  <img src="screenshots/05-reminders-dark.jpg" width="170" alt="التذكيرات، المظهر الداكن">
+  <img src="screenshots/06-calendar-dark.jpg" width="170" alt="التقويم، المظهر الداكن">
+  <img src="screenshots/07-settings-dark.jpg" width="170" alt="الإعدادات، المظهر الداكن">
+  <img src="screenshots/08-hisn-dark.jpg" width="170" alt="حصن المسلم، المظهر الداكن">
+</p>
+</details>
+
+<p align="center"><sub>الصور مُولَّدة من واجهة الويب نفسها في متصفح بحجم هاتف (360×740، دقة مضاعفة) من آخر نسخة، وليست لقطات من جهاز أندرويد حقيقي، وبلا بيانات شخصية. نص المصحف يظهر كما في التطبيق دون أي تعديل.</sub></p>
 
 ## التثبيت
 
-1. حمّل أحدث ملف APK من صفحة [Releases](https://github.com/alsaer-app/alsaer/releases/latest).
-2. ثبّته على جهازك (قد يطلب أندرويد السماح بالتثبيت من مصادر خارجية).
+1. افتح صفحة [Releases](https://github.com/alsaer-app/alsaer/releases/latest) من هاتفك وحمّل ملف `.apk` من أحدث إصدار.
+2. افتح الملف المحمّل. إن طلب أندرويد السماح بالتثبيت من هذا المصدر، فعّل الإذن لمتصفحك أو لتطبيق الملفات ثم ارجع.
+3. اضغط «تثبيت». المتطلب: أندرويد 7.0 أو أحدث (minSdk 24).
 
-**التحديث:** ثبّت النسخة الجديدة فوق القديمة مباشرة؛ بياناتك وإعداداتك تبقى كما هي طالما النسختان موقّعتان بالمفتاح الرسمي نفسه. ولفحص التحديثات، يقرأ التطبيق ملف [`update.json`](update.json) الذي يُحدَّث تلقائيًا مع كل إصدار جديد.
+**التحقق من الملف (اختياري):** الـAPK الرسمي موقّع بشهادة بصمتها SHA-256:
+`647b477f5e19a79ec542b70d12476a166f3bf262ae7b5c2b1602bcc58a1c85e0`
+فإن اختلفت بصمة الملف الذي حمّلته فلا تثبّته.
+
+**التحديث:** ثبّت النسخة الجديدة فوق القديمة مباشرة؛ بياناتك وإعداداتك تبقى طالما النسختان موقّعتان بالشهادة نفسها. ويفحص التطبيق ملف [`update.json`](update.json) ويُنبّهك بإشعار محلي عند توفر إصدار أحدث.
+
+**قبل أي تثبيت أو حذف:** خذ نسخة احتياطية من «الإعدادات ثم الأمان والبيانات» (ملف مستقل أو Google Drive).
+
+## الخصوصية
+
+- لا حساب لدى المطوّر، ولا إعلانات، ولا أدوات تحليلات. سجلاتك وملفك الشخصي وإعداداتك تبقى في تخزين التطبيق على جهازك.
+- الموقع اختياري، ويُستخدم لحساب المواقيت والقبلة فقط.
+- يتصل التطبيق بالإنترنت لجلب الراديو والقرّاء والفتاوى والأحاديث والتفسير، ولفحص ملف `update.json` مرة يوميًا. قد يرى مزوّد الخدمة عنوان IP كأي اتصال إنترنت.
+- نسخ Google Drive اختياري بتفويض منك (صلاحية `drive.file`)، والتشفير بكلمة مرور اختياري (AES-GCM وPBKDF2-SHA256).
+- النص الكامل في [PRIVACY.md](PRIVACY.md) وفي [docs/privacy.html](docs/privacy.html).
 
 ## البنية التقنية
 
 - **Capacitor** (WebView) مع جسر Kotlin/Java أصلي (`com.ahmedalajmi.alsaer`).
 - الواجهة صفحة واحدة بلا مكتبات خارجية: المصدر مقسّم في `src/` ويُجمَّع إلى `www/index.html` عبر `python3 tools/build_web.py`.
 - بيانات المستخدم في `localStorage` تحت المفتاح `tawba_v1` (لا تغيّره أبدًا للحفاظ على بيانات المستخدمين).
-- مكونات أصلية: إشعارات ومجدول تنبيهات، خدمة التذكير العائم، الودجت، البصمة، التعرف على الكلام.
-- محرك التسميع المحلي: [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx) مع نماذج whisper المخصصة للقرآن الكريم (tiny/base)، وتنزيل النماذج داخل التطبيق مع تحقق SHA-256.
+- مكونات أصلية: إشعارات ومجدول تنبيهات، خدمة التذكير العائم، الودجت، البصمة.
 - البناء والإصدار عبر GitHub Actions (انظر `.github/workflows/`).
 
 ## البناء من المصدر
@@ -89,26 +139,36 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 
 ويقارن `versionCode` بالنسخة المثبتة، ثم ينزّل `apkUrl` بعد التحقق من `sha256`.
 
-## خارطة الطريق
+## ما الجديد وما بعده
 
-- استكمال ترجمة كل الشاشات للغات إضافية.
-- نسخ احتياطي تلقائي مشفر إلى Google Drive الخاص بالمستخدم (التشفير على الجهاز قبل الرفع).
+**في هذا الإصدار:**
+
+- نسخ احتياطي مؤرخ إلى Google Drive الخاص بالمستخدم، مع تشفير اختياري على الجهاز.
+- واجهة بسبع لغات (العربية وست إضافية، الترجمات مراجعة ذاتية).
+- استماع للقرّاء والفتاوى، وراديو القرآن، وحصن المسلم الكامل.
+- تنبيه محلي بالإصدار الجديد، وإشعارات مجمّعة بأزرار وتوقيت دقيق للورد.
+
+**قيد العمل أو مخطط له:**
+
+- مراجعة الترجمات بمراجع متخصص بدل المراجعة الذاتية.
+- تجربة أوسع على أجهزة حقيقية (الإشعارات والموقع والتنبيه بالتحديث).
 - ودجت محسّن: مواقيت الصلاة ومتابعة ورد اليوم.
 - خطة ختمة ذكية بأهداف قابلة للتعديل التلقائي.
-- فاحص تحديثات داخل التطبيق: قراءة update.json ومقارنة رقم الإصدار والتنزيل مع تحقق sha256.
-- تحسينات مستمرة لمحرك التسميع المحلي (سرعة ودقة).
 - لوحة إنجازات وإحصاءات أعمق.
 
 ## الحقوق والمصادر
 
-- نص المصحف: مشروع تنزيل (tanzil.net)، رواية حفص بالرسم العثماني، رخصة CC BY 3.0، منقول دون تعديل (يجب إبقاء هذه الإشارة).
+- قائمتا القرّاء والفتاوى مأخوذتان من بيانات تطبيق التقوى (Altaqwaa): https://github.com/rn0x/altaqwaa-android. نصوص الفتاوى من الموقع الرسمي https://binbaz.org.sa (مؤسسة الشيخ عبد العزيز بن باز الخيرية)، وصوت القرّاء من https://mp3quran.net. نذكر المصدر فقط، والتفاصيل في docs/DATA_SOURCES.md.
+
+- نص المصحف: مجمع الملك فهد لطباعة المصحف الشريف (KFGQPC)، رواية حفص، بيانات النسخة 18، منقول دون تعديل (عدا حذف رقم الآية). ملاحظة: النسخة مأخوذة من مرآة طرف ثالث (thetruetruth/quran-data-kfgqpc) وترخيص بيانات المجمع غير مؤكد رسميًا؛ يجب التحقق قبل النشر. خط المصحف: KFGQPC Hafs v2.2 (رخصته مضمنة في الملف). خط عرض ورش: Scheherazade New من SIL Global (رخصة SIL OFL 1.1، دون تعديل). التفاصيل في docs/DATA_SOURCES.md.
 - تخطيط صفحات المصحف: zonetecde/mushaf-layout (QPC1) وcpfair/quran-tajweed (CC BY 4.0) وfawazahmed0/quran-api (Unlicense).
 - الخط: UthmanicHafs (مجمع الملك فهد لطباعة المصحف الشريف).
 - الكود متاح تحت رخصة [MIT](LICENSE) صدقةً عن صاحبه ووالديه؛ حقوق الاسم والشعار والهوية البصرية محفوظة لصاحب المشروع © 2026 AHMED ELAGAMY.
 
 ## التواصل
 
-- فيسبوك: https://www.facebook.com/share/1E4Mr4L2Yd/
+- للدعم والملاحظات والبلاغات: cvgj62240@gmail.com
+- المشاكل والاقتراحات التقنية: [Issues](https://github.com/alsaer-app/alsaer/issues)
 
 </div>
 
@@ -116,16 +176,25 @@ https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json
 
 # Alsaer (السائر إلى الله) — English
 
-A private, **offline-first** Android companion for worship and self-improvement. All data stays on the device; nothing is sent to any server.
+An Arabic Android companion for daily worship and self-review. Your data stays on your device: no account, no ads, no analytics.
 
-**Features:** full mushaf reader (15-line pages, Uthmanic font, Hafs & Warsh riwayas, color-coded tajweed), recitation with an on-device Quran ASR engine (Quran-tuned whisper models via sherpa-onnx, fully offline) plus the phone speech recognizer, prayer times and local reminders, a floating reminder overlay, a home-screen widget, habit and repentance tracking (streaks, relapses, triggers, urges), fasting schedule (Mondays/Thursdays, white days, Ashura, Arafah, Shawwal, Dawud, custom), adhkar with counters, weekly/monthly self-review, PIN/password/pattern lock with biometrics, encrypted password-protected backups (AES-256-GCM + PBKDF2), Arabic RTL UI with light/dark themes, Hijri (Umm al-Qura) and Gregorian dates.
+**What it does**
+- Full Mushaf (Hafs and Warsh), prayer times with local reminders, Hisn al-Muslim and daily adhkar with counters, Names of Allah, fasting schedule, Khatma and memorisation review, zakat calculator, Hijri calendar.
+- Quran radio, 158 reciters, 19,727 written fatwas of Ibn Baz, nine hadith books (internet needed for these).
+- Habit and repentance tracking, weekly and monthly self-review.
+- PIN, password or pattern lock with biometrics; backups to a file or your own Google Drive, with optional AES-GCM encryption.
+- Light and dark themes. UI in Arabic, English, French, German, Turkish, Persian and Urdu. Religious texts stay Arabic; translations are self-reviewed, not professional.
 
-**Install:** download the latest APK from [Releases](https://github.com/alsaer-app/alsaer/releases/latest) and install it over any previous officially-signed build; your data is preserved.
+**Install:** open [Releases](https://github.com/alsaer-app/alsaer/releases/latest) on your phone, download the `.apk`, allow installs from that source when Android asks, then install (Android 7.0+). Install new versions over the old one to keep your data. Official builds are signed with certificate SHA-256 `647b477f5e19a79ec542b70d12476a166f3bf262ae7b5c2b1602bcc58a1c85e0`. Back up before uninstalling.
 
-**Tech:** Capacitor (WebView) with a native Kotlin/Java bridge (`com.ahmedalajmi.alsaer`); single-page vanilla HTML/JS app split under `src/` and bundled by `python3 tools/build_web.py` into `www/index.html`; user data in `localStorage` (`tawba_v1`); native alarm scheduler, floating reminder service, widget, biometric and speech plugins; local recitation via sherpa-onnx with in-app model downloads verified by SHA-256; builds via GitHub Actions.
+**Privacy:** local-first. Network use is limited to content (radio, reciters, fatwas, hadith, tafsir), a daily check of `update.json`, and optional Google Drive backup that you authorise. Location is optional and used only for prayer times and qibla. Details in [PRIVACY.md](PRIVACY.md).
+
+**Support:** cvgj62240@gmail.com, or open an [issue](https://github.com/alsaer-app/alsaer/issues).
+
+**Tech:** Capacitor (WebView) with a native Kotlin/Java bridge (`com.ahmedalajmi.alsaer`); single-page vanilla HTML/JS app split under `src/` and bundled by `python3 tools/build_web.py` into `www/index.html`; user data in `localStorage` (`tawba_v1`); native alarm scheduler, floating reminder service, widget, biometric plugins; builds via GitHub Actions.
 
 **Build:** `npm install && python3 tools/build_web.py && npx cap sync android && cd android && ./gradlew assembleDebug`
 
 **Releases & auto-update:** pushing a `v*` tag builds a signed APK, publishes a GitHub Release, and refreshes `update.json` on `main` for in-app update checks. Signing uses GitHub Secrets only — see [SETUP-SECRETS-AR.md](SETUP-SECRETS-AR.md).
 
-**Credits:** Quran text from tanzil.net (Hafs, Uthmani script, CC BY 3.0, unchanged — attribution required); page layout from zonetecde/mushaf-layout (QPC1), cpfair/quran-tajweed (CC BY 4.0), fawazahmed0/quran-api (Unlicense); UthmanicHafs font (King Fahd Glorious Quran Printing Complex). Code is available under the [MIT License](LICENSE); the name, logo and visual identity remain © 2026 AHMED ELAGAMY.
+**Credits:** Quran text from the King Fahd Glorious Quran Printing Complex (KFGQPC Hafs data v18, unmodified except the trailing verse number; obtained from the third-party mirror thetruetruth/quran-data-kfgqpc, data licence not officially verified); page layout from zonetecde/mushaf-layout (QPC1), cpfair/quran-tajweed (CC BY 4.0), fawazahmed0/quran-api (Unlicense); UthmanicHafs font (King Fahd Glorious Quran Printing Complex). Code is available under the [MIT License](LICENSE); the name, logo and visual identity remain © 2026 AHMED ELAGAMY. Warsh display font: Scheherazade New by SIL Global (SIL OFL 1.1, unmodified; see docs/licenses/scheherazade-new). See docs/DATA_SOURCES.md.

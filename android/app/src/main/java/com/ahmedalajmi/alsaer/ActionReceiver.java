@@ -21,8 +21,12 @@ public class ActionReceiver extends BroadcastReceiver {
         } else if (AlarmScheduler.ACTION_SNOOZE.equals(a)) {
             try {
                 JSONObject it = new JSONObject(i.getStringExtra("item"));
+                if (AlarmScheduler.snoozeAuto(c)) AlarmScheduler.snoozeChainSet(c, it.optString("id"), 1); // بداية السلسلة: حتى ٣ رنّات تلقائية
                 AlarmScheduler.scheduleAt(c, it, System.currentTimeMillis() + AlarmScheduler.SNOOZE_MS, true);
             } catch (Exception ignored) {}
+        } else if (AlarmScheduler.ACTION_SNOOZE_STOP.equals(a)) {
+            String id = i.getStringExtra("id");
+            if (id != null) AlarmScheduler.cancelSnooze(c, id);
         }
     }
 }
