@@ -218,7 +218,9 @@ public class AlsaerNative {
         } catch (Exception e) {
             String em = String.valueOf(e.getMessage());
             boolean noSpace = em.contains("ENOSPC") || em.toLowerCase(java.util.Locale.ROOT).contains("no space left");
-            String m = "sha256".equals(e.getMessage()) ? NativeStrings.get(act, "file_invalid_checksum") : noSpace ? "nospace" : NativeStrings.get(act, "connection_lost");
+            /* انقطاع الشبكة نفسه (لا رد من الخادم) يظهر برسالة "لا يوجد اتصال" ؛ رد خاطئ (http N) أو غيره يبقى "انقطع الاتصال" */
+            boolean offline = e instanceof java.net.UnknownHostException || e instanceof java.net.SocketException || e instanceof java.net.SocketTimeoutException;
+            String m = "sha256".equals(e.getMessage()) ? NativeStrings.get(act, "file_invalid_checksum") : noSpace ? "nospace" : offline ? "offline" : NativeStrings.get(act, "connection_lost");
             p.edit().putString("st", "failed").putString("err", m).apply();
         } finally { updRunning = false; }
     }

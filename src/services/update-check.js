@@ -15,12 +15,14 @@ function updSemverNewer(remote,local){
 }
 function updInfo(){var s=updState();return (s.info&&typeof APP_BUILD!=='undefined'&&s.info.versionCode>APP_BUILD&&updSemverNewer(s.info.versionName,(typeof APP_VERSION!=='undefined')?APP_VERSION:''))?s.info:null}
 /* silent: فحص تلقائي فاشل لا يغيّر الحالة ولا يؤخر المحاولة التالية (انقطاع الإنترنت وقت الفتح لا يعطّل الفحص ٦ ساعات) */
+/* سبب فشل آخر فحص: offline (لا اتصال) أو server (رد خاطئ من الخادم). الانقطاع لا يحفظ حالة ولا يؤخر المحاولة التالية */
+var UPD_OFFLINE='لا يوجد اتصال بالانترنت برجاء التحقق من اتصال الانترنت',UPD_ERR='';
 function updCheckFailed(silent){if(silent)return false;var st=updState();st.at=Date.now();st.checkFailed=true;updSave(st);return false}
 function updCurrentLabel(){var s=updState();return s.checkFailed?'تعذّر التحقق من التحديثات':s.checkedAt?'أنت على أحدث إصدار':'لم يتم التحقق من التحديثات بعد'}
 function updCheck(force){
-  var quiet=!force;
+  var quiet=!force;UPD_ERR='';
   if(typeof fetch!=='function')return Promise.resolve(updCheckFailed(quiet));
-  if(typeof navigator!=='undefined'&&navigator.onLine===false)return Promise.resolve(updCheckFailed(quiet));
+  if(typeof navigator!=='undefined'&&navigator.onLine===false){UPD_ERR='offline';return Promise.resolve(false)}
   var s=updState();
   if(!force&&s.at&&Date.now()-s.at<6*3600*1000){updOffer(0,false);return Promise.resolve(false)} /* داخل الحد: لا شبكة، لكن إصدارًا محفوظًا من فحص سابق يُعرض عند هذا الفتح */
   var ctl=(typeof AbortController==='function')?new AbortController():null,to=ctl?setTimeout(function(){try{ctl&&ctl.abort()}catch(e){}},8000):null;
@@ -44,7 +46,9 @@ function updCheck(force){
     }
     return true;
    })
-   .catch(function(){if(to)clearTimeout(to);return updCheckFailed(quiet)});
+   .catch(function(e){if(to)clearTimeout(to);
+    if(e&&(e.name==='AbortError'||e instanceof TypeError)){UPD_ERR='offline';return false} /* فشل الشبكة نفسها (لا رد) */
+    UPD_ERR='server';return updCheckFailed(quiet)});
 }
 /* عرض النافذة تلقائيًا: تنتظر هدوء الشاشة (قفل، ترحيب، نافذة أخرى، قارئ المصحف) وتعيد المحاولة كل ثانيتين حتى ٥ دقائق.
    تُعرض مرة لكل إصدار في كل فتح للتطبيق؛ «لاحقًا» تغلقها فقط وتعود عند الفتح التالي. force: من الإشعار، بلا حارس الجلسة. */
@@ -167,9 +171,10 @@ function updStartPoll(){
   },700);
 }
 var UPD_NOSPACE='مساحة التخزين غير كافية للتحديث. أفرغ بعض المساحة ثم أعد المحاولة';
-function updErrText(e){return e==='nospace'?UPD_NOSPACE:(e||'خطأ في الشبكة')}
+function updErrText(e){return e==='nospace'?UPD_NOSPACE:e==='offline'?UPD_OFFLINE:(e||'خطأ في الشبكة')}
 function updStartDl(){
   var i=updInfo();if(!i||!updNative())return;
+  if(typeof navigator!=='undefined'&&navigator.onLine===false){toast(UPD_OFFLINE);return}
   var r='';try{r=AlsaerNative.updateStart(i.apkUrl,i.sizeBytes||0,i.sha256||'')}catch(e){}
   if(r==='nospace'){toast(UPD_NOSPACE);return}
   if(r!=='started'&&r!=='busy'){toast('تعذّر بدء التحميل');return}
@@ -189,7 +194,7 @@ function updInstall(auto){
 }
 /* تنظيف ملف التحديث المؤقت بعد ترقية ناجحة (ملف التطبيق نفسه فقط) */
 function updCleanup(){try{if(updNative()&&typeof AlsaerNative.updateCleanup==='function')AlsaerNative.updateCleanup()}catch(e){}}
-function updCheckNow(){toast('جارٍ التحقق من التحديثات…');updCheck(true).then(function(ok){if(!ok)toast('تعذّر التحقق من التحديثات. تحقق من الاتصال وحاول مجددًا');else if(!updInfo())toast('لا يوجد تحديث جديد');updSheetPaint();if(tab==='settings')render()})}
+function updCheckNow(){toast('جارٍ التحقق من التحديثات…');updCheck(true).then(function(ok){if(!ok)toast(UPD_ERR==='offline'?UPD_OFFLINE:'تعذّر التحقق من التحديثات. تحقق من الاتصال وحاول مجددًا');else if(!updInfo())toast('لا يوجد تحديث جديد');updSheetPaint();if(tab==='settings')render()})}
 setTimeout(function(){updPollNative()},8000);
 /* فحص تلقائي: بعد ٣ ثوانٍ من الفتح، وبعد ٣ ثوانٍ من كل رجوع من الخلفية (حد ٦ ساعات داخل updCheck) */
 setTimeout(updAutoCheck,3000);
