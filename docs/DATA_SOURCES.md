@@ -2,8 +2,8 @@
 
 | Item | Source | Licence / status |
 |---|---|---|
-| Hafs text (www/quran.js) | KFGQPC Hafs data v18 via mirror thetruetruth/quran-data-kfgqpc | Mirror provenance and data licence NOT verified. Pre-publish item. |
-| Warsh text (www/warsh.js) | KFGQPC Warsh v10 (warshData_v10.json) via the same mirror | Mirror has no licence file; provenance NOT verified. Pre-publish item. Warsh is labelled "not yet verified" in the app. |
+| Hafs text (www/quran.js) | KFGQPC Hafs data v18 via mirror thetruetruth/quran-data-kfgqpc | Source is a third-party mirror of KFGQPC data. Licence not verified. Responsibility rests with the app owner (decision recorded by the owner). |
+| Warsh text (www/warsh.js) | KFGQPC Warsh v10 (warshData_v10.json) via the same mirror | Source is a third-party mirror of KFGQPC data with no licence file. Licence not verified. Responsibility rests with the app owner (decision recorded by the owner). Warsh is labelled "not yet verified" in the app. |
 | Warsh display font | Scheherazade New 4.500, SIL Global (https://github.com/silnrsi/font-scheherazade, release v4.500, SHA512 of the zip checked against SHA512SUMS) | SIL Open Font License 1.1. Embedded unmodified (WOFF2 conversion only, no subsetting, name kept) as www/fonts/scheherazade-new-regular.woff2. Notice: docs/licenses/scheherazade-new/OFL.txt and FONTLOG.txt. |
 | Hafs font | KFGQPC Uthmanic (www/fonts/uthmanic.ttf) | Unchanged. |
 | Hafs audio | Quran Foundation (verses.quran.com), reciter Minshawi | See their terms. |

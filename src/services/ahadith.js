@@ -1,5 +1,5 @@
 /* ===== الأحاديث النبوية: تسعة كتب من مشروع Hadith API المفتوح (fawazahmed0) — تُحمَّل عند الفتح من الإنترنت ===== */
-var HDT_API='https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions';
+var HDT_API='https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@df57907be35291c91ad6a6691180e22ca9920784/editions';
 var HDT_BOOKS=[
  {s:'bukhari',n:'صحيح البخاري',a:'الإمام البخاري',t:'متفق على صحته'},{s:'muslim',n:'صحيح مسلم',a:'الإمام مسلم',t:'متفق على صحته'},
  {s:'abudawud',n:'سنن أبي داود',a:'الإمام أبو داود',t:'درجات متفاوتة'},{s:'tirmidhi',n:'جامع الترمذي',a:'الإمام الترمذي',t:'درجات متفاوتة'},

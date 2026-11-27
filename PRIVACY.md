@@ -27,7 +27,7 @@
 - **الراديو**: بث مباشر من qurango.net وstream.radiojar.com. يسمح التطبيق بالاتصال غير المشفر (http) لنطاق radiojar.com وحده لأن البث يعيد التوجيه إليه؛ كل ما عداه https.
 - **استمع لقارئ** والتلاوة داخل المصحف: ملفات صوت من mp3quran.net وverses.quran.com وخوادم صوت قرآنية أخرى.
 - **فتاوى ابن باز**: تُحمَّل شرائح النص عند الحاجة من مستودع التطبيق على GitHub (raw.githubusercontent.com) وتُحفظ للقراءة دون اتصال. صوت الفتوى يُبثّ من files.zadapps.info، وتنزيله اختياري لكل ملف.
-- **الأحاديث**: تُجلب كتب الحديث عند الطلب من cdn.jsdelivr.net.
+- **الأحاديث**: تُجلب كتب الحديث عند الطلب من cdn.jsdelivr.net، من إصدار محدد (commit) من مستودع hadith-api.
 - **بطاقة اليوم**: يجلب التطبيق آيات وأحاديث من bayan.alwa7i.com باستعلامات ثابتة مدمجة في التطبيق، لا تحتوي بياناتك.
 - **التحديثات**: يقرأ التطبيق ملف update.json العام من GitHub عند فتحه (بحد أدنى كل 12 ساعة) وفي الخلفية مرة كل 24 ساعة تقريبًا. لا يُنزَّل التحديث إلا عبر https وبعد التحقق من SHA-256 واسم الحزمة، ويطلب أندرويد تأكيدك قبل التثبيت.
 - **الروابط التي تفتحها** (مثل sunnah.com وdorar.net ويوتيوب وموقع المصدر) تُفتح في المتصفح وتخضع لسياسة الموقع المقصود.
@@ -48,7 +48,7 @@
 
 تستبعد النسخة الحديثة حقول قفل التطبيق الأساسية، لكنها تتضمن بياناتك وإعداداتك الأخرى ومنها إعدادات الموقع إن كانت محفوظة. لا تشارك الملف إلا مع من تثق به.
 
-يستثني النسخ التلقائي المدمج في أندرويد بيانات الواجهة الأساسية (التي تضم سجلاتك) ورمز القفل، فلا تعتمد عليه لاستعادة بياناتك؛ الطريق الموثوق هو الملف المستقل أو Drive.
+يستثني النسخ التلقائي المدمج في أندرويد بيانات الواجهة الأساسية (التي تضم سجلاتك) ورمز القفل، فلا تعتمد عليه لاستعادة بياناتك؛ الطريق الموثوق هو الملف المستقل أو Drive. نقل الهاتف المباشر إلى جهاز جديد (device transfer) يستثني بيانات الواجهة الأساسية فقط، ولا يستثني إعدادات الإشعارات والشريط العائم المحفوظة محليًا.
 
 ## الحذف وحدود الاستعادة
 
@@ -89,7 +89,7 @@ The core works offline: Mushaf, tafsir, Names of Allah, Hisn al-Muslim, reminder
 - **Radio**: live streams from qurango.net and stream.radiojar.com. The app allows unencrypted http for the radiojar.com domain only, because the stream redirects there; everything else is https.
 - **Reciters** and in-Mushaf recitation: audio files from mp3quran.net, verses.quran.com and other Quran audio servers.
 - **Ibn Baz fatwas**: text slices load on demand from the app's GitHub repository (raw.githubusercontent.com) and are cached for offline reading. Fatwa audio streams from files.zadapps.info; downloading is optional per file.
-- **Hadith**: hadith books load on demand from cdn.jsdelivr.net.
+- **Hadith**: hadith books load on demand from cdn.jsdelivr.net, from a fixed commit of the hadith-api repository.
 - **Daily card**: the app fetches verses and hadith from bayan.alwa7i.com using fixed queries built into the app, which contain none of your data.
 - **Updates**: the app reads the public update.json from GitHub when opened (at most every 12 hours) and in the background roughly every 24 hours. Updates download only over https and after SHA-256 and package-name checks, and Android asks you to confirm before installing.
 - **Links you open** (such as sunnah.com, dorar.net, YouTube and source sites) open in your browser and follow that site's policy.
@@ -110,7 +110,7 @@ Password encryption is optional and off by default. When on, backup content is e
 
 Recent backups leave out the app lock's core fields but include your other data and settings, including location settings if saved. Share the file only with people you trust.
 
-Android's built-in automatic backup excludes the app's main interface data (which holds your records) and the lock code, so do not rely on it to restore your data; the reliable routes are the standalone file or Drive.
+Android's built-in automatic backup excludes the app's main interface data (which holds your records) and the lock code, so do not rely on it to restore your data; the reliable routes are the standalone file or Drive. Direct phone-to-phone transfer (device transfer) excludes only the main interface data, not the locally stored notification and floating-bar settings.
 
 ## Deletion and restore limits
 
