@@ -76,6 +76,12 @@ jobs:
       - name: Run Python regression tests
         run: python3 tests/mushaf_wordmap_regression.py
 
+      - name: Run contract tests (fast, no browser)
+        run: |
+          set -e
+          for t in tests/*_contract.cjs; do echo "== $t"; node "$t"; done
+          for t in tests/*_contract.py; do echo "== $t"; python3 "$t"; done
+
       - name: Install Capacitor deps and sync
         run: |
           npm ci || npm install
