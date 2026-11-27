@@ -66,3 +66,5 @@ button,.chip,.ib,.tab,.lrow,.tile{min-height:44px}
 .tin-ap button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:800;padding:0 12px;height:44px;cursor:pointer}
 .tin-ap button.on{background:var(--gold);color:#1b1405}
 .tmw-d{display:inline-flex;align-items:center}
+
+.rm-warn{border:1px solid #e0a040;margin:10px 0}.rm-warn-t{display:flex;gap:10px;align-items:center;justify-content:space-between}.rm-warn-t b{display:block}.rm-warn-t small,.rm-warn>small{color:var(--muted)}.rm-warn>small{display:block;margin-top:8px}.rm-warn-a{background:none;border:0;padding:0;color:#e0a040;text-decoration:underline;font:inherit}

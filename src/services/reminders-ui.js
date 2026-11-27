@@ -158,7 +158,9 @@
         +'<p id="rem-status" class="rm-status">'+st+'</p>';
       return h;
     }
-    return '<section class="rm-hero"><span class="rm-hic">'+ic('bell')+'</span><div><h2>مركز التذكيرات</h2><p>تذكيرات تلقائية بأوقات مدروسة، تصلك حتى والتطبيق مغلق</p></div></section>'
+    var exOff=false;try{exOff=!!(nat&&nat.canExactAlarms&&!nat.canExactAlarms())}catch(x){}
+    var warn=exOff?'<section class="card flat rm-warn"><div class="rm-warn-t"><div><b>المنبّهات الدقيقة غير مسموحة</b><small>قد تتأخر الصلاة والأذكار دقائق عن موعدها.</small></div><button type="button" class="btn ghost" data-rem-action="exact">السماح</button></div><small>للهواتف الصينية: فعّل «التشغيل التلقائي» والبطارية «بلا قيود». <button type="button" class="rm-warn-a" data-rem-pane="checkup">الخطوات</button></small></section>':'';
+    return warn+'<section class="rm-hero"><span class="rm-hic">'+ic('bell')+'</span><div><h2>مركز التذكيرات</h2><p>تذكيرات تلقائية بأوقات مدروسة، تصلك حتى والتطبيق مغلق</p></div></section>'
       +'<div class="sg-card" style="margin-top:10px"><div class="sg-row'+(r.enabled?' lit':'')+'"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>جدول التذكيرات التلقائي</b><small>'+(nat?'يعمل على مستوى النظام: مع الشاشة المقفلة وبعد إعادة تشغيل الهاتف':'يعمل أثناء فتح التطبيق')+'</small></div><div class="sg-ctl"><span class="sg-pill '+(r.enabled?'ok':'bad')+'">'+(r.enabled?'مفعّل ✓':'متوقف')+'</span>'+sw('data-rem-master',r.enabled)+'</div></div></div>'
       +'<div class="rm-seg">'+[['main','التذكيرات'],['smart','ذكي'],['mine','تذكيري']].map(function(x){return '<button type="button" class="'+(REM_PANE===x[0]?'on':'')+'" data-rem-pane="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
       +'<div class="rm-pane'+(REM_PANE==='main'?' on':'')+'">'
