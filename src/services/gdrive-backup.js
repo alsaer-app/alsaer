@@ -181,7 +181,7 @@ window.gdriveOnRedirect=function(u){
       try{localStorage.setItem(GD_RT_KEY,o.refresh_token)}catch(e){}
       gdTok={t:o.access_token||'',exp:Date.now()+((o.expires_in||3600)-60)*1000};
       bkSay('تم ربط Google Drive ✓');try{render()}catch(e){}
-    },function(){bkSay(netMsg('تعذّر إتمام الربط. تحقق من الإنترنت وحاول مجددًا.'))});
+    },function(){bkSay(gdNetMsg('تعذّر إتمام الربط. تحقق من الإنترنت وحاول مجددًا.'))});
 };
 
 /* مهلة على كل طلب شبكة: بلاها كانت شبكة معلّقة تبقي gdBusy=true وتعطّل الأزرار حتى إعادة تشغيل التطبيق */
@@ -360,7 +360,7 @@ function gdRunBackup(automatic){
     if(localDue)try{gdSavePhone(content);localOK=true}catch(e){var retry=gdPrefs();retry.phoneRetry=true;try{gdSetPrefs(retry)}catch(x){}}
     return (driveDue?gdUpload(content).then(function(){S.gdAt=Date.now();gdStatusSet('driveAt',S.gdAt);save();driveOK=true},function(){}):Promise.resolve()).then(function(){
       if(!automatic&&driveDue&&driveOK)gdFlashDone('up');
-      bkSay((localDue?(localOK?'حُفظت نسخة الأمان داخل التطبيق. ':'تعذّر حفظ نسخة الأمان داخل التطبيق. '):'')+(driveDue?(driveOK?'تم الرفع إلى Drive.':netMsg('تعذّر الرفع إلى Drive؛ تحقق من الاتصال وصلاحية الربط.')):(gdHasRt()?'نسخة Drive حديثة ولم تُرفع مجددًا.':'لم يُرفع شيء إلى Drive؛ الحساب غير مربوط.')));
+      bkSay((localDue?(localOK?'حُفظت نسخة الأمان داخل التطبيق. ':'تعذّر حفظ نسخة الأمان داخل التطبيق. '):'')+(driveDue?(driveOK?'تم الرفع إلى Drive.':gdNetMsg('تعذّر الرفع إلى Drive؛ تحقق من الاتصال وصلاحية الربط.')):(gdHasRt()?'نسخة Drive حديثة ولم تُرفع مجددًا.':'لم يُرفع شيء إلى Drive؛ الحساب غير مربوط.')));
       return localOK&&driveOK;
     });
   }).catch(function(e){bkSay(e.message==='password-required'?'أدخل كلمة مرور النسخ المشفّرة أولًا.':'تعذّر تجهيز النسخة؛ لم يُرفع شيء.');return false}).finally(function(){gdBusy=false;gdPhase='';if(automatic&&typeof bkDirty==='function'&&bkDirty())return;try{render()}catch(e){}});
@@ -399,7 +399,8 @@ function gdListFiles(){
       });
   }return page('');
 }
-function gdFailure(e){var m=String(e&&e.message);if(netMsg('')!==''&&m!=='auth'&&m!=='no-auth'&&m!=='forbidden')return netMsg('');return m==='auth'||m==='no-auth'?'انتهت صلاحية الربط. أعد ربط حساب Google.':m==='forbidden'?'لا يوجد إذن كافٍ لهذه العملية. لم نؤكد نجاحها.':m==='incomplete-list'?'قائمة Drive غير مكتملة؛ أُوقفت العملية بأمان.':'تعذّر الاتصال أو التحقق من النتيجة. حاول مجددًا؛ لا نعدّ العملية ناجحة.'}
+function gdNetMsg(m){return(typeof navigator!=='undefined'&&navigator.onLine===false)?'لا يوجد اتصال بالانترنت برجاء التحقق من اتصال الانترنت':m}
+function gdFailure(e){var m=String(e&&e.message);if(gdNetMsg('')!==''&&m!=='auth'&&m!=='no-auth'&&m!=='forbidden')return gdNetMsg('');return m==='auth'||m==='no-auth'?'انتهت صلاحية الربط. أعد ربط حساب Google.':m==='forbidden'?'لا يوجد إذن كافٍ لهذه العملية. لم نؤكد نجاحها.':m==='incomplete-list'?'قائمة Drive غير مكتملة؛ أُوقفت العملية بأمان.':'تعذّر الاتصال أو التحقق من النتيجة. حاول مجددًا؛ لا نعدّ العملية ناجحة.'}
 function gdLoadPicker(mode){
   if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return Promise.resolve(false);
   if(!gdHasRt()){bkSay('اربط حساب Google أولًا.');return Promise.resolve(false)}
