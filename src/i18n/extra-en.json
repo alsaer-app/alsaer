@@ -1612,5 +1612,6 @@
 "تكرار تذكير النسخة": "Backup reminder frequency",
 "شهر": "Month",
 "كل شهر": "Monthly",
-"تذكير النسخة الاحتياطية": "Backup reminder"
+"تذكير النسخة الاحتياطية": "Backup reminder",
+"نافذة التحديث بتصميم أنظف. شاشة الإشعارات في أربع مجموعات مع معالج «ضبط دفعة واحدة». زر «إصلاح تلقائي بخطوة واحدة» لأذونات الإشعارات. قائمة الإعدادات في ثلاث مجموعات. فحص التحديث تلقائيًا كل ساعة. تذكير النسخ الاحتياطي بتكرار تختاره، والافتراضي أسبوعي. زر «أعطنا نجمة على GitHub». إصلاح قراءة توقيع ملف التحديث. تنبيه عند إيقاف إذن المنبّهات الدقيقة. الشاشة الافتتاحية تتبع نمط الهاتف. لا تغيير في المصحف ولا في الأذونات.": "Cleaner update dialog. The notifications screen is grouped into four groups with a \"Set up in one go\" wizard. A \"One-tap automatic fix\" button for notification permissions. The settings menu is in three groups. Automatic update check every hour. Backup reminder with a frequency you choose, weekly by default. A \"Give us a star on GitHub\" button. Fixed reading the update file signature. Warning when the exact alarms permission is off. The splash screen follows the phone's mode. No change to the Mushaf or to permissions."
 }
