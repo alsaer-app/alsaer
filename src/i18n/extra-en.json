@@ -1536,5 +1536,7 @@
 "✓ تمّ الورد": "✓ Portion complete",
 "✓ محفوظ على الجهاز": "✓ Saved on this device",
 "🏆 أتممت التحدّي — بارك الله فيك": "🏆 You completed the challenge. May Allah bless you",
-"📖 وردي من القرآن يوميًا": "📖 My daily Quran portion"
+"📖 وردي من القرآن يوميًا": "📖 My daily Quran portion",
+"مساحة التخزين غير كافية للتحديث. أفرغ بعض المساحة ثم أعد المحاولة": "Not enough storage space for the update. Free up some space and try again",
+"اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت": "Allow the app to install updates in Settings, then come back and the install will continue"
 }

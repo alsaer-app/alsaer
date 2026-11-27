@@ -142,6 +142,15 @@ public class AlsaerNative {
         if (url == null || !url.startsWith("https://")) return "bad-url";
         if (sha == null || sha.length() != 64) return "bad-sha";
         if (updRunning) return "busy";
+        /* فحص المساحة قبل البدء: المتبقي من الملف + هامش ٥ م.ب (إعادة التسمية في نفس المجلد فلا نسخة ثانية) */
+        if (size > 0) {
+            long have = (url.equals(updPrefs().getString("url", "")) && updPart().exists()) ? updPart().length() : 0;
+            long need = Math.max(0, size - have) + 5L * 1024 * 1024;
+            try {
+                java.io.File dir = act.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS);
+                if (dir != null && dir.getUsableSpace() < need) return "nospace";
+            } catch (Exception ignored) { }
+        }
         android.content.SharedPreferences p = updPrefs();
         long done = 0;
         if (!url.equals(p.getString("url", "")) && updPart().exists()) updPart().delete();
@@ -207,7 +216,9 @@ public class AlsaerNative {
             if (!part.renameTo(apk)) throw new java.io.IOException("rename");
             p.edit().putLong("done", apk.length()).putString("st", "done").putString("err", "").apply();
         } catch (Exception e) {
-            String m = "sha256".equals(e.getMessage()) ? NativeStrings.get(act, "file_invalid_checksum") : NativeStrings.get(act, "connection_lost");
+            String em = String.valueOf(e.getMessage());
+            boolean noSpace = em.contains("ENOSPC") || em.toLowerCase(java.util.Locale.ROOT).contains("no space left");
+            String m = "sha256".equals(e.getMessage()) ? NativeStrings.get(act, "file_invalid_checksum") : noSpace ? "nospace" : NativeStrings.get(act, "connection_lost");
             p.edit().putString("st", "failed").putString("err", m).apply();
         } finally { updRunning = false; }
     }
@@ -233,6 +244,21 @@ public class AlsaerNative {
                 + ",\"pct\":" + pct + ",\"run\":" + updRunning
                 + ",\"err\":\"" + p.getString("err", "").replace("\"", "'")
                 + "\",\"url\":\"" + p.getString("url", "") + "\"}";
+    }
+
+    /* بعد ترقية ناجحة: حذف ملف التحديث المؤقت الخاص بالتطبيق (alsaer-update.apk) إن كان رقم إصداره لم يعد أعلى من المثبّت. لا يمس أي ملف آخر ولا ملفات المستخدم. */
+    @JavascriptInterface public String updateCleanup() {
+        try {
+            if (updRunning) return "busy";
+            java.io.File f = updApk();
+            if (!f.exists()) return "none";
+            android.content.pm.PackageInfo pi = act.getPackageManager().getPackageArchiveInfo(f.getAbsolutePath(), 0);
+            long vc = pi == null ? 0 : ((Build.VERSION.SDK_INT >= 28) ? pi.getLongVersionCode() : pi.versionCode);
+            if (pi != null && pi.packageName != null && pi.packageName.equals(act.getPackageName()) && vc > BuildConfig.VERSION_CODE) return "pending";
+            if (!f.delete()) return "error";
+            updPrefs().edit().putString("st", "idle").putLong("done", 0).putString("err", "").apply();
+            return "deleted";
+        } catch (Exception e) { return "error"; }
     }
 
     @JavascriptInterface public String updateInstall() {

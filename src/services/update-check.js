@@ -106,7 +106,7 @@ function updSheetHtml(){
       +'<button class="btn block" data-a="updinst">تثبيت الآن</button>'
       +'<button class="btn ghost block" data-a="updclose">لاحقًا</button>';
   }else if(UPD_DL&&UPD_DL.st==='failed'){
-    h+=top('refresh','تعذّر تحميل '+vn,esc(UPD_DL.err||'خطأ في الشبكة'),'فشل')
+    h+=top('refresh','تعذّر تحميل '+vn,esc(updErrText(UPD_DL.err)),'فشل')
       +(UPD_DL.done>0?'<div class="upd-meta"><span>وصل التحميل إلى '+updFmtSize(UPD_DL.done)+'</span><span>سيُستكمل من حيث توقف</span></div>':'')
       +'<button class="btn block" data-a="updnow">'+ic('refresh')+' إعادة المحاولة</button>'
       +'<button class="btn ghost block" data-a="updclose">لاحقًا</button>';
@@ -166,23 +166,32 @@ function updStartPoll(){
     }
   },700);
 }
+var UPD_NOSPACE='مساحة التخزين غير كافية للتحديث. أفرغ بعض المساحة ثم أعد المحاولة';
+function updErrText(e){return e==='nospace'?UPD_NOSPACE:(e||'خطأ في الشبكة')}
 function updStartDl(){
   var i=updInfo();if(!i||!updNative())return;
   var r='';try{r=AlsaerNative.updateStart(i.apkUrl,i.sizeBytes||0,i.sha256||'')}catch(e){}
+  if(r==='nospace'){toast(UPD_NOSPACE);return}
   if(r!=='started'&&r!=='busy'){toast('تعذّر بدء التحميل');return}
   if(!UPD_DL||UPD_DL.st!=='downloading')UPD_DL={st:'downloading',pct:-1,done:0,total:i.sizeBytes||0,url:i.apkUrl,run:true};
   UPD_DL.run=true;updSheetPaint();updStartPoll();
 }
-function updInstall(){
+/* needperm: نتذكر أن المستخدم طلب التثبيت، وعند رجوعه من شاشة الإذن يُستكمل التثبيت مرة واحدة (إن لم يُمنح الإذن لا نكرر ولا نزعج) */
+var UPD_WAIT_PERM=false;
+function updInstall(auto){
   if(!updNative())return;
   var r='';try{r=AlsaerNative.updateInstall()}catch(e){}
-  if(r==='needperm')toast('اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد واضغط «تثبيت»');
-  else if(r==='badpkg'||r==='badsig'||r==='badver')toast('ملف التحديث لا يطابق هذا التطبيق — حمّل من صفحة الإصدار');
+  if(r==='needperm'){UPD_WAIT_PERM=!auto;if(!auto)toast('اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت');return}
+  UPD_WAIT_PERM=false;
+  if(r==='badpkg'||r==='badsig'||r==='badver')toast('ملف التحديث لا يطابق هذا التطبيق — حمّل من صفحة الإصدار');
   else if(r==='nofile')toast('لا يوجد ملف محمَّل بعد');
   else if(r!=='ok')toast('تعذّر فتح المثبّت — حمّل من صفحة الإصدار');
 }
+/* تنظيف ملف التحديث المؤقت بعد ترقية ناجحة (ملف التطبيق نفسه فقط) */
+function updCleanup(){try{if(updNative()&&typeof AlsaerNative.updateCleanup==='function')AlsaerNative.updateCleanup()}catch(e){}}
 function updCheckNow(){toast('جارٍ التحقق من التحديثات…');updCheck(true).then(function(ok){if(!ok)toast('تعذّر التحقق من التحديثات. تحقق من الاتصال وحاول مجددًا');else if(!updInfo())toast('لا يوجد تحديث جديد');updSheetPaint();if(tab==='settings')render()})}
 setTimeout(function(){updPollNative()},8000);
 /* فحص تلقائي: بعد ٣ ثوانٍ من الفتح، وبعد ٣ ثوانٍ من كل رجوع من الخلفية (حد ٦ ساعات داخل updCheck) */
 setTimeout(updAutoCheck,3000);
-document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(updAutoCheck,3000)});
+document.addEventListener('visibilitychange',function(){if(!document.hidden){if(UPD_WAIT_PERM){UPD_WAIT_PERM=false;setTimeout(function(){updInstall(true)},400)}setTimeout(updAutoCheck,3000)}});
+setTimeout(updCleanup,6000);
