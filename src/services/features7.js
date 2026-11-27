@@ -106,7 +106,7 @@ function cdPlay(){
   if(typeof mqAuStop==='function')mqAuStop();
   var a=new Audio();a.preload='auto';a.src=R[9];mqAu={a:a,k:cdSura+':1',pa:false,ext:1,nm:'بطاقة '+AD().n[cdSura-1]+' · ياسر راضي'};
   a.onended=function(){if(mqAu.a===a)mqAuStop()};
-  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')};
+  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast(netMsg('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت'))};
   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
   if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader'&&!(mqAu.ext&&tab==='cards'))mqAuStop();else try{mqAuSync()}catch(e){}},500);
   mqAuBar();

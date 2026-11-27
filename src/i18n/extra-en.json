@@ -1538,5 +1538,16 @@
 "🏆 أتممت التحدّي — بارك الله فيك": "🏆 You completed the challenge. May Allah bless you",
 "📖 وردي من القرآن يوميًا": "📖 My daily Quran portion",
 "مساحة التخزين غير كافية للتحديث. أفرغ بعض المساحة ثم أعد المحاولة": "Not enough storage space for the update. Free up some space and try again",
-"اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت": "Allow the app to install updates in Settings, then come back and the install will continue"
+"اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت": "Allow the app to install updates in Settings, then come back and the install will continue",
+"2.0.4 (10204) · نسخة تجريبية": "2.0.4 (10204) · Beta",
+"هذا الإصدار مخصص لاختبار اكتشاف التحديث التلقائي انطلاقًا من 2.0.3. عند فتح التطبيق تظهر نافذة «تحديث جديد» من تلقاء نفسها خلال ثوانٍ. لا يبدأ التنزيل ولا التثبيت إلا بموافقتك. الجديد: رسالة «لا يوجد اتصال بالانترنت» عند غياب الإنترنت في الشاشات التي تحتاجه، وإصلاح قراءة توقيع ملف التحديث مع رسالة مستقلة لكل سبب رفض، وإصلاحات صغيرة في فحص التحديث، وتنبيه عند إيقاف إذن المنبّهات الدقيقة، والشاشة الافتتاحية تتبع نمط الهاتف. لا تغيير في المصحف ولا في الأذونات.": "This version is meant to test automatic update discovery starting from 2.0.3. When the app opens, the \"New update\" sheet appears by itself within a few seconds. Download and install start only with your approval. New: a \"No internet connection\" message on the screens that need the internet when it is missing, a fix for reading the update file's signature with a separate message for each rejection reason, small fixes in update checking, a warning when the exact-alarm permission is off, and a splash screen that follows the phone's dark or light mode. No change to the Quran or to permissions.",
+"لا يوجد اتصال بالانترنت برجاء التحقق من اتصال الانترنت": "No internet connection. Please check your internet connection.",
+"ملف التحديث ليس لهذا التطبيق — حمّل من صفحة الإصدار": "The update file is not for this app. Download it from the release page.",
+"توقيع ملف التحديث يختلف عن توقيع النسخة المثبتة — حمّل من صفحة الإصدار": "The update file's signature differs from the installed version's signature. Download it from the release page.",
+"ملف التحديث ليس أحدث من النسخة المثبتة": "The update file is not newer than the installed version.",
+"حدث خطأ أثناء التحقق من ملف التحديث — حمّل من صفحة الإصدار": "An error occurred while checking the update file. Download it from the release page.",
+"قد تتأخر الصلاة والأذكار دقائق عن موعدها.": "Prayer and dhikr reminders may be delayed by a few minutes.",
+"السماح": "Allow",
+"للهواتف الصينية: فعّل «التشغيل التلقائي» والبطارية «بلا قيود».": "On Chinese-brand phones: turn on \"Autostart\" and set battery to \"No restrictions\".",
+"الخطوات": "Steps"
 }

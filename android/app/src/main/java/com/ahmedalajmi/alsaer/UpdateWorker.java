@@ -43,9 +43,10 @@ public class UpdateWorker extends Worker {
             if (!APP_ID.equals(j.optString("appId"))) return Result.success();
             int code = j.optInt("versionCode", 0);
             String name = j.optString("versionName", "");
-            int mine = c.getPackageManager().getPackageInfo(c.getPackageName(), 0).versionCode;
+            android.content.pm.PackageInfo me = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
+            int mine = me.versionCode;
             int last = AlarmScheduler.prefs(c).getInt(PREF_LAST, 0);
-            if (code > mine && code > last && name.length() > 0 && name.length() < 32) {
+            if (code > mine && code > last && name.length() > 0 && name.length() < 32 && semverNewer(name, me.versionName)) {
                 notifyUpdate(c, name);
                 AlarmScheduler.prefs(c).edit().putInt(PREF_LAST, code).apply();
             }
@@ -53,6 +54,18 @@ public class UpdateWorker extends Worker {
         } catch (Throwable t) {
             return Result.retry();
         }
+    }
+
+    /** نفس شرط النافذة: الإصدار النصي أحدث فعلًا (بصيغة x.y.z)، لا رقم البناء وحده. اسم غير مفهوم يُعتبر أحدث كي لا يضيع تحديث. */
+    static boolean semverNewer(String a, String b) {
+        try {
+            String[] x = a.trim().replaceFirst("^[vV]", "").split("[.-]"), y = b == null ? new String[0] : b.trim().replaceFirst("^[vV]", "").split("[.-]");
+            for (int i = 0; i < 3; i++) {
+                int p = i < x.length ? Integer.parseInt(x[i]) : 0, q = i < y.length ? Integer.parseInt(y[i]) : 0;
+                if (p != q) return p > q;
+            }
+            return false;
+        } catch (Exception e) { return true; }
     }
 
     static JSONObject fetch() throws Exception {

@@ -218,7 +218,9 @@ public class AlsaerNative {
         } catch (Exception e) {
             String em = String.valueOf(e.getMessage());
             boolean noSpace = em.contains("ENOSPC") || em.toLowerCase(java.util.Locale.ROOT).contains("no space left");
-            String m = "sha256".equals(e.getMessage()) ? NativeStrings.get(act, "file_invalid_checksum") : noSpace ? "nospace" : NativeStrings.get(act, "connection_lost");
+            /* انقطاع الشبكة نفسه (لا رد من الخادم) يظهر برسالة "لا يوجد اتصال" ؛ رد خاطئ (http N) أو غيره يبقى "انقطع الاتصال" */
+            boolean offline = e instanceof java.net.UnknownHostException || e instanceof java.net.SocketException || e instanceof java.net.SocketTimeoutException;
+            String m = "sha256".equals(e.getMessage()) ? NativeStrings.get(act, "file_invalid_checksum") : noSpace ? "nospace" : offline ? "offline" : NativeStrings.get(act, "connection_lost");
             p.edit().putString("st", "failed").putString("err", m).apply();
         } finally { updRunning = false; }
     }
@@ -240,10 +242,12 @@ public class AlsaerNative {
         android.content.SharedPreferences p = updPrefs();
         long done = p.getLong("done", 0), total = p.getLong("size", 0);
         int pct = total > 0 ? (int) (done * 100 / total) : -1;
-        return "{\"st\":\"" + p.getString("st", "idle") + "\",\"done\":" + done + ",\"total\":" + total
-                + ",\"pct\":" + pct + ",\"run\":" + updRunning
-                + ",\"err\":\"" + p.getString("err", "").replace("\"", "'")
-                + "\",\"url\":\"" + p.getString("url", "") + "\"}";
+        try {
+            org.json.JSONObject o = new org.json.JSONObject();
+            o.put("st", p.getString("st", "idle")).put("done", done).put("total", total).put("pct", pct).put("run", updRunning)
+                .put("err", p.getString("err", "")).put("url", p.getString("url", ""));
+            return o.toString();
+        } catch (Exception e) { return "{\"st\":\"idle\",\"done\":0,\"total\":0,\"pct\":-1,\"run\":false,\"err\":\"\",\"url\":\"\"}"; }
     }
 
     /* بعد ترقية ناجحة: حذف ملف التحديث المؤقت الخاص بالتطبيق (alsaer-update.apk) إن كان رقم إصداره لم يعد أعلى من المثبّت. لا يمس أي ملف آخر ولا ملفات المستخدم. */
@@ -267,16 +271,18 @@ public class AlsaerNative {
             if (!f.exists()) return "nofile";
             android.content.pm.PackageManager pm = act.getPackageManager();
             android.content.pm.PackageInfo pi;
-            if (Build.VERSION.SDK_INT >= 28) pi = pm.getPackageArchiveInfo(f.getAbsolutePath(), android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES);
+            if (Build.VERSION.SDK_INT >= 28) pi = pm.getPackageArchiveInfo(f.getAbsolutePath(), android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES | android.content.pm.PackageManager.GET_SIGNATURES);
             else pi = pm.getPackageArchiveInfo(f.getAbsolutePath(), android.content.pm.PackageManager.GET_SIGNATURES);
-            if (pi == null || pi.packageName == null || !pi.packageName.equals(act.getPackageName())) return "badpkg";
+            if (pi == null || pi.packageName == null || !pi.packageName.equals(act.getPackageName())) { DiagLog.add("upd badpkg"); return "badpkg"; }
             long vc = (Build.VERSION.SDK_INT >= 28) ? pi.getLongVersionCode() : pi.versionCode;
-            if (vc <= BuildConfig.VERSION_CODE) return "badver";
+            if (vc <= BuildConfig.VERSION_CODE) { DiagLog.add("upd badver"); return "badver"; }
             android.content.pm.PackageInfo cur = (Build.VERSION.SDK_INT >= 28)
                     ? pm.getPackageInfo(act.getPackageName(), android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES)
                     : pm.getPackageInfo(act.getPackageName(), android.content.pm.PackageManager.GET_SIGNATURES);
             String a = updSig(pi), b = updSig(cur);
-            if (a == null || !a.equals(b)) return "badsig";
+            /* ملف بلا توقيع مقروء (بعض الأجهزة): لا نرفض، فأندرويد نفسه يرفض عند التثبيت أي توقيع مختلف. الرفض فقط عند توقيعين مقروءين مختلفين. */
+            if (a != null && b != null && !a.equals(b)) { DiagLog.add("upd badsig"); return "badsig"; }
+            if (a == null || b == null) DiagLog.add("upd sig unreadable file=" + (a != null) + " app=" + (b != null));
             if (Build.VERSION.SDK_INT >= 26 && !pm.canRequestPackageInstalls()) {
                 Intent i = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + act.getPackageName()));
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -289,7 +295,7 @@ public class AlsaerNative {
             i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
             act.startActivity(i);
             return "ok";
-        } catch (Exception e) { return "error"; }
+        } catch (Exception e) { DiagLog.add("upd install error " + e.getClass().getSimpleName()); return "error"; }
     }
 
     private String updSig(android.content.pm.PackageInfo pi) {

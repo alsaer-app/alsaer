@@ -57,7 +57,7 @@ function vAhadith(){
     var bk=hdtBook(hdtS.book),d=hdtS.cache[hdtS.book];
     h+='<div class="hsn-top"><button class="btn ghost" data-a="hdtback">← الكتب</button><b class="hsn-cn">'+bk.n+'</b><span class="hsn-fs"><button class="btn ghost" data-a="hdtfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hdtfs" data-v="2">أ+</button></span></div>';
     if(!d){
-      if(hdtS.err)return h+'<p class="asm-empty">تعذّر تحميل الكتاب. تحقّق من اتصالك بالإنترنت.</p><div class="acts"><button class="btn" data-a="hdtretry">إعادة المحاولة</button></div></div>';
+      if(hdtS.err)return h+'<p class="asm-empty">'+netMsg('تعذّر تحميل الكتاب. تحقّق من اتصالك بالإنترنت.')+'</p><div class="acts"><button class="btn" data-a="hdtretry">إعادة المحاولة</button></div></div>';
       return h+'<p class="asm-empty">جارٍ تحميل '+bk.n+'… (أول مرة قد يستغرق دقيقة)</p></div>';
     }
     var secs=d.metadata&&d.metadata.sections||{};
@@ -73,7 +73,7 @@ function vAhadith(){
   }
   var dy=P.day&&P.day.d===dk()?P.day:null;
   if(!dy&&!hdtS.dayReq){hdtS.dayReq=1;hdtDay().then(function(){hdtS.dayReq=0;if(tab==='ahadith')render()},function(){hdtS.dayReq=0;hdtS.dayErr=1;if(tab==='ahadith')render()})}
-  h+='<section class="card hdt-day"><small>حديث اليوم</small><div class="hdt-t" style="font-size:20px">'+(dy?hdtEsc(dy.t):(hdtS.dayErr?'تعذّر تحميل حديث اليوم؛ تحقّق من الإنترنت.':'جارٍ التحميل…'))+'</div>'+(dy?'<small>الأربعون النووية · حديث رقم '+ar(dy.n)+'</small>':'')+'</section>'
+  h+='<section class="card hdt-day"><small>حديث اليوم</small><div class="hdt-t" style="font-size:20px">'+(dy?hdtEsc(dy.t):(hdtS.dayErr?netMsg('تعذّر تحميل حديث اليوم؛ تحقّق من الإنترنت.'):'جارٍ التحميل…'))+'</div>'+(dy?'<small>الأربعون النووية · حديث رقم '+ar(dy.n)+'</small>':'')+'</section>'
    +'<h3 class="hdt-h">الكتب التسعة</h3><div class="asm-grid">'+HDT_BOOKS.map(function(b){return '<button class="asm-card" data-a="hdtbook" data-v="'+b.s+'"><b style="font-size:17px">'+b.n+'</b><span>'+b.a+'</span><em class="hdt-bd">'+b.t+'</em></button>'}).join('')+'</div>'
    +'<p class="note">المصدر: مشروع Hadith API المفتوح (fawazahmed0). التصنيف (صحيح/حسن/ضعيف) يظهر عند توفره في مصدر البيانات؛ يُنصح بمراجعة أهل الاختصاص عند الاستدلال. تحتاج الصفحة إلى الإنترنت لتحميل الكتب.</p></div>';
   return h;

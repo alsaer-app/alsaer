@@ -391,7 +391,7 @@ function mqAuPlay(vv){
   var a=new Audio();a.preload='auto';a.src=mqAuUrl(c,v);mqAu={a:a,k:vv,pa:false,sc:c};
   if(mqAuS().tm){var go=function(){try{a.currentTime=window.WTIM.s[c-1][v-1]/1000}catch(e){}};if(a.readyState>0)go();else a.addEventListener('loadedmetadata',go,{once:true})}
   a.onended=function(){if(mqAu.a!==a)return;if(mqAuS().whole||mqAuS().tm){mqAuStop();return}if(v<AD().s[c-1].length){var nv=c+':'+(v+1);mqSetCur(nv,false);var el=document.querySelector('.mq-v[data-v="'+nv+'"]');if(el&&el.scrollIntoView){try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}}mqAuPlay(nv)}else mqAuStop()};
-  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل التلاوة. تحتاج الميزة إلى اتصال بالإنترنت')};
+  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast(netMsg('تعذّر تشغيل التلاوة. تحتاج الميزة إلى اتصال بالإنترنت'))};
   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
   if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader'&&!(mqAu.ext&&tab==='cards'))mqAuStop();else try{mqAuTick();mqAuSync()}catch(e){}},250);
   mqAuBar()

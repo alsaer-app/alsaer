@@ -1497,6 +1497,8 @@ button,.chip,.ib,.tab,.lrow,.tile{min-height:44px}
 .tin-ap button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:800;padding:0 12px;height:44px;cursor:pointer}
 .tin-ap button.on{background:var(--gold);color:#1b1405}
 .tmw-d{display:inline-flex;align-items:center}
+
+.rm-warn{border:1px solid #e0a040;margin:10px 0}.rm-warn-t{display:flex;gap:10px;align-items:center;justify-content:space-between}.rm-warn-t b{display:block}.rm-warn-t small,.rm-warn>small{color:var(--muted)}.rm-warn>small{display:block;margin-top:8px}.rm-warn-a{background:none;border:0;padding:0;color:#e0a040;text-decoration:underline;font:inherit}
 /* نسخة 1.2.8 */
 .nx-card{display:flex;align-items:center;gap:14px;width:100%;text-align:start;padding:14px 16px;margin:2px 0 12px;border-radius:22px;border:1px solid var(--line);background:linear-gradient(135deg,var(--surface),var(--surface-2));color:var(--fg);font:inherit;cursor:pointer;touch-action:manipulation;transition:transform .15s,box-shadow .2s;animation:nxin .45s ease both}
 .nx-card:active{transform:scale(.98)}
@@ -2816,12 +2818,15 @@ function updSemverNewer(remote,local){
 }
 function updInfo(){var s=updState();return (s.info&&typeof APP_BUILD!=='undefined'&&s.info.versionCode>APP_BUILD&&updSemverNewer(s.info.versionName,(typeof APP_VERSION!=='undefined')?APP_VERSION:''))?s.info:null}
 /* silent: فحص تلقائي فاشل لا يغيّر الحالة ولا يؤخر المحاولة التالية (انقطاع الإنترنت وقت الفتح لا يعطّل الفحص ٦ ساعات) */
+/* سبب فشل آخر فحص: offline (لا اتصال) أو server (رد خاطئ من الخادم). الانقطاع لا يحفظ حالة ولا يؤخر المحاولة التالية */
+function netMsg(m){return(typeof navigator!=='undefined'&&navigator.onLine===false)?'لا يوجد اتصال بالانترنت برجاء التحقق من اتصال الانترنت':m}
+var UPD_OFFLINE='لا يوجد اتصال بالانترنت برجاء التحقق من اتصال الانترنت',UPD_ERR='';
 function updCheckFailed(silent){if(silent)return false;var st=updState();st.at=Date.now();st.checkFailed=true;updSave(st);return false}
 function updCurrentLabel(){var s=updState();return s.checkFailed?'تعذّر التحقق من التحديثات':s.checkedAt?'أنت على أحدث إصدار':'لم يتم التحقق من التحديثات بعد'}
 function updCheck(force){
-  var quiet=!force;
+  var quiet=!force;UPD_ERR='';
   if(typeof fetch!=='function')return Promise.resolve(updCheckFailed(quiet));
-  if(typeof navigator!=='undefined'&&navigator.onLine===false)return Promise.resolve(updCheckFailed(quiet));
+  if(typeof navigator!=='undefined'&&navigator.onLine===false){UPD_ERR='offline';return Promise.resolve(false)}
   var s=updState();
   if(!force&&s.at&&Date.now()-s.at<6*3600*1000){updOffer(0,false);return Promise.resolve(false)} /* داخل الحد: لا شبكة، لكن إصدارًا محفوظًا من فحص سابق يُعرض عند هذا الفتح */
   var ctl=(typeof AbortController==='function')?new AbortController():null,to=ctl?setTimeout(function(){try{ctl&&ctl.abort()}catch(e){}},8000):null;
@@ -2845,7 +2850,9 @@ function updCheck(force){
     }
     return true;
    })
-   .catch(function(){if(to)clearTimeout(to);return updCheckFailed(quiet)});
+   .catch(function(e){if(to)clearTimeout(to);
+    if(e&&(e.name==='AbortError'||e instanceof TypeError)){UPD_ERR='offline';return false} /* فشل الشبكة نفسها (لا رد) */
+    UPD_ERR='server';return updCheckFailed(quiet)});
 }
 /* عرض النافذة تلقائيًا: تنتظر هدوء الشاشة (قفل، ترحيب، نافذة أخرى، قارئ المصحف) وتعيد المحاولة كل ثانيتين حتى ٥ دقائق.
    تُعرض مرة لكل إصدار في كل فتح للتطبيق؛ «لاحقًا» تغلقها فقط وتعود عند الفتح التالي. force: من الإشعار، بلا حارس الجلسة. */
@@ -2968,9 +2975,10 @@ function updStartPoll(){
   },700);
 }
 var UPD_NOSPACE='مساحة التخزين غير كافية للتحديث. أفرغ بعض المساحة ثم أعد المحاولة';
-function updErrText(e){return e==='nospace'?UPD_NOSPACE:(e||'خطأ في الشبكة')}
+function updErrText(e){return e==='nospace'?UPD_NOSPACE:e==='offline'?UPD_OFFLINE:(e||'خطأ في الشبكة')}
 function updStartDl(){
   var i=updInfo();if(!i||!updNative())return;
+  if(typeof navigator!=='undefined'&&navigator.onLine===false){toast(UPD_OFFLINE);return}
   var r='';try{r=AlsaerNative.updateStart(i.apkUrl,i.sizeBytes||0,i.sha256||'')}catch(e){}
   if(r==='nospace'){toast(UPD_NOSPACE);return}
   if(r!=='started'&&r!=='busy'){toast('تعذّر بدء التحميل');return}
@@ -2984,17 +2992,22 @@ function updInstall(auto){
   var r='';try{r=AlsaerNative.updateInstall()}catch(e){}
   if(r==='needperm'){UPD_WAIT_PERM=!auto;if(!auto)toast('اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت');return}
   UPD_WAIT_PERM=false;
-  if(r==='badpkg'||r==='badsig'||r==='badver')toast('ملف التحديث لا يطابق هذا التطبيق — حمّل من صفحة الإصدار');
+  if(r==='badpkg')toast('ملف التحديث ليس لهذا التطبيق — حمّل من صفحة الإصدار');
+  else if(r==='badsig')toast('توقيع ملف التحديث يختلف عن توقيع النسخة المثبتة — حمّل من صفحة الإصدار');
+  else if(r==='badver')toast('ملف التحديث ليس أحدث من النسخة المثبتة');
+  else if(r==='error')toast('حدث خطأ أثناء التحقق من ملف التحديث — حمّل من صفحة الإصدار');
   else if(r==='nofile')toast('لا يوجد ملف محمَّل بعد');
   else if(r!=='ok')toast('تعذّر فتح المثبّت — حمّل من صفحة الإصدار');
 }
 /* تنظيف ملف التحديث المؤقت بعد ترقية ناجحة (ملف التطبيق نفسه فقط) */
 function updCleanup(){try{if(updNative()&&typeof AlsaerNative.updateCleanup==='function')AlsaerNative.updateCleanup()}catch(e){}}
-function updCheckNow(){toast('جارٍ التحقق من التحديثات…');updCheck(true).then(function(ok){if(!ok)toast('تعذّر التحقق من التحديثات. تحقق من الاتصال وحاول مجددًا');else if(!updInfo())toast('لا يوجد تحديث جديد');updSheetPaint();if(tab==='settings')render()})}
+function updCheckNow(){toast('جارٍ التحقق من التحديثات…');updCheck(true).then(function(ok){if(!ok)toast(UPD_ERR==='offline'?UPD_OFFLINE:'تعذّر التحقق من التحديثات. تحقق من الاتصال وحاول مجددًا');else if(!updInfo())toast('لا يوجد تحديث جديد');updSheetPaint();if(tab==='settings')render()})}
 setTimeout(function(){updPollNative()},8000);
 /* فحص تلقائي: بعد ٣ ثوانٍ من الفتح، وبعد ٣ ثوانٍ من كل رجوع من الخلفية (حد ٦ ساعات داخل updCheck) */
 setTimeout(updAutoCheck,3000);
-document.addEventListener('visibilitychange',function(){if(!document.hidden){if(UPD_WAIT_PERM){UPD_WAIT_PERM=false;setTimeout(function(){updInstall(true)},400)}setTimeout(updAutoCheck,3000)}});
+function updResumeInstall(){if(UPD_WAIT_PERM){UPD_WAIT_PERM=false;setTimeout(function(){updInstall(true)},400)}}
+window.alsaerUpdResume=updResumeInstall;
+document.addEventListener('visibilitychange',function(){if(!document.hidden){updResumeInstall();setTimeout(updAutoCheck,3000)}});
 setTimeout(updCleanup,6000);
 var SOS=[
 'قل: أعوذ بالله من الشيطان الرجيم، واستحضر أن الله يراك ويحبّ لك الخير.',
@@ -3599,7 +3612,7 @@ function topTrig(){
   return best;
 }
 
-var APP_VERSION='2.0.3',APP_BUILD=10203,COPY='';
+var APP_VERSION='2.0.4',APP_BUILD=10204,COPY='';
 try{if(window.AlsaerNative&&typeof AlsaerNative.appBuildInfo==='function'){var bi=AlsaerNative.appBuildInfo().split('|');if(bi.length===2&&parseInt(bi[1],10)>0){APP_VERSION=bi[0];APP_BUILD=parseInt(bi[1],10)}}}catch(e){}
 function devBtn(){
   var ch=ic('chev').replace('class="i"','class="i dev-chev"');
@@ -4807,7 +4820,7 @@ function fastCustomList(){
   return '<h4 style="margin:14px 0 6px">أيامي الخاصة</h4>'+L.map(function(d){var dt=new Date(d+'T12:00:00'),nm=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][dt.getDay()];
     return '<div class="fast-next"><div><b>'+nm+'</b><small>'+d+'</small></div><button class="btn ghost" data-a="fastcustomdel" data-v="'+d+'" aria-label="حذف">'+ic('trash')+'</button></div>'}).join('');
 }
-var RL_RAW='<p><b>2.0.3 (10203) · نسخة تجريبية</b><br>الفحص عن التحديثات صار تلقائيًا عند فتح التطبيق وعند الرجوع إليه. تظهر نافذة «تحديث جديد» من تلقاء نفسها، ولا يبدأ التنزيل ولا التثبيت إلا بموافقتك. «لاحقًا» تخفي النافذة وتعود عند الفتح التالي. الضغط على إشعار التحديث يفتح النافذة مباشرة. الفحص مرة كل ست ساعات كحد أقصى. لا تغيير في المصحف ولا في الأذونات.</p><p><b>2.0.2 (10202) · نسخة تجريبية</b><br>إكمال ترجمة واجهة صوت الفتاوى بالإنجليزية والفرنسية. تثبيت مصدر الأحاديث على إصدار محدد. اختبارات الجودة تعمل الآن مع كل بناء. تحديث وثائق الخصوصية ومصادر البيانات. لا تغيير في المصحف ولا في الأذونات. هذا الإصدار مخصص لاختبار التحديث التلقائي.</p><p><b>2.0.1 (10201) · نسخة تجريبية</b><br>الفتاوى تُحمَّل من مستودع مخصص لها ويُتحقق من بصمة كل ملف. بطاقة الوسائط في الإشعارات تتبع ثيم التطبيق بأيقونات وغلاف خاص، وزر الإيقاف بإجراء مخصص. أُزيلت بطاقة التشخيص. إذاعة القرآن الكريم من السعودية تعمل عبر رابط مسموح لنطاق radiojar.com فقط، مع استمرار التشغيل في الخلفية بعد الإيقاف المؤقت. الاسم العربي «السائر إلى الله» وفي بقية اللغات «Alsaer». إصلاحات ربط Google Drive: إعادة المحاولة بعد خطأ 401، وعدم فقد الربط الجديد، ورسالة سبب مختصرة عند الفشل. تحسينات أمان: تضييق مسار ملفات التحديث، وتنظيف اسم الملف الشخصي وصورته عند الاستعادة.</p><p><b>2.0.0 (10200) · نسخة تجريبية</b><br>بطاقة الوسائط في الإشعارات تتبع ثيم التطبيق بأيقونات وغلاف خاص، وزر الإيقاف بإجراء مخصص. أُزيلت بطاقة التشخيص. زر «← الأذكار» صار مضيئًا. إذاعة القرآن الكريم من السعودية تعمل عبر رابط مسموح لنطاق radiojar.com فقط، مع استمرار التشغيل في الخلفية بعد الإيقاف المؤقت. شاشة البداية لا تقل عن ١٫٣ ثانية. الاسم العربي «السائر إلى الله» وفي بقية اللغات «Alsaer». الفتاوى تُحمَّل من الإنترنت ويُتحقق من بصمة كل ملف. إصلاحات ربط Google Drive: إعادة المحاولة بعد خطأ 401، وعدم فقد الربط الجديد، وتمييز حالات النجاح وإعادة التسجيل والتحقق، ورسالة سبب مختصرة عند الفشل. الإذاعة تعمل بمشغّل Media3 ExoPlayer أصلي داخل خدمة الوسائط، مع إصلاح مشكلة الخروج من التطبيق أثناء التشغيل. تحسينات أمان: تضييق مسار ملفات التحديث، وتنظيف اسم الملف الشخصي وصورته عند الاستعادة.</p><p><b>1.0.10 (10145) · إصلاحات</b><br>شاشة الصلوات منفصلة عن الموقع والمواقيت. الشريط السفلي عائم ومعتم. «عبادة جديدة» تفتح عباداتي اليوم مباشرة. وسحب عناصر قوائم التعديل يعمل باللمس الآن.</p><p><b>1.0.10 (10144) · تصحيح فحص الجسر</b><br>أُزيل من فحص «الجسر الأصلي» اسم دالة لم تعد مستخدمة (كانت تُظهر خطأً كاذبًا).</p><p><b>1.0.10 (10143) · فحص التطبيق وكشف الأخطاء</b><br>شاشة «فحص التطبيق» في المزيد سجّلت أخطاء التطبيق وفحصت التخزين والشاشات والجسر الأصلي (أُزيلت لاحقًا ضمن التنظيف). وبقيت بطاقة الخطأ البديلة: أي شاشة تفشل تعرض بطاقة خطأ بدل صفحة بيضاء.</p><p><b>1.0.10 (10141) · إصلاح تحميل نموذج القرآن</b><br>إن تعذّر قراءة الحزمة المخزّنة يُحمَّل النموذج مباشرة بدل الفشل، وتظهر تفاصيل السبب كاملة لتسهيل التشخيص.</p><p><b>1.0.10 (10138) · أيقونات وتنقّل</b><br>ترتيب الرئيسية بأسلوب آيفون (ضغطة مطوّلة ← اهتزاز الأيقونات وسحب وإخفاء). «المزيد» شبكة أيقونات متحركة. الشريط السفلي بتصميم تيليجرام مع زر «+» لمهام سريعة. إزالة زر «تخصيص الرئيسية» من الواجهة.</p><p><b>1.0.10 (10137) · تخصيص وتنظيم</b><br>تخصيص الرئيسية: نافذة مستقلة تقفل تمرير الصفحة خلفها وتطبّق التغيير فورًا. «تسجيل اليوم» بتنظيم أوضح (شريط عادات يُمرَّر، عدّادان، وتفاصيل الرغبة مطويّة). المسبحة: تحديد الذكر بالضغط على الشريحة. سجل الإصدارات بأرقام النسخ.</p><p><b>1.0.10 (10136) · شريط عائم وإعدادات أبسط</b><br>شريط تنقّل عائم على طراز تيليجرام. إعدادات التنبيهات والمظهر أبسط مع «خيارات متقدمة» مطويّة. إصلاح خلل عرض مربع «إضافة عبادة» وتوحيد شكل مربعات الكتابة.</p><p><b>1.0.10 (10135) · جولة تفاعلية</b><br>جولة تعريفية تظلّل عناصر التطبيق وتنتقل بين شاشاته (تُعاد من الإعدادات). إعدادات بخمسة أقسام، وتنظيف الأكواد الميتة.</p><p><b>1.0.10 (10134) · المسبحة</b><br>«المسبحة» صفحة مستقلة بذكر مخصّص وصوت نقر. «أذكار» الواجهة تفتح حصن المسلم. حذف «الأجواء الصوتية».</p><p><b>1.0.10 (10127 – 10133) · صفحات جديدة</b><br>«أسماء الله الحسنى» (٩٩ اسمًا بحفظ واختبار)، «حصن المسلم» (أذكار بعدّاد تكرار)، «الأحاديث النبوية» (تسعة كتب بالبحث والمفضلة وحديث اليوم، تحتاج إنترنت).</p><p><b>1.0.10 · أناقة وذكاء</b><br>عربي دائمًا مهما كانت لغة الهاتف. قائمة «المزيد» بأقسام وخانة بحث. نغمة «السائر» للإشعارات وجدولة أذكى. نوافذ عائمة وودجت قابلة للتخصيص. «كتابي»، «ختمة القرآن»، «حاسبة الزكاة»، «قضاء ما فاتك»، «المناسبات الهجرية»، «وضع رمضان»، والنسخ الاحتياطي.</p><p><b>1.2.7 · ضبط رقمي للوقت</b><br>استبدال الساعة الدائرية بضبط رقمي (ساعة ودقيقة وص/م) في كل الشاشات، وعلامة ✓ عند إتمام إعدادات الإشعارات والبطارية مع إخفاء أزرارها.</p><p><b>1.2.6 · عودة المظهر المعتاد</b><br>أُلغي «المظهر الجديد التجريبي» وبقيت ميزاته: بانر «ذكر هذا الوقت»، واختصاراتي، وتعديل القوائم، وإعدادات المصحف، والتذكيرات الذكية.</p><p><b>1.2.5 · تذكيرات ذكية</b><br>الصلاة على النبي ﷺ كل ١٥ أو ٣٠ دقيقة أو ساعة بفترة تختارها، وورد القرآن لا يُرسَل إذا أتممته، وتنبيه قبل الأذان وتخطّي الصلاة المسجّلة، وتقرير أسبوعي بأرقامك، وتذكيرك الخاص بعدد مرات وفاصل تحدده، وأزرار تفاعلية في الإشعار.</p><p><b>1.2.4 · إصلاح تفعيل الإشعارات</b><br>تفعيل جدول التذكيرات تلقائيًا عند منح الإذن، وطلب الإذن عند أول فتح، وتنبيه على الرئيسية إذا كانت الإشعارات متوقفة، وبطاقة فحص تبيّن سبب أي تأخير، وإصلاح أزرار شاشة المصحف.</p><p><b>1.2.3 · تعديل القوائم والبانرات</b><br>في «تجربة المظهر الجديد»: تعديل قوائم الأقسام بالسحب والتثبيت والإخفاء وإضافة سورة أو ذكر، وإعداد البانرات وتقليبها التلقائي، وضبط أوقات «ذكر هذا الوقت».</p><p><b>1.2.2 · إعدادات المصحف</b><br>ورقة إعدادات للمصحف: سماكة الخط، ولون الصفحة، والتجويد الملوّن، وإظهار رأس الصفحة.</p><p><b>1.2.1 · إشعارات أدق ومركز أمان جديد</b><br>إصلاح صوت الإشعارات وتأخرها وتوحيد أيقونتها، وإضافة اهتزاز لطيف عند «فعلتها/لم أفعلها»، وتبسيط التسجيل الأول مع العمر كحقل أساسي، وتوهّج البطاقات بحسب أوقات الصلاة مع علامة الإتمام، وصيغة مخاطبة تناسب الجنس، وخيار «تجربة المظهر الجديد» من الإعدادات، ومركز أمان أجمل وأسهل.</p><p><b>1.2.0 · مواقيت وقبلة ومسبحة وتقرير أسبوعي</b><br>مواقيت الصلاة التلقائية بحسب مدينتك واتجاه القبلة بالبوصلة، ومسبحة حرّة، وتقرير أسبوعي مقارن، وموعد انتهاء الختمة، ومهلة تراجع ١٥ ثانية بعد التسجيل، واختيار مهلة قفل التطبيق، وإخفاء بطاقات الرئيسية، وتبسيط أول فتح.</p><p><b>1.1.2 · تذكيرك الخاص والأذكار</b><br>اختيار وقت التذكير الخاص بنظام ١٢ ساعة (ص/م) أو ٢٤ ساعة بحسب هاتفك، مع تفعيل كل تذكير خاص أو إيقافه، وإزالة اختبار البصمة، وزيادة أذكار الصباح والمساء والنوم، وإضافة أذكار بعد الصلاة.</p><p><b>1.1.1 · مركز تذكيرات جديد</b><br>إعادة تصميم مركز التذكيرات بالكامل بما يلائم تصميم التطبيق، مع اعتماد نغمة السائر الهادئة، وتوهّج على خيار الصوت المختار (نغمة هادئة / بلا صوت / صوت النظام)، وأزرار لاختبار الصوت والإشعار والبصمة، وتنسيق أجمل لزر المطوّر، وتسمية «عادة مخصصة» في تسجيل اليوم.</p><p><b>1.1.0 · تحسينات الواجهة والتسجيل</b><br>إزالة زر «تذكير آخر» من بطاقة اليوم وجعل المصدر عربيًا، وإصلاح الضغط عليه. إضافة الصلاة على النبي ﷺ (في البطاقة وقائمة العبادات)، وتثبيت التسجيل ٢٤ ساعة قبل إمكان التراجع، وبطاقتا سورة الكهف والملك وأذكار الصباح والمساء مع وميض في أوقاتها، وتصميم أكثر استدارة بروح One UI، وتحسين السرعة والبطارية.</p><p><b>1.0.9 · تحديث الأمان وتجربة الاستخدام</b><br>توحيد ألوان شاشة القفل مع ثيم التطبيق، واستبدال رمز النجمة برمز المصحف، والإبقاء على إعادة القفل بعد 30 ثانية في الخلفية. إضافة نافذة تعريفية تظهر مرة واحدة بعد التحديث.</p><p><b>1.0.9 · تحسينات الأمان السابقة</b><br>إضافة إلغاء قفل التطبيق بعد التحقق من وسيلة الحماية الحالية، ورسائل أوضح لمحاولات PIN وكلمة المرور والنمط، مع مهلة مؤقتة بعد تكرار المحاولات الخاطئة.</p><p><b>1.0.8 · القرآن والعبادات والعادات</b><br>إضافة جدول الصيام وسجل يومي وتذكيرات داخل التطبيق، والعادات الحسنة والسيئة المخصصة، ولوحة العبادات ونقاطها، وتحسين الحديث اليومي والصفحة الرئيسية والملف الشخصي.</p><p><b>1.0.7 · التاريخ والملف الشخصي</b><br>عرض التاريخ الميلادي والهجري باستخدام تقويم أم القرى عند توفره، مع بديل تلقائي.</p><p><b>1.0.1 – 1.0.6 · تحسينات متتابعة</b><br>لا يتوفر في سجل المشروع الحالي تفصيل موثّق مستقل لكل إصدار من هذه الإصدارات؛ لذلك لم نضع تغييرات غير مؤكدة.</p><p><b>1.0 · الإصدار الأول</b><br>الصلوات والقرآن والأذكار والعادات والتقويم ومتابعة التقدم، مع قفل برمز سري ونسخ احتياطي.</p>';
+var RL_RAW='<p><b>2.0.4 (10204) · نسخة تجريبية</b><br>هذا الإصدار مخصص لاختبار اكتشاف التحديث التلقائي انطلاقًا من 2.0.3. عند فتح التطبيق تظهر نافذة «تحديث جديد» من تلقاء نفسها خلال ثوانٍ. لا يبدأ التنزيل ولا التثبيت إلا بموافقتك. الجديد: رسالة «لا يوجد اتصال بالانترنت» عند غياب الإنترنت في الشاشات التي تحتاجه، وإصلاح قراءة توقيع ملف التحديث مع رسالة مستقلة لكل سبب رفض، وإصلاحات صغيرة في فحص التحديث، وتنبيه عند إيقاف إذن المنبّهات الدقيقة، والشاشة الافتتاحية تتبع نمط الهاتف. لا تغيير في المصحف ولا في الأذونات.</p><p><b>2.0.3 (10203) · نسخة تجريبية</b><br>الفحص عن التحديثات صار تلقائيًا عند فتح التطبيق وعند الرجوع إليه. تظهر نافذة «تحديث جديد» من تلقاء نفسها، ولا يبدأ التنزيل ولا التثبيت إلا بموافقتك. «لاحقًا» تخفي النافذة وتعود عند الفتح التالي. الضغط على إشعار التحديث يفتح النافذة مباشرة. الفحص مرة كل ست ساعات كحد أقصى. لا تغيير في المصحف ولا في الأذونات.</p><p><b>2.0.2 (10202) · نسخة تجريبية</b><br>إكمال ترجمة واجهة صوت الفتاوى بالإنجليزية والفرنسية. تثبيت مصدر الأحاديث على إصدار محدد. اختبارات الجودة تعمل الآن مع كل بناء. تحديث وثائق الخصوصية ومصادر البيانات. لا تغيير في المصحف ولا في الأذونات. هذا الإصدار مخصص لاختبار التحديث التلقائي.</p><p><b>2.0.1 (10201) · نسخة تجريبية</b><br>الفتاوى تُحمَّل من مستودع مخصص لها ويُتحقق من بصمة كل ملف. بطاقة الوسائط في الإشعارات تتبع ثيم التطبيق بأيقونات وغلاف خاص، وزر الإيقاف بإجراء مخصص. أُزيلت بطاقة التشخيص. إذاعة القرآن الكريم من السعودية تعمل عبر رابط مسموح لنطاق radiojar.com فقط، مع استمرار التشغيل في الخلفية بعد الإيقاف المؤقت. الاسم العربي «السائر إلى الله» وفي بقية اللغات «Alsaer». إصلاحات ربط Google Drive: إعادة المحاولة بعد خطأ 401، وعدم فقد الربط الجديد، ورسالة سبب مختصرة عند الفشل. تحسينات أمان: تضييق مسار ملفات التحديث، وتنظيف اسم الملف الشخصي وصورته عند الاستعادة.</p><p><b>2.0.0 (10200) · نسخة تجريبية</b><br>بطاقة الوسائط في الإشعارات تتبع ثيم التطبيق بأيقونات وغلاف خاص، وزر الإيقاف بإجراء مخصص. أُزيلت بطاقة التشخيص. زر «← الأذكار» صار مضيئًا. إذاعة القرآن الكريم من السعودية تعمل عبر رابط مسموح لنطاق radiojar.com فقط، مع استمرار التشغيل في الخلفية بعد الإيقاف المؤقت. شاشة البداية لا تقل عن ١٫٣ ثانية. الاسم العربي «السائر إلى الله» وفي بقية اللغات «Alsaer». الفتاوى تُحمَّل من الإنترنت ويُتحقق من بصمة كل ملف. إصلاحات ربط Google Drive: إعادة المحاولة بعد خطأ 401، وعدم فقد الربط الجديد، وتمييز حالات النجاح وإعادة التسجيل والتحقق، ورسالة سبب مختصرة عند الفشل. الإذاعة تعمل بمشغّل Media3 ExoPlayer أصلي داخل خدمة الوسائط، مع إصلاح مشكلة الخروج من التطبيق أثناء التشغيل. تحسينات أمان: تضييق مسار ملفات التحديث، وتنظيف اسم الملف الشخصي وصورته عند الاستعادة.</p><p><b>1.0.10 (10145) · إصلاحات</b><br>شاشة الصلوات منفصلة عن الموقع والمواقيت. الشريط السفلي عائم ومعتم. «عبادة جديدة» تفتح عباداتي اليوم مباشرة. وسحب عناصر قوائم التعديل يعمل باللمس الآن.</p><p><b>1.0.10 (10144) · تصحيح فحص الجسر</b><br>أُزيل من فحص «الجسر الأصلي» اسم دالة لم تعد مستخدمة (كانت تُظهر خطأً كاذبًا).</p><p><b>1.0.10 (10143) · فحص التطبيق وكشف الأخطاء</b><br>شاشة «فحص التطبيق» في المزيد سجّلت أخطاء التطبيق وفحصت التخزين والشاشات والجسر الأصلي (أُزيلت لاحقًا ضمن التنظيف). وبقيت بطاقة الخطأ البديلة: أي شاشة تفشل تعرض بطاقة خطأ بدل صفحة بيضاء.</p><p><b>1.0.10 (10141) · إصلاح تحميل نموذج القرآن</b><br>إن تعذّر قراءة الحزمة المخزّنة يُحمَّل النموذج مباشرة بدل الفشل، وتظهر تفاصيل السبب كاملة لتسهيل التشخيص.</p><p><b>1.0.10 (10138) · أيقونات وتنقّل</b><br>ترتيب الرئيسية بأسلوب آيفون (ضغطة مطوّلة ← اهتزاز الأيقونات وسحب وإخفاء). «المزيد» شبكة أيقونات متحركة. الشريط السفلي بتصميم تيليجرام مع زر «+» لمهام سريعة. إزالة زر «تخصيص الرئيسية» من الواجهة.</p><p><b>1.0.10 (10137) · تخصيص وتنظيم</b><br>تخصيص الرئيسية: نافذة مستقلة تقفل تمرير الصفحة خلفها وتطبّق التغيير فورًا. «تسجيل اليوم» بتنظيم أوضح (شريط عادات يُمرَّر، عدّادان، وتفاصيل الرغبة مطويّة). المسبحة: تحديد الذكر بالضغط على الشريحة. سجل الإصدارات بأرقام النسخ.</p><p><b>1.0.10 (10136) · شريط عائم وإعدادات أبسط</b><br>شريط تنقّل عائم على طراز تيليجرام. إعدادات التنبيهات والمظهر أبسط مع «خيارات متقدمة» مطويّة. إصلاح خلل عرض مربع «إضافة عبادة» وتوحيد شكل مربعات الكتابة.</p><p><b>1.0.10 (10135) · جولة تفاعلية</b><br>جولة تعريفية تظلّل عناصر التطبيق وتنتقل بين شاشاته (تُعاد من الإعدادات). إعدادات بخمسة أقسام، وتنظيف الأكواد الميتة.</p><p><b>1.0.10 (10134) · المسبحة</b><br>«المسبحة» صفحة مستقلة بذكر مخصّص وصوت نقر. «أذكار» الواجهة تفتح حصن المسلم. حذف «الأجواء الصوتية».</p><p><b>1.0.10 (10127 – 10133) · صفحات جديدة</b><br>«أسماء الله الحسنى» (٩٩ اسمًا بحفظ واختبار)، «حصن المسلم» (أذكار بعدّاد تكرار)، «الأحاديث النبوية» (تسعة كتب بالبحث والمفضلة وحديث اليوم، تحتاج إنترنت).</p><p><b>1.0.10 · أناقة وذكاء</b><br>عربي دائمًا مهما كانت لغة الهاتف. قائمة «المزيد» بأقسام وخانة بحث. نغمة «السائر» للإشعارات وجدولة أذكى. نوافذ عائمة وودجت قابلة للتخصيص. «كتابي»، «ختمة القرآن»، «حاسبة الزكاة»، «قضاء ما فاتك»، «المناسبات الهجرية»، «وضع رمضان»، والنسخ الاحتياطي.</p><p><b>1.2.7 · ضبط رقمي للوقت</b><br>استبدال الساعة الدائرية بضبط رقمي (ساعة ودقيقة وص/م) في كل الشاشات، وعلامة ✓ عند إتمام إعدادات الإشعارات والبطارية مع إخفاء أزرارها.</p><p><b>1.2.6 · عودة المظهر المعتاد</b><br>أُلغي «المظهر الجديد التجريبي» وبقيت ميزاته: بانر «ذكر هذا الوقت»، واختصاراتي، وتعديل القوائم، وإعدادات المصحف، والتذكيرات الذكية.</p><p><b>1.2.5 · تذكيرات ذكية</b><br>الصلاة على النبي ﷺ كل ١٥ أو ٣٠ دقيقة أو ساعة بفترة تختارها، وورد القرآن لا يُرسَل إذا أتممته، وتنبيه قبل الأذان وتخطّي الصلاة المسجّلة، وتقرير أسبوعي بأرقامك، وتذكيرك الخاص بعدد مرات وفاصل تحدده، وأزرار تفاعلية في الإشعار.</p><p><b>1.2.4 · إصلاح تفعيل الإشعارات</b><br>تفعيل جدول التذكيرات تلقائيًا عند منح الإذن، وطلب الإذن عند أول فتح، وتنبيه على الرئيسية إذا كانت الإشعارات متوقفة، وبطاقة فحص تبيّن سبب أي تأخير، وإصلاح أزرار شاشة المصحف.</p><p><b>1.2.3 · تعديل القوائم والبانرات</b><br>في «تجربة المظهر الجديد»: تعديل قوائم الأقسام بالسحب والتثبيت والإخفاء وإضافة سورة أو ذكر، وإعداد البانرات وتقليبها التلقائي، وضبط أوقات «ذكر هذا الوقت».</p><p><b>1.2.2 · إعدادات المصحف</b><br>ورقة إعدادات للمصحف: سماكة الخط، ولون الصفحة، والتجويد الملوّن، وإظهار رأس الصفحة.</p><p><b>1.2.1 · إشعارات أدق ومركز أمان جديد</b><br>إصلاح صوت الإشعارات وتأخرها وتوحيد أيقونتها، وإضافة اهتزاز لطيف عند «فعلتها/لم أفعلها»، وتبسيط التسجيل الأول مع العمر كحقل أساسي، وتوهّج البطاقات بحسب أوقات الصلاة مع علامة الإتمام، وصيغة مخاطبة تناسب الجنس، وخيار «تجربة المظهر الجديد» من الإعدادات، ومركز أمان أجمل وأسهل.</p><p><b>1.2.0 · مواقيت وقبلة ومسبحة وتقرير أسبوعي</b><br>مواقيت الصلاة التلقائية بحسب مدينتك واتجاه القبلة بالبوصلة، ومسبحة حرّة، وتقرير أسبوعي مقارن، وموعد انتهاء الختمة، ومهلة تراجع ١٥ ثانية بعد التسجيل، واختيار مهلة قفل التطبيق، وإخفاء بطاقات الرئيسية، وتبسيط أول فتح.</p><p><b>1.1.2 · تذكيرك الخاص والأذكار</b><br>اختيار وقت التذكير الخاص بنظام ١٢ ساعة (ص/م) أو ٢٤ ساعة بحسب هاتفك، مع تفعيل كل تذكير خاص أو إيقافه، وإزالة اختبار البصمة، وزيادة أذكار الصباح والمساء والنوم، وإضافة أذكار بعد الصلاة.</p><p><b>1.1.1 · مركز تذكيرات جديد</b><br>إعادة تصميم مركز التذكيرات بالكامل بما يلائم تصميم التطبيق، مع اعتماد نغمة السائر الهادئة، وتوهّج على خيار الصوت المختار (نغمة هادئة / بلا صوت / صوت النظام)، وأزرار لاختبار الصوت والإشعار والبصمة، وتنسيق أجمل لزر المطوّر، وتسمية «عادة مخصصة» في تسجيل اليوم.</p><p><b>1.1.0 · تحسينات الواجهة والتسجيل</b><br>إزالة زر «تذكير آخر» من بطاقة اليوم وجعل المصدر عربيًا، وإصلاح الضغط عليه. إضافة الصلاة على النبي ﷺ (في البطاقة وقائمة العبادات)، وتثبيت التسجيل ٢٤ ساعة قبل إمكان التراجع، وبطاقتا سورة الكهف والملك وأذكار الصباح والمساء مع وميض في أوقاتها، وتصميم أكثر استدارة بروح One UI، وتحسين السرعة والبطارية.</p><p><b>1.0.9 · تحديث الأمان وتجربة الاستخدام</b><br>توحيد ألوان شاشة القفل مع ثيم التطبيق، واستبدال رمز النجمة برمز المصحف، والإبقاء على إعادة القفل بعد 30 ثانية في الخلفية. إضافة نافذة تعريفية تظهر مرة واحدة بعد التحديث.</p><p><b>1.0.9 · تحسينات الأمان السابقة</b><br>إضافة إلغاء قفل التطبيق بعد التحقق من وسيلة الحماية الحالية، ورسائل أوضح لمحاولات PIN وكلمة المرور والنمط، مع مهلة مؤقتة بعد تكرار المحاولات الخاطئة.</p><p><b>1.0.8 · القرآن والعبادات والعادات</b><br>إضافة جدول الصيام وسجل يومي وتذكيرات داخل التطبيق، والعادات الحسنة والسيئة المخصصة، ولوحة العبادات ونقاطها، وتحسين الحديث اليومي والصفحة الرئيسية والملف الشخصي.</p><p><b>1.0.7 · التاريخ والملف الشخصي</b><br>عرض التاريخ الميلادي والهجري باستخدام تقويم أم القرى عند توفره، مع بديل تلقائي.</p><p><b>1.0.1 – 1.0.6 · تحسينات متتابعة</b><br>لا يتوفر في سجل المشروع الحالي تفصيل موثّق مستقل لكل إصدار من هذه الإصدارات؛ لذلك لم نضع تغييرات غير مؤكدة.</p><p><b>1.0 · الإصدار الأول</b><br>الصلوات والقرآن والأذكار والعادات والتقويم ومتابعة التقدم، مع قفل برمز سري ونسخ احتياطي.</p>';
 function relLogHtml(){
   var items=RL_RAW.split('</p>').map(function(x){return x.replace(/^<p>/,'')}).filter(Boolean),out='';
   items.forEach(function(it,i){
@@ -5147,7 +5160,7 @@ window.gdriveOnRedirect=function(u){
       try{localStorage.setItem(GD_RT_KEY,o.refresh_token)}catch(e){}
       gdTok={t:o.access_token||'',exp:Date.now()+((o.expires_in||3600)-60)*1000};
       bkSay('تم ربط Google Drive ✓');try{render()}catch(e){}
-    },function(){bkSay('تعذّر إتمام الربط. تحقق من الإنترنت وحاول مجددًا.')});
+    },function(){bkSay(netMsg('تعذّر إتمام الربط. تحقق من الإنترنت وحاول مجددًا.'))});
 };
 
 /* مهلة على كل طلب شبكة: بلاها كانت شبكة معلّقة تبقي gdBusy=true وتعطّل الأزرار حتى إعادة تشغيل التطبيق */
@@ -5326,7 +5339,7 @@ function gdRunBackup(automatic){
     if(localDue)try{gdSavePhone(content);localOK=true}catch(e){var retry=gdPrefs();retry.phoneRetry=true;try{gdSetPrefs(retry)}catch(x){}}
     return (driveDue?gdUpload(content).then(function(){S.gdAt=Date.now();gdStatusSet('driveAt',S.gdAt);save();driveOK=true},function(){}):Promise.resolve()).then(function(){
       if(!automatic&&driveDue&&driveOK)gdFlashDone('up');
-      bkSay((localDue?(localOK?'حُفظت نسخة الأمان داخل التطبيق. ':'تعذّر حفظ نسخة الأمان داخل التطبيق. '):'')+(driveDue?(driveOK?'تم الرفع إلى Drive.':'تعذّر الرفع إلى Drive؛ تحقق من الاتصال وصلاحية الربط.'):(gdHasRt()?'نسخة Drive حديثة ولم تُرفع مجددًا.':'لم يُرفع شيء إلى Drive؛ الحساب غير مربوط.')));
+      bkSay((localDue?(localOK?'حُفظت نسخة الأمان داخل التطبيق. ':'تعذّر حفظ نسخة الأمان داخل التطبيق. '):'')+(driveDue?(driveOK?'تم الرفع إلى Drive.':netMsg('تعذّر الرفع إلى Drive؛ تحقق من الاتصال وصلاحية الربط.')):(gdHasRt()?'نسخة Drive حديثة ولم تُرفع مجددًا.':'لم يُرفع شيء إلى Drive؛ الحساب غير مربوط.')));
       return localOK&&driveOK;
     });
   }).catch(function(e){bkSay(e.message==='password-required'?'أدخل كلمة مرور النسخ المشفّرة أولًا.':'تعذّر تجهيز النسخة؛ لم يُرفع شيء.');return false}).finally(function(){gdBusy=false;gdPhase='';if(automatic&&typeof bkDirty==='function'&&bkDirty())return;try{render()}catch(e){}});
@@ -5365,7 +5378,7 @@ function gdListFiles(){
       });
   }return page('');
 }
-function gdFailure(e){var m=String(e&&e.message);return m==='auth'||m==='no-auth'?'انتهت صلاحية الربط. أعد ربط حساب Google.':m==='forbidden'?'لا يوجد إذن كافٍ لهذه العملية. لم نؤكد نجاحها.':m==='incomplete-list'?'قائمة Drive غير مكتملة؛ أُوقفت العملية بأمان.':'تعذّر الاتصال أو التحقق من النتيجة. حاول مجددًا؛ لا نعدّ العملية ناجحة.'}
+function gdFailure(e){var m=String(e&&e.message);if(netMsg('')!==''&&m!=='auth'&&m!=='no-auth'&&m!=='forbidden')return netMsg('');return m==='auth'||m==='no-auth'?'انتهت صلاحية الربط. أعد ربط حساب Google.':m==='forbidden'?'لا يوجد إذن كافٍ لهذه العملية. لم نؤكد نجاحها.':m==='incomplete-list'?'قائمة Drive غير مكتملة؛ أُوقفت العملية بأمان.':'تعذّر الاتصال أو التحقق من النتيجة. حاول مجددًا؛ لا نعدّ العملية ناجحة.'}
 function gdLoadPicker(mode){
   if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return Promise.resolve(false);
   if(!gdHasRt()){bkSay('اربط حساب Google أولًا.');return Promise.resolve(false)}
@@ -5656,7 +5669,7 @@ function cdPlay(){
   if(typeof mqAuStop==='function')mqAuStop();
   var a=new Audio();a.preload='auto';a.src=R[9];mqAu={a:a,k:cdSura+':1',pa:false,ext:1,nm:'بطاقة '+AD().n[cdSura-1]+' · ياسر راضي'};
   a.onended=function(){if(mqAu.a===a)mqAuStop()};
-  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')};
+  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast(netMsg('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت'))};
   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
   if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader'&&!(mqAu.ext&&tab==='cards'))mqAuStop();else try{mqAuSync()}catch(e){}},500);
   mqAuBar();
@@ -6725,7 +6738,7 @@ function mqAuPlay(vv){
   var a=new Audio();a.preload='auto';a.src=mqAuUrl(c,v);mqAu={a:a,k:vv,pa:false,sc:c};
   if(mqAuS().tm){var go=function(){try{a.currentTime=window.WTIM.s[c-1][v-1]/1000}catch(e){}};if(a.readyState>0)go();else a.addEventListener('loadedmetadata',go,{once:true})}
   a.onended=function(){if(mqAu.a!==a)return;if(mqAuS().whole||mqAuS().tm){mqAuStop();return}if(v<AD().s[c-1].length){var nv=c+':'+(v+1);mqSetCur(nv,false);var el=document.querySelector('.mq-v[data-v="'+nv+'"]');if(el&&el.scrollIntoView){try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}}mqAuPlay(nv)}else mqAuStop()};
-  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل التلاوة. تحتاج الميزة إلى اتصال بالإنترنت')};
+  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast(netMsg('تعذّر تشغيل التلاوة. تحتاج الميزة إلى اتصال بالإنترنت'))};
   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
   if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader'&&!(mqAu.ext&&tab==='cards'))mqAuStop();else try{mqAuTick();mqAuSync()}catch(e){}},250);
   mqAuBar()
@@ -6962,7 +6975,7 @@ function wiBody(pg){
 function wiPaint(){
   var el=document.getElementById('wi-pg');if(!el||el.getAttribute('data-st'))return;
   el.setAttribute('data-st','1');var pg=+el.getAttribute('data-pg');
-  var fail=function(){if(document.getElementById('wi-pg')===el)el.innerHTML='<div class="wi-msg">تعذّر تحميل الصفحة. تحتاج الميزة إلى اتصال بالإنترنت<button class="btn" data-a="wiretry">إعادة المحاولة</button></div>'};
+  var fail=function(){if(document.getElementById('wi-pg')===el)el.innerHTML='<div class="wi-msg">'+netMsg('تعذّر تحميل الصفحة. تحتاج الميزة إلى اتصال بالإنترنت')+'<button class="btn" data-a="wiretry">إعادة المحاولة</button></div>'};
   wiLayout(function(L){
     if(!L)return fail();
     wiPageUrl(pg,function(u){
@@ -7082,7 +7095,7 @@ function tfNote(vv){
 function tfFill(vv,t){
   if(rd&&rd.tf&&t)rd.tf.tx[vv]=t;
   var el=document.querySelector('.mq-tx[data-tv="'+vv+'"]');if(!el)return;
-  el.textContent=t||'تعذّر تحميل التفسير. يحتاج إنترنتًا أول مرة لكل آية.';
+  el.textContent=t||netMsg('تعذّر تحميل التفسير. يحتاج إنترنتًا أول مرة لكل آية.');
   if(t)el.removeAttribute('data-ld');else el.setAttribute('data-ld','err');
 }
 function tfLoad(vv){
@@ -7625,8 +7638,8 @@ function hsnAct(a,v){
     hsnAuStop();if(!it||!it.u||!it.u.length)return false;
     try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}
     var k=0,A=new Audio();hsnF.a=A;hsnF.ak=v;A.preload='auto';
-    var nx=function(){if(hsnF.a!==A)return;if(k>=it.u.length){hsnAuStop();return}A.src=it.u[k++];var pr=A.play();if(pr&&pr.catch)pr.catch(function(){if(hsnF.a===A){hsnAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')}})};
-    A.onended=nx;A.onerror=function(){if(hsnF.a===A){hsnAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')}};
+    var nx=function(){if(hsnF.a!==A)return;if(k>=it.u.length){hsnAuStop();return}A.src=it.u[k++];var pr=A.play();if(pr&&pr.catch)pr.catch(function(){if(hsnF.a===A){hsnAuStop();toast(netMsg('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت'))}})};
+    A.onended=nx;A.onerror=function(){if(hsnF.a===A){hsnAuStop();toast(netMsg('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت'))}};
     if(b){b.classList.add('on');b.textContent=hsnT('⏸ إيقاف')}
     nx();return false;
   }
@@ -7672,7 +7685,7 @@ function rdoNorm(t){return String(t).normalize('NFD').replace(/[\u0610-\u061A\u0
 function rdoEnsure(cb){
   if(window.RDO){rdoS.ok=true;cb();return}
   var sc=document.createElement('script');sc.src='radio-stations.js';
-  sc.onload=function(){rdoS.ok=true;cb()};sc.onerror=function(){rdoS.ok=false;try{toast('تعذّر تحميل قائمة الإذاعات')}catch(e){}};
+  sc.onload=function(){rdoS.ok=true;cb()};sc.onerror=function(){rdoS.ok=false;try{toast(netMsg('تعذّر تحميل قائمة الإذاعات'))}catch(e){}};
   document.head.appendChild(sc)}
 /* بث HLS (مثل إذاعة القاهرة الرسمية): مكتبة hls.js (Apache-2.0) تُحمَّل عند الحاجة فقط عبر MediaSource، والبث كله https */
 function rdoHlsEnsure(cb){
@@ -7710,7 +7723,7 @@ function rdoAct(a,v){
       rdoRefresh();return false}
     var A=new Audio();rdoS.a=A;rdoS.id=id;rdoS.st='load';A.preload='none';
     A.onplaying=function(){if(rdoS.a===A){rdoS.st='play';rdoRefresh()}};
-    var bad=function(){if(rdoS.a===A){rdoStop();rdoRefresh();toast('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت')}};
+    var bad=function(){if(rdoS.a===A){rdoStop();rdoRefresh();toast(netMsg('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت'))}};
     A.onerror=bad;
     if(/\.m3u8(\?|$)/.test(r[2])){
       rdoRefresh();
@@ -7738,7 +7751,7 @@ function rdoAct(a,v){
 window.alsaerRadioState=function(st){
   if(!rdoS.n)return;
   if(st==='play'||st==='load'){rdoS.st=st}
-  else{rdoS.n=0;rdoS.id=0;rdoS.st='';if(st==='error'){try{toast('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت')}catch(e){}}}
+  else{rdoS.n=0;rdoS.id=0;rdoS.st='';if(st==='error'){try{toast(netMsg('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت'))}catch(e){}}}
   rdoRefresh()};
 /* استمع لقارئ: بث سور كاملة من سيرفرات mp3quran.net لقائمة القراء المأخوذة من تطبيق التقوى (Altaqwaa). البيانات في reciters.js تُحمَّل عند الحاجة. */
 var rctS={q:'',sq:'',rw:'',sel:0,a:null,sura:0,st:''};
@@ -7749,7 +7762,7 @@ function rctNorm(t){return String(t).normalize('NFD').replace(/[\u0610-\u061A\u0
 function rctEnsure(cb){
   if(window.RCT){cb();return}
   var sc=document.createElement('script');sc.src='reciters.js';
-  sc.onload=function(){cb()};sc.onerror=function(){try{toast('تعذّر تحميل قائمة القراء')}catch(e){}};
+  sc.onload=function(){cb()};sc.onerror=function(){try{toast(netMsg('تعذّر تحميل قائمة القراء'))}catch(e){}};
   document.head.appendChild(sc)}
 function rctGet(id){return (window.RCT||[]).filter(function(x){return x[0]===id})[0]}
 function rctRows(){
@@ -7792,7 +7805,7 @@ function rctPlay(i){
   var A=new Audio();rctS.a=A;rctS.sura=i;rctS.st='load';A.preload='none';A.src=r[3]+'/'+('00'+i).slice(-3)+'.mp3';
   A.onplaying=function(){if(rctS.a===A){rctS.st='play';rctRefresh()}};
   A.onended=function(){if(rctS.a===A){var nx=i<114?i+1:0;if(nx)rctPlay(nx);else{rctStop();rctRefresh()}}};
-  var bad=function(){if(rctS.a===A){rctStop();rctRefresh();toast('تعذّر تشغيل السورة. تحتاج الميزة إلى اتصال بالإنترنت')}};
+  var bad=function(){if(rctS.a===A){rctStop();rctRefresh();toast(netMsg('تعذّر تشغيل السورة. تحتاج الميزة إلى اتصال بالإنترنت'))}};
   A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad);rctRefresh()}
 function rctAct(a,v){
   if(a==='rctrw'){rctS.rw=v;if(typeof render==='function')render();return false}
@@ -7856,7 +7869,7 @@ function ftAuBar(f){
     h+='<div class="ftw-bar"><button class="ftw-p" data-a="ftwplay" data-v="'+id+'" aria-label="'+(pl?'إيقاف':'استماع')+'">'+(pl?FTI_.pause:FTI_.play)+'</button>';
     h+='<div class="ftw-tx">';
     if(dl)h+='<b>جارٍ التنزيل '+ftA.pct+'%</b><div class="ftw-pr"><i style="width:'+ftA.pct+'%"></i></div>';
-    else if(er)h+='<b class="ftw-bad">تعذّر التنزيل</b><small>اضغط للمحاولة مرة أخرى</small>';
+    else if(er)h+='<b class="ftw-bad">'+netMsg('تعذّر التنزيل')+'</b><small>اضغط للمحاولة مرة أخرى</small>';
     else h+='<b>'+(pl?'قيد التشغيل':ld?'جارٍ التحميل…':'استماع إلى الفتوى')+'</b><small>'+(hv?'✓ محفوظ على الجهاز':'بث مباشر')+'</small>';
     h+='</div>';
     if(dl)h+=ftIb('ftwdlx',id,'x','إلغاء التنزيل');
@@ -7872,7 +7885,7 @@ function ftAuPlay(f){
   if(ftA.id===id){ftAuStop();ftAuUi();return}
   ftAuStop();try{if(typeof rdoStop==='function')rdoStop()}catch(e){}try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}try{if(typeof hsnAuStop==='function')hsnAuStop()}catch(e){}try{if(typeof rctStop==='function')rctStop()}catch(e){}
   var A=new Audio();ftA.a=A;ftA.id=id;ftA.st='load';A.preload='none';
-  var go=function(src){if(ftA.a!==A)return;A.src=src;A.onplaying=function(){if(ftA.a===A){ftA.st='play';ftAuUi()}};A.onended=function(){if(ftA.a===A){ftAuStop();ftAuUi()}};var bad=function(){if(ftA.a===A){ftAuStop();ftAuUi();try{toast('تعذّر تشغيل الصوت. يحتاج اتصالًا بالإنترنت أو تنزيله مسبقًا')}catch(e){}}};A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad)};
+  var go=function(src){if(ftA.a!==A)return;A.src=src;A.onplaying=function(){if(ftA.a===A){ftA.st='play';ftAuUi()}};A.onended=function(){if(ftA.a===A){ftAuStop();ftAuUi()}};var bad=function(){if(ftA.a===A){ftAuStop();ftAuUi();try{toast(netMsg('تعذّر تشغيل الصوت. يحتاج اتصالًا بالإنترنت أو تنزيله مسبقًا'))}catch(e){}}};A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad)};
   ftAuUi();
   var C=window.caches;
   if(C&&ftA.have[id])C.open(FT_ACACHE).then(function(c){return c.match(u)}).then(function(m){return m?m.blob():null}).then(function(b){if(b){ftA.url=URL.createObjectURL(b);go(ftA.url)}else{ftA.have[id]=false;go(u)}},function(){go(u)});
@@ -7904,10 +7917,10 @@ function ftTitles(ids){
   return h||'<p class="note">لا نتائج</p>'}
 function ftTitleMap(cb){if(window.FTT){cb();return}
   var done=function(){var m={};(window.FTS||[]).forEach(function(r){m[r[0]]=r[1]});window.FTT=m;cb()};
-  if(window.FTS){done();return}ftJson('search.json',{},function(j){var ok=!!j;if(j)window.FTS=j;if(!ok){try{toast('تعذّر تحميل فهرس الفتاوى')}catch(e){}return}done()})}
+  if(window.FTS){done();return}ftJson('search.json',{},function(j){var ok=!!j;if(j)window.FTS=j;if(!ok){try{toast(netMsg('تعذّر تحميل فهرس الفتاوى'))}catch(e){}return}done()})}
 function vFatwas(){
   var h='<div class="rdo ftw">';
-  if(!window.FTI){ftIdx(function(ok){if(!ok){try{toast('تعذّر تحميل الفتاوى')}catch(e){}return}if(typeof render==='function')render()});return h+'<p class="note" style="text-align:center">جارٍ التحميل…</p></div>'}
+  if(!window.FTI){ftIdx(function(ok){if(!ok){try{toast(netMsg('تعذّر تحميل الفتاوى'))}catch(e){}return}if(typeof render==='function')render()});return h+'<p class="note" style="text-align:center">جارٍ التحميل…</p></div>'}
   if(ftS.view==='detail'){
     var id=ftS.id,n=Math.floor((id-1)/window.FTI.per);
     var f=ftGet(id);
@@ -8151,7 +8164,7 @@ function vAhadith(){
     var bk=hdtBook(hdtS.book),d=hdtS.cache[hdtS.book];
     h+='<div class="hsn-top"><button class="btn ghost" data-a="hdtback">← الكتب</button><b class="hsn-cn">'+bk.n+'</b><span class="hsn-fs"><button class="btn ghost" data-a="hdtfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hdtfs" data-v="2">أ+</button></span></div>';
     if(!d){
-      if(hdtS.err)return h+'<p class="asm-empty">تعذّر تحميل الكتاب. تحقّق من اتصالك بالإنترنت.</p><div class="acts"><button class="btn" data-a="hdtretry">إعادة المحاولة</button></div></div>';
+      if(hdtS.err)return h+'<p class="asm-empty">'+netMsg('تعذّر تحميل الكتاب. تحقّق من اتصالك بالإنترنت.')+'</p><div class="acts"><button class="btn" data-a="hdtretry">إعادة المحاولة</button></div></div>';
       return h+'<p class="asm-empty">جارٍ تحميل '+bk.n+'… (أول مرة قد يستغرق دقيقة)</p></div>';
     }
     var secs=d.metadata&&d.metadata.sections||{};
@@ -8167,7 +8180,7 @@ function vAhadith(){
   }
   var dy=P.day&&P.day.d===dk()?P.day:null;
   if(!dy&&!hdtS.dayReq){hdtS.dayReq=1;hdtDay().then(function(){hdtS.dayReq=0;if(tab==='ahadith')render()},function(){hdtS.dayReq=0;hdtS.dayErr=1;if(tab==='ahadith')render()})}
-  h+='<section class="card hdt-day"><small>حديث اليوم</small><div class="hdt-t" style="font-size:20px">'+(dy?hdtEsc(dy.t):(hdtS.dayErr?'تعذّر تحميل حديث اليوم؛ تحقّق من الإنترنت.':'جارٍ التحميل…'))+'</div>'+(dy?'<small>الأربعون النووية · حديث رقم '+ar(dy.n)+'</small>':'')+'</section>'
+  h+='<section class="card hdt-day"><small>حديث اليوم</small><div class="hdt-t" style="font-size:20px">'+(dy?hdtEsc(dy.t):(hdtS.dayErr?netMsg('تعذّر تحميل حديث اليوم؛ تحقّق من الإنترنت.'):'جارٍ التحميل…'))+'</div>'+(dy?'<small>الأربعون النووية · حديث رقم '+ar(dy.n)+'</small>':'')+'</section>'
    +'<h3 class="hdt-h">الكتب التسعة</h3><div class="asm-grid">'+HDT_BOOKS.map(function(b){return '<button class="asm-card" data-a="hdtbook" data-v="'+b.s+'"><b style="font-size:17px">'+b.n+'</b><span>'+b.a+'</span><em class="hdt-bd">'+b.t+'</em></button>'}).join('')+'</div>'
    +'<p class="note">المصدر: مشروع Hadith API المفتوح (fawazahmed0). التصنيف (صحيح/حسن/ضعيف) يظهر عند توفره في مصدر البيانات؛ يُنصح بمراجعة أهل الاختصاص عند الاستدلال. تحتاج الصفحة إلى الإنترنت لتحميل الكتب.</p></div>';
   return h;
@@ -9191,7 +9204,9 @@ setTimeout(function(){try{(window.requestIdleCallback||function(f){setTimeout(f,
         +'<p id="rem-status" class="rm-status">'+st+'</p>';
       return h;
     }
-    return '<section class="rm-hero"><span class="rm-hic">'+ic('bell')+'</span><div><h2>مركز التذكيرات</h2><p>تذكيرات تلقائية بأوقات مدروسة، تصلك حتى والتطبيق مغلق</p></div></section>'
+    var exOff=false;try{exOff=!!(nat&&nat.canExactAlarms&&!nat.canExactAlarms())}catch(x){}
+    var warn=exOff?'<section class="card flat rm-warn"><div class="rm-warn-t"><div><b>المنبّهات الدقيقة غير مسموحة</b><small>قد تتأخر الصلاة والأذكار دقائق عن موعدها.</small></div><button type="button" class="btn ghost" data-rem-action="exact">السماح</button></div><small>للهواتف الصينية: فعّل «التشغيل التلقائي» والبطارية «بلا قيود». <button type="button" class="rm-warn-a" data-rem-pane="checkup">الخطوات</button></small></section>':'';
+    return warn+'<section class="rm-hero"><span class="rm-hic">'+ic('bell')+'</span><div><h2>مركز التذكيرات</h2><p>تذكيرات تلقائية بأوقات مدروسة، تصلك حتى والتطبيق مغلق</p></div></section>'
       +'<div class="sg-card" style="margin-top:10px"><div class="sg-row'+(r.enabled?' lit':'')+'"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>جدول التذكيرات التلقائي</b><small>'+(nat?'يعمل على مستوى النظام: مع الشاشة المقفلة وبعد إعادة تشغيل الهاتف':'يعمل أثناء فتح التطبيق')+'</small></div><div class="sg-ctl"><span class="sg-pill '+(r.enabled?'ok':'bad')+'">'+(r.enabled?'مفعّل ✓':'متوقف')+'</span>'+sw('data-rem-master',r.enabled)+'</div></div></div>'
       +'<div class="rm-seg">'+[['main','التذكيرات'],['smart','ذكي'],['mine','تذكيري']].map(function(x){return '<button type="button" class="'+(REM_PANE===x[0]?'on':'')+'" data-rem-pane="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'
       +'<div class="rm-pane'+(REM_PANE==='main'?' on':'')+'">'

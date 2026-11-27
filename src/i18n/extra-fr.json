@@ -1817,5 +1817,15 @@
 "🏆 أتممت التحدّي — بارك الله فيك": "🏆 Vous avez terminé le défi. Qu'Allah vous bénisse",
 "📖 وردي من القرآن يوميًا": "📖 Mon wird quotidien de Coran",
 "مساحة التخزين غير كافية للتحديث. أفرغ بعض المساحة ثم أعد المحاولة": "Espace de stockage insuffisant pour la mise à jour. Libérez de l'espace puis réessayez",
-"اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت": "Autorisez l'application à installer les mises à jour dans les Réglages, puis revenez : l'installation continuera"
+"اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت": "Autorisez l'application à installer les mises à jour dans les Réglages, puis revenez : l'installation continuera",
+"2.0.4 (10204) · نسخة تجريبية": "2.0.4 (10204) · Bêta",
+"هذا الإصدار مخصص لاختبار اكتشاف التحديث التلقائي انطلاقًا من 2.0.3. عند فتح التطبيق تظهر نافذة «تحديث جديد» من تلقاء نفسها خلال ثوانٍ. لا يبدأ التنزيل ولا التثبيت إلا بموافقتك. الجديد: رسالة «لا يوجد اتصال بالانترنت» عند غياب الإنترنت في الشاشات التي تحتاجه، وإصلاح قراءة توقيع ملف التحديث مع رسالة مستقلة لكل سبب رفض، وإصلاحات صغيرة في فحص التحديث، وتنبيه عند إيقاف إذن المنبّهات الدقيقة، والشاشة الافتتاحية تتبع نمط الهاتف. لا تغيير في المصحف ولا في الأذونات.": "Cette version sert à tester la détection automatique des mises à jour à partir de la 2.0.3. À l'ouverture de l'application, la fenêtre « Nouvelle mise à jour » apparaît d'elle-même en quelques secondes. Le téléchargement et l'installation ne démarrent qu'avec votre accord. Nouveau : un message « Pas de connexion Internet » sur les écrans qui ont besoin d'Internet lorsqu'il manque, une correction de la lecture de la signature du fichier de mise à jour avec un message distinct pour chaque motif de refus, de petites corrections dans la vérification des mises à jour, un avertissement lorsque l'autorisation des alarmes exactes est désactivée, et un écran de démarrage qui suit le mode sombre ou clair du téléphone. Aucun changement du Coran ni des autorisations.",
+"لا يوجد اتصال بالانترنت برجاء التحقق من اتصال الانترنت": "Pas de connexion Internet. Veuillez vérifier votre connexion Internet.",
+"ملف التحديث ليس لهذا التطبيق — حمّل من صفحة الإصدار": "Le fichier de mise à jour n'est pas pour cette application. Téléchargez-le depuis la page de la version.",
+"توقيع ملف التحديث يختلف عن توقيع النسخة المثبتة — حمّل من صفحة الإصدار": "La signature du fichier de mise à jour diffère de celle de la version installée. Téléchargez-le depuis la page de la version.",
+"ملف التحديث ليس أحدث من النسخة المثبتة": "Le fichier de mise à jour n'est pas plus récent que la version installée.",
+"حدث خطأ أثناء التحقق من ملف التحديث — حمّل من صفحة الإصدار": "Une erreur s'est produite lors de la vérification du fichier de mise à jour. Téléchargez-le depuis la page de la version.",
+"قد تتأخر الصلاة والأذكار دقائق عن موعدها.": "Les rappels de prière et de dhikr peuvent être retardés de quelques minutes.",
+"للهواتف الصينية: فعّل «التشغيل التلقائي» والبطارية «بلا قيود».": "Sur les téléphones de marques chinoises : activez « Démarrage automatique » et réglez la batterie sur « Sans restriction ».",
+"الخطوات": "Étapes"
 }

@@ -7,7 +7,7 @@ function rdoNorm(t){return String(t).normalize('NFD').replace(/[\u0610-\u061A\u0
 function rdoEnsure(cb){
   if(window.RDO){rdoS.ok=true;cb();return}
   var sc=document.createElement('script');sc.src='radio-stations.js';
-  sc.onload=function(){rdoS.ok=true;cb()};sc.onerror=function(){rdoS.ok=false;try{toast('تعذّر تحميل قائمة الإذاعات')}catch(e){}};
+  sc.onload=function(){rdoS.ok=true;cb()};sc.onerror=function(){rdoS.ok=false;try{toast(netMsg('تعذّر تحميل قائمة الإذاعات'))}catch(e){}};
   document.head.appendChild(sc)}
 /* بث HLS (مثل إذاعة القاهرة الرسمية): مكتبة hls.js (Apache-2.0) تُحمَّل عند الحاجة فقط عبر MediaSource، والبث كله https */
 function rdoHlsEnsure(cb){
@@ -45,7 +45,7 @@ function rdoAct(a,v){
       rdoRefresh();return false}
     var A=new Audio();rdoS.a=A;rdoS.id=id;rdoS.st='load';A.preload='none';
     A.onplaying=function(){if(rdoS.a===A){rdoS.st='play';rdoRefresh()}};
-    var bad=function(){if(rdoS.a===A){rdoStop();rdoRefresh();toast('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت')}};
+    var bad=function(){if(rdoS.a===A){rdoStop();rdoRefresh();toast(netMsg('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت'))}};
     A.onerror=bad;
     if(/\.m3u8(\?|$)/.test(r[2])){
       rdoRefresh();
@@ -73,5 +73,5 @@ function rdoAct(a,v){
 window.alsaerRadioState=function(st){
   if(!rdoS.n)return;
   if(st==='play'||st==='load'){rdoS.st=st}
-  else{rdoS.n=0;rdoS.id=0;rdoS.st='';if(st==='error'){try{toast('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت')}catch(e){}}}
+  else{rdoS.n=0;rdoS.id=0;rdoS.st='';if(st==='error'){try{toast(netMsg('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت'))}catch(e){}}}
   rdoRefresh()};

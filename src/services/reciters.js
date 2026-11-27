@@ -7,7 +7,7 @@ function rctNorm(t){return String(t).normalize('NFD').replace(/[\u0610-\u061A\u0
 function rctEnsure(cb){
   if(window.RCT){cb();return}
   var sc=document.createElement('script');sc.src='reciters.js';
-  sc.onload=function(){cb()};sc.onerror=function(){try{toast('تعذّر تحميل قائمة القراء')}catch(e){}};
+  sc.onload=function(){cb()};sc.onerror=function(){try{toast(netMsg('تعذّر تحميل قائمة القراء'))}catch(e){}};
   document.head.appendChild(sc)}
 function rctGet(id){return (window.RCT||[]).filter(function(x){return x[0]===id})[0]}
 function rctRows(){
@@ -50,7 +50,7 @@ function rctPlay(i){
   var A=new Audio();rctS.a=A;rctS.sura=i;rctS.st='load';A.preload='none';A.src=r[3]+'/'+('00'+i).slice(-3)+'.mp3';
   A.onplaying=function(){if(rctS.a===A){rctS.st='play';rctRefresh()}};
   A.onended=function(){if(rctS.a===A){var nx=i<114?i+1:0;if(nx)rctPlay(nx);else{rctStop();rctRefresh()}}};
-  var bad=function(){if(rctS.a===A){rctStop();rctRefresh();toast('تعذّر تشغيل السورة. تحتاج الميزة إلى اتصال بالإنترنت')}};
+  var bad=function(){if(rctS.a===A){rctStop();rctRefresh();toast(netMsg('تعذّر تشغيل السورة. تحتاج الميزة إلى اتصال بالإنترنت'))}};
   A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad);rctRefresh()}
 function rctAct(a,v){
   if(a==='rctrw'){rctS.rw=v;if(typeof render==='function')render();return false}
