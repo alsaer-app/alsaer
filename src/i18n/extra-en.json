@@ -1538,5 +1538,7 @@
 "🏆 أتممت التحدّي — بارك الله فيك": "🏆 You completed the challenge. May Allah bless you",
 "📖 وردي من القرآن يوميًا": "📖 My daily Quran portion",
 "مساحة التخزين غير كافية للتحديث. أفرغ بعض المساحة ثم أعد المحاولة": "Not enough storage space for the update. Free up some space and try again",
-"اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت": "Allow the app to install updates in Settings, then come back and the install will continue"
+"اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت": "Allow the app to install updates in Settings, then come back and the install will continue",
+"2.0.4 (10204) · نسخة تجريبية": "2.0.4 (10204) · Beta",
+"هذا الإصدار مخصص لاختبار اكتشاف التحديث التلقائي انطلاقًا من 2.0.3. عند فتح التطبيق تظهر نافذة «تحديث جديد» من تلقاء نفسها خلال ثوانٍ. لا يبدأ التنزيل ولا التثبيت إلا بموافقتك. تغيّر رقم الإصدار فقط حتى الآن، ولم تُضف إصلاحات أخرى بعد. لا تغيير في المصحف ولا في الأذونات.": "This version is meant to test automatic update discovery starting from 2.0.3. When the app opens, the \"New update\" sheet appears by itself within a few seconds. Download and install start only with your approval. Only the version number has changed so far, and no other fixes have been added yet. No change to the Quran or to permissions."
 }
