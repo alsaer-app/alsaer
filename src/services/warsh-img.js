@@ -40,7 +40,7 @@ function wiBody(pg){
 function wiPaint(){
   var el=document.getElementById('wi-pg');if(!el||el.getAttribute('data-st'))return;
   el.setAttribute('data-st','1');var pg=+el.getAttribute('data-pg');
-  var fail=function(){if(document.getElementById('wi-pg')===el)el.innerHTML='<div class="wi-msg">تعذّر تحميل الصفحة. تحتاج الميزة إلى اتصال بالإنترنت<button class="btn" data-a="wiretry">إعادة المحاولة</button></div>'};
+  var fail=function(){if(document.getElementById('wi-pg')===el)el.innerHTML='<div class="wi-msg">'+netMsg('تعذّر تحميل الصفحة. تحتاج الميزة إلى اتصال بالإنترنت')+'<button class="btn" data-a="wiretry">إعادة المحاولة</button></div>'};
   wiLayout(function(L){
     if(!L)return fail();
     wiPageUrl(pg,function(u){

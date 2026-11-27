@@ -25,7 +25,7 @@ function tfNote(vv){
 function tfFill(vv,t){
   if(rd&&rd.tf&&t)rd.tf.tx[vv]=t;
   var el=document.querySelector('.mq-tx[data-tv="'+vv+'"]');if(!el)return;
-  el.textContent=t||'تعذّر تحميل التفسير. يحتاج إنترنتًا أول مرة لكل آية.';
+  el.textContent=t||netMsg('تعذّر تحميل التفسير. يحتاج إنترنتًا أول مرة لكل آية.');
   if(t)el.removeAttribute('data-ld');else el.setAttribute('data-ld','err');
 }
 function tfLoad(vv){

@@ -283,8 +283,8 @@ function hsnAct(a,v){
     hsnAuStop();if(!it||!it.u||!it.u.length)return false;
     try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}
     var k=0,A=new Audio();hsnF.a=A;hsnF.ak=v;A.preload='auto';
-    var nx=function(){if(hsnF.a!==A)return;if(k>=it.u.length){hsnAuStop();return}A.src=it.u[k++];var pr=A.play();if(pr&&pr.catch)pr.catch(function(){if(hsnF.a===A){hsnAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')}})};
-    A.onended=nx;A.onerror=function(){if(hsnF.a===A){hsnAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')}};
+    var nx=function(){if(hsnF.a!==A)return;if(k>=it.u.length){hsnAuStop();return}A.src=it.u[k++];var pr=A.play();if(pr&&pr.catch)pr.catch(function(){if(hsnF.a===A){hsnAuStop();toast(netMsg('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت'))}})};
+    A.onended=nx;A.onerror=function(){if(hsnF.a===A){hsnAuStop();toast(netMsg('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت'))}};
     if(b){b.classList.add('on');b.textContent=hsnT('⏸ إيقاف')}
     nx();return false;
   }

@@ -16,6 +16,7 @@ function updSemverNewer(remote,local){
 function updInfo(){var s=updState();return (s.info&&typeof APP_BUILD!=='undefined'&&s.info.versionCode>APP_BUILD&&updSemverNewer(s.info.versionName,(typeof APP_VERSION!=='undefined')?APP_VERSION:''))?s.info:null}
 /* silent: فحص تلقائي فاشل لا يغيّر الحالة ولا يؤخر المحاولة التالية (انقطاع الإنترنت وقت الفتح لا يعطّل الفحص ٦ ساعات) */
 /* سبب فشل آخر فحص: offline (لا اتصال) أو server (رد خاطئ من الخادم). الانقطاع لا يحفظ حالة ولا يؤخر المحاولة التالية */
+function netMsg(m){return(typeof navigator!=='undefined'&&navigator.onLine===false)?'لا يوجد اتصال بالانترنت برجاء التحقق من اتصال الانترنت':m}
 var UPD_OFFLINE='لا يوجد اتصال بالانترنت برجاء التحقق من اتصال الانترنت',UPD_ERR='';
 function updCheckFailed(silent){if(silent)return false;var st=updState();st.at=Date.now();st.checkFailed=true;updSave(st);return false}
 function updCurrentLabel(){var s=updState();return s.checkFailed?'تعذّر التحقق من التحديثات':s.checkedAt?'أنت على أحدث إصدار':'لم يتم التحقق من التحديثات بعد'}
@@ -188,7 +189,10 @@ function updInstall(auto){
   var r='';try{r=AlsaerNative.updateInstall()}catch(e){}
   if(r==='needperm'){UPD_WAIT_PERM=!auto;if(!auto)toast('اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت');return}
   UPD_WAIT_PERM=false;
-  if(r==='badpkg'||r==='badsig'||r==='badver')toast('ملف التحديث لا يطابق هذا التطبيق — حمّل من صفحة الإصدار');
+  if(r==='badpkg')toast('ملف التحديث ليس لهذا التطبيق — حمّل من صفحة الإصدار');
+  else if(r==='badsig')toast('توقيع ملف التحديث يختلف عن توقيع النسخة المثبتة — حمّل من صفحة الإصدار');
+  else if(r==='badver')toast('ملف التحديث ليس أحدث من النسخة المثبتة');
+  else if(r==='error')toast('حدث خطأ أثناء التحقق من ملف التحديث — حمّل من صفحة الإصدار');
   else if(r==='nofile')toast('لا يوجد ملف محمَّل بعد');
   else if(r!=='ok')toast('تعذّر فتح المثبّت — حمّل من صفحة الإصدار');
 }
@@ -198,5 +202,7 @@ function updCheckNow(){toast('جارٍ التحقق من التحديثات…')
 setTimeout(function(){updPollNative()},8000);
 /* فحص تلقائي: بعد ٣ ثوانٍ من الفتح، وبعد ٣ ثوانٍ من كل رجوع من الخلفية (حد ٦ ساعات داخل updCheck) */
 setTimeout(updAutoCheck,3000);
-document.addEventListener('visibilitychange',function(){if(!document.hidden){if(UPD_WAIT_PERM){UPD_WAIT_PERM=false;setTimeout(function(){updInstall(true)},400)}setTimeout(updAutoCheck,3000)}});
+function updResumeInstall(){if(UPD_WAIT_PERM){UPD_WAIT_PERM=false;setTimeout(function(){updInstall(true)},400)}}
+window.alsaerUpdResume=updResumeInstall;
+document.addEventListener('visibilitychange',function(){if(!document.hidden){updResumeInstall();setTimeout(updAutoCheck,3000)}});
 setTimeout(updCleanup,6000);

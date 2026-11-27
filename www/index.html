@@ -2817,6 +2817,7 @@ function updSemverNewer(remote,local){
 function updInfo(){var s=updState();return (s.info&&typeof APP_BUILD!=='undefined'&&s.info.versionCode>APP_BUILD&&updSemverNewer(s.info.versionName,(typeof APP_VERSION!=='undefined')?APP_VERSION:''))?s.info:null}
 /* silent: فحص تلقائي فاشل لا يغيّر الحالة ولا يؤخر المحاولة التالية (انقطاع الإنترنت وقت الفتح لا يعطّل الفحص ٦ ساعات) */
 /* سبب فشل آخر فحص: offline (لا اتصال) أو server (رد خاطئ من الخادم). الانقطاع لا يحفظ حالة ولا يؤخر المحاولة التالية */
+function netMsg(m){return(typeof navigator!=='undefined'&&navigator.onLine===false)?'لا يوجد اتصال بالانترنت برجاء التحقق من اتصال الانترنت':m}
 var UPD_OFFLINE='لا يوجد اتصال بالانترنت برجاء التحقق من اتصال الانترنت',UPD_ERR='';
 function updCheckFailed(silent){if(silent)return false;var st=updState();st.at=Date.now();st.checkFailed=true;updSave(st);return false}
 function updCurrentLabel(){var s=updState();return s.checkFailed?'تعذّر التحقق من التحديثات':s.checkedAt?'أنت على أحدث إصدار':'لم يتم التحقق من التحديثات بعد'}
@@ -2989,7 +2990,10 @@ function updInstall(auto){
   var r='';try{r=AlsaerNative.updateInstall()}catch(e){}
   if(r==='needperm'){UPD_WAIT_PERM=!auto;if(!auto)toast('اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت');return}
   UPD_WAIT_PERM=false;
-  if(r==='badpkg'||r==='badsig'||r==='badver')toast('ملف التحديث لا يطابق هذا التطبيق — حمّل من صفحة الإصدار');
+  if(r==='badpkg')toast('ملف التحديث ليس لهذا التطبيق — حمّل من صفحة الإصدار');
+  else if(r==='badsig')toast('توقيع ملف التحديث يختلف عن توقيع النسخة المثبتة — حمّل من صفحة الإصدار');
+  else if(r==='badver')toast('ملف التحديث ليس أحدث من النسخة المثبتة');
+  else if(r==='error')toast('حدث خطأ أثناء التحقق من ملف التحديث — حمّل من صفحة الإصدار');
   else if(r==='nofile')toast('لا يوجد ملف محمَّل بعد');
   else if(r!=='ok')toast('تعذّر فتح المثبّت — حمّل من صفحة الإصدار');
 }
@@ -2999,7 +3003,9 @@ function updCheckNow(){toast('جارٍ التحقق من التحديثات…')
 setTimeout(function(){updPollNative()},8000);
 /* فحص تلقائي: بعد ٣ ثوانٍ من الفتح، وبعد ٣ ثوانٍ من كل رجوع من الخلفية (حد ٦ ساعات داخل updCheck) */
 setTimeout(updAutoCheck,3000);
-document.addEventListener('visibilitychange',function(){if(!document.hidden){if(UPD_WAIT_PERM){UPD_WAIT_PERM=false;setTimeout(function(){updInstall(true)},400)}setTimeout(updAutoCheck,3000)}});
+function updResumeInstall(){if(UPD_WAIT_PERM){UPD_WAIT_PERM=false;setTimeout(function(){updInstall(true)},400)}}
+window.alsaerUpdResume=updResumeInstall;
+document.addEventListener('visibilitychange',function(){if(!document.hidden){updResumeInstall();setTimeout(updAutoCheck,3000)}});
 setTimeout(updCleanup,6000);
 var SOS=[
 'قل: أعوذ بالله من الشيطان الرجيم، واستحضر أن الله يراك ويحبّ لك الخير.',
@@ -5152,7 +5158,7 @@ window.gdriveOnRedirect=function(u){
       try{localStorage.setItem(GD_RT_KEY,o.refresh_token)}catch(e){}
       gdTok={t:o.access_token||'',exp:Date.now()+((o.expires_in||3600)-60)*1000};
       bkSay('تم ربط Google Drive ✓');try{render()}catch(e){}
-    },function(){bkSay('تعذّر إتمام الربط. تحقق من الإنترنت وحاول مجددًا.')});
+    },function(){bkSay(netMsg('تعذّر إتمام الربط. تحقق من الإنترنت وحاول مجددًا.'))});
 };
 
 /* مهلة على كل طلب شبكة: بلاها كانت شبكة معلّقة تبقي gdBusy=true وتعطّل الأزرار حتى إعادة تشغيل التطبيق */
@@ -5331,7 +5337,7 @@ function gdRunBackup(automatic){
     if(localDue)try{gdSavePhone(content);localOK=true}catch(e){var retry=gdPrefs();retry.phoneRetry=true;try{gdSetPrefs(retry)}catch(x){}}
     return (driveDue?gdUpload(content).then(function(){S.gdAt=Date.now();gdStatusSet('driveAt',S.gdAt);save();driveOK=true},function(){}):Promise.resolve()).then(function(){
       if(!automatic&&driveDue&&driveOK)gdFlashDone('up');
-      bkSay((localDue?(localOK?'حُفظت نسخة الأمان داخل التطبيق. ':'تعذّر حفظ نسخة الأمان داخل التطبيق. '):'')+(driveDue?(driveOK?'تم الرفع إلى Drive.':'تعذّر الرفع إلى Drive؛ تحقق من الاتصال وصلاحية الربط.'):(gdHasRt()?'نسخة Drive حديثة ولم تُرفع مجددًا.':'لم يُرفع شيء إلى Drive؛ الحساب غير مربوط.')));
+      bkSay((localDue?(localOK?'حُفظت نسخة الأمان داخل التطبيق. ':'تعذّر حفظ نسخة الأمان داخل التطبيق. '):'')+(driveDue?(driveOK?'تم الرفع إلى Drive.':netMsg('تعذّر الرفع إلى Drive؛ تحقق من الاتصال وصلاحية الربط.')):(gdHasRt()?'نسخة Drive حديثة ولم تُرفع مجددًا.':'لم يُرفع شيء إلى Drive؛ الحساب غير مربوط.')));
       return localOK&&driveOK;
     });
   }).catch(function(e){bkSay(e.message==='password-required'?'أدخل كلمة مرور النسخ المشفّرة أولًا.':'تعذّر تجهيز النسخة؛ لم يُرفع شيء.');return false}).finally(function(){gdBusy=false;gdPhase='';if(automatic&&typeof bkDirty==='function'&&bkDirty())return;try{render()}catch(e){}});
@@ -5370,7 +5376,7 @@ function gdListFiles(){
       });
   }return page('');
 }
-function gdFailure(e){var m=String(e&&e.message);return m==='auth'||m==='no-auth'?'انتهت صلاحية الربط. أعد ربط حساب Google.':m==='forbidden'?'لا يوجد إذن كافٍ لهذه العملية. لم نؤكد نجاحها.':m==='incomplete-list'?'قائمة Drive غير مكتملة؛ أُوقفت العملية بأمان.':'تعذّر الاتصال أو التحقق من النتيجة. حاول مجددًا؛ لا نعدّ العملية ناجحة.'}
+function gdFailure(e){var m=String(e&&e.message);if(netMsg('')!==''&&m!=='auth'&&m!=='no-auth'&&m!=='forbidden')return netMsg('');return m==='auth'||m==='no-auth'?'انتهت صلاحية الربط. أعد ربط حساب Google.':m==='forbidden'?'لا يوجد إذن كافٍ لهذه العملية. لم نؤكد نجاحها.':m==='incomplete-list'?'قائمة Drive غير مكتملة؛ أُوقفت العملية بأمان.':'تعذّر الاتصال أو التحقق من النتيجة. حاول مجددًا؛ لا نعدّ العملية ناجحة.'}
 function gdLoadPicker(mode){
   if(gdBusy||gdPicker||gdRestoreRaw||gdDocPending||gdNativePending)return Promise.resolve(false);
   if(!gdHasRt()){bkSay('اربط حساب Google أولًا.');return Promise.resolve(false)}
@@ -5661,7 +5667,7 @@ function cdPlay(){
   if(typeof mqAuStop==='function')mqAuStop();
   var a=new Audio();a.preload='auto';a.src=R[9];mqAu={a:a,k:cdSura+':1',pa:false,ext:1,nm:'بطاقة '+AD().n[cdSura-1]+' · ياسر راضي'};
   a.onended=function(){if(mqAu.a===a)mqAuStop()};
-  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')};
+  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast(netMsg('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت'))};
   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
   if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader'&&!(mqAu.ext&&tab==='cards'))mqAuStop();else try{mqAuSync()}catch(e){}},500);
   mqAuBar();
@@ -6730,7 +6736,7 @@ function mqAuPlay(vv){
   var a=new Audio();a.preload='auto';a.src=mqAuUrl(c,v);mqAu={a:a,k:vv,pa:false,sc:c};
   if(mqAuS().tm){var go=function(){try{a.currentTime=window.WTIM.s[c-1][v-1]/1000}catch(e){}};if(a.readyState>0)go();else a.addEventListener('loadedmetadata',go,{once:true})}
   a.onended=function(){if(mqAu.a!==a)return;if(mqAuS().whole||mqAuS().tm){mqAuStop();return}if(v<AD().s[c-1].length){var nv=c+':'+(v+1);mqSetCur(nv,false);var el=document.querySelector('.mq-v[data-v="'+nv+'"]');if(el&&el.scrollIntoView){try{el.scrollIntoView({block:'center',behavior:'smooth'})}catch(x){}}mqAuPlay(nv)}else mqAuStop()};
-  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast('تعذّر تشغيل التلاوة. تحتاج الميزة إلى اتصال بالإنترنت')};
+  a.onerror=function(){if(mqAu.a!==a)return;mqAuStop();toast(netMsg('تعذّر تشغيل التلاوة. تحتاج الميزة إلى اتصال بالإنترنت'))};
   var pr=a.play();if(pr&&pr.catch)pr.catch(function(){if(mqAu.a===a&&!a.error){mqAu.pa=true;mqAuBar()}});
   if(!mqAuT)mqAuT=setInterval(function(){if(mqAu.a&&tab!=='reader'&&!(mqAu.ext&&tab==='cards'))mqAuStop();else try{mqAuTick();mqAuSync()}catch(e){}},250);
   mqAuBar()
@@ -6967,7 +6973,7 @@ function wiBody(pg){
 function wiPaint(){
   var el=document.getElementById('wi-pg');if(!el||el.getAttribute('data-st'))return;
   el.setAttribute('data-st','1');var pg=+el.getAttribute('data-pg');
-  var fail=function(){if(document.getElementById('wi-pg')===el)el.innerHTML='<div class="wi-msg">تعذّر تحميل الصفحة. تحتاج الميزة إلى اتصال بالإنترنت<button class="btn" data-a="wiretry">إعادة المحاولة</button></div>'};
+  var fail=function(){if(document.getElementById('wi-pg')===el)el.innerHTML='<div class="wi-msg">'+netMsg('تعذّر تحميل الصفحة. تحتاج الميزة إلى اتصال بالإنترنت')+'<button class="btn" data-a="wiretry">إعادة المحاولة</button></div>'};
   wiLayout(function(L){
     if(!L)return fail();
     wiPageUrl(pg,function(u){
@@ -7087,7 +7093,7 @@ function tfNote(vv){
 function tfFill(vv,t){
   if(rd&&rd.tf&&t)rd.tf.tx[vv]=t;
   var el=document.querySelector('.mq-tx[data-tv="'+vv+'"]');if(!el)return;
-  el.textContent=t||'تعذّر تحميل التفسير. يحتاج إنترنتًا أول مرة لكل آية.';
+  el.textContent=t||netMsg('تعذّر تحميل التفسير. يحتاج إنترنتًا أول مرة لكل آية.');
   if(t)el.removeAttribute('data-ld');else el.setAttribute('data-ld','err');
 }
 function tfLoad(vv){
@@ -7630,8 +7636,8 @@ function hsnAct(a,v){
     hsnAuStop();if(!it||!it.u||!it.u.length)return false;
     try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}
     var k=0,A=new Audio();hsnF.a=A;hsnF.ak=v;A.preload='auto';
-    var nx=function(){if(hsnF.a!==A)return;if(k>=it.u.length){hsnAuStop();return}A.src=it.u[k++];var pr=A.play();if(pr&&pr.catch)pr.catch(function(){if(hsnF.a===A){hsnAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')}})};
-    A.onended=nx;A.onerror=function(){if(hsnF.a===A){hsnAuStop();toast('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت')}};
+    var nx=function(){if(hsnF.a!==A)return;if(k>=it.u.length){hsnAuStop();return}A.src=it.u[k++];var pr=A.play();if(pr&&pr.catch)pr.catch(function(){if(hsnF.a===A){hsnAuStop();toast(netMsg('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت'))}})};
+    A.onended=nx;A.onerror=function(){if(hsnF.a===A){hsnAuStop();toast(netMsg('تعذّر تشغيل الصوت. تحتاج الميزة إلى اتصال بالإنترنت'))}};
     if(b){b.classList.add('on');b.textContent=hsnT('⏸ إيقاف')}
     nx();return false;
   }
@@ -7677,7 +7683,7 @@ function rdoNorm(t){return String(t).normalize('NFD').replace(/[\u0610-\u061A\u0
 function rdoEnsure(cb){
   if(window.RDO){rdoS.ok=true;cb();return}
   var sc=document.createElement('script');sc.src='radio-stations.js';
-  sc.onload=function(){rdoS.ok=true;cb()};sc.onerror=function(){rdoS.ok=false;try{toast('تعذّر تحميل قائمة الإذاعات')}catch(e){}};
+  sc.onload=function(){rdoS.ok=true;cb()};sc.onerror=function(){rdoS.ok=false;try{toast(netMsg('تعذّر تحميل قائمة الإذاعات'))}catch(e){}};
   document.head.appendChild(sc)}
 /* بث HLS (مثل إذاعة القاهرة الرسمية): مكتبة hls.js (Apache-2.0) تُحمَّل عند الحاجة فقط عبر MediaSource، والبث كله https */
 function rdoHlsEnsure(cb){
@@ -7715,7 +7721,7 @@ function rdoAct(a,v){
       rdoRefresh();return false}
     var A=new Audio();rdoS.a=A;rdoS.id=id;rdoS.st='load';A.preload='none';
     A.onplaying=function(){if(rdoS.a===A){rdoS.st='play';rdoRefresh()}};
-    var bad=function(){if(rdoS.a===A){rdoStop();rdoRefresh();toast('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت')}};
+    var bad=function(){if(rdoS.a===A){rdoStop();rdoRefresh();toast(netMsg('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت'))}};
     A.onerror=bad;
     if(/\.m3u8(\?|$)/.test(r[2])){
       rdoRefresh();
@@ -7743,7 +7749,7 @@ function rdoAct(a,v){
 window.alsaerRadioState=function(st){
   if(!rdoS.n)return;
   if(st==='play'||st==='load'){rdoS.st=st}
-  else{rdoS.n=0;rdoS.id=0;rdoS.st='';if(st==='error'){try{toast('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت')}catch(e){}}}
+  else{rdoS.n=0;rdoS.id=0;rdoS.st='';if(st==='error'){try{toast(netMsg('تعذّر تشغيل البث. تحتاج الميزة إلى اتصال بالإنترنت'))}catch(e){}}}
   rdoRefresh()};
 /* استمع لقارئ: بث سور كاملة من سيرفرات mp3quran.net لقائمة القراء المأخوذة من تطبيق التقوى (Altaqwaa). البيانات في reciters.js تُحمَّل عند الحاجة. */
 var rctS={q:'',sq:'',rw:'',sel:0,a:null,sura:0,st:''};
@@ -7754,7 +7760,7 @@ function rctNorm(t){return String(t).normalize('NFD').replace(/[\u0610-\u061A\u0
 function rctEnsure(cb){
   if(window.RCT){cb();return}
   var sc=document.createElement('script');sc.src='reciters.js';
-  sc.onload=function(){cb()};sc.onerror=function(){try{toast('تعذّر تحميل قائمة القراء')}catch(e){}};
+  sc.onload=function(){cb()};sc.onerror=function(){try{toast(netMsg('تعذّر تحميل قائمة القراء'))}catch(e){}};
   document.head.appendChild(sc)}
 function rctGet(id){return (window.RCT||[]).filter(function(x){return x[0]===id})[0]}
 function rctRows(){
@@ -7797,7 +7803,7 @@ function rctPlay(i){
   var A=new Audio();rctS.a=A;rctS.sura=i;rctS.st='load';A.preload='none';A.src=r[3]+'/'+('00'+i).slice(-3)+'.mp3';
   A.onplaying=function(){if(rctS.a===A){rctS.st='play';rctRefresh()}};
   A.onended=function(){if(rctS.a===A){var nx=i<114?i+1:0;if(nx)rctPlay(nx);else{rctStop();rctRefresh()}}};
-  var bad=function(){if(rctS.a===A){rctStop();rctRefresh();toast('تعذّر تشغيل السورة. تحتاج الميزة إلى اتصال بالإنترنت')}};
+  var bad=function(){if(rctS.a===A){rctStop();rctRefresh();toast(netMsg('تعذّر تشغيل السورة. تحتاج الميزة إلى اتصال بالإنترنت'))}};
   A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad);rctRefresh()}
 function rctAct(a,v){
   if(a==='rctrw'){rctS.rw=v;if(typeof render==='function')render();return false}
@@ -7861,7 +7867,7 @@ function ftAuBar(f){
     h+='<div class="ftw-bar"><button class="ftw-p" data-a="ftwplay" data-v="'+id+'" aria-label="'+(pl?'إيقاف':'استماع')+'">'+(pl?FTI_.pause:FTI_.play)+'</button>';
     h+='<div class="ftw-tx">';
     if(dl)h+='<b>جارٍ التنزيل '+ftA.pct+'%</b><div class="ftw-pr"><i style="width:'+ftA.pct+'%"></i></div>';
-    else if(er)h+='<b class="ftw-bad">تعذّر التنزيل</b><small>اضغط للمحاولة مرة أخرى</small>';
+    else if(er)h+='<b class="ftw-bad">'+netMsg('تعذّر التنزيل')+'</b><small>اضغط للمحاولة مرة أخرى</small>';
     else h+='<b>'+(pl?'قيد التشغيل':ld?'جارٍ التحميل…':'استماع إلى الفتوى')+'</b><small>'+(hv?'✓ محفوظ على الجهاز':'بث مباشر')+'</small>';
     h+='</div>';
     if(dl)h+=ftIb('ftwdlx',id,'x','إلغاء التنزيل');
@@ -7877,7 +7883,7 @@ function ftAuPlay(f){
   if(ftA.id===id){ftAuStop();ftAuUi();return}
   ftAuStop();try{if(typeof rdoStop==='function')rdoStop()}catch(e){}try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}try{if(typeof hsnAuStop==='function')hsnAuStop()}catch(e){}try{if(typeof rctStop==='function')rctStop()}catch(e){}
   var A=new Audio();ftA.a=A;ftA.id=id;ftA.st='load';A.preload='none';
-  var go=function(src){if(ftA.a!==A)return;A.src=src;A.onplaying=function(){if(ftA.a===A){ftA.st='play';ftAuUi()}};A.onended=function(){if(ftA.a===A){ftAuStop();ftAuUi()}};var bad=function(){if(ftA.a===A){ftAuStop();ftAuUi();try{toast('تعذّر تشغيل الصوت. يحتاج اتصالًا بالإنترنت أو تنزيله مسبقًا')}catch(e){}}};A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad)};
+  var go=function(src){if(ftA.a!==A)return;A.src=src;A.onplaying=function(){if(ftA.a===A){ftA.st='play';ftAuUi()}};A.onended=function(){if(ftA.a===A){ftAuStop();ftAuUi()}};var bad=function(){if(ftA.a===A){ftAuStop();ftAuUi();try{toast(netMsg('تعذّر تشغيل الصوت. يحتاج اتصالًا بالإنترنت أو تنزيله مسبقًا'))}catch(e){}}};A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad)};
   ftAuUi();
   var C=window.caches;
   if(C&&ftA.have[id])C.open(FT_ACACHE).then(function(c){return c.match(u)}).then(function(m){return m?m.blob():null}).then(function(b){if(b){ftA.url=URL.createObjectURL(b);go(ftA.url)}else{ftA.have[id]=false;go(u)}},function(){go(u)});
@@ -7909,10 +7915,10 @@ function ftTitles(ids){
   return h||'<p class="note">لا نتائج</p>'}
 function ftTitleMap(cb){if(window.FTT){cb();return}
   var done=function(){var m={};(window.FTS||[]).forEach(function(r){m[r[0]]=r[1]});window.FTT=m;cb()};
-  if(window.FTS){done();return}ftJson('search.json',{},function(j){var ok=!!j;if(j)window.FTS=j;if(!ok){try{toast('تعذّر تحميل فهرس الفتاوى')}catch(e){}return}done()})}
+  if(window.FTS){done();return}ftJson('search.json',{},function(j){var ok=!!j;if(j)window.FTS=j;if(!ok){try{toast(netMsg('تعذّر تحميل فهرس الفتاوى'))}catch(e){}return}done()})}
 function vFatwas(){
   var h='<div class="rdo ftw">';
-  if(!window.FTI){ftIdx(function(ok){if(!ok){try{toast('تعذّر تحميل الفتاوى')}catch(e){}return}if(typeof render==='function')render()});return h+'<p class="note" style="text-align:center">جارٍ التحميل…</p></div>'}
+  if(!window.FTI){ftIdx(function(ok){if(!ok){try{toast(netMsg('تعذّر تحميل الفتاوى'))}catch(e){}return}if(typeof render==='function')render()});return h+'<p class="note" style="text-align:center">جارٍ التحميل…</p></div>'}
   if(ftS.view==='detail'){
     var id=ftS.id,n=Math.floor((id-1)/window.FTI.per);
     var f=ftGet(id);
@@ -8156,7 +8162,7 @@ function vAhadith(){
     var bk=hdtBook(hdtS.book),d=hdtS.cache[hdtS.book];
     h+='<div class="hsn-top"><button class="btn ghost" data-a="hdtback">← الكتب</button><b class="hsn-cn">'+bk.n+'</b><span class="hsn-fs"><button class="btn ghost" data-a="hdtfs" data-v="-2">أ-</button><button class="btn ghost" data-a="hdtfs" data-v="2">أ+</button></span></div>';
     if(!d){
-      if(hdtS.err)return h+'<p class="asm-empty">تعذّر تحميل الكتاب. تحقّق من اتصالك بالإنترنت.</p><div class="acts"><button class="btn" data-a="hdtretry">إعادة المحاولة</button></div></div>';
+      if(hdtS.err)return h+'<p class="asm-empty">'+netMsg('تعذّر تحميل الكتاب. تحقّق من اتصالك بالإنترنت.')+'</p><div class="acts"><button class="btn" data-a="hdtretry">إعادة المحاولة</button></div></div>';
       return h+'<p class="asm-empty">جارٍ تحميل '+bk.n+'… (أول مرة قد يستغرق دقيقة)</p></div>';
     }
     var secs=d.metadata&&d.metadata.sections||{};
@@ -8172,7 +8178,7 @@ function vAhadith(){
   }
   var dy=P.day&&P.day.d===dk()?P.day:null;
   if(!dy&&!hdtS.dayReq){hdtS.dayReq=1;hdtDay().then(function(){hdtS.dayReq=0;if(tab==='ahadith')render()},function(){hdtS.dayReq=0;hdtS.dayErr=1;if(tab==='ahadith')render()})}
-  h+='<section class="card hdt-day"><small>حديث اليوم</small><div class="hdt-t" style="font-size:20px">'+(dy?hdtEsc(dy.t):(hdtS.dayErr?'تعذّر تحميل حديث اليوم؛ تحقّق من الإنترنت.':'جارٍ التحميل…'))+'</div>'+(dy?'<small>الأربعون النووية · حديث رقم '+ar(dy.n)+'</small>':'')+'</section>'
+  h+='<section class="card hdt-day"><small>حديث اليوم</small><div class="hdt-t" style="font-size:20px">'+(dy?hdtEsc(dy.t):(hdtS.dayErr?netMsg('تعذّر تحميل حديث اليوم؛ تحقّق من الإنترنت.'):'جارٍ التحميل…'))+'</div>'+(dy?'<small>الأربعون النووية · حديث رقم '+ar(dy.n)+'</small>':'')+'</section>'
    +'<h3 class="hdt-h">الكتب التسعة</h3><div class="asm-grid">'+HDT_BOOKS.map(function(b){return '<button class="asm-card" data-a="hdtbook" data-v="'+b.s+'"><b style="font-size:17px">'+b.n+'</b><span>'+b.a+'</span><em class="hdt-bd">'+b.t+'</em></button>'}).join('')+'</div>'
    +'<p class="note">المصدر: مشروع Hadith API المفتوح (fawazahmed0). التصنيف (صحيح/حسن/ضعيف) يظهر عند توفره في مصدر البيانات؛ يُنصح بمراجعة أهل الاختصاص عند الاستدلال. تحتاج الصفحة إلى الإنترنت لتحميل الكتب.</p></div>';
   return h;

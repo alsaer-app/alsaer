@@ -51,7 +51,7 @@ function ftAuBar(f){
     h+='<div class="ftw-bar"><button class="ftw-p" data-a="ftwplay" data-v="'+id+'" aria-label="'+(pl?'إيقاف':'استماع')+'">'+(pl?FTI_.pause:FTI_.play)+'</button>';
     h+='<div class="ftw-tx">';
     if(dl)h+='<b>جارٍ التنزيل '+ftA.pct+'%</b><div class="ftw-pr"><i style="width:'+ftA.pct+'%"></i></div>';
-    else if(er)h+='<b class="ftw-bad">تعذّر التنزيل</b><small>اضغط للمحاولة مرة أخرى</small>';
+    else if(er)h+='<b class="ftw-bad">'+netMsg('تعذّر التنزيل')+'</b><small>اضغط للمحاولة مرة أخرى</small>';
     else h+='<b>'+(pl?'قيد التشغيل':ld?'جارٍ التحميل…':'استماع إلى الفتوى')+'</b><small>'+(hv?'✓ محفوظ على الجهاز':'بث مباشر')+'</small>';
     h+='</div>';
     if(dl)h+=ftIb('ftwdlx',id,'x','إلغاء التنزيل');
@@ -67,7 +67,7 @@ function ftAuPlay(f){
   if(ftA.id===id){ftAuStop();ftAuUi();return}
   ftAuStop();try{if(typeof rdoStop==='function')rdoStop()}catch(e){}try{if(typeof mqAuStop==='function')mqAuStop()}catch(e){}try{if(typeof hsnAuStop==='function')hsnAuStop()}catch(e){}try{if(typeof rctStop==='function')rctStop()}catch(e){}
   var A=new Audio();ftA.a=A;ftA.id=id;ftA.st='load';A.preload='none';
-  var go=function(src){if(ftA.a!==A)return;A.src=src;A.onplaying=function(){if(ftA.a===A){ftA.st='play';ftAuUi()}};A.onended=function(){if(ftA.a===A){ftAuStop();ftAuUi()}};var bad=function(){if(ftA.a===A){ftAuStop();ftAuUi();try{toast('تعذّر تشغيل الصوت. يحتاج اتصالًا بالإنترنت أو تنزيله مسبقًا')}catch(e){}}};A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad)};
+  var go=function(src){if(ftA.a!==A)return;A.src=src;A.onplaying=function(){if(ftA.a===A){ftA.st='play';ftAuUi()}};A.onended=function(){if(ftA.a===A){ftAuStop();ftAuUi()}};var bad=function(){if(ftA.a===A){ftAuStop();ftAuUi();try{toast(netMsg('تعذّر تشغيل الصوت. يحتاج اتصالًا بالإنترنت أو تنزيله مسبقًا'))}catch(e){}}};A.onerror=bad;var pr=A.play();if(pr&&pr.catch)pr.catch(bad)};
   ftAuUi();
   var C=window.caches;
   if(C&&ftA.have[id])C.open(FT_ACACHE).then(function(c){return c.match(u)}).then(function(m){return m?m.blob():null}).then(function(b){if(b){ftA.url=URL.createObjectURL(b);go(ftA.url)}else{ftA.have[id]=false;go(u)}},function(){go(u)});
@@ -99,10 +99,10 @@ function ftTitles(ids){
   return h||'<p class="note">لا نتائج</p>'}
 function ftTitleMap(cb){if(window.FTT){cb();return}
   var done=function(){var m={};(window.FTS||[]).forEach(function(r){m[r[0]]=r[1]});window.FTT=m;cb()};
-  if(window.FTS){done();return}ftJson('search.json',{},function(j){var ok=!!j;if(j)window.FTS=j;if(!ok){try{toast('تعذّر تحميل فهرس الفتاوى')}catch(e){}return}done()})}
+  if(window.FTS){done();return}ftJson('search.json',{},function(j){var ok=!!j;if(j)window.FTS=j;if(!ok){try{toast(netMsg('تعذّر تحميل فهرس الفتاوى'))}catch(e){}return}done()})}
 function vFatwas(){
   var h='<div class="rdo ftw">';
-  if(!window.FTI){ftIdx(function(ok){if(!ok){try{toast('تعذّر تحميل الفتاوى')}catch(e){}return}if(typeof render==='function')render()});return h+'<p class="note" style="text-align:center">جارٍ التحميل…</p></div>'}
+  if(!window.FTI){ftIdx(function(ok){if(!ok){try{toast(netMsg('تعذّر تحميل الفتاوى'))}catch(e){}return}if(typeof render==='function')render()});return h+'<p class="note" style="text-align:center">جارٍ التحميل…</p></div>'}
   if(ftS.view==='detail'){
     var id=ftS.id,n=Math.floor((id-1)/window.FTI.per);
     var f=ftGet(id);

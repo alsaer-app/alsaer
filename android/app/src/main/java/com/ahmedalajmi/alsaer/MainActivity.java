@@ -45,6 +45,7 @@ public class MainActivity extends BridgeActivity {
         super.onResume();
         try { if (getBridge() != null && getBridge().getWebView() != null) MediaPlaybackService.bind(getBridge().getWebView()); } catch (Exception ignored) { }
         DiagLog.add("act resume");
+        try { if (getBridge() != null && getBridge().getWebView() != null) getBridge().getWebView().evaluateJavascript("window.alsaerUpdResume&&window.alsaerUpdResume()", null); } catch (Exception ignored) { }
     }
     @Override public void onPause() { super.onPause(); DiagLog.add("act pause"); }
     @Override public void onStop() { super.onStop(); DiagLog.add("act stop"); }
