@@ -10,6 +10,18 @@
   function hm(t,def){var m=/^(\d{1,2}):(\d{2})$/.exec(t||'')||/^(\d{1,2}):(\d{2})$/.exec(def);return [parseInt(m[1],10),parseInt(m[2],10)]}
   function nt(x){try{if(typeof lang==='function'&&lang()!=='ar'&&typeof x==='string'){var r=trS(x);if(r)return r}}catch(e){}return x}
   function ntA(a){if(a&&a.l){a=Object.assign({},a);a.l=nt(a.l)}return a}
+
+  /* تواريخ تذكير النسخة الاحتياطية للفواصل غير الأسبوعية: كل أسبوعين من جمعة ثابتة (٢٠٢٦-٠١-٠٢)، وكل شهر أول جمعة في الشهر */
+  window.alsaerBackupDates=function(every,from,horizon){
+    var out=[],a=new Date(2026,0,2),f=new Date(from.getFullYear(),from.getMonth(),from.getDate());
+    for(var k=0;k<(horizon||62);k++){
+      var d=new Date(f.getFullYear(),f.getMonth(),f.getDate()+k);
+      if(d.getDay()!==5)continue;
+      if(every==='14'){var n=Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000);if(n%14===0)out.push(d)}
+      else if(every==='30'){if(d.getDate()<=7)out.push(d)}
+    }
+    return out;
+  };
   function build(){
     var r=cfg(),out=[];if(typeof autoPtimes==='function')autoPtimes();
     if(!r.enabled||!r.consent)return out;
@@ -45,7 +57,16 @@
     if(r.dua)daily('dua','ساعة إجابة يوم الجمعة','أكثر من الدعاء في ساعة الإجابة، وادعُ بما تحب.',r.duaTime,'16:00','',null,[5]);
     if(r.weekly){var wa=null;try{wa=weekAgg(0)}catch(e){}
       daily('weekly','تقريرك الأسبوعي',wa?('هذا الأسبوع: '+wa.pr+' صلاة من ٣٥، و'+wa.qp+' صفحة قرآن، و'+wa.hb+' عادة حسنة. اضغط للمقارنة بالأسبوع الماضي.'):'اطّلع على إنجازك هذا الأسبوع وقارنه بما قبله.',r.weeklyTime,'20:00','tab:progress',null,[5])}
-    if(r.backup)daily('backup','النسخة الاحتياطية الأسبوعية','صدّر نسخة احتياطية مشفرة من بياناتك واحفظها في مكان آمن: الإعدادات ← الأمان والبيانات ← النسخ الاحتياطي.',r.backupTime,'19:00','tab:backup',null,[5]);
+    if(r.backup&&(!r.backupEvery||r.backupEvery==='7'))daily('backup','النسخة الاحتياطية الأسبوعية','صدّر نسخة احتياطية مشفرة من بياناتك واحفظها في مكان آمن: الإعدادات ← الأمان والبيانات ← النسخ الاحتياطي.',r.backupTime,'19:00','tab:backup',null,[5]);
+    /* تذكير النسخة الاحتياطية بفواصل أخرى (٢.٠.٤): كل يوم، كل أسبوعين، كل شهر. الأسبوعي (الافتراضي) أعلاه كما هو بلا تغيير. */
+    if(r.backup&&r.backupEvery&&r.backupEvery!=='7'){
+      var bt=hm(r.backupTime,'19:00'),bT='تذكير النسخة الاحتياطية',bB='صدّر نسخة احتياطية مشفرة من بياناتك واحفظها في مكان آمن: الإعدادات ← الأمان والبيانات ← النسخ الاحتياطي.';
+      if(r.backupEvery==='1')daily('backup',bT,bB,r.backupTime,'19:00','tab:backup');
+      else{
+        var ds=(typeof window.alsaerBackupDates==='function')?window.alsaerBackupDates(r.backupEvery,new Date(),62):[];
+        ds.forEach(function(d){one('backup_'+dk(d),bT,bB,d,r.backupTime,'19:00','tab:backup')});
+      }
+    }
     if(r.wird){
       var got=qPages(TK),goal=S.quran.goal||1,left=Math.max(0,goal-got),doneW=left<=0;
       daily('wird','ورد القرآن',(got>0?'بقي عليك '+left+' من '+goal+' صفحات لإتمام وردك اليوم.':'وردك اليوم '+goal+' من الصفحات. اضغط للبدء من حيث توقفت.'),r.wirdTime,'20:00','quran:start',null,null);

@@ -1,6 +1,6 @@
 /* ===== فحص التحديثات: يقرأ update.json من الفرع الرئيسي ويقارن versionCode بالنسخة المثبتة =====
    المصدر: https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json (يحدَّث تلقائيًا مع كل إصدار).
-   الفحص التلقائي عند فتح التطبيق وعند الرجوع إليه من الخلفية، مرة كل ٦ ساعات كحد أقصى، وصامت تمامًا عند انقطاع الإنترنت أو أي خطأ.
+   الفحص التلقائي عند فتح التطبيق وعند الرجوع إليه من الخلفية، مرة كل ساعة كحد أقصى، وصامت تمامًا عند انقطاع الإنترنت أو أي خطأ.
    التنزيل والتثبيت لا يبدآن إلا بموافقة المستخدم من النافذة. */
 var UPD_URL='https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json';
 var UPD_KEY='alsaer_update_check_v1';
@@ -25,7 +25,7 @@ function updCheck(force){
   if(typeof fetch!=='function')return Promise.resolve(updCheckFailed(quiet));
   if(typeof navigator!=='undefined'&&navigator.onLine===false){UPD_ERR='offline';return Promise.resolve(false)}
   var s=updState();
-  if(!force&&s.at&&Date.now()-s.at<6*3600*1000){updOffer(0,false);return Promise.resolve(false)} /* داخل الحد: لا شبكة، لكن إصدارًا محفوظًا من فحص سابق يُعرض عند هذا الفتح */
+  if(!force&&s.at&&Date.now()-s.at<3600*1000){updOffer(0,false);return Promise.resolve(false)} /* داخل الحد: لا شبكة، لكن إصدارًا محفوظًا من فحص سابق يُعرض عند هذا الفتح */
   var ctl=(typeof AbortController==='function')?new AbortController():null,to=ctl?setTimeout(function(){try{ctl&&ctl.abort()}catch(e){}},8000):null;
   return fetch(UPD_URL,{headers:{'Accept':'application/json'},signal:ctl?ctl.signal:undefined,cache:'no-store'})
    .then(function(r){if(to)clearTimeout(to);if(!r.ok)throw new Error('http');return r.json()})
@@ -116,14 +116,13 @@ function updSheetHtml(){
       +'<button class="btn block" data-a="updnow">'+ic('refresh')+' إعادة المحاولة</button>'
       +'<button class="btn ghost block" data-a="updclose">لاحقًا</button>';
   }else{
-    h+=top('refresh','الإصدار '+vn+' جاهز','أنت على '+cur+(i.sizeBytes?' · '+updFmtSize(i.sizeBytes):''),'جديد');
     var items=String(i.notes||'تحسينات وإصلاحات عامة.').split(/\n+/).map(function(x){return x.trim()}).filter(Boolean);
-    h+='<div class="upd-notes"><ul>'+items.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
     var inApp=updNative()&&/^https:\/\/.+\.apk(\?|#|$)/i.test(i.apkUrl||'')&&!!i.sha256;
-    if(inApp)h+='<button class="btn block" data-a="updnow">'+ic('refresh')+' تحديث الآن</button>';
-    h+='<a class="btn'+(inApp?' ghost':'')+' block" href="'+esc(i.apkUrl||'https://github.com/alsaer-app/alsaer/releases/latest')+'" target="_blank" rel="noopener noreferrer">صفحة الإصدار</a>';
-    if(!inApp)h+='<p class="note ups-st">التحميل الداخلي غير متاح لهذا الإصدار — حمّل من صفحة الإصدار.</p>';
-    h+='<button class="btn ghost block" data-a="updlater">لاحقًا</button>';
+    var rel=esc(i.apkUrl||'https://github.com/alsaer-app/alsaer/releases/latest');
+    h+='<div class="upd-hero"><span class="upd-ic">'+ic('sparkles')+'</span><h3>نسخة جديدة من السائر</h3><small>الإصدار '+vn+' · أنت على '+cur+(i.sizeBytes?' · '+updFmtSize(i.sizeBytes):'')+'</small></div>'
+      +'<div class="upd-notes"><ul>'+items.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
+    if(inApp)h+='<div class="upd-acts"><button class="btn block" data-a="updnow">'+ic('refresh')+' تحديث الآن</button><button class="btn ghost block" data-a="updlater">لاحقًا</button></div><a class="upd-link" href="'+rel+'" target="_blank" rel="noopener noreferrer">صفحة الإصدار</a>';
+    else h+='<div class="upd-acts"><a class="btn block" href="'+rel+'" target="_blank" rel="noopener noreferrer">صفحة الإصدار</a><button class="btn ghost block" data-a="updlater">لاحقًا</button></div><p class="note ups-st">التحميل الداخلي غير متاح لهذا الإصدار — حمّل من صفحة الإصدار.</p>';
   }
   return h+'</div>';
 }

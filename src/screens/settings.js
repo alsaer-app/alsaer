@@ -60,6 +60,7 @@ var IC_BELLOFF='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M
 
 function sgDeveloperCard(){return '<section class="sg-card settings-dev"><div class="settings-dev-head"><span class="settings-dev-avatar" aria-hidden="true">AE</span><div class="settings-dev-name"><b dir="ltr">Ahmed Elagamy</b><p>مطور السائر إلى الله</p></div><span class="settings-dev-version" dir="ltr">v'+esc(APP_VERSION)+'</span></div><div class="settings-dev-links"><a href="https://github.com/alsaer-app/alsaer" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.61-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02A9.6 9.6 0 0 1 12 6.82c.85 0 1.71.11 2.51.34 1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.76c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg></a><a href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.5-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.99A10 10 0 0 0 22 12z"/></svg></a></div></section>'}
 
+var SG_SHOW_OLD=false; /* 2.0.4: الصفوف المكررة مخفية من الواجهة فقط، تُعاد بتغيير هذه القيمة */
 function vSettings(){
   var M='<p class="msg">'+esc(msg)+'</p>';
   var P=function(k,html){return setOpen===k?'<div class="panel">'+html+'</div>':''};
@@ -113,16 +114,16 @@ function vSettings(){
   }
   var snzN=0;try{if(window.AlsaerNative&&AlsaerNative.snoozeActiveCount)snzN=AlsaerNative.snoozeActiveCount()||0}catch(e){}
   var NOTIF='<div class="sg-card">'
-   +sgSwitch('bell','تفعيل التنبيهات',rr.enabled?'تصلك التنبيهات حتى مع إغلاق التطبيق':'متوقفة','data-rem-master',rr.enabled)
+   +(SG_SHOW_OLD?sgSwitch('bell','تفعيل التنبيهات',rr.enabled?'تصلك التنبيهات حتى مع إغلاق التطبيق':'متوقفة','data-rem-master',rr.enabled):'')
    +sgSwitch('clock','التأجيل التلقائي','«ذكّرني» تعيد الرنين كل ١٠ دقائق حتى ٣ مرات ثم تتوقف','data-rem-toggle="snoozeAuto"',rr.snoozeAuto!==false)
    +(snzN?'<button class="sg-row sg-btn" data-a="snzstop"><span class="sg-ic">'+ic('bell')+'</span><div class="sg-tx"><b>إيقاف التأجيل الحالي</b><small>'+ar(snzN)+' '+(snzN===1?'تذكير مؤجّل':'تذكيرات مؤجّلة')+'</small></div><div class="sg-ctl">'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>':'')
    +sgSegRow('bell','الصلاة على النبي ﷺ','تكرار التذكير · المواعيد من تذكيراتي ← ذكي','<select class="rm-sel" data-rem-time="salatEvery" aria-label="تكرار الصلاة على النبي">'+[[15,'١٥ دقيقة'],[30,'نصف ساعة'],[60,'ساعة'],[120,'ساعتان'],[0,'مرة يوميًا']].map(function(x){var ev=rr.salatEvery==null?(Object.keys(rr).length?'120':'15'):String(rr.salatEvery);return '<option value="'+x[0]+'"'+(String(x[0])===ev?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select>')
-   +sgLit(sgNavTab('reminders','bell','تذكيراتي','الملك والكهف والصلاة على النبي وغيرها',ar(onN)+' مفعّلة'),nOn)
+   +(SG_SHOW_OLD?sgLit(sgNavTab('reminders','bell','تذكيراتي','الملك والكهف والصلاة على النبي وغيرها',ar(onN)+' مفعّلة'),nOn):'')
    +sgLit(sgNavSub('notif-float','bell','النوافذ العائمة','تظهر فوق التطبيقات في أوقاتها','الجدولة والشكل'),fOn)
    +sgNav('snd','bell','صوت الإشعار','النغمة أو بلا صوت أو صوت النظام',sndN)
    +P('snd','<div style="padding:4px 2px 8px"><div class="snd-grid">'+sndOpt('chime',ic('bell'),'نغمة هادئة','نغمة السائر')+sndOpt('silent',IC_BELLOFF,'بلا صوت','إشعار صامت')+sndOpt('system',ic('phone'),'صوت النظام','نغمة هاتفك')+'</div><div class="rm-row'+(rr.respectSilent?' on':'')+'" style="margin:10px 0 0"><div class="rm-tx"><b>احترام وقت الصامت</b><small>عند صمت الهاتف تصل الإشعارات بلا صوت. يستخدم قناة النظام التي تلتزم بوضع الصامت بدل النغمة الخاصة</small></div><label class="rm-sw"><input type="checkbox" data-rem-toggle="respectSilent" '+(rr.respectSilent?'checked':'')+'><i></i></label></div></div>')
-   +sgNav('perm','shield','الصلاحيات للعمل في الخلفية','الإشعارات · المنبّهات · البطارية',nat?(ar(permN)+'/٣'):'')
-   +P('perm',sgPerms())
+   +(SG_SHOW_OLD?sgNav('perm','shield','الصلاحيات للعمل في الخلفية','الإشعارات · المنبّهات · البطارية',nat?(ar(permN)+'/٣'):''):'<button type="button" class="sg-row sg-btn" data-rem-action="gocheckup"><span class="sg-ic">'+ic('shield')+'</span><div class="sg-tx"><b>فحص وإصلاح الإشعارات</b><small>الإشعارات · المنبّهات · البطارية</small></div>'+sgCtlV(nat?(ar(permN)+'/٣'):'')+'</button>')
+   +(SG_SHOW_OLD?P('perm',sgPerms()):'')
    +'</div>'
    +'<div class="sg-t">'+ic('gear')+' خيارات متقدمة</div><div class="sg-card">'
    +sgLit(sgNavTab('widgetset','sparkles','الودجت','','ألوانه وحجمه وما يعرضه'),wOn)
@@ -165,7 +166,7 @@ function vSettings(){
    +'</div>';
 
   var APPBOTTOM='<div class="sg-t">التطبيق</div><div class="sg-card settings-app">'
-   +'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>الإصدار '+esc(APP_VERSION)+' · التحقق من وجود تحديث</small></div>'+sgCtlV('')+'</button>'
+   +(SG_SHOW_OLD?'<button type="button" class="sg-row sg-btn" data-a="updopen"><span class="sg-ic">'+ic('refresh')+'</span><div class="sg-tx"><b>التحديثات</b><small>الإصدار '+esc(APP_VERSION)+' · التحقق من وجود تحديث</small></div>'+sgCtlV('')+'</button>':'')
    +'<a class="sg-row sg-btn" href="https://www.facebook.com/share/1BsNZ3BKX3/" target="_blank" rel="noopener noreferrer"><span class="sg-ic">'+ic('mail')+'</span><div class="sg-tx"><b>اقتراحات وملاحظات</b><small>شارك فكرة أو أبلغ عن مشكلة</small></div>'+sgCtlV('')+'</a></div>'+sgDeveloperCard();
 
   var ACCOUNT='<div class="sg-card">'+sgNavSub('account-prof','user','الملف الشخصي','الاسم والصورة وطريقة المخاطبة',esc((S.profile&&S.profile.name)||''))+sgNavSub('account-sec','shield','الأمان والبيانات','القفل والبصمة والنسخ الاحتياطي','')+sgNavSub('account-about','info','المساعدة والمعلومات','حالة النظام والجولة وعن التطبيق','')+'</div>'+APPBOTTOM;
@@ -191,10 +192,19 @@ function vSettings(){
     return '<section class="'+pgCls+'">'+tabsHtml+'<div class="'+anCls+'"><div class="sc-head"><button type="button" class="sc-back" data-a="scat" data-v="">'+ic('chev')+' الإعدادات</button><h2>'+catN+'</h2></div><div class="sg-tab-body" role="tabpanel">'+views[setCat]+'</div></div></section>'+COPY;
   }
   var idxRow=function(act,val,icon,title,desc){return '<button type="button" class="sg-row sg-btn" data-a="'+act+'" data-v="'+val+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b><small>'+desc+'</small></div><div class="sg-ctl">'+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'};
-  var INDEX='<div class="sg-t">الشكل</div><div class="sg-card">'+idxRow('scat','look','sparkles','العرض والمظهر','الوضع · النمط · اللغة · اللون · الأرقام والساعة')+'</div>'
-   +'<div class="sg-t">التنبيهات</div><div class="sg-card">'+idxRow('scat','notif','bell','التنبيهات والتذكيرات','القنوات · الصوت · النوافذ العائمة · الودجت')+'</div>'
-   +'<div class="sg-t">الموقع</div><div class="sg-card">'+idxRow('scat','loc','mosque','الموقع والمواقيت','المدينة · طريقة الحساب · الضبط')+'</div>'
-   +'<div class="sg-t">الخصوصية</div><div class="sg-card">'+idxRow('ssub','account-sec','shield','الأمان والبيانات','القفل · النسخ الاحتياطي · درايف · الاستعادة')+'</div>'
-   +'<div class="sg-t">حسابك</div><div class="sg-card">'+idxRow('scat','account','user','حسابي','الملف الشخصي · الأجهزة · الجولة التعريفية')+idxRow('ssub','account-about','info','المساعدة والمعلومات','التحديثات · سجل الإصدارات · فحص التطبيق')+'</div>';
+  var idxV=function(act,val,icon,title,desc,v){return '<button type="button" class="sg-row sg-btn" data-a="'+act+'" data-v="'+val+'"><span class="sg-ic">'+ic(icon)+'</span><div class="sg-tx"><b>'+title+'</b><small>'+desc+'</small></div><div class="sg-ctl">'+(v?'<span class="sg-val">'+v+'</span>':'')+ic('chev').replace('class="i"','class="i chev"')+'</div></button>'};
+  var _rm={};try{_rm=JSON.parse(localStorage.getItem('alsaer_daily_reminders_v1')||'{}')||{}}catch(e){}
+  var _nat=window.AlsaerNative,_exOff=false;try{_exOff=!!(_nat&&_nat.canExactAlarms&&!_nat.canExactAlarms())}catch(e){}
+  var _nv=!_rm.consent||!_rm.enabled?'غير مفعّلة':(_exOff?'يحتاج خطوة':'مفعّلة');
+  var INDEX='<div class="sg-t">الأساسي</div><div class="sg-card">'
+   +idxV('tab','reminders','bell','الإشعارات والتذكيرات','الصلوات · الأذكار والورد · الصيام والجمعة · الصوت',_nv)
+   +idxV('scat','loc','mosque','المواقيت والصلاة','المدينة · طريقة الحساب · الضبط',esc((S.loc&&S.loc.city)||''))
+   +idxV('scat','look','sparkles','المظهر','الوضع · النمط · اللغة · اللون · الأرقام والساعة',isDark()?'داكن':'فاتح')+'</div>'
+   +'<div class="sg-t">بياناتك</div><div class="sg-card">'
+   +idxV('ssub','account-sec','shield','الخصوصية والنسخ','القفل · الأمان · النسخ الاحتياطي · الاستعادة',S.pin?'القفل: مفعّل':'')+'</div>'
+   +'<div class="sg-t">المزيد</div><div class="sg-card">'
+   +idxRow('scat','account','user','حسابي','الملف الشخصي · الأجهزة · الجولة التعريفية')
+   +idxRow('ssub','account-about','info','المساعدة والمعلومات','التحديثات · سجل الإصدارات · فحص التطبيق')
+   +idxRow('scat','notif','gear','خيارات الإشعارات المتقدمة','القنوات · النوافذ العائمة · الودجت')+'</div>';
   return '<section class="'+pgCls+'"><div class="sg-tab-body '+anCls+'" role="tabpanel">'+INDEX+'</div></section>'+COPY;
 }
