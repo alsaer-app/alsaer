@@ -1,6 +1,7 @@
 /* ===== فحص التحديثات: يقرأ update.json من الفرع الرئيسي ويقارن versionCode بالنسخة المثبتة =====
    المصدر: https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json (يحدَّث تلقائيًا مع كل إصدار).
-   الفحص كل ١٢ ساعة كحد أقصى، وصامت تمامًا عند انقطاع الإنترنت أو أي خطأ. */
+   الفحص التلقائي عند فتح التطبيق وعند الرجوع إليه من الخلفية، مرة كل ٦ ساعات كحد أقصى، وصامت تمامًا عند انقطاع الإنترنت أو أي خطأ.
+   التنزيل والتثبيت لا يبدآن إلا بموافقة المستخدم من النافذة. */
 var UPD_URL='https://raw.githubusercontent.com/alsaer-app/alsaer/main/update.json';
 var UPD_KEY='alsaer_update_check_v1';
 function updState(){try{return JSON.parse(localStorage.getItem(UPD_KEY)||'{}')}catch(e){return {}}}
@@ -13,20 +14,21 @@ function updSemverNewer(remote,local){
   return false;
 }
 function updInfo(){var s=updState();return (s.info&&typeof APP_BUILD!=='undefined'&&s.info.versionCode>APP_BUILD&&updSemverNewer(s.info.versionName,(typeof APP_VERSION!=='undefined')?APP_VERSION:''))?s.info:null}
-function updDismissed(){var s=updState(),i=updInfo();return !!(i&&s.dismissed===i.versionCode)}
-function updCheckFailed(){var st=updState();st.at=Date.now();st.checkFailed=true;updSave(st);return false}
+/* silent: فحص تلقائي فاشل لا يغيّر الحالة ولا يؤخر المحاولة التالية (انقطاع الإنترنت وقت الفتح لا يعطّل الفحص ٦ ساعات) */
+function updCheckFailed(silent){if(silent)return false;var st=updState();st.at=Date.now();st.checkFailed=true;updSave(st);return false}
 function updCurrentLabel(){var s=updState();return s.checkFailed?'تعذّر التحقق من التحديثات':s.checkedAt?'أنت على أحدث إصدار':'لم يتم التحقق من التحديثات بعد'}
 function updCheck(force){
-  if(typeof fetch!=='function')return Promise.resolve(updCheckFailed());
-  if(typeof navigator!=='undefined'&&navigator.onLine===false)return Promise.resolve(updCheckFailed());
+  var quiet=!force;
+  if(typeof fetch!=='function')return Promise.resolve(updCheckFailed(quiet));
+  if(typeof navigator!=='undefined'&&navigator.onLine===false)return Promise.resolve(updCheckFailed(quiet));
   var s=updState();
-  if(!force&&s.at&&Date.now()-s.at<12*3600*1000)return Promise.resolve(false);
+  if(!force&&s.at&&Date.now()-s.at<6*3600*1000){updOffer(0,false);return Promise.resolve(false)} /* داخل الحد: لا شبكة، لكن إصدارًا محفوظًا من فحص سابق يُعرض عند هذا الفتح */
   var ctl=(typeof AbortController==='function')?new AbortController():null,to=ctl?setTimeout(function(){try{ctl&&ctl.abort()}catch(e){}},8000):null;
   return fetch(UPD_URL,{headers:{'Accept':'application/json'},signal:ctl?ctl.signal:undefined,cache:'no-store'})
    .then(function(r){if(to)clearTimeout(to);if(!r.ok)throw new Error('http');return r.json()})
    .then(function(j){
     var st=updState();st.at=Date.now();
-    if(!(j&&j.appId==='com.ahmedalajmi.alsaer'&&Number.isInteger(j.versionCode)&&j.versionCode>0))return updCheckFailed();
+    if(!(j&&j.appId==='com.ahmedalajmi.alsaer'&&Number.isInteger(j.versionCode)&&j.versionCode>0))return updCheckFailed(quiet);
     st.checkedAt=st.at;st.checkFailed=false;
     if(j&&j.appId==='com.ahmedalajmi.alsaer'&&Number.isInteger(j.versionCode)&&j.versionCode>0){
       st.info={versionCode:j.versionCode,versionName:String(j.versionName||''),apkUrl:/^https:\/\//.test(j.apkUrl||'')?j.apkUrl:'https://github.com/alsaer-app/alsaer/releases/latest'};
@@ -36,19 +38,40 @@ function updCheck(force){
     }else delete st.info;
     updSave(st);
     var ii=updInfo();
-    if(ii&&!updDismissed()){
+    if(ii){
       if(tab==='home'||tab==='more'||tab==='settings')render();
-      try{
-        if(!sessionStorage.getItem('upd_shown_'+ii.versionCode)){
-          sessionStorage.setItem('upd_shown_'+ii.versionCode,'1');
-          setTimeout(function(){if(!document.getElementById('upsheet')&&(tab==='home'||tab==='more'||tab==='settings'))updSheetOpen()},1500);
-        }
-      }catch(e){}
+      updOffer(0,false);
     }
     return true;
    })
-   .catch(function(){if(to)clearTimeout(to);return updCheckFailed()});
+   .catch(function(){if(to)clearTimeout(to);return updCheckFailed(quiet)});
 }
+/* عرض النافذة تلقائيًا: تنتظر هدوء الشاشة (قفل، ترحيب، نافذة أخرى، قارئ المصحف) وتعيد المحاولة كل ثانيتين حتى ٥ دقائق.
+   تُعرض مرة لكل إصدار في كل فتح للتطبيق؛ «لاحقًا» تغلقها فقط وتعود عند الفتح التالي. force: من الإشعار، بلا حارس الجلسة. */
+var UPD_OFFER_T=null;
+function updBusy(){
+  if(typeof splash!=='undefined'&&splash)return true;
+  if(typeof unlocked!=='undefined'&&!unlocked)return true;
+  if(typeof S!=='undefined'&&S&&!S.onboarded)return true;
+  if(typeof covered!=='undefined'&&covered)return true;
+  if(!(tab==='home'||tab==='more'||tab==='settings'))return true;
+  return !!(document.getElementById('upsheet')||document.getElementById('update109-notice')||document.querySelector('.sec-sheet,.gd-dialog,.wk-sheet,.qsheet,.hc-sheet'));
+}
+function updOffer(tries,force){
+  clearTimeout(UPD_OFFER_T);
+  var i=updInfo();if(!i)return;
+  if(document.getElementById('upsheet'))return;
+  if(updBusy()){if((tries||0)<150)UPD_OFFER_T=setTimeout(function(){updOffer((tries||0)+1,force)},2000);return}
+  try{
+    var k='upd_shown_'+i.versionCode;
+    if(!force&&sessionStorage.getItem(k))return;
+    sessionStorage.setItem(k,'1');
+  }catch(e){}
+  updSheetOpen();
+}
+/* الضغط على إشعار التحديث: فحص فوري ثم النافذة الحالية نفسها */
+function updRouteOpen(){updCheck(true).then(function(){if(updInfo())updOffer(0,true)})}
+function updAutoCheck(){try{updCheck(false)}catch(e){}}
 /* ورقة «تحديث جديد» السفلية: تفتح تلقائيًا مرة واحدة لكل إصدار، وتبقى متاحة من الإعدادات ← التحديثات.
    التحميل الداخلي يتطلب الجسر الأصيل ورابط apk مباشرًا وبصمة sha256 في update.json؛ وإلا يُعرض رابط صفحة الإصدارات فقط.
    حالة التحميل محفوظة لدى الطبقة الأصيلة (تُستكمل بعد إغلاق التطبيق)، والواجهة تقرأها عبر updateProgress. */
@@ -83,7 +106,7 @@ function updSheetHtml(){
       +'<button class="btn block" data-a="updinst">تثبيت الآن</button>'
       +'<button class="btn ghost block" data-a="updclose">لاحقًا</button>';
   }else if(UPD_DL&&UPD_DL.st==='failed'){
-    h+=top('refresh','تعذّر تحميل '+vn,esc(UPD_DL.err||'خطأ في الشبكة'),'فشل')
+    h+=top('refresh','تعذّر تحميل '+vn,esc(updErrText(UPD_DL.err)),'فشل')
       +(UPD_DL.done>0?'<div class="upd-meta"><span>وصل التحميل إلى '+updFmtSize(UPD_DL.done)+'</span><span>سيُستكمل من حيث توقف</span></div>':'')
       +'<button class="btn block" data-a="updnow">'+ic('refresh')+' إعادة المحاولة</button>'
       +'<button class="btn ghost block" data-a="updclose">لاحقًا</button>';
@@ -100,7 +123,17 @@ function updSheetHtml(){
   return h+'</div>';
 }
 function updSheetOpen(){if(document.getElementById('upsheet'))return;updPollNative();var d=document.createElement('div');d.id='upsheet';d.className='upsheet';d.innerHTML=updSheetHtml();document.body.appendChild(d)}
-function updSheetPaint(){var d=document.getElementById('upsheet');if(d)d.innerHTML=updSheetHtml()}
+/* إعادة الرسم تغيّر محتوى البطاقة فقط وتُبقي الخلفية والبطاقة نفسيهما: استبدال كل العناصر كان يعيد تشغيل حركة الدخول (وميض الخلفية وصعود البطاقة) عند كل تغيّر حالة،
+   ولا تنكمش البطاقة بين حالات التحميل (تنزيل، تحقق، تم) حتى لا تقفز حافتها العليا (مثبّتة من الأسفل) */
+function updSheetPaint(){
+  var d=document.getElementById('upsheet');if(!d)return;
+  var t=document.createElement('div');t.innerHTML=updSheetHtml();
+  var nc=t.querySelector('.ups-card'),oc=d.querySelector('.ups-card');
+  if(!nc||!oc){d.innerHTML=updSheetHtml();return}
+  var run={downloading:1,verifying:1,done:1},was=oc.getAttribute('data-s')||'',now=UPD_DL?UPD_DL.st:'';
+  var hh=oc.offsetHeight;oc.style.minHeight=(run[was]&&run[now]&&hh>0)?hh+'px':'';
+  oc.setAttribute('data-s',now);oc.innerHTML=nc.innerHTML;
+}
 function updSheetClose(){var d=document.getElementById('upsheet');if(d)d.remove()}
 function updPollNative(){
   if(!updNative())return;
@@ -133,20 +166,32 @@ function updStartPoll(){
     }
   },700);
 }
+var UPD_NOSPACE='مساحة التخزين غير كافية للتحديث. أفرغ بعض المساحة ثم أعد المحاولة';
+function updErrText(e){return e==='nospace'?UPD_NOSPACE:(e||'خطأ في الشبكة')}
 function updStartDl(){
   var i=updInfo();if(!i||!updNative())return;
   var r='';try{r=AlsaerNative.updateStart(i.apkUrl,i.sizeBytes||0,i.sha256||'')}catch(e){}
+  if(r==='nospace'){toast(UPD_NOSPACE);return}
   if(r!=='started'&&r!=='busy'){toast('تعذّر بدء التحميل');return}
   if(!UPD_DL||UPD_DL.st!=='downloading')UPD_DL={st:'downloading',pct:-1,done:0,total:i.sizeBytes||0,url:i.apkUrl,run:true};
   UPD_DL.run=true;updSheetPaint();updStartPoll();
 }
-function updInstall(){
+/* needperm: نتذكر أن المستخدم طلب التثبيت، وعند رجوعه من شاشة الإذن يُستكمل التثبيت مرة واحدة (إن لم يُمنح الإذن لا نكرر ولا نزعج) */
+var UPD_WAIT_PERM=false;
+function updInstall(auto){
   if(!updNative())return;
   var r='';try{r=AlsaerNative.updateInstall()}catch(e){}
-  if(r==='needperm')toast('اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد واضغط «تثبيت»');
-  else if(r==='badpkg'||r==='badsig'||r==='badver')toast('ملف التحديث لا يطابق هذا التطبيق — حمّل من صفحة الإصدار');
+  if(r==='needperm'){UPD_WAIT_PERM=!auto;if(!auto)toast('اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت');return}
+  UPD_WAIT_PERM=false;
+  if(r==='badpkg'||r==='badsig'||r==='badver')toast('ملف التحديث لا يطابق هذا التطبيق — حمّل من صفحة الإصدار');
   else if(r==='nofile')toast('لا يوجد ملف محمَّل بعد');
   else if(r!=='ok')toast('تعذّر فتح المثبّت — حمّل من صفحة الإصدار');
 }
+/* تنظيف ملف التحديث المؤقت بعد ترقية ناجحة (ملف التطبيق نفسه فقط) */
+function updCleanup(){try{if(updNative()&&typeof AlsaerNative.updateCleanup==='function')AlsaerNative.updateCleanup()}catch(e){}}
 function updCheckNow(){toast('جارٍ التحقق من التحديثات…');updCheck(true).then(function(ok){if(!ok)toast('تعذّر التحقق من التحديثات. تحقق من الاتصال وحاول مجددًا');else if(!updInfo())toast('لا يوجد تحديث جديد');updSheetPaint();if(tab==='settings')render()})}
 setTimeout(function(){updPollNative()},8000);
+/* فحص تلقائي: بعد ٣ ثوانٍ من الفتح، وبعد ٣ ثوانٍ من كل رجوع من الخلفية (حد ٦ ساعات داخل updCheck) */
+setTimeout(updAutoCheck,3000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden){if(UPD_WAIT_PERM){UPD_WAIT_PERM=false;setTimeout(function(){updInstall(true)},400)}setTimeout(updAutoCheck,3000)}});
+setTimeout(updCleanup,6000);

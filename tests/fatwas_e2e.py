@@ -15,6 +15,7 @@ def ck(c,m):
     if not c:F.append(m)
 def remote(hits):
     def h(r):
+        if '/alsaer-fatwas/main/' not in r.request.url: return r.abort()
         n=r.request.url.split('/alsaer-fatwas/main/')[1];hits.append(n)
         r.fulfill(path=str(WWW/'fatwas'/n),content_type='application/json',headers={'access-control-allow-origin':'*'})
     return h

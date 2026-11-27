@@ -44,6 +44,7 @@
 "2.0.0 (10200) · نسخة تجريبية": "2.0.0 (10200) · Bêta",
 "2.0.1 (10201) · نسخة تجريبية": "2.0.1 (10201) · Bêta",
 "2.0.2 (10202) · نسخة تجريبية": "2.0.2 (10202) · Bêta",
+"2.0.3 (10203) · نسخة تجريبية": "2.0.3 (10203) · Bêta",
 "20 د": "20 min",
 "30 د": "30 min",
 "40 حديثًا قدسيًا": "40 hadiths qudsi",
@@ -586,6 +587,7 @@
 "الفترة اليومية": "Période quotidienne",
 "الفتوى من موقع الشيخ ابن باز الرسمي binbaz.org.sa (مؤسسة الشيخ عبد العزيز بن باز الخيرية).": "Fatwa tirée du site officiel du cheikh Ibn Baz, binbaz.org.sa (Fondation caritative cheikh Abdelaziz ibn Baz).",
 "الفجر والصباح (٤–١٢)": "Aube et matin (4–12)",
+"الفحص عن التحديثات صار تلقائيًا عند فتح التطبيق وعند الرجوع إليه. تظهر نافذة «تحديث جديد» من تلقاء نفسها، ولا يبدأ التنزيل ولا التثبيت إلا بموافقتك. «لاحقًا» تخفي النافذة وتعود عند الفتح التالي. الضغط على إشعار التحديث يفتح النافذة مباشرة. الفحص مرة كل ست ساعات كحد أقصى. لا تغيير في المصحف ولا في الأذونات.": "La vérification des mises à jour est maintenant automatique à l'ouverture de l'application et au retour dans celle-ci. La fenêtre « Nouvelle mise à jour » s'affiche d'elle-même, et rien n'est téléchargé ni installé sans votre accord. « Plus tard » masque la fenêtre, qui revient à la prochaine ouverture. Un appui sur la notification de mise à jour ouvre directement la fenêtre. La vérification a lieu au plus toutes les six heures. Aucun changement du texte du Mushaf ni des autorisations.",
 "الفضة": "Argent",
 "الفضة (جرام)": "Argent (gramme)",
 "الفيصل الذي يحكم بين خلقه بالحق": "Le Juge décisif qui tranche entre Ses créatures avec vérité",
@@ -1813,5 +1815,7 @@
 "✓ تمّ الورد": "✓ Wird accompli",
 "✓ محفوظ على الجهاز": "✓ Enregistré sur cet appareil",
 "🏆 أتممت التحدّي — بارك الله فيك": "🏆 Vous avez terminé le défi. Qu'Allah vous bénisse",
-"📖 وردي من القرآن يوميًا": "📖 Mon wird quotidien de Coran"
+"📖 وردي من القرآن يوميًا": "📖 Mon wird quotidien de Coran",
+"مساحة التخزين غير كافية للتحديث. أفرغ بعض المساحة ثم أعد المحاولة": "Espace de stockage insuffisant pour la mise à jour. Libérez de l'espace puis réessayez",
+"اسمح للتطبيق بتثبيت التحديثات من الإعدادات، ثم عُد وسيُكمل التثبيت": "Autorisez l'application à installer les mises à jour dans les Réglages, puis revenez : l'installation continuera"
 }
