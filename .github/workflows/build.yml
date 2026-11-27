@@ -40,13 +40,38 @@ jobs:
       - name: Syntax-check the built JS bundle
         run: |
           python3 - <<'EOF'
-          import re
-          s = open('www/index.html', encoding='utf-8').read()
-          js = re.search(r'<script>(.*)</script>', s, re.S).group(1)
-          open('/tmp/bundle-check.js', 'w', encoding='utf-8').write(js)
-          print('extracted', len(js), 'bytes')
+          # Parse www/index.html like a browser: check every inline <script> (no src) separately.
+          from html.parser import HTMLParser
+          import subprocess, sys
+          class P(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.cur = None; self.inside = False; self.out = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'script':
+                      self.inside = True
+                      self.cur = None if dict(attrs).get('src') else []
+              def handle_data(self, data):
+                  if self.inside and self.cur is not None:
+                      self.cur.append(data)
+              def handle_endtag(self, tag):
+                  if tag == 'script':
+                      if self.cur is not None:
+                          self.out.append(''.join(self.cur))
+                      self.cur = None; self.inside = False
+          p = P()
+          p.feed(open('www/index.html', encoding='utf-8').read())
+          if not p.out:
+              sys.exit('no inline scripts found in www/index.html')
+          bad = 0
+          for i, js in enumerate(p.out):
+              path = '/tmp/bundle-check-%d.js' % i
+              open(path, 'w', encoding='utf-8').write(js)
+              r = subprocess.run(['node', '--check', path], capture_output=True, text=True)
+              print('script', i, len(js), 'bytes', 'OK' if r.returncode == 0 else 'FAIL')
+              if r.returncode != 0:
+                  print(r.stderr); bad = 1
+          sys.exit(bad)
           EOF
-          node --check /tmp/bundle-check.js
 
       - name: Run Python regression tests
         run: python3 tests/mushaf_wordmap_regression.py
