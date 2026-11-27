@@ -90,7 +90,7 @@ document.addEventListener('click',async function(e){
   if(a==='xastay'){exitAsk=false;render();return}
   if(a==='goback'){if(innerBack())return;if(rd&&rd.flow&&tab==='reader')toast('تم حفظ الموضع');if(navTrail.length>1){history.back();return}tab=v||'home';confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
   else if(a==='tab'){if(v==='quran'){loadHeavy();var qp=Math.max(1,S.quran.pos||1),ql=Math.max(qp,Math.min(604,S.quran.last||0));rd=mqRd(qp,Math.min(604,qp+S.quran.goal-1),Math.max(qp,ql||qp));v='reader'}else if(v==='reader')loadHeavy();if(v==='cards'&&tab==='reader'&&rd&&rd.flow&&rd.sura){cdSura=Math.max(1,Math.min(114,+rd.sura||1));cdTab='sura'}if(typeof qwSheetClose==='function')qwSheetClose();if(v==='settings'&&tab==='more')setCat='';tab=v;setSub='';scAnim=0;confirmRelapse=false;confirmReset=false;addingHabit=false;addingWorship=false;setOpen=null;msg='';window.scrollTo(0,0)}
-  else if(a==='updlater'){var us=updState(),ui=updInfo();if(ui){us.dismissed=ui.versionCode;updSave(us)}updSheetClose()}
+  else if(a==='updlater'){updSheetClose()}
   else if(a==='updopen'){updSheetOpen()}
   else if(a==='qwird'){if(typeof qwSheetOpen==='function')qwSheetOpen()}
   else if(a==='qwclose'){if(typeof qwSheetClose==='function')qwSheetClose()}

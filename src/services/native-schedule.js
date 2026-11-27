@@ -161,6 +161,7 @@
     var p=String(route).split(':');
     if(p[0]==='tab'&&p[1]){tab=p[1];window.scrollTo(0,0);render()}
     else if(p[0]==='adk'&&p[1]){group=p[1];hsnOpen(p[1]);window.scrollTo(0,0);render()}
+    else if(p[0]==='update'){if(typeof updRouteOpen==='function')updRouteOpen()}
     else if(p[0]==='quran'&&p[1]==='start'){var st=S.quran.pos;rd={from:st,to:Math.min(604,st+S.quran.goal-1),page:st};tab='reader';render();window.scrollTo(0,0)}
     else if(p[0]==='sura'){loadHeavy(function(){var name=p.slice(1).join(':'),si=QD().n.indexOf(name),pg=si>=0?suraPage(si+1):S.quran.pos;rd=mqRd(pg,pg,pg,si>=0?{sura:si+1,cv:(si+1)+':1'}:null);tab='reader';render();window.scrollTo(0,0)})}
   }

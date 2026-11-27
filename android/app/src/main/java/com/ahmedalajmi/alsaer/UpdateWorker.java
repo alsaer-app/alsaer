@@ -79,6 +79,7 @@ public class UpdateWorker extends Worker {
                 nm.createNotificationChannel(new NotificationChannel(CH, NativeStrings.get(c, "chan_update"), NotificationManager.IMPORTANCE_DEFAULT));
         }
         Intent open = new Intent(c, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        open.putExtra("alsaer_route", "update"); // MainActivity.handleRoute -> window.alsaerReminderGo: opens the update sheet
         PendingIntent pi = PendingIntent.getActivity(c, NID, open, PendingIntent.FLAG_UPDATE_CURRENT | AlarmScheduler.immutable());
         Notification n = new NotificationCompat.Builder(c, CH)
                 .setSmallIcon(R.drawable.ic_stat_alsaer)
