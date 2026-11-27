@@ -1,10 +1,10 @@
 {
   "appId": "com.ahmedalajmi.alsaer",
-  "versionName": "2.0.2",
-  "versionCode": 10202,
-  "apkUrl": "https://github.com/alsaer-app/alsaer/releases/download/v2.0.2/Alsaer-v2.0.2.apk",
+  "versionName": "2.0.3",
+  "versionCode": 10203,
+  "apkUrl": "https://github.com/alsaer-app/alsaer/releases/download/v2.0.3/Alsaer-v2.0.3.apk",
   "releasePage": "https://github.com/alsaer-app/alsaer/releases/latest",
-  "sha256": "5444729b8ede34151b34ac7061aa902fe5933e6ff777e12763a73645f7412ed8",
+  "sha256": "1fd79a8707aa3b7e5eb41ff0074c9b9f9053f7dafea045aa12ee8b7aafa98145",
   "mandatory": false,
-  "notes": "إكمال ترجمة واجهة صوت الفتاوى بالإنجليزية والفرنسية\nتثبيت مصدر الأحاديث على إصدار محدد\nاختبارات الجودة تعمل الآن مع كل بناء\nتحديث وثائق الخصوصية ومصادر البيانات\nلا تغيير في المصحف ولا في الأذونات\nهذا الإصدار مخصص لاختبار التحديث التلقائي"
+  "notes": "الفحص عن التحديثات صار تلقائيًا عند فتح التطبيق وعند الرجوع إليه\nتظهر نافذة «تحديث جديد» من تلقاء نفسها، ولا يبدأ التنزيل ولا التثبيت إلا بموافقتك\n«لاحقًا» تخفي النافذة وتعود عند الفتح التالي\nالضغط على إشعار التحديث يفتح النافذة مباشرة\nالفحص مرة كل ست ساعات كحد أقصى\nلا تغيير في المصحف ولا في الأذونات"
 }
