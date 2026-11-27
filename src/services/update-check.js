@@ -123,7 +123,17 @@ function updSheetHtml(){
   return h+'</div>';
 }
 function updSheetOpen(){if(document.getElementById('upsheet'))return;updPollNative();var d=document.createElement('div');d.id='upsheet';d.className='upsheet';d.innerHTML=updSheetHtml();document.body.appendChild(d)}
-function updSheetPaint(){var d=document.getElementById('upsheet');if(d)d.innerHTML=updSheetHtml()}
+/* إعادة الرسم تغيّر محتوى البطاقة فقط وتُبقي الخلفية والبطاقة نفسيهما: استبدال كل العناصر كان يعيد تشغيل حركة الدخول (وميض الخلفية وصعود البطاقة) عند كل تغيّر حالة،
+   ولا تنكمش البطاقة بين حالات التحميل (تنزيل، تحقق، تم) حتى لا تقفز حافتها العليا (مثبّتة من الأسفل) */
+function updSheetPaint(){
+  var d=document.getElementById('upsheet');if(!d)return;
+  var t=document.createElement('div');t.innerHTML=updSheetHtml();
+  var nc=t.querySelector('.ups-card'),oc=d.querySelector('.ups-card');
+  if(!nc||!oc){d.innerHTML=updSheetHtml();return}
+  var run={downloading:1,verifying:1,done:1},was=oc.getAttribute('data-s')||'',now=UPD_DL?UPD_DL.st:'';
+  var hh=oc.offsetHeight;oc.style.minHeight=(run[was]&&run[now]&&hh>0)?hh+'px':'';
+  oc.setAttribute('data-s',now);oc.innerHTML=nc.innerHTML;
+}
 function updSheetClose(){var d=document.getElementById('upsheet');if(d)d.remove()}
 function updPollNative(){
   if(!updNative())return;

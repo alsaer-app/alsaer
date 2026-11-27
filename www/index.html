@@ -1408,6 +1408,8 @@ html[dir=ltr] .rm-sw input:checked+i:after{transform:translateX(20px)}
 .upd-notes li{margin:4px 0;padding-inline-start:4px;font-size:13.5px;color:var(--fg);line-height:1.7}
 .upd-bar{height:9px;border-radius:99px;background:color-mix(in srgb,var(--surface-2,rgba(128,128,128,.18)) 90%,#000);overflow:hidden;margin:14px 0 8px}
 .upd-bar>div{height:100%;border-radius:99px;background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 60%,#0E8A86),var(--gold));transition:width .4s ease}
+.upsheet .vpill{min-width:3.4em;text-align:center;font-variant-numeric:tabular-nums}
+.upd-meta span{font-variant-numeric:tabular-nums}
 .upd-meta{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);font-weight:700}
 .lrow small{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:2px}
 
@@ -2922,7 +2924,17 @@ function updSheetHtml(){
   return h+'</div>';
 }
 function updSheetOpen(){if(document.getElementById('upsheet'))return;updPollNative();var d=document.createElement('div');d.id='upsheet';d.className='upsheet';d.innerHTML=updSheetHtml();document.body.appendChild(d)}
-function updSheetPaint(){var d=document.getElementById('upsheet');if(d)d.innerHTML=updSheetHtml()}
+/* إعادة الرسم تغيّر محتوى البطاقة فقط وتُبقي الخلفية والبطاقة نفسيهما: استبدال كل العناصر كان يعيد تشغيل حركة الدخول (وميض الخلفية وصعود البطاقة) عند كل تغيّر حالة،
+   ولا تنكمش البطاقة بين حالات التحميل (تنزيل، تحقق، تم) حتى لا تقفز حافتها العليا (مثبّتة من الأسفل) */
+function updSheetPaint(){
+  var d=document.getElementById('upsheet');if(!d)return;
+  var t=document.createElement('div');t.innerHTML=updSheetHtml();
+  var nc=t.querySelector('.ups-card'),oc=d.querySelector('.ups-card');
+  if(!nc||!oc){d.innerHTML=updSheetHtml();return}
+  var run={downloading:1,verifying:1,done:1},was=oc.getAttribute('data-s')||'',now=UPD_DL?UPD_DL.st:'';
+  var hh=oc.offsetHeight;oc.style.minHeight=(run[was]&&run[now]&&hh>0)?hh+'px':'';
+  oc.setAttribute('data-s',now);oc.innerHTML=nc.innerHTML;
+}
 function updSheetClose(){var d=document.getElementById('upsheet');if(d)d.remove()}
 function updPollNative(){
   if(!updNative())return;
