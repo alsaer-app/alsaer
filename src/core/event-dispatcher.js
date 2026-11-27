@@ -335,7 +335,7 @@ function xaMount(){
    +'<span class="xa-ic">'+ic('star')+'</span>'
    +'<b class="xa-t">هل بالفعل تريد الخروج من التطبيق؟</b>'
    +'<p class="xa-p">إن نال «السائر إلى الله» إعجابك، نجّمه على GitHub؛ نجمتُك تُعين على انتشاره واستمرار تطويره.</p>'
-   +'<div class="xa-bb"><button class="btn xa-gh" data-a="xastar">'+ic('star')+'نجّمنا على GitHub</button><button class="btn" data-a="xaexit">خروج</button></div>'
+   +'<div class="xa-bb"><button class="btn xa-gh" data-a="xastar">'+ic('star')+'أعطنا نجمة على GitHub</button><button class="btn" data-a="xaexit">خروج</button></div>'
    +'<button class="xa-x" data-a="xastay" aria-label="بقاء">✕</button></div>';
   ov.addEventListener('click',function(e){if(e.target===ov){exitAsk=false;render()}});
   document.body.appendChild(ov);
